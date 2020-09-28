@@ -1,1 +1,0 @@
-# AdaptySDK-React-Native
