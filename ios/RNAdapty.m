@@ -1,14 +1,20 @@
-//
-//  Counter.m
-//  CounterApp
-//
-//  Created by Ivan on 12.09.2020.
-//
-
 #import "React/RCTBridgeModule.h"
-#import "React/RCTEventEmitter.h"
 
-@interface RCT_EXTERN_MODULE(RNAdapty, RCTEventEmitter)
+@interface RCT_EXTERN_MODULE(RNAdapty, NSObject)
+RCT_EXTERN_METHOD(
+                  activate:     (NSString)sdkKey
+                  uId:          (NSString)uId
+                  observerMode: (BOOL)observerMode
+                  logLevel:     (NSString)logLevel
+)
+
+RCT_EXTERN_METHOD(
+                  updateAttribution:  (NSDictionary)dict
+                  source:             (NSString)source
+                  resolver:           (RCTPromiseResolveBlock)resolve
+                  rejecter:           (RCTPromiseRejectBlock)reject
+)
+
 RCT_EXTERN_METHOD(
                   identify: (NSString)uId
                   resolver: (RCTPromiseResolveBlock)resolve
@@ -25,4 +31,36 @@ RCT_EXTERN_METHOD(
                   resolver:       (RCTPromiseResolveBlock)resolve
                   rejecter:       (RCTPromiseRejectBlock)reject
 )
+
+RCT_EXTERN_METHOD(
+                  getPurchaseInfo: (RCTPromiseResolveBlock)resolve
+                  rejecter:        (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  restorePurchases:  (RCTPromiseResolveBlock)resolve
+                  rejecter:         (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  makePurchase: (NSString)productId
+                  resolver:     (RCTPromiseResolveBlock)resolve
+                  rejecter:     (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  validateReceipt: (NSString)receipt
+                  resolver:     (RCTPromiseResolveBlock)resolve
+                  rejecter:     (RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(
+                  getPromo: (RCTPromiseResolveBlock)resolve
+                  rejecter: (RCTPromiseRejectBlock)reject
+)
+RCT_EXTERN_METHOD(
+                  getPaywalls: (RCTPromiseResolveBlock)resolve
+                  rejecter:    (RCTPromiseRejectBlock)reject
+)
+
 @end
