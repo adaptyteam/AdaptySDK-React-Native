@@ -1,4 +1,3 @@
-import { NativeModules } from 'react-native';
-
-// const { Counter } = NativeModules;
-export default NativeModules;
+export { adapty } from './adapty';
+export { useAdapty, activateAdapty } from './activate';
+export * from './sdk/types';
