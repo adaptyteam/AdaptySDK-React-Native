@@ -1,13 +1,46 @@
 import { extractModule } from '../utils';
-import { AdaptyUser, User } from './user';
+import { attemptToDecodeError, isSdkAuthorized } from './error';
+import { AdaptyEventEmitter } from './events';
+import { AdaptyPaywalls } from './paywall';
+import { Promo } from './promo';
+import { Purchases } from './purchases';
+import { AdaptyContext } from './types';
+import { User } from './user';
 
-export class Adapty {
-  private _module = extractModule();
+export class Adapty extends AdaptyEventEmitter {
+  private _ctx: AdaptyContext;
 
   public user: User;
+  public purchases: Purchases;
+  public promo: Promo;
+  public paywalls: AdaptyPaywalls;
 
   constructor() {
-    this.user = new User(this._module);
+    super();
+
+    this._ctx = {
+      module: extractModule(),
+      isActivated: false,
+      sdkKey: undefined,
+      observerMode: false,
+      customerUserId: undefined,
+    };
+
+    this.user = new User(this._ctx);
+    this.purchases = new Purchases(this._ctx);
+    this.promo = new Promo(this._ctx);
+    this.paywalls = new AdaptyPaywalls(this._ctx);
+  }
+
+  /**
+   * @static @private
+   * It is being used to define wether
+   * a user has activated the SDK using
+   * @function activateAdapty or @function useAdapty
+   */
+  static activateSdk(consumer: Adapty, sdkKey: string) {
+    consumer._ctx.isActivated = true;
+    consumer._ctx.sdkKey = sdkKey;
   }
 
   /**
@@ -16,30 +49,15 @@ export class Adapty {
    * @throws AdaptyError
    */
   public async updateAttribution(
-    attribution: Partial<any>,
-    source: 'adjust' | 'appsflyer' | 'branch' | 'custom',
-    networkUserId?: string,
+    attribution: Object,
+    source: 'Adjust' | 'AppsFlyer' | 'Branch' | 'Custom',
   ): Promise<void> {
-    console.log(attribution, networkUserId, source);
+    isSdkAuthorized(this._ctx.isActivated);
+
+    try {
+      return this._ctx.module.updateAttribution(attribution, source);
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
   }
-
-  /**
-   * Updates user Adapty profile
-   *
-   * @throws AdaptyError
-   */
-  public async updateProfile(
-    profileUpdates: Partial<AdaptyUser>,
-  ): Promise<void> {
-    console.log(profileUpdates);
-  }
-
-  /**
-   *
-   */
-  public async showPaywall() {}
-
-  public async makePurchase() {}
-
-  public async restorePurchases() {}
 }
