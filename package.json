@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "0.0.1",
+  "version": "0.0.1-beta",
   "description": "",
   "license": "MIT",
   "private": false,
@@ -9,7 +9,10 @@
     "email": "DivanDoesApps@gmail.com",
     "url": "https://github.com/Betra"
   },
-
+  "repository": { 
+    "url": "https://github.com/adaptyteam/AdaptySDK-React-Native",
+    "type": "git" 
+  },
   "main": "./lib/dist/index.js",
 
   "files": [
@@ -20,7 +23,7 @@
     "react-native-test-module.podspec"
   ],
   "keywords": [
-    "react-native"
+    "react-native", "adapty", "purchases"
   ],
 
   "scripts": {
@@ -28,7 +31,7 @@
   },
   "peerDependencies": {
     "react": "^16.13.1",
-    "react-native": "^0.63.2"
+    "react-native": "^0.60.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.1.0",
