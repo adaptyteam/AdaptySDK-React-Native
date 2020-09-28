@@ -1,4 +1,5 @@
-import { AdaptyModule } from '../utils';
+import { attemptToDecodeError, isSdkAuthorized } from './error';
+import { AdaptyContext } from './types';
 
 /**
  *
@@ -82,9 +83,9 @@ export interface AdaptyUser {
 }
 
 export class User {
-  private _module;
-  constructor(module: AdaptyModule) {
-    this._module = module;
+  private _ctx: AdaptyContext;
+  constructor(context: AdaptyContext) {
+    this._ctx = context;
   }
 
   /**
@@ -93,18 +94,34 @@ export class User {
    * @returns Promised
    * @throws AdaptyError
    */
-  public async identify(customerUserId: string): Promise<any> {
-    this._module.identify(customerUserId);
+  public async identify(customerUserId: string): Promise<void> {
+    isSdkAuthorized(this._ctx.isActivated);
+
+    try {
+      const result = await this._ctx.module.identify(customerUserId);
+      return result;
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
   }
 
   /**
    * Updates any available fields to a current user
-   *
+   * @deprecated
    * @returns Promised
    * @throws AdaptyError
    */
-  public async updateProfile(updatedFields: Partial<AdaptyUser>) {
-    return this._module.updateProfile(updatedFields);
+  public async updateProfile(
+    updatedFields: Partial<AdaptyUser>,
+  ): Promise<void> {
+    isSdkAuthorized(this._ctx.isActivated);
+
+    try {
+      const result = await this._ctx.module.updateProfile(updatedFields);
+      return result;
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
   }
 
   /**
@@ -113,6 +130,13 @@ export class User {
    * @throws AdaptyError
    */
   public async logout(): Promise<void> {
-    return this._module.logout();
+    isSdkAuthorized(this._ctx.isActivated);
+
+    try {
+      const result = await this._ctx.module.logout();
+      return result;
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
   }
 }
