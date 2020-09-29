@@ -1,15 +1,13 @@
 import Foundation
 import Adapty
 
-
 @objc(RNAdapty)
 class RNAdapty: NSObject {
-
   /* INITIALIZATION */
   @objc
   func activate(_ sdkKey: String, uId: String?, observerMode: Bool, logLevel: String) {
     Adapty.activate(sdkKey, observerMode: observerMode, customerUserId: uId)
-    
+
     switch logLevel {
     case "verbose":
       Adapty.logLevel = .verbose
@@ -19,14 +17,14 @@ class RNAdapty: NSObject {
       Adapty.logLevel = .none
     }
   }
-  
+
   /* TRACKERS */
   @objc
   func updateAttribution(_ dict: NSDictionary, source: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     guard let attribution = dict as? [AnyHashable: Any] else {
       return reject("Error in: updateAttribution", "Failed to convert object to [AnyHashable: Any]", nil)
     }
-    
+
     func parseSource(_ str: String) -> AttributionNetwork {
       switch str {
       case "Branch":
@@ -39,12 +37,12 @@ class RNAdapty: NSObject {
         return .custom
       }
     }
-    
+
     Adapty.updateAttribution(attribution, source: parseSource(source)) { (error) in
       if error != nil {
         return reject("Error in: updateAttribution", error?.localizedDescription, nil)
       }
-      
+
       return resolve(true)
     }
   }
@@ -115,7 +113,7 @@ class RNAdapty: NSObject {
                           if error != nil {
                             return reject("Error in: updateProfile", error?.localizedDescription, nil)
                           }
-                          
+
                           return resolve(true)
                         }
   }
@@ -127,27 +125,26 @@ class RNAdapty: NSObject {
       if state != .synced {
         return
       }
-      
+
       if error != nil {
         return reject("Error in paywalls of makePurchase", "Failed to get a list of products", error)
       }
-      
+
       guard let products = products else {
         return reject("Error in paywalls of makePurchase", "Failed to find the product", nil)
       }
-      
+
       let fittingProducts = products.filter { (product) in
         print(product.vendorProductId)
         return product.vendorProductId == productId
       }
-      
+
       if fittingProducts.count < 1 {
         return reject("Error in paywalls of makePurchase", "Failed to find the product with this vendorID", nil)
       }
-      
-      
+
       let product = fittingProducts[0]
-      
+
       Adapty.makePurchase(product: product) { (purchaserInfo, receipt, appleValidationResult, product, error) in
         if error != nil {
           print("FFFFFf", error)
@@ -196,19 +193,19 @@ class RNAdapty: NSObject {
       return resolve(true)
     }
   }
-  
+
   @objc
   func validateReceipt(_ receipt: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.validateReceipt(receipt) { (purchaserInfo, response, error) in
       if error != nil {
         return reject("Error in: validateReceipt", error?.localizedDescription, error)
       }
-      
+
       let dict: NSDictionary = [
        "purchaserInfo": purchaserInfo,
-       "response": response,
+       "response": response
      ]
-      
+
      return resolve(dict)
     }
   }
@@ -237,11 +234,11 @@ class RNAdapty: NSObject {
       if state == .cached {
         return
       }
-      
+
       if error != nil {
            return reject("Error in: getPaywalls", error?.localizedDescription, nil)
       }
-      
+
       let encoder = JSONEncoder()
 
       var stringPaywalls: String?
@@ -254,7 +251,7 @@ class RNAdapty: NSObject {
       if let jsonProduct = try? encoder.encode(products) {
         stringProduct = String(data: jsonProduct, encoding: .utf8)
       }
-      
+
       return resolve(["paywalls": stringPaywalls, "product": stringProduct])
     }
   }
