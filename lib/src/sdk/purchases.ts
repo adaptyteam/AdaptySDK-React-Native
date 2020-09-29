@@ -1,5 +1,5 @@
 import { attemptToDecodeError, isSdkAuthorized } from './error';
-import { AdaptyContext, AdaptyPurchaserInfo } from './types';
+import { AdaptyContext, AdaptyProduct, AdaptyPurchaserInfo } from './types';
 
 export class Purchases {
   private _ctx: AdaptyContext;
@@ -73,14 +73,20 @@ export class Purchases {
   /**
    * @throws AdaptyError
    */
-  public async makePurchase(productVendorId: string): Promise<any> {
+  public async makePurchase(
+    productVendorId: string,
+  ): Promise<{
+    receipt: string;
+    product: AdaptyProduct | null;
+    purchaserInfo: AdaptyPurchaserInfo | null;
+  }> {
     isSdkAuthorized(this._ctx.isActivated);
 
     /** @todo mbe without json */
     // const str = JSON.stringify(product);
 
     try {
-      const result = await this._ctx.module.makePurchase(productVendorId);
+      const result: any = await this._ctx.module.makePurchase(productVendorId);
       return result;
     } catch (error) {
       throw attemptToDecodeError(error);
