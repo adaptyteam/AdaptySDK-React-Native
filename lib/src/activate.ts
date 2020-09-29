@@ -51,6 +51,7 @@ interface AdaptyActivateProps {
 }
 
 /**
+ * @deprecated
  * Consider always placing this hook
  * in a core component to be able to use
  * SDK anywhere in your application.
