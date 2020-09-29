@@ -13,7 +13,12 @@
     "url": "https://github.com/adaptyteam/AdaptySDK-React-Native",
     "type": "git" 
   },
+  "homepage": "https://github.com/adaptyteam/AdaptySDK-React-Native#readme",
+  "bugs": {
+    "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
+  },
   "main": "./lib/dist/index.js",
+  "types": "./lib/dist/index.d.ts",
 
   "files": [
     "/README.md",
