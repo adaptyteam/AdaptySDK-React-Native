@@ -21,9 +21,8 @@
   "types": "./lib/dist/index.d.ts",
 
   "files": [
-    "/README.md",
     "/android",
-    "/ios",
+    "/lib/ios",
     "/lib/dist",
     "*.podspec"
   ],
