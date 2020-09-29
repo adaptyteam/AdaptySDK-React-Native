@@ -97,10 +97,6 @@ export interface AdaptyProduct {
    * Localized subscription period of the product
    */
   localizedSubscriptionPeriod: string;
-  /**
-   * @todo pass?
-   */
-  skProduct: any;
 }
 
 export interface AdaptyProductDiscount {
