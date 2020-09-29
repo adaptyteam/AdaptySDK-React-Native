@@ -1,7 +1,7 @@
 {
   "name": "react-native-adapty",
   "version": "0.0.1-beta",
-  "description": "",
+  "description": "Adapty SDK",
   "license": "MIT",
   "private": false,
   "author": {
@@ -20,7 +20,7 @@
     "/android",
     "/ios",
     "/lib/dist",
-    "react-native-test-module.podspec"
+    "*.podspec"
   ],
   "keywords": [
     "react-native", "adapty", "purchases"
@@ -30,8 +30,7 @@
     "build": "rm -rf lib/dist && tsc -b"
   },
   "peerDependencies": {
-    "react": "^16.13.1",
-    "react-native": "^0.60.0"
+    "react-native": ">= 0.60.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.1.0",
