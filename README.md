@@ -3,6 +3,13 @@
 Adapty React-Native SDK
 </h1>
 
+* [Prerequisites](#prerequisites)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Initialization](#initialization)
+* [Usage](#usage)
+* [License](#license)
+
 ## Prerequisites
 
 This package is currently in early beta. Please, consider it, if you have decided to use it.
@@ -104,4 +111,7 @@ adapty.addEventListener('onPurchaseFailed', error => {
   navigate("ViewError", { error })
 })
 ```
+
 ## License
+
+Adapty is available under the MIT license. See [LICENSE](https://github.com/adaptyteam/AdaptySDK-React-Native/blob/master/LICENSE) for details.
