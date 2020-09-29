@@ -3,9 +3,12 @@
 Adapty React-Native SDK
 </h1>
 
+## Prerequisites
+
+This package is currently in early beta. Please, consider it, if you have decided to use it.
+
 ## Requirements
 * React Native v0.60+
-* React v16.3+
 
 ## Installation
 
@@ -31,20 +34,8 @@ cd ios && pod install && cd ../
 
 ## Initialization
 
-Initialize Adapty SDK __in a core component__. You can use a special hook or a function, 
+Initialize Adapty SDK __in a core component__. You can use a function inside , 
 depending of what code-style you prefer. Consider those are the same:
-
-```tsx
-import { useAdapty } from "react-native-adapty";
-
-const App: React.FC = () => {
-  ...
-  useAdapty({ sdkKey: "YOUR_SDK_KEY" });
-  ...
-}
-```
-
-or
 
 ```tsx
 import { activateAdapty } from "react-native-adapty";
@@ -52,7 +43,7 @@ import { activateAdapty } from "react-native-adapty";
 const App: React.FC = () => {
   ...
   useEffect(() => {
-    activateAdapty({ sdkKey: "YOUR_SDK_KEY" });
+    activateAdapty({ sdkKey: "YOUR_SDK_KEY", customerUserId: undefined });
   },[]);
   ...
 }
@@ -66,7 +57,7 @@ import { activateAdapty } from "react-native-adapty";
 class App extends Component {
   ...
   componentDidMount() {
-    activateAdapty({ sdkKey: "YOUR_SDK_KEY" });
+    activateAdapty({ sdkKey: "YOUR_SDK_KEY", customerUserId: undefined });
   }
   ...
 }
