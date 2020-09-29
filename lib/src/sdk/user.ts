@@ -107,7 +107,6 @@ export class User {
 
   /**
    * Updates any available fields to a current user
-   * @deprecated
    * @returns Promised
    * @throws AdaptyError
    */
