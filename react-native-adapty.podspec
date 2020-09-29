@@ -10,10 +10,7 @@ Pod::Spec.new do |s|
                   react-native-adapty
                    DESC
   s.homepage     = "https://github.com/adaptyteam/AdaptySDK-React-Native"
-  # brief license entry:
-  s.license      = "MIT"
-  # optional - use expanded license entry instead:
-  # s.license    = { :type => "MIT", :file => "LICENSE" }
+  s.license      = { :type => "MIT", :file => "LICENSE" }
   s.authors      = { "Ivan Dorofeyev" => "divandoesapps@gmail.com" }
   s.platforms    = { :ios => "9.0" }
   s.source       = { :git => "https://github.com/adaptyteam/AdaptySDK-React-Native.git", :tag => "#{s.version}" }
@@ -21,7 +18,7 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,c,m,swift}"
   s.requires_arc = true
 
+  s.dependency "Adapty", "1.6.3"
   s.dependency "React"
-  s.dependency "Adapty"
 end
 
