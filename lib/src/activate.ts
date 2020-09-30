@@ -4,7 +4,7 @@ import { Adapty } from './sdk';
 import { AdaptyError } from './sdk/error';
 import { extractModule } from './utils';
 
-interface AdaptyActivateProps {
+interface AdaptyActivateArgs {
   /**
    * Public Adapty SDK Key.
    *
@@ -57,9 +57,9 @@ interface AdaptyActivateProps {
  * SDK anywhere in your application.
  *
  * This hook should be mounted before using an SDK.
- * For more information about arguments look for an @interface AdaptyActivateProps
+ * For more information about arguments look for an @interface AdaptyActivateArgs
  */
-export function useAdapty(props: AdaptyActivateProps): void {
+export function useAdapty(props: AdaptyActivateArgs): void {
   useEffect(() => {
     activateAdapty(props);
   }, [props]);
@@ -81,9 +81,9 @@ export function useAdapty(props: AdaptyActivateProps): void {
  *
  * @description
  * This function should be called before using an SDK.
- * For more information about arguments look for an @interface AdaptyActivateProps
+ * For more information about arguments look for an @interface AdaptyActivateArgs
  */
-export function activateAdapty(props: AdaptyActivateProps): void {
+export function activateAdapty(props: AdaptyActivateArgs): void {
   const module = extractModule();
 
   const userId = props.customerUserId || null;
