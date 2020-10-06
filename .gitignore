@@ -20,6 +20,9 @@ ios/Pods/
 android/bin/
 android/gen/
 android/out/
+gradlew*
+gradle/
+local.properties
 
 build/
 *.pbxuser
