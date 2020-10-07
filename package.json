@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "0.0.1-beta",
+  "version": "0.1.1-rc",
   "description": "Adapty SDK",
   "license": "MIT",
   "private": false,
@@ -9,9 +9,9 @@
     "email": "DivanDoesApps@gmail.com",
     "url": "https://github.com/Betra"
   },
-  "repository": { 
+  "repository": {
     "url": "https://github.com/adaptyteam/AdaptySDK-React-Native",
-    "type": "git" 
+    "type": "git"
   },
   "homepage": "https://github.com/adaptyteam/AdaptySDK-React-Native#readme",
   "bugs": {
@@ -19,17 +19,17 @@
   },
   "main": "./lib/dist/index.js",
   "types": "./lib/dist/index.d.ts",
-
   "files": [
-    "/android",
+    "/lib/android",
     "/lib/ios",
     "/lib/dist",
     "*.podspec"
   ],
   "keywords": [
-    "react-native", "adapty", "purchases"
+    "react-native",
+    "adapty",
+    "purchases"
   ],
-
   "scripts": {
     "build": "rm -rf lib/dist && tsc -b"
   },
