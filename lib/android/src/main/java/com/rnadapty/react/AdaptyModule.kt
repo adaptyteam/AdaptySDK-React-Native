@@ -15,7 +15,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun activate(sdkKey: String, customerUserId: String, observerMode: Boolean, logLevel: String, promise: Promise) {
+    fun activate(sdkKey: String, customerUserId: String?, observerMode: Boolean, logLevel: String, promise: Promise) {
         Adapty.activate(reactApplicationContext, sdkKey, customerUserId)
 
         when (logLevel) {
