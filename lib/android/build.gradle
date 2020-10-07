@@ -56,8 +56,10 @@ repositories {
     jcenter()
 }
 
+def adapty_version = project.properties['adapty_parentVersion']
+
 dependencies {
-    implementation 'com.github.adaptyteam:AdaptySDK-Android:0.5.0'
+    implementation 'com.github.adaptyteam:AdaptySDK-Android:$adapty_version'
 
     implementation 'com.facebook.react:react-native:+'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.0"

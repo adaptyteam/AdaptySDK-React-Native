@@ -24,6 +24,4 @@ public class AdaptyPackage implements ReactPackage {
   public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext  ctx) {
     return Arrays.<NativeModule>asList(new AdaptyModule(ctx));
   }
-
-
 }
