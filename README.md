@@ -37,7 +37,36 @@ npm i react-native-adapty --save
 cd ios && pod install && cd ../
 ```
 
-3. All Done!
+3. For android devices you currently need to add Kotlin in `android/build.gradle` and to enable multiDex in your `app/build.gradle`:
+
+```gradle
+// android/build.gradle
+
+...
+buildscript {
+  ...
+  dependencies {
+    ...
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.0"
+  }
+}
+...
+```
+
+```gradle
+// android/app/build.gradle
+
+...
+android {
+  ...
+  defaultConfig {
+    ...
+    multiDexEnabled true
+  }
+}
+```
+
+4. All Done!
 
 ## Initialization
 
