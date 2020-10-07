@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "0.1.1-rc",
+  "version": "0.1.2-rc",
   "description": "Adapty SDK",
   "license": "MIT",
   "private": false,
@@ -23,7 +23,8 @@
     "/lib/android",
     "/lib/ios",
     "/lib/dist",
-    "*.podspec"
+    "*.podspec",
+    "react-native.config.js"
   ],
   "keywords": [
     "react-native",
