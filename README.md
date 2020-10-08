@@ -2,6 +2,11 @@
 <img src="https://raw.githubusercontent.com/adaptyteam/AdaptySDK-iOS/master/adapty.png"><br />
 Adapty React-Native SDK
 </h1>
+<p align="center">
+  <a href="https://www.npmjs.com/package/react-native-adapty"><img src="https://img.shields.io/npm/dt/react-native-adapty?style=for-the-badge" alt="npm:  downloads" /></a>
+  <a href="https://www.npmjs.com/package/react-native-adapty"><img src="https://img.shields.io/npm/v/react-native-adapty?style=for-the-badge" alt="npm: latest version" /></a>
+</p>
+
 
 * [Prerequisites](#prerequisites)
 * [Requirements](#requirements)
