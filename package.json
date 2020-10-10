@@ -1,6 +1,7 @@
 {
   "name": "react-native-adapty",
   "version": "0.1.5",
+  "nativePackage": true,
   "description": "Adapty SDK",
   "license": "MIT",
   "private": false,
@@ -32,18 +33,28 @@
     "purchases"
   ],
   "scripts": {
-    "build": "rm -rf lib/dist && tsc -b"
+    "build": "rm -rf lib/dist && tsc --project tsconfig.build.json",
+    "watch": "tsc --project tsconfig.json --watch",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios --project-path example/ios",
+    "start": "react-native start",
+    "xcode-example": "open example/ios/example.xcworkspace",
+    "xcode": "open lib/ios/RNAdapty.xcodeproj",
+    "clean": "./scripts/clean.sh"
   },
   "peerDependencies": {
     "react-native": ">= 0.60.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.1.0",
-    "@typescript-eslint/parser": "^4.1.0",
-    "eslint": "^7.9.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^2.1.1",
+    "@babel/plugin-proposal-export-default-from": "7.10.4",
+    "@babel/plugin-proposal-export-namespace-from": "7.10.4",
+    "@types/jest": "26.0.14",
+    "@typescript-eslint/eslint-plugin": "4.4.0",
+    "@typescript-eslint/parser": "4.4.0",
+    "eslint": "7.11.0",
+    "eslint-config-prettier": "6.12.0",
+    "eslint-plugin-prettier": "3.1.4",
+    "prettier": "2.1.2",
     "react": "^16.13.1",
     "react-native": "^0.63.2",
     "typescript": "^4.0.2"
