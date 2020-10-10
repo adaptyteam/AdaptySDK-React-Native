@@ -13,6 +13,11 @@ ios/build/
 ios/DerivedData/
 ios/Pods/
 
+example/ios/Pods/
+example/android/.settings/
+example/android/app/.settings/
+example/ios/Podfile.lock
+
 .gradle
 .idea
 *.apk
@@ -47,3 +52,4 @@ buck-out/
 *.keystore
 
 
+.env
