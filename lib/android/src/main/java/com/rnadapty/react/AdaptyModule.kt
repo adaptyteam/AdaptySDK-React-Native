@@ -135,7 +135,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     fun getPaywalls(promise: Promise) {
         Adapty.getPaywalls { paywalls, products, state, error ->
             if (error != null) {
-                promise.reject("Error in: getPaywalls",error)
+                promise.reject("Error in: getPaywalls", error)
                 return@getPaywalls
             }
 
@@ -150,10 +150,27 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
     @ReactMethod // @todo
     fun makePurchase(productId: String, promise: Promise) {
-//        Adapty.makePurchase("", "23") {
+        Adapty.getPaywalls { paywalls, products, state, error ->
+
+            val product = products.find { product ->
+                return@find product.vendorProductId == productId
+            }
+
+//            if (product != null) {
+//                Adapty.makePurchase(null, product) { purchase, receipt, error ->
+//                    if (error != null) {
+//                        return@makePurchase
+//                    }
 //
-//        }
-        promise.resolve(true)
+//                    gson.toJson(purchase)
+//                    promise.resolve(true)
+//                }
+//                return@getPaywalls
+//            }
+
+            promise.reject("error in: makePurchase", "No product with such vendorID found")
+            return@getPaywalls
+        }
     }
 
     @ReactMethod
@@ -170,8 +187,13 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
     @ReactMethod // @todo
     fun validateReceipt(receipt: String, promise: Promise) {
-        Adapty.validatePurchase("","", receipt) {  _, error ->
+        Adapty.validatePurchase("", "", receipt) { _, error ->
+            if (error != null) {
+                promise.reject("Error in: validateReceipt", error)
+                return@validatePurchase
+            }
 
+            promise.resolve(true)
         }
     }
 
@@ -184,7 +206,8 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             }
 
             val promoMap = promo.serializeToMap()
-            promise.resolve(promoMap)
+            val data = convertMapToWriteableMap(promoMap)
+            promise.resolve(data)
         }
     }
 
@@ -210,7 +233,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             "Adjust" -> sourceType = AttributionType.ADJUST
             "AppsFlyer" -> sourceType = AttributionType.APPSFLYER
             else -> {
-                promise.reject("Error in: updateAttribution","Source of attribution is not defined")
+                promise.reject("Error in: updateAttribution", "Source of attribution is not defined")
                 return@updateAttribution
             }
         }
