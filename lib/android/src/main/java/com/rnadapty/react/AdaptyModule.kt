@@ -2,16 +2,52 @@ package com.rnadapty.react
 
 import com.adapty.Adapty
 import com.adapty.api.AttributionType
+import com.adapty.api.entity.containers.OnPromoReceivedListener
+import com.adapty.api.entity.containers.Promo
+import com.adapty.api.entity.profile.update.Date
+import com.adapty.api.entity.profile.update.Gender
+import com.adapty.api.entity.profile.update.ProfileParameterBuilder
+import com.adapty.api.entity.purchaserInfo.OnPurchaserInfoUpdatedListener
+import com.adapty.api.entity.purchaserInfo.model.PurchaserInfoModel
 import com.adapty.utils.LogLevel
 import com.facebook.react.bridge.*
+import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.text.SimpleDateFormat
 
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
     val gson = Gson()
 
     override fun getName(): String {
         return "RNAdapty"
+    }
+
+    private fun sendEvent(reactContext: ReactContext,
+                          eventName: String,
+                          params: Any) {
+        reactContext
+                .getJSModule(RCTDeviceEventEmitter::class.java)
+                .emit(eventName, params)
+    }
+
+    private fun subscribeToEvents() {
+        Adapty.setOnPromoReceivedListener(object: OnPromoReceivedListener {
+            override fun onPromoReceived(promo: Promo) {
+                println("WOWOWO")
+                val data = promo.serializeToMap()
+                sendEvent(reactApplicationContext, "onCheck", convertMapToWriteableMap(data))
+            }
+        })
+        Adapty.setOnPurchaserInfoUpdatedListener(object: OnPurchaserInfoUpdatedListener {
+            override fun didReceiveUpdatedPurchaserInfo(purchaserInfo: PurchaserInfoModel) {
+                println("AYAYAYAYY")
+                val data = purchaserInfo.serializeToMap()
+                sendEvent(reactApplicationContext, "onCheck", convertMapToWriteableMap(data))
+            }
+        })
+
+
     }
 
     @ReactMethod
@@ -27,6 +63,8 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         if (observerMode) {
             Adapty.syncPurchases { }
         }
+
+        subscribeToEvents()
 
         promise.resolve(true)
     }
