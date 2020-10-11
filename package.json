@@ -37,6 +37,7 @@
     "watch": "tsc --project tsconfig.json --watch",
     "android": "react-native run-android",
     "ios": "react-native run-ios --project-path example/ios",
+    "prestart": "yarn build",
     "start": "react-native start",
     "xcode-example": "open example/ios/example.xcworkspace",
     "xcode": "open lib/ios/RNAdapty.xcodeproj",
@@ -57,6 +58,7 @@
     "prettier": "2.1.2",
     "react": "^16.13.1",
     "react-native": "^0.63.2",
+    "react-native-config": "^1.3.3",
     "typescript": "^4.0.2"
   }
 }
