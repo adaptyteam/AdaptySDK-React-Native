@@ -45,7 +45,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
     @ReactMethod
     fun identify(customerUserId: String, promise: Promise) {
-        Adapty.identify(customerUserId) {error ->
+        Adapty.identify(customerUserId) { error ->
             if (error != null) {
                 promise.reject("Error in: identify", error)
                 return@identify
@@ -55,18 +55,80 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
     }
 
-    @ReactMethod // @todo
-    fun updateProfile(promise: Promise) {
-//        val params = ProfileParameterBuilder()
+    @ReactMethod
+    fun updateProfile(updates: ReadableMap, promise: Promise) {
+        val params = ProfileParameterBuilder()
+        val map = updates.toHashMap()
 
-//        Adapty.updateProfile { error ->
-//            if (error != null) {
-//                promise.reject("","")
-//                return@updateProfile
-//            }
-//
-//            promise.resolve(12)
-//        }
+        if (map.containsKey("email")) {
+            val email = map.getValue("email")
+            params.withEmail(email.toString())
+        }
+        if (map.containsKey("email")) {
+            val email = map.getValue("email")
+            params.withEmail(email.toString())
+        }
+        if (map.containsKey("amplitudeDeviceId")) {
+            val ampId = map.getValue("amplitudeDeviceId")
+            params.withAmplitudeDeviceId(ampId.toString())
+        }
+        if (map.containsKey("amplitudeUserId")) {
+            val ampId = map.getValue("amplitudeUserId")
+            params.withAmplitudeUserId(ampId.toString())
+        }
+        if (map.containsKey("appmetricaDeviceId")) {
+            val appId = map.getValue("appmetricaDeviceId")
+            params.withAppmetricaDeviceId(appId.toString())
+        }
+        if (map.containsKey("appmetricaProfileId")) {
+            val appId = map.getValue("appmetricaProfileId")
+            params.withAppmetricaProfileId(appId.toString())
+        }
+        if (map.containsKey("birthday")) {
+            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+            val date = formatter.parse(map.getValue("birthday").toString())
+            params.withBirthday(Date(date.year, date.month + 1, date.date))
+        }
+        if (map.containsKey("customAttributes")) {
+            val attrs = map.getValue("customAttributes") as HashMap<String, Any>
+            params.withCustomAttributes(attrs)
+        }
+        if (map.containsKey("facebookUserId")) {
+            val fbId = map.getValue("facebookUserId")
+            params.withFacebookUserId(fbId.toString())
+        }
+        if (map.containsKey("firstName")) {
+            val name = map.getValue("firstName")
+            params.withFirstName(name.toString())
+        }
+        if (map.containsKey("lastName")) {
+            val name = map.getValue("lastName")
+            params.withLastName(name.toString())
+        }
+        if (map.containsKey("gender")) {
+            when (map.getValue("gender")) {
+                "m" -> params.withGender(Gender.MALE)
+                "f" -> params.withGender(Gender.FEMALE)
+                else -> params.withGender(Gender.OTHER)
+            }
+        }
+        if (map.containsKey("mixpanelUserId")) {
+            val mUId = map.getValue("mixpanelUserId")
+            params.withMixpanelUserId(mUId.toString())
+        }
+        if (map.containsKey("phoneNumber")) {
+            val phone = map.getValue("phoneNumber")
+            params.withPhoneNumber(phone.toString())
+        }
+
+        Adapty.updateProfile(params) { error ->
+            if (error != null) {
+                promise.reject("Error in: updateProfile", error)
+                return@updateProfile
+            }
+
+            promise.resolve(12)
+        }
     }
 
     @ReactMethod // @todo check
