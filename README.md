@@ -17,12 +17,14 @@ Adapty React-Native SDK
 
 ## Prerequisites
 
-This package is currently in early beta. Please, consider it, if you have decided to use it.
+This package is currently in beta. Please, consider it, if you have decided to use it.
 
 ## Requirements
 * React Native v0.60+
 
 ## Installation
+
+Lower you will find instructions how to install Adapty via autolinking feature. If you have to link this library manually, please, look through [this doc](docs/manual_linking.md) instead.
 
 1. Run an installation command:
 
@@ -44,7 +46,7 @@ cd ios && pod install && cd ../
 
 3. For android devices you currently need to add Kotlin in `android/build.gradle` and to enable multiDex in your `app/build.gradle`:
 
-```gradle
+```diff
 // android/build.gradle
 
 ...
@@ -52,13 +54,13 @@ buildscript {
   ...
   dependencies {
     ...
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
+  + classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
   }
 }
 ...
 ```
 
-```gradle
+```diff
 // android/app/build.gradle
 
 ...
@@ -66,12 +68,12 @@ android {
   ...
   defaultConfig {
     ...
-    multiDexEnabled true
+  + multiDexEnabled true
   }
 }
 ```
 
-4. All Done!
+4. All set! 🎉
 
 ## Initialization
 
