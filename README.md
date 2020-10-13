@@ -136,7 +136,9 @@ adapty.user.updateProfile({
 adapty.purchases.makePurchase('500_coins');
 ```
 
-### Using event emitters
+### Using event listeners
+
+> ⚠️ Listeners are current WIP — they might work inconsistently on iOS and they won't work on Android.
 
 Sometimes you want to subscribe user to an Adapty-connected update. In order to create an event listener, you should use `addEventListener` method of the `adapty` instance:
 
