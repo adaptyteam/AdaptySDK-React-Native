@@ -46,7 +46,7 @@ cd ios && pod install && cd ../
 
 3. For android devices you currently need to add Kotlin in `android/build.gradle` and to enable multiDex in your `app/build.gradle`:
 
-```java
+```diff
 // android/build.gradle
 
 ...
@@ -60,7 +60,7 @@ buildscript {
 ...
 ```
 
-```java
+```diff
 // android/app/build.gradle
 
 ...
@@ -119,6 +119,10 @@ In this SDK you may find two types of callable methods: API requests and event e
 For the most part, you would be using API requests: they are promises categorized inside the `adapty` instance.
 
 Most of these methods can throw an error typed as `AdaptyError`, make sure to handle those as you need.
+
+You can find extended API documentation [inside the docs folder](/docs).
+
+#### Example
 
 ```ts
 import { adapty } from "react-native-adapty";
