@@ -86,7 +86,7 @@ import { activateAdapty } from "react-native-adapty";
 const App: React.FC = () => {
   ...
   useEffect(() => {
-    activateAdapty({ sdkKey: "YOUR_SDK_KEY", customerUserId: undefined });
+    activateAdapty({ sdkKey: "YOUR_SDK_KEY" });
   },[]);
   ...
 }
@@ -100,7 +100,7 @@ import { activateAdapty } from "react-native-adapty";
 class App extends Component {
   ...
   componentDidMount() {
-    activateAdapty({ sdkKey: "YOUR_SDK_KEY", customerUserId: undefined });
+    activateAdapty({ sdkKey: "YOUR_SDK_KEY" });
   }
   ...
 }
