@@ -24,7 +24,7 @@ This package is currently in beta. Please, consider it, if you have decided to u
 
 ## Installation
 
-Lower you will find instructions how to install Adapty via autolinking feature. If you have to link this library manually, please, look through [this doc](docs/manual_linking.md) instead.
+> Lower you will find instructions how to install Adapty via autolinking feature. If you have to link this library manually, please, look through [this doc](docs/manual_linking.md) instead.
 
 1. Run an installation command:
 
