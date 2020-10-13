@@ -46,7 +46,7 @@ cd ios && pod install && cd ../
 
 3. For android devices you currently need to add Kotlin in `android/build.gradle` and to enable multiDex in your `app/build.gradle`:
 
-```diff
+```java
 // android/build.gradle
 
 ...
@@ -54,13 +54,13 @@ buildscript {
   ...
   dependencies {
     ...
-  + classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
++   classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
   }
 }
 ...
 ```
 
-```diff
+```java
 // android/app/build.gradle
 
 ...
@@ -68,7 +68,7 @@ android {
   ...
   defaultConfig {
     ...
-  + multiDexEnabled true
++   multiDexEnabled true
   }
 }
 ```
