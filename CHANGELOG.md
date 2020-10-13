@@ -1,3 +1,16 @@
+## 0.2.0-beta
+> 13 October 2020
+
+##  ⭐ Features
+* Manual linking docs added 
+* Example app added 
+* API docs added
+* Android now supports updateProfile method
+## 🛠 Fixes
+* Android installation instruction added
+
+---
+
 ## 0.1.5-rc 
 > 07 October 2020
 
