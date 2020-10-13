@@ -31,7 +31,7 @@ interface AdaptyActivateArgs {
    * uID yet you can leave this field `undefined`, but always
    * consider passing the value.
    */
-  customerUserId: string | undefined;
+  customerUserId?: string;
 
   /**
    * @description
