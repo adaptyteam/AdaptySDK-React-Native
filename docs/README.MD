@@ -3,7 +3,10 @@
   * [Initialization point](#initialization-point)
   * [Possible arguments](#possible-arguments)
   * [Initialization example](#initialization-example)
-* [User methods](#user_methods)
+* [User methods](#user-methods)
+  * [identify](#identify)
+  * [updateProfile](#updateprofile)
+  * [logout](#logout)
 
 ## Advanced initialization
 ### Initialization point
@@ -65,32 +68,72 @@ const App: React.FC = () => {
 ```
 
 ## User methods
+### identify
+> iOS: 👌, Android 👌
+
+If you don't know any ID of your user, for example, if your user hasn't authorized yet, you can set `customerUserId` after SDK has initialized. To do so you can use `adapty.user.identify( userId: string )` method.
+
+```ts
+async function login(email: string, password: string): Promise<void> {
+ const user = await someLoginMethod({ email, password });
+ setUser(user);
+ ...
+ 
+ adapty.user.identify(user.id);
+}
+```
+
+### updateProfile
+> iOS: 👌, Android 👌
+
+You can add optional information to your user, such as email, phone number, etc. or update it with analytics ids to make tracking even more precise.
+
+```ts
+async function editUser({firstName, email}: { firstName: string, email: string }): Promise<void> {
+ ...
+ adapty.user.updateProfile({ firstName, email });
+}
+```
+
+### logout
+> iOS: 👌, Android 👌
+
+Disconnects a device from a current adapty customerId. Should be called on logging out.
+
+```ts
+async function logout(): Promise<void> {
+ ...
+ adapty.user.logout();
+}
+```
+
+
 ### Available methods
 |Method|iOS|Android|
 |---     |---|---|
-|identify|👌|❌|
-|updateProfile|👌|❌|
-|logout|👌|❌|
+|identify|👌|👌|
+|updateProfile|👌|👌|
+|logout|👌|👌|
 
 ## Purchases methods
 ### Available methods
 |Method|iOS|Android|
 |---    |---|---|
-|getInfo|👌|❌|
-|makePurchase|👌|❌|
-|restore|👌|❌|
-|validate|👌|❌|
+|getInfo|👌|👌|
+|makePurchase|👌|👌|
+|restore|👌|👌|
+|validate|👌|👌|
 
 ## Promo methods
 ### Available methods
 |Method|iOS|Android|
 |---     |---|---|
-|getPromo|👌|❌|
+|getPromo|👌|👌|
 
 ## Paywall methods
 ### Available methods
 |Method|iOS|Android|
 |---        |---|---|
-|getPaywalls|👌|❌|
+|getPaywalls|👌|👌|
 
 
