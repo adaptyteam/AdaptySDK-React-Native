@@ -12,7 +12,7 @@ import Config from 'react-native-config';
 
 import styles from './App.styles';
 
-import { activateAdapty, adapty } from '../../lib/dist';
+import { activateAdapty, adapty } from 'react-native-adapty';
 
 interface SampleUser {
   userId: string;
