@@ -29,7 +29,7 @@ buildscript {
   ...
   dependencies {
     ...
-  + classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
++   classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
   }
 }
 ```
@@ -48,7 +48,7 @@ public class MainApplication extends Application implements ReactApplication {
     List<ReactPackage> packages = new PackageList(this).getPackages();
 
     ...
-  + packages.add(new AdaptyPackage()); // <- Add AdaptyPackage here
++   packages.add(new AdaptyPackage()); // <- Add AdaptyPackage here
 
     return packages;
   }
@@ -65,7 +65,7 @@ android {
   ...
   defaultConfig {
     ...
-  + multiDexEnabled true
++   multiDexEnabled true
   }
 }
 ```

@@ -24,7 +24,7 @@ This package is currently in beta. Please, consider it, if you have decided to u
 
 ## Installation
 
-Lower you will find instructions how to install Adapty via autolinking feature. If you have to link this library manually, please, look through [this doc](docs/manual_linking.md) instead.
+> Lower you will find instructions how to install Adapty via autolinking feature. If you have to link this library manually, please, look through [this doc](docs/manual_linking.md) instead.
 
 1. Run an installation command:
 
@@ -54,7 +54,7 @@ buildscript {
   ...
   dependencies {
     ...
-  + classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
++   classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
   }
 }
 ...
@@ -68,7 +68,7 @@ android {
   ...
   defaultConfig {
     ...
-  + multiDexEnabled true
++   multiDexEnabled true
   }
 }
 ```
@@ -86,7 +86,7 @@ import { activateAdapty } from "react-native-adapty";
 const App: React.FC = () => {
   ...
   useEffect(() => {
-    activateAdapty({ sdkKey: "YOUR_SDK_KEY", customerUserId: undefined });
+    activateAdapty({ sdkKey: "YOUR_SDK_KEY" });
   },[]);
   ...
 }
@@ -100,7 +100,7 @@ import { activateAdapty } from "react-native-adapty";
 class App extends Component {
   ...
   componentDidMount() {
-    activateAdapty({ sdkKey: "YOUR_SDK_KEY", customerUserId: undefined });
+    activateAdapty({ sdkKey: "YOUR_SDK_KEY" });
   }
   ...
 }
@@ -120,6 +120,10 @@ For the most part, you would be using API requests: they are promises categorize
 
 Most of these methods can throw an error typed as `AdaptyError`, make sure to handle those as you need.
 
+You can find extended API documentation [inside the docs folder](/docs).
+
+#### Example
+
 ```ts
 import { adapty } from "react-native-adapty";
 
@@ -132,7 +136,9 @@ adapty.user.updateProfile({
 adapty.purchases.makePurchase('500_coins');
 ```
 
-### Using event emitters
+### Using event listeners
+
+> ⚠️ Listeners are current WIP — they might work inconsistently on iOS and they won't work on Android.
 
 Sometimes you want to subscribe user to an Adapty-connected update. In order to create an event listener, you should use `addEventListener` method of the `adapty` instance:
 
