@@ -83,7 +83,7 @@ export function useAdapty(props: AdaptyActivateArgs): void {
  * This function should be called before using an SDK.
  * For more information about arguments look for an @interface AdaptyActivateArgs
  */
-export function activateAdapty(props: AdaptyActivateArgs): void {
+export async function activateAdapty(props: AdaptyActivateArgs): Promise<void> {
   const module = extractModule();
 
   const userId = props.customerUserId || null;
@@ -106,8 +106,8 @@ export function activateAdapty(props: AdaptyActivateArgs): void {
       : DEFAULT_OBSERVER_MODE;
 
   try {
-    module.activate(sdkKey, userId, isModeObserver, logLevel);
-    Adapty.activateSdk(adapty, sdkKey);
+    await module.activate(sdkKey, userId, isModeObserver, logLevel);
+    await Adapty.activateSdk(adapty, sdkKey);
   } catch (error) {
     throw error;
   }
