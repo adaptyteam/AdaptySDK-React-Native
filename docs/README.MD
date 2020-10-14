@@ -1,21 +1,21 @@
-# Adapty SDK React-Native Documentation
+# Adapty React-Native SDK Documentation
 * [Advanced initialization](#advanced-initialization)
   * [Initialization point](#initialization-point)
   * [Possible arguments](#possible-arguments)
   * [Initialization example](#initialization-example)
 * [User methods](#user-methods)
-  * [Identifying user after initialization with `adapty.user.identify`](#identify)
-  * [Collecting information about user with `adapty.user.updateProfile`](#updateprofile)
-  * [Disassociating device with current user with `adapty.user.logout`](#disassociating-device-with-current-user-with-adapty-user-logout)
+  * [Identifying user after initialization with `adapty.user.identify`](#identifying-user-after-initialization-with-adaptyuseridentify)
+  * [Collecting information about user with `adapty.user.updateProfile`](#collecting-information-about-user-with-adaptyuserupdateProfile)
+  * [Disassociating device with current user with `adapty.user.logout`](#disassociating-device-with-current-user-with-adaptyuserlogout)
 * [Purchases methods](#purchases-methods)
-  * [Acquiring user purchases status with `adapty.purchases.getInfo`]()
-  * [Making Purchases with `adapty.purchases.makePurchase`]()
-  * [Restoring unresolved purchases with `adapty.purchases.restore`]()
-  * [Validating receipts with `adapty.purchases.validate`]()
+  * [Acquiring user purchases status with `adapty.purchases.getInfo`](#acquiring-user-purchases-status-with-adaptypurchasesgetInfo)
+  * [Making Purchases with `adapty.purchases.makePurchase`](#making-purchases-with-adaptypurchasesmakepurchase)
+  * [Restoring unresolved purchases with `adapty.purchases.restore`](#restoring-unresolved-purchases-with-adaptypurchasesrestore)
+  * [Validating receipts with `adapty.purchases.validate`](#validating-receipts-with-adaptypurchasesvalidate)
 * [Promo methods](#promo-methods)
-  * [Getting available promos with `adapty.promo.getPromo`]()
+  * [Getting available promos with `adapty.promo.getPromo`](#getting-available-promos-with-adaptypromogetpromo)
 * [Paywall methods](#paywall-methods)
-  * [Collecting all paywalls with `adapty.paywalls.getPaywalls`]()
+  * [Collecting all paywalls with `adapty.paywalls.getPaywalls`](#collecting-all-paywalls-with-adaptypaywallsgetpaywalls)
 
 ## Advanced initialization
 ### Initialization point
