@@ -48,7 +48,7 @@ public class MainApplication extends Application implements ReactApplication {
     List<ReactPackage> packages = new PackageList(this).getPackages();
 
     ...
-  + packages.add(new AdaptyPackage()); // <- Add AdaptyPackage here
++   packages.add(new AdaptyPackage()); // <- Add AdaptyPackage here
 
     return packages;
   }
@@ -65,7 +65,7 @@ android {
   ...
   defaultConfig {
     ...
-  + multiDexEnabled true
++   multiDexEnabled true
   }
 }
 ```
