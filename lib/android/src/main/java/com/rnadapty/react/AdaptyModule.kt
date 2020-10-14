@@ -1,5 +1,6 @@
 package com.rnadapty.react
 
+import android.app.Activity
 import com.adapty.Adapty
 import com.adapty.api.AttributionType
 import com.adapty.api.entity.containers.OnPromoReceivedListener
@@ -15,6 +16,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEm
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.text.SimpleDateFormat
+import android.util.Log
 
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
     val gson = Gson()
@@ -34,16 +36,16 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     private fun subscribeToEvents() {
         Adapty.setOnPromoReceivedListener(object: OnPromoReceivedListener {
             override fun onPromoReceived(promo: Promo) {
-                println("WOWOWO")
+                println("[EVENT] Received Promo")
                 val data = promo.serializeToMap()
-                sendEvent(reactApplicationContext, "onCheck", convertMapToWriteableMap(data))
+                sendEvent(reactApplicationContext, "onCheck", toWritableMap(data))
             }
         })
         Adapty.setOnPurchaserInfoUpdatedListener(object: OnPurchaserInfoUpdatedListener {
             override fun didReceiveUpdatedPurchaserInfo(purchaserInfo: PurchaserInfoModel) {
-                println("AYAYAYAYY")
+                println("[EVENT] Received Purchaser info")
                 val data = purchaserInfo.serializeToMap()
-                sendEvent(reactApplicationContext, "onCheck", convertMapToWriteableMap(data))
+                sendEvent(reactApplicationContext, "onCheck", toWritableMap(data))
             }
         })
 
@@ -165,11 +167,11 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                 return@updateProfile
             }
 
-            promise.resolve(12)
+            promise.resolve(true)
         }
     }
 
-    @ReactMethod // @todo check
+    @ReactMethod
     fun getPaywalls(promise: Promise) {
         Adapty.getPaywalls { paywalls, products, state, error ->
             if (error != null) {
@@ -181,7 +183,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             hm["products"] = gson.toJson(products)
             hm["paywalls"] = gson.toJson(paywalls)
 
-            val map = convertMapToWriteableMap(hm)
+            val map = toWritableMap(hm)
             promise.resolve(map)
         }
     }
@@ -263,7 +265,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             }
 
             val promoMap = promo.serializeToMap()
-            val data = convertMapToWriteableMap(promoMap)
+            val data = toWritableMap(promoMap)
             promise.resolve(data)
         }
     }
@@ -299,18 +301,37 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         promise.resolve(true)
     }
 
-    private fun convertMapToWriteableMap(map: Map<String, *>): WritableMap {
+    private fun toWritableArray(array: Array<Any?>): WritableArray {
+        val writableArray: WritableArray = WritableNativeArray()
+
+        for (element in array) {
+            when (element) {
+                is String -> writableArray.pushString(element)
+                is Int -> writableArray.pushInt(element)
+                is Double -> writableArray.pushDouble(element)
+                is Boolean -> writableArray.pushBoolean(element)
+                is Map<*, *> -> writableArray.pushMap(toWritableMap(element as Map<String, *>))
+                is Array<*> -> writableArray.pushArray(toWritableArray(element as Array<Any?>))
+                is List<*> -> writableArray.pushArray(toWritableArray(element.toTypedArray()))
+                null -> writableArray.pushNull()
+            }
+        }
+        return writableArray
+    }
+
+    private fun toWritableMap(map: Map<String, *>): WritableMap {
         val writableMap: WritableMap = WritableNativeMap()
+
         for ((key, value) in map) {
             when (value) {
-                null -> writableMap.putNull(key)
-                is Boolean -> writableMap.putBoolean(key, value)
+                is String -> writableMap.putString(key, value)
                 is Int -> writableMap.putInt(key, value)
                 is Double -> writableMap.putDouble(key, value)
-                is String -> writableMap.putString(key, value)
-                is Map<*, *> -> writableMap.putMap(key, convertMapToWriteableMap(value as Map<String, *>))
-                is Array<*> -> writableMap.putArray(key, convertArrayToWritableArray(value as Array<Any?>))
-                is List<*> -> writableMap.putArray(key, convertArrayToWritableArray(value.toTypedArray()))
+                is Boolean -> writableMap.putBoolean(key, value)
+                is Map<*, *> -> writableMap.putMap(key, toWritableMap(value as Map<String, *>))
+                is Array<*> -> writableMap.putArray(key, toWritableArray(value as Array<Any?>))
+                is List<*> -> writableMap.putArray(key, toWritableArray(value.toTypedArray()))
+                null -> writableMap.putNull(key)
             }
         }
         return writableMap
@@ -325,24 +346,5 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     //convert a data class to a map
     fun <T> T.serializeToMap(): Map<String, Any> {
         return convert()
-    }
-
-
-
-    private fun convertArrayToWritableArray(array: Array<Any?>): WritableArray {
-        val writableArray: WritableArray = WritableNativeArray()
-        for (item in array) {
-            when (item) {
-                null -> writableArray.pushNull()
-                is Boolean -> writableArray.pushBoolean(item)
-                is Int -> writableArray.pushInt(item)
-                is Double -> writableArray.pushDouble(item)
-                is String -> writableArray.pushString(item)
-                is Map<*, *> -> writableArray.pushMap(convertMapToWriteableMap(item as Map<String, *>))
-                is Array<*> -> writableArray.pushArray(convertArrayToWritableArray(item as Array<Any?>))
-                is List<*> -> writableArray.pushArray(convertArrayToWritableArray(item.toTypedArray()))
-            }
-        }
-        return writableArray
     }
 }
