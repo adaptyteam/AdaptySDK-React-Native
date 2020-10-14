@@ -74,4 +74,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.0"
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.github.adaptyteam:AdaptySDK-Android:0.5.1'
+    implementation 'com.android.billingclient:billing:3.0.0'
 }
