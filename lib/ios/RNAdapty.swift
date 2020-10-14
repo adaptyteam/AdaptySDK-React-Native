@@ -3,11 +3,16 @@ import Adapty
 
 @objc(RNAdapty)
 class RNAdapty: NSObject {
+
+  @objc static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
+
   /* INITIALIZATION */
   @objc
   func activate(_ sdkKey: String, uId: String?, observerMode: Bool, logLevel: String) {
     Adapty.activate(sdkKey, observerMode: observerMode, customerUserId: uId)
-
+    
     switch logLevel {
     case "verbose":
       Adapty.logLevel = .verbose
