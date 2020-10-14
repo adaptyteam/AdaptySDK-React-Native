@@ -244,9 +244,26 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
     }
 
-    @ReactMethod // @todo
-    fun validateReceipt(receipt: String, promise: Promise) {
-        Adapty.validatePurchase("", "", receipt) { _, error ->
+    @ReactMethod
+    fun validateReceipt(productId: String, receipt: String, promise: Promise) {
+
+        Adapty.getPaywalls { _, products, _, error ->
+
+            if (error != null) {
+                promise.reject("Error, while getting list of products [1]", error)
+                return@getPaywalls
+            }
+
+            val product = products.find { product ->
+                return@find product.vendorProductId == productId
+            }
+
+            if (product == null || product.skuDetails == null) {
+                promise.reject("Error while getting the product", "Product with such vendorID was not found.")
+                return@getPaywalls
+            }
+
+            Adapty.validatePurchase(product.skuDetails!!.type, productId, receipt) { _, error ->
             if (error != null) {
                 promise.reject("Error in: validateReceipt", error)
                 return@validatePurchase
@@ -254,6 +271,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
             promise.resolve(true)
         }
+    }
     }
 
     @ReactMethod
