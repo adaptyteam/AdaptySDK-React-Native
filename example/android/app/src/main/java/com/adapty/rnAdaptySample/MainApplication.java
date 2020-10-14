@@ -1,4 +1,4 @@
-package com.example;
+package com.adapty.rnAdaptySample;
 
 import android.app.Application;
 import android.content.Context;
@@ -11,9 +11,9 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.rnadapty.react.AdaptyPackage;
+//import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 
 public class MainApplication extends Application implements ReactApplication {
-
   private final ReactNativeHost mReactNativeHost =
       new ReactNativeHost(this) {
         @Override
@@ -26,6 +26,7 @@ public class MainApplication extends Application implements ReactApplication {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           packages.add(new AdaptyPackage());
+//          packages.add(new ReactNativeConfigPackage());
           return packages;
         }
 
@@ -62,7 +63,7 @@ public class MainApplication extends Application implements ReactApplication {
          We use reflection here to pick up the class that initializes Flipper,
         since Flipper library is not available in release mode
         */
-        Class<?> aClass = Class.forName("com.example.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("com.adapty.rnAdaptySample.ReactNativeFlipper");
         aClass
             .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
             .invoke(null, context, reactInstanceManager);

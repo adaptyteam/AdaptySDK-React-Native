@@ -1,4 +1,4 @@
-package com.example;
+package com.adapty.rnAdaptySample;
 
 import com.facebook.react.ReactActivity;
 
