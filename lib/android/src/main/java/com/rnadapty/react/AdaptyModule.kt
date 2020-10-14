@@ -186,27 +186,46 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
     }
 
-    @ReactMethod // @todo
+    @ReactMethod
     fun makePurchase(productId: String, promise: Promise) {
-        Adapty.getPaywalls { paywalls, products, state, error ->
+        Adapty.getPaywalls { _, products, state, error ->
 
-            val product = products.find { product ->
-                return@find product.vendorProductId == productId
+            if (error != null) {
+                promise.reject("Error, while getting list of products [1]", error)
+                return@getPaywalls
             }
 
-//            if (product != null) {
-//                Adapty.makePurchase(null, product) { purchase, receipt, error ->
-//                    if (error != null) {
-//                        return@makePurchase
-//                    }
-//
-//                    gson.toJson(purchase)
-//                    promise.resolve(true)
-//                }
-//                return@getPaywalls
-//            }
 
-            promise.reject("error in: makePurchase", "No product with such vendorID found")
+            print("Prod " + products)
+
+            val product = products.find { it.vendorProductId == productId }
+            print("Prod " + product)
+
+            if (product == null) {
+                promise.reject("Error while getting the product", "Product with such vendorID was not found.")
+                return@getPaywalls
+            }
+
+            print("before ")
+            currentActivity.let {
+                if (it is Activity) {
+                    Adapty.makePurchase(it, product) { purchase, receipt, error ->
+                    if (error != null) {
+                        promise.reject("Error in makePurchase", error)
+                        return@makePurchase
+            }
+
+                    val hm: HashMap<String, Any> = HashMap()
+                    hm["product"] = gson.toJson(purchase)
+                    hm["receipt"] = gson.toJson(receipt)
+
+                    val map = toWritableMap(hm)
+                    promise.resolve(map)
+                    }
+                }
+            }
+
+            promise.reject("error in: makePurchase", "Something went wrong")
             return@getPaywalls
         }
     }
