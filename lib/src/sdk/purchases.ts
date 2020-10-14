@@ -97,7 +97,7 @@ export class Purchases {
    *
    * @throws AdaptyError
    */
-  public async validateReceipt(receipt: string): Promise<any> {
+  public async validateReceipt(receipt: string): Promise<void> {
     isSdkAuthorized(this._ctx.isActivated);
 
     try {
