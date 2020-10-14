@@ -48,8 +48,6 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                 sendEvent(reactApplicationContext, "onCheck", toWritableMap(data))
             }
         })
-
-
     }
 
     @ReactMethod
@@ -215,7 +213,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                     if (error != null) {
                         promise.reject("Error in makePurchase", error)
                         return@makePurchase
-            }
+                    }
 
                     val hm: HashMap<String, Any> = HashMap()
                     hm["product"] = gson.toJson(purchase)
@@ -264,14 +262,14 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             }
 
             Adapty.validatePurchase(product.skuDetails!!.type, productId, receipt) { _, error ->
-            if (error != null) {
-                promise.reject("Error in: validateReceipt", error)
-                return@validatePurchase
-            }
+                if (error != null) {
+                    promise.reject("Error in: validateReceipt", error)
+                    return@validatePurchase
+                }
 
-            promise.resolve(true)
+                promise.resolve(true)
+            }
         }
-    }
     }
 
     @ReactMethod
