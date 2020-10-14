@@ -4,9 +4,18 @@
   * [Possible arguments](#possible-arguments)
   * [Initialization example](#initialization-example)
 * [User methods](#user-methods)
-  * [identify](#identify)
-  * [updateProfile](#updateprofile)
-  * [logout](#logout)
+  * [Identifying user after initialization with `adapty.user.identify`](#identify)
+  * [Collecting information about user with `adapty.user.updateProfile`](#updateprofile)
+  * [Disassociating device with current user with `adapty.user.logout`](#disassociating-device-with-current-user-with-adapty-user-logout)
+* [Purchases methods](#purchases-methods)
+  * [Acquiring user purchases status with `adapty.purchases.getInfo`]()
+  * [Making Purchases with `adapty.purchases.makePurchase`]()
+  * [Restoring unresolved purchases with `adapty.purchases.restore`]()
+  * [Validating receipts with `adapty.purchases.validate`]()
+* [Promo methods](#promo-methods)
+  * [Getting available promos with `adapty.promo.getPromo`]()
+* [Paywall methods](#paywall-methods)
+  * [Collecting all paywalls with `adapty.paywalls.getPaywalls`]()
 
 ## Advanced initialization
 ### Initialization point
@@ -60,7 +69,8 @@ const App: React.FC = () => {
     activateAdapty({
       sdkKey: "YOUR_PUBLIC_SDK_KEY",
       customerUserId: store.user.id,
-      observerMode: true
+      observerMode: true,
+      logLevel: "verbose",
     });
   },[]);
   ...
@@ -68,72 +78,93 @@ const App: React.FC = () => {
 ```
 
 ## User methods
-### identify
+### Identifying user after initialization with `adapty.user.identify`
 > iOS: 👌, Android 👌
 
 If you don't know any ID of your user, for example, if your user hasn't authorized yet, you can set `customerUserId` after SDK has initialized. To do so you can use `adapty.user.identify( userId: string )` method.
 
 ```ts
-async function login(email: string, password: string): Promise<void> {
- const user = await someLoginMethod({ email, password });
- setUser(user);
- ...
- 
- adapty.user.identify(user.id);
-}
+adapty.user.identify(user.id);
 ```
 
-### updateProfile
+### Collecting information about user with `adapty.user.updateProfile`
 > iOS: 👌, Android 👌
 
 You can add optional information to your user, such as email, phone number, etc. or update it with analytics ids to make tracking even more precise.
 
 ```ts
-async function editUser({firstName, email}: { firstName: string, email: string }): Promise<void> {
- ...
- adapty.user.updateProfile({ firstName, email });
-}
+adapty.user.updateProfile({ firstName, email });
 ```
 
-### logout
+### Disassociating device with current user with `adapty.user.logout`
 > iOS: 👌, Android 👌
 
 Disconnects a device from a current adapty customerId. Should be called on logging out.
 
 ```ts
-async function logout(): Promise<void> {
- ...
- adapty.user.logout();
-}
+adapty.user.logout();
 ```
 
-
-### Available methods
-|Method|iOS|Android|
-|---     |---|---|
-|identify|👌|👌|
-|updateProfile|👌|👌|
-|logout|👌|👌|
-
 ## Purchases methods
-### Available methods
-|Method|iOS|Android|
-|---    |---|---|
-|getInfo|👌|👌|
-|makePurchase|👌|👌|
-|restore|👌|👌|
-|validate|👌|👌|
+### Acquiring user purchases status with `adapty.purchases.getInfo`
+> iOS: 👌, Android 👌
+
+If your user obtains any product or subscription, you can easily get such information:
+
+```ts
+const info = await adapty.purchases.getInfo();
+
+// For example, check if user has active subscription
+const isUserSubscribed = info.paidAccessLevels?.level_configured_in_dashboard?.isActive;
+```
+
+### Making Purchases with `adapty.purchases.makePurchase`
+> iOS: 👌, Android 👌
+In order for this to work, please, make sure you have filled Apple Connect products into Adapty Dashboard
+
+You can perform native purchases and log them to your Adapty dashboard in one action. This function will return a receipt and a product user has purchased on completion.
+
+```ts
+const purchase = await adapty.purchases.makePurchase('500_coins');
+```
+
+### Restoring unresolved purchases with `adapty.purchases.restore`
+> iOS: 👌, Android 👌
+
+You can restore user's purchases using `restore`. If it succeeds, you will be able to find user's products with `adapty.purchases.getInfo` 
+
+```ts
+adapty.purchases.restore();
+```
+
+### Validating receipts with `adapty.purchases.validate`
+> iOS: 👌, Android 👌
+
+You can easily validate receipts with Adapty SDK:
+
+```ts
+adapty.purchases.restore();
+```
 
 ## Promo methods
-### Available methods
-|Method|iOS|Android|
-|---     |---|---|
-|getPromo|👌|👌|
+### Getting available promos with `adapty.promo.getPromo`
+> iOS: 👌, Android 👌
+
+You can get available promotional offers available to user with
+
+```ts
+adapty.promo.getPromo();
+```
 
 ## Paywall methods
-### Available methods
-|Method|iOS|Android|
-|---        |---|---|
-|getPaywalls|👌|👌|
+> We are currently working on enhancing a proccess of displaying paywalls, stay tuned!
 
+### Collecting all paywalls with `adapty.paywalls.getPaywalls`
+> iOS: 👌, Android 👌
+
+You can manually get a list of available paywalls and products:
+
+```ts
+adapty.paywalls.getPaywalls();
+```
 
