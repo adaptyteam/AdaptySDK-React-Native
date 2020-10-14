@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example"
+        applicationId "com.adapty.rnAdaptySample"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
