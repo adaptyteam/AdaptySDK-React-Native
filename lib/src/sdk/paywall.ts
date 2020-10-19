@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+import { snakeToCamel } from '../utils';
 import { attemptToDecodeError, isSdkAuthorized } from './error';
 import { AdaptyContext, AdaptyPaywall, AdaptyProduct } from './types';
 
@@ -17,9 +19,14 @@ export class AdaptyPaywalls {
   }> {
     isSdkAuthorized(this._ctx.isActivated);
 
-    const parseJsonArray = <T>(json: string): T[] => {
+    const parseJson = <T>(json: string): T[] => {
       try {
         const array = JSON.parse(json);
+
+        if (Platform.OS === 'android') {
+          return snakeToCamel(array);
+        }
+
         return array;
       } catch (error) {
         return [];
@@ -28,9 +35,25 @@ export class AdaptyPaywalls {
 
     try {
       const result = await this._ctx.module.getPaywalls();
+      const paywalls: AdaptyPaywall[] = parseJson(result.paywalls);
+      const products: AdaptyProduct[] = parseJson(result.product);
 
-      const paywalls = parseJsonArray<AdaptyPaywall>(result.paywalls);
-      const products = parseJsonArray<AdaptyProduct>(result.product);
+      products.forEach((product: Record<string, any>) => {
+        if (product.hasOwnProperty('title')) {
+          product.localizedTitle = product.title;
+          delete product.title;
+        }
+      });
+
+      paywalls.forEach(paywall => {
+        paywall.products.forEach((product: Record<string, any>) => {
+          if (product.hasOwnProperty('title')) {
+            product.localizedTitle = product.title;
+            delete product.title;
+          }
+        });
+        return paywall;
+      });
 
       return { paywalls, products };
     } catch (error) {

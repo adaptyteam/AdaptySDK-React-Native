@@ -16,6 +16,9 @@ import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEm
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.text.SimpleDateFormat
+import com.adapty.api.entity.containers.Paywall
+import com.adapty.api.entity.containers.Product
+import com.adapty.api.ApiClient
 import android.util.Log
 
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
@@ -177,12 +180,14 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                 return@getPaywalls
             }
 
-            val hm: HashMap<String, Any> = HashMap()
-            hm["products"] = gson.toJson(products)
-            hm["paywalls"] = gson.toJson(paywalls)
+            val paywallsData = paywalls.mapNotNull { it.attributes }
+            val hm: HashMap<String, String> = HashMap()
 
-            val map = toWritableMap(hm)
-            promise.resolve(map)
+
+            hm["products"] = gson.toJson(products)
+            hm["paywalls"] = gson.toJson(paywallsData)
+
+            promise.resolve(toWritableMap(hm))
         }
     }
 
@@ -326,7 +331,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                 is Int -> writableArray.pushInt(element)
                 is Double -> writableArray.pushDouble(element)
                 is Boolean -> writableArray.pushBoolean(element)
-                is Map<*, *> -> writableArray.pushMap(toWritableMap(element as Map<String, *>))
+                is Map<*, *> -> writableArray.pushMap(toWritableMap(element.serializeToMap()))
                 is Array<*> -> writableArray.pushArray(toWritableArray(element as Array<Any?>))
                 is List<*> -> writableArray.pushArray(toWritableArray(element.toTypedArray()))
                 null -> writableArray.pushNull()
@@ -344,7 +349,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                 is Int -> writableMap.putInt(key, value)
                 is Double -> writableMap.putDouble(key, value)
                 is Boolean -> writableMap.putBoolean(key, value)
-                is Map<*, *> -> writableMap.putMap(key, toWritableMap(value as Map<String, *>))
+                is Map<*, *> -> writableMap.putMap(key, toWritableMap(value.serializeToMap()))
                 is Array<*> -> writableMap.putArray(key, toWritableArray(value as Array<Any?>))
                 is List<*> -> writableMap.putArray(key, toWritableArray(value.toTypedArray()))
                 null -> writableMap.putNull(key)
