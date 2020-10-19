@@ -1,3 +1,19 @@
+## 0.2.2-beta
+> 14 October 2020
+
+## ⭐ Features
+- Android: `makePurchase()` added and tested
+- Android: example app restructured and cleaned
+- Android: installing SDK to an android device now downloads `com.android.billingclient` to parse purchases
+- Android: `validateReceipt()` added and tested
+- iOS: iOS SDK is now forced to run on a main thread
+- API Documentation now contains more info!
+## 🛠 Fixes
+- `activateAdapty()` function is now openly asynchronous
+- `customerUserId` is now an optional value to `activateAdapty()` 
+
+---
+
 ## 0.2.0-beta
 > 13 October 2020
 
