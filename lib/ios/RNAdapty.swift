@@ -141,7 +141,6 @@ class RNAdapty: NSObject {
                           if error != nil {
                             return reject("Error in: updateProfile", error?.localizedDescription, nil)
                           }
-
                           return resolve(true)
                         }
   }
@@ -175,15 +174,14 @@ class RNAdapty: NSObject {
 
       Adapty.makePurchase(product: product) { (purchaserInfo, receipt, appleValidationResult, product, error) in
         if error != nil {
-          print("FFFFFf", error)
           return reject("Error in: makePurchase", error?.localizedDescription, nil)
         }
 
         let dict: NSDictionary = [
-          "purchaserInfo": purchaserInfo,
-          "receipt": receipt,
-          "appleValidationResult": appleValidationResult,
-          "product": product
+          "purchaserInfo": purchaserInfo as Any,
+          "receipt": receipt  as Any,
+          "appleValidationResult": appleValidationResult as Any,
+          "product": product as Any
         ]
         return resolve(dict)
       }
@@ -230,8 +228,8 @@ class RNAdapty: NSObject {
       }
 
       let dict: NSDictionary = [
-       "purchaserInfo": purchaserInfo,
-       "response": response
+       "purchaserInfo": purchaserInfo as Any,
+       "response": response as Any
      ]
 
      return resolve(dict)
