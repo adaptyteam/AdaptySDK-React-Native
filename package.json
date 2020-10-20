@@ -33,14 +33,13 @@
     "purchases"
   ],
   "scripts": {
-    "build": "rm -rf lib/dist && tsc --project tsconfig.build.json",
-    "watch": "tsc --project tsconfig.json --watch",
-    "android": "react-native run-android",
-    "ios": "react-native run-ios --project-path example/ios",
     "prestart": "yarn build",
     "start": "react-native start",
-    "xcode-example": "open example/ios/example.xcworkspace",
+    "build": "rm -rf lib/dist && tsc --project tsconfig.build.json",
+    "watch": "tsc --project tsconfig.json --watch",
     "xcode": "open lib/ios/RNAdapty.xcodeproj",
+    "xcode-example": "open example/ios/example.xcworkspace",
+    "studio": "open -a /Applications/'Android Studio.app' lib/android",
     "clean": "./scripts/clean.sh"
   },
   "peerDependencies": {
