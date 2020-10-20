@@ -148,8 +148,8 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
         if (map.containsKey("gender")) {
             when (map.getValue("gender")) {
-                "m" -> params.withGender(Gender.MALE)
-                "f" -> params.withGender(Gender.FEMALE)
+                "male" -> params.withGender(Gender.MALE)
+                "female" -> params.withGender(Gender.FEMALE)
                 else -> params.withGender(Gender.OTHER)
             }
         }

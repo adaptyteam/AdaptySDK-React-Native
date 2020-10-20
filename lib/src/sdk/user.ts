@@ -36,11 +36,11 @@ export interface AdaptyUser {
    */
   phoneNumber: string;
   /**
-   * User sex, default types are "m" & "f", though
+   * User sex, default types are "male" & "female", "other" though
    * you can hold any value
-   * @example "m"
+   * @example "male"
    */
-  gender: 'm' | 'f' | string;
+  gender: 'male' | 'female' | 'other';
   /**
    * User birthday
    * @example "2020-02-17"
