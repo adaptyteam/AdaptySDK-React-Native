@@ -77,44 +77,67 @@ class RNAdapty: NSObject {
 
   @objc
   func updateProfile(_ dict: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let email: String? = dict.value(forKey: "email") as? String? ?? nil
-    let phoneNumber: String?  = dict.value(forKey: "phoneNumber") as? String? ?? nil
-    let facebookUserId: String? = dict.value(forKey: "facebookUserId") as?  String? ?? nil
-    let amplitudeUserId: String? = dict.value(forKey: "amplitudeUserId") as? String? ?? nil
-    let amplitudeDeviceId: String? = dict.value(forKey: "amplitudeDeviceId") as? String? ?? nil
-    let mixpanelUserId: String? = dict.value(forKey: "mixpanelUserId") as? String? ?? nil
-    let appmetricaProfileId: String? = dict.value(forKey: "appmetricaProfileId") as? String? ?? nil
-    let appmetricaDeviceId: String? = dict.value(forKey: "appmetricaDeviceId") as? String? ?? nil
-    let firstName: String? = dict.value(forKey: "firstName") as? String? ?? nil
-    let lastName: String? = dict.value(forKey: "lastName") as? String? ?? nil
-    let gender: String? = dict.value(forKey: "gender") as? String? ?? nil
+    let params = ProfileParameterBuilder()
 
-    var birthday: Date?
+    if let email = dict.value(forKey: "email") as? String ?? nil {
+      _ = params.withEmail(email)
+    }
+    if let phoneNumber = dict.value(forKey: "phoneNumber") as? String ?? nil {
+      _ = params.withPhoneNumber(phoneNumber)
+    }
+    if let facebookUserId = dict.value(forKey: "facebookUserId") as?  String ?? nil {
+      _ = params.withFacebookUserId(facebookUserId)
+    }
+    if let amplitudeUserId = dict.value(forKey: "amplitudeUserId") as? String ?? nil {
+      _ = params.withAmplitudeUserId(amplitudeUserId)
+    }
+    if let amplitudeDeviceId = dict.value(forKey: "amplitudeDeviceId") as? String ?? nil {
+      _ = params.withAmplitudeDeviceId(amplitudeDeviceId)
+    }
+    if let mixpanelUserId = dict.value(forKey: "mixpanelUserId") as? String ?? nil {
+      _ = params.withMixpanelUserId(mixpanelUserId)
+    }
+    if let appmetricaProfileId = dict.value(forKey: "appmetricaProfileId") as? String ?? nil {
+      _ = params.withAppmetricaProfileId(appmetricaProfileId)
+    }
+    if let appmetricaDeviceId = dict.value(forKey: "appmetricaDeviceId") as? String ?? nil {
+      _ = params.withAppmetricaDeviceId(appmetricaDeviceId)
+    }
+    if let firstName = dict.value(forKey: "firstName") as? String ?? nil {
+      _ = params.withFirstName(firstName)
+    }
+    if let lastName = dict.value(forKey: "lastName") as? String ?? nil {
+      _ = params.withLastName(lastName)
+    }
+    if let gender = dict.value(forKey: "gender") as? String ?? nil {
+      switch gender {
+      case "male": _ = params.withGender(Gender.male)
+      case "female": _ = params.withGender(Gender.female)
+      default: _ = params.withGender(Gender.other)
+      }
+    }
+    if let birthdayStr = dict.value(forKey: "birthday") as? String ?? nil {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-    if let birthdayStr = dict.value(forKey: "birthday") as? String? ?? nil {
-      birthday = dateFormatter.date(from: birthdayStr)
+      
+      if let birthday = dateFormatter.date(from: birthdayStr) {
+        _ = params.withBirthday(birthday)
+      }
     }
 
-    var customAttributes: [String: AnyObject]?
-    if let customObj = dict.value(forKey: "customAttributes") as? NSDictionary? ?? nil {
-      if customAttributes == nil {
-        customAttributes = [:]
-      }
+    if let customObj = dict.value(forKey: "customAttributes") as? NSDictionary ?? nil {
+      var customAttributes: [String: AnyObject] = [:]
 
       let keys = customObj.allKeys.compactMap { $0 as? String }
       for key in keys {
         let keyValue = customObj.value(forKey: key) as AnyObject
-        customAttributes![key] = keyValue
+        customAttributes[key] = keyValue
       }
+      
+      _ = params.withCustomAttributes(customAttributes)
     }
 
-    Adapty.updateProfile(email: email, phoneNumber: phoneNumber, facebookUserId: facebookUserId,
-                         amplitudeUserId: amplitudeUserId, amplitudeDeviceId: amplitudeDeviceId,
-                         mixpanelUserId: mixpanelUserId, appmetricaProfileId: appmetricaProfileId,
-                         appmetricaDeviceId: appmetricaDeviceId, firstName: firstName, lastName: lastName,
-                         gender: gender, birthday: birthday, customAttributes: customAttributes,
-                         appTrackingTransparencyStatus: 1 ) { (error) in
+    Adapty.updateProfile(params: params) { (error) in
                           if error != nil {
                             return reject("Error in: updateProfile", error?.localizedDescription, nil)
                           }
