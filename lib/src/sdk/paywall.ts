@@ -43,6 +43,10 @@ export class AdaptyPaywalls {
           product.localizedTitle = product.title;
           delete product.title;
         }
+        if (product.hasOwnProperty('price')) {
+          product.localizedPrice = product.price;
+          delete product.price;
+        }
       });
 
       paywalls.forEach(paywall => {
@@ -50,6 +54,10 @@ export class AdaptyPaywalls {
           if (product.hasOwnProperty('title')) {
             product.localizedTitle = product.title;
             delete product.title;
+          }
+          if (product.hasOwnProperty('price')) {
+            product.localizedPrice = product.price;
+            delete product.price;
           }
         });
         return paywall;
