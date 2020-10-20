@@ -200,18 +200,13 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                 return@getPaywalls
             }
 
-
-            print("Prod " + products)
-
             val product = products.find { it.vendorProductId == productId }
-            print("Prod " + product)
 
             if (product == null) {
                 promise.reject("Error while getting the product", "Product with such vendorID was not found.")
                 return@getPaywalls
             }
 
-            print("before ")
             currentActivity.let {
                 if (it is Activity) {
                     Adapty.makePurchase(it, product) { purchase, receipt, error ->
@@ -229,8 +224,6 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                     }
                 }
             }
-
-            promise.reject("error in: makePurchase", "Something went wrong")
             return@getPaywalls
         }
     }
