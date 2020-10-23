@@ -216,15 +216,18 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
             currentActivity.let {
                 if (it is Activity) {
-                    Adapty.makePurchase(it, product) { purchase, receipt, error ->
+                    Adapty.makePurchase(it, product) { purchase, response, error ->
                     if (error != null) {
                         promise.reject("Error in makePurchase", error)
                         return@makePurchase
                     }
 
+
+
                     val hm: HashMap<String, Any> = HashMap()
-                    hm["product"] = gson.toJson(purchase)
-                    hm["receipt"] = gson.toJson(receipt)
+                        hm["product"] = purchase.serializeToMap()
+                        hm["receipt"] = purchase!!.purchaseToken
+                        hm["purchaserInfo"] = response?.data?.attributes.serializeToMap()
 
                     val map = toWritableMap(hm)
                     promise.resolve(map)
