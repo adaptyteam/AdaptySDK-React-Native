@@ -198,6 +198,9 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     @ReactMethod
     fun makePurchase(productId: String, promise: Promise) {
         Adapty.getPaywalls { _, products, state, error ->
+            if (state == "cached") {
+                return@getPaywalls
+            }
 
             if (error != null) {
                 promise.reject("Error, while getting list of products [1]", error)
