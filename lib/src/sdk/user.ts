@@ -116,6 +116,10 @@ export class User {
     isSdkAuthorized(this._ctx.isActivated);
 
     try {
+      if (updatedFields.hasOwnProperty('birthday')) {
+        updatedFields.birthday = updatedFields.birthday?.toISOString() as any;
+      }
+
       const result = await this._ctx.module.updateProfile(updatedFields);
       return result;
     } catch (error) {
