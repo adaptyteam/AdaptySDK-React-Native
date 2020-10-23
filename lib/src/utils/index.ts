@@ -8,7 +8,7 @@ export interface AdaptyModule {
   restorePurchases: () => Promise<void>;
   getPurchaseInfo: () => Promise<string>;
   makePurchase: (product: string) => Promise<Object>;
-  validateReceipt: (receipt: string) => Promise<any>;
+  validateReceipt: (productId: string, receipt?: string) => Promise<any>;
   getPromo: () => Promise<any>;
   getPaywalls: () => Promise<{ paywalls: string; product: string }>;
 

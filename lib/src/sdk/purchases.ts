@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { attemptToDecodeError, isSdkAuthorized } from './error';
 import { AdaptyContext, AdaptyProduct, AdaptyPurchaserInfo } from './types';
 
@@ -97,10 +98,21 @@ export class Purchases {
    *
    * @throws AdaptyError
    */
-  public async validateReceipt(receipt: string): Promise<void> {
+  public async validateReceipt(
+    productId: string,
+    receipt: string,
+  ): Promise<void> {
     isSdkAuthorized(this._ctx.isActivated);
 
     try {
+      if (Platform.OS === 'android') {
+        const result = await this._ctx.module.validateReceipt(
+          productId,
+          receipt,
+        );
+        return result;
+      }
+
       const result = await this._ctx.module.validateReceipt(receipt);
       return result;
     } catch (error) {
