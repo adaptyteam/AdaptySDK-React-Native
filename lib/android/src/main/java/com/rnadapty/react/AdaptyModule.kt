@@ -175,6 +175,10 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     @ReactMethod
     fun getPaywalls(promise: Promise) {
         Adapty.getPaywalls { paywalls, products, state, error ->
+            if (state != "synced") {
+                return@getPaywalls
+            }
+            
             if (error != null) {
                 promise.reject("Error in: getPaywalls", error)
                 return@getPaywalls
