@@ -178,7 +178,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             if (state != "synced") {
                 return@getPaywalls
             }
-            
+
             if (error != null) {
                 promise.reject("Error in: getPaywalls", error)
                 return@getPaywalls
@@ -217,20 +217,20 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             currentActivity.let {
                 if (it is Activity) {
                     Adapty.makePurchase(it, product) { purchase, response, error ->
-                    if (error != null) {
-                        promise.reject("Error in makePurchase", error)
-                        return@makePurchase
-                    }
+                        if (error != null) {
+                            promise.reject("Error in makePurchase", error)
+                            return@makePurchase
+                        }
 
 
 
-                    val hm: HashMap<String, Any> = HashMap()
+                        val hm: HashMap<String, Any> = HashMap()
                         hm["product"] = purchase.serializeToMap()
                         hm["receipt"] = purchase!!.purchaseToken
                         hm["purchaserInfo"] = response?.data?.attributes.serializeToMap()
 
-                    val map = toWritableMap(hm)
-                    promise.resolve(map)
+                        val map = toWritableMap(hm)
+                        promise.resolve(map)
                     }
                 }
             }
@@ -289,9 +289,13 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                 return@getPromo
             }
 
-            val promoMap = promo.serializeToMap()
-            val data = toWritableMap(promoMap)
-            promise.resolve(data)
+            if (promo != null) {
+                val promoMap = promo.serializeToMap()
+                val data = toWritableMap(promoMap)
+                promise.resolve(data)
+            }
+
+            promise.resolve(null)
         }
     }
 
