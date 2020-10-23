@@ -253,16 +253,17 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     @ReactMethod
     fun validateReceipt(productId: String, receipt: String, promise: Promise) {
 
-        Adapty.getPaywalls { _, products, _, error ->
+        Adapty.getPaywalls { _, products, state, error ->
+            if (state == "cached") {
+                return@getPaywalls
+            }
 
             if (error != null) {
                 promise.reject("Error, while getting list of products [1]", error)
                 return@getPaywalls
             }
 
-            val product = products.find { product ->
-                return@find product.vendorProductId == productId
-            }
+            val product = products.find { it.vendorProductId == productId }
 
             if (product == null || product.skuDetails == null) {
                 promise.reject("Error while getting the product", "Product with such vendorID was not found.")
