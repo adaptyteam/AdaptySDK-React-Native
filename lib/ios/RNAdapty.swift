@@ -3,6 +3,7 @@ import Adapty
 
 @objc(RNAdapty)
 class RNAdapty: NSObject {
+  let events = RNAdaptyEvents()
 
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
@@ -236,12 +237,6 @@ class RNAdapty: NSObject {
 
      return resolve(dict)
     }
-  }
-
-  /* PROMOS */
-  @objc
-  func didReceivePromo(_ promo: PromoModel) {
-    print("PROMO REC")
   }
 
   @objc
