@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "0.2.5-beta",
+  "version": "0.3.0-beta",
   "nativePackage": true,
   "description": "Adapty SDK",
   "license": "MIT",
@@ -34,6 +34,7 @@
   ],
   "scripts": {
     "prestart": "yarn build",
+    "prepublish": "yarn build",
     "start": "react-native start",
     "build": "rm -rf lib/dist && tsc --project tsconfig.build.json",
     "watch": "tsc --project tsconfig.json --watch",
