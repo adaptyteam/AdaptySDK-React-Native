@@ -1,3 +1,19 @@
+## 0.3.0-beta
+> 26 October 2020
+
+## ⭐ Features
+- **BREAKING** `validateReceipt` now accepts two arguments instead of one 
+- Kinesis applied to the API
+- Testing event listeners
+- Apple Search Ads option for `updateAttribution` added
+
+## 🛠 Fixes
+- Now passing birthday to `updateProfile` works
+- Android: now always returns actual paywalls with `getPaywalls`
+- Andorid: now purchases with `makePurchase` hooks only once
+- Android: `makePurchase` now returns correct interface
+- Android: `validateReceipt` temporary disabled caching
+- Android: `getPromo` now doesn't kill the app if empty
 
 ## 0.2.4-beta
 > 20 October 2020
