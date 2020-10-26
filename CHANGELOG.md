@@ -1,3 +1,19 @@
+
+## 0.2.4-beta
+> 20 October 2020
+
+## ⭐ Features
+* Now RN SDK uses iOS Swift SDK  1.8.1 (If your pods don’t build anymore, please, run `pod update Adapty`)
+
+## 🛠 Fixes
+* Gender previously was taking values ‘m’ | ‘f’ | ‘string’, now it accepts only ‘male’ | ‘female’ | ‘other’
+* Android: Paywall interface inconsistencies are fixed
+* Android: makePurchase now proceeds without rejecting
+* Android: building fixed
+* iOS: Build warnings fixed
+
+---
+
 ## 0.2.2-beta
 > 14 October 2020
 
