@@ -136,23 +136,20 @@ adapty.user.updateProfile({
 adapty.purchases.makePurchase('500_coins');
 ```
 
-### Using event listeners
+### Listening to Adapty events
 
 > ⚠️ Listeners are current WIP — they might work inconsistently on iOS and they won't work on Android.
 
 Sometimes you want to subscribe user to an Adapty-connected update. In order to create an event listener, you should use `addEventListener` method of the `adapty` instance:
 
 ```ts
-// for example
-adapty.addEventListener('onPaywallClosed', () => {
-  Alert.alert("Paywall closed");
-});
-
-// or
+// For example
 adapty.addEventListener('onPurchaseFailed', error => {
   navigate("ViewError", { error })
 })
 ```
+
+You may find extended documentation in [here](docs/README.md)
 
 ## License
 
