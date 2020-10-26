@@ -16,6 +16,8 @@
   * [Getting available promos with `adapty.promo.getPromo`](#getting-available-promos-with-adaptypromogetpromo)
 * [Paywall methods](#paywall-methods)
   * [Collecting all paywalls with `adapty.paywalls.getPaywalls`](#collecting-all-paywalls-with-adaptypaywallsgetpaywalls)
+* [Attribution](#attribution)
+* [Listening to events](#listening-to-events)
 
 ## Advanced initialization
 ### Initialization point
@@ -120,7 +122,8 @@ const isUserSubscribed = info.paidAccessLevels?.level_configured_in_dashboard?.i
 
 ### Making Purchases with `adapty.purchases.makePurchase`
 > iOS: 👌, Android 👌
-In order for this to work, please, make sure you have filled Apple Connect products into Adapty Dashboard
+> In order for this to work, please, make sure you have filled Apple Connect products into Adapty Dashboard
+> ⚠️ Products won't be fetched on a simulator due to simulator limitations
 
 You can perform native purchases and log them to your Adapty dashboard in one action. This function will return a receipt and a product user has purchased on completion.
 
@@ -162,9 +165,45 @@ adapty.promo.getPromo();
 ### Collecting all paywalls with `adapty.paywalls.getPaywalls`
 > iOS: 👌, Android 👌
 
+> ⚠️ Paywalls are bound to products, and, thus, would not return any feasible result on a simulator
+
 You can manually get a list of available paywalls and products:
 
 ```ts
 adapty.paywalls.getPaywalls();
 ```
+
+## Attribution
+> We will provide examples how to sync attribution via RN libraries in due time, stay tuned!
+
+> ⚠️ Please, note, that for an adapty profile one _source_ attribution fetches only once — i.e. if you try to pass `AppleSearchAds` attribution twice, you will only be able to find the one you've passed first
+
+Adapty has support for most popular attribution systems which allows you to track how much revenue was driven by each source and ad network.
+To integrate with attribution system, just pass attribution you receive to Adapty method.
+
+Currently, Adapty has support for the following sources: `"AppleSearchAds"`, `"Adjust"`, `"AppsFlyer"`, `"Branch"` and `"Custom"`.
+
+
+```ts
+adapty.updateAttribution(attributionObject, "source")
+```
+
+## Listening to events
+
+> ⚠️ Current WIP, might be unstable. At the moment, callbacks do not return any data, which will be fixed in the nearest future
+
+You can listen to Adapty events.
+
+```ts
+adapty.addEventListener('eventName', (data) => console.log('event fired'));
+```
+
+Current events:
+
+|Event name          | Description   |
+|--------------------|---|
+|`onPurchaseSuccess` |Fires, after a successful purchase    |
+|`onPurchaseFailed`  |Fires, after an unsuccessful purchase   |
+|`onInfoUpdate`      |Fires, when user's purchases info changes: new products owned, subscriptions revoked or expired  |
+|`onPromoReceived`   |Fires, whenever user receives a change in the promotional paywall   |
 
