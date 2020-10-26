@@ -80,7 +80,7 @@ class RNAdapty: NSObject {
   @objc
   func updateProfile(_ dict: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     let params = ProfileParameterBuilder()
-
+    
     if let email = dict.value(forKey: "email") as? String ?? nil {
       _ = params.withEmail(email)
     }
@@ -119,17 +119,17 @@ class RNAdapty: NSObject {
       }
     }
     if let birthdayStr = dict.value(forKey: "birthday") as? String ?? nil {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
       
       if let birthday = dateFormatter.date(from: birthdayStr) {
         _ = params.withBirthday(birthday)
       }
     }
-
+    
     if let customObj = dict.value(forKey: "customAttributes") as? NSDictionary ?? nil {
       var customAttributes: [String: AnyObject] = [:]
-
+      
       let keys = customObj.allKeys.compactMap { $0 as? String }
       for key in keys {
         let keyValue = customObj.value(forKey: key) as AnyObject
@@ -140,11 +140,11 @@ class RNAdapty: NSObject {
     }
 
     Adapty.updateProfile(params: params) { (error) in
-                          if error != nil {
-                            return reject("Error in: updateProfile", error?.localizedDescription, nil)
-                          }
-                          return resolve(true)
-                        }
+      if error != nil {
+        return reject("Error in: updateProfile", error?.localizedDescription, nil)
+      }
+      return resolve(true)
+    }
   }
 
   /* PURCHASES */
