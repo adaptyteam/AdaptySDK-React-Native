@@ -21,7 +21,7 @@ export interface AdaptyModule {
 
   updateAttribution: (
     object: Object,
-    source: 'Branch' | 'AppsFlyer' | 'Adjust' | 'Custom',
+    source: 'Branch' | 'AppsFlyer' | 'Adjust' | 'Custom' | 'AppleSearchAds',
   ) => Promise<void>;
 }
 

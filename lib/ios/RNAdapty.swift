@@ -38,6 +38,8 @@ class RNAdapty: NSObject {
         return .adjust
       case "AppsFlyer":
         return .appsflyer
+      case "AppleSearchAds":
+        return .appleSearchAds
       default:
         return .custom
       }

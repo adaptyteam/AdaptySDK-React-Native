@@ -50,7 +50,7 @@ export class Adapty extends AdaptyEventEmitter {
    */
   public async updateAttribution(
     attribution: Object,
-    source: 'Adjust' | 'AppsFlyer' | 'Branch' | 'Custom',
+    source: 'Adjust' | 'AppsFlyer' | 'Branch' | 'Custom' | 'AppleSearchAds',
   ): Promise<void> {
     isSdkAuthorized(this._ctx.isActivated);
 
