@@ -1,16 +1,31 @@
 import { NativeModules } from 'react-native';
 
+export interface AdaptyDefaultOptions {
+  cached?: boolean;
+}
 export interface AdaptyModule {
   identify: (uId: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (fields: Object) => Promise<void>;
 
-  restorePurchases: () => Promise<void>;
-  getPurchaseInfo: () => Promise<string>;
-  makePurchase: (product: string) => Promise<Object>;
-  validateReceipt: (productId: string, receipt?: string) => Promise<any>;
+  restorePurchases: () => Promise<{ receipt: string; purchaserInfo?: string }>;
+  getPurchaseInfo: (options?: AdaptyDefaultOptions) => Promise<string>;
+  makePurchase: (
+    product: string,
+    options?: AdaptyDefaultOptions,
+  ) => Promise<{
+    receipt: string;
+    product?: string;
+    purchaserInfo?: string;
+  }>;
+  validateReceipt: (
+    productId: string,
+    receipt?: string,
+  ) => Promise<{ purchaserInfo: string }>;
   getPromo: () => Promise<any>;
-  getPaywalls: () => Promise<{ paywalls: string; product: string }>;
+  getPaywalls: (
+    options?: AdaptyDefaultOptions,
+  ) => Promise<{ paywalls: string; product: string }>;
 
   activate: (
     sdkKey: string,
