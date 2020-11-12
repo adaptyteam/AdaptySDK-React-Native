@@ -115,8 +115,20 @@ export class Purchases {
   public async validateReceipt(
     productId: string,
     receipt: string,
-  ): Promise<void> {
+  ): Promise<{
+    purchaserInfo?: AdaptyPurchaserInfo;
+  }> {
     isSdkAuthorized(this._ctx.isActivated);
+
+    const parseJson = (data: {
+      purchaserInfo?: string;
+    }): { purchaserInfo?: AdaptyPurchaserInfo } => {
+      return {
+        ...(data.purchaserInfo && {
+          purchaserInfo: JSON.parse(data.purchaserInfo),
+        }),
+      };
+    };
 
     try {
       if (Platform.OS === 'android') {
@@ -124,11 +136,11 @@ export class Purchases {
           productId,
           receipt,
         );
-        return result;
+        return parseJson(result);
       }
 
       const result = await this._ctx.module.validateReceipt(receipt);
-      return result;
+      return parseJson(result);
     } catch (error) {
       throw attemptToDecodeError(error);
     }
