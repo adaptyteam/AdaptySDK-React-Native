@@ -13,7 +13,9 @@ export class AdaptyPaywalls {
    * @returns
    * Object of
    */
-  public async getPaywalls(): Promise<{
+  public async getPaywalls(
+    options: { cached?: boolean } = {},
+  ): Promise<{
     paywalls: AdaptyPaywall[];
     products: AdaptyProduct[];
   }> {
@@ -34,7 +36,7 @@ export class AdaptyPaywalls {
     };
 
     try {
-      const result = await this._ctx.module.getPaywalls();
+      const result = await this._ctx.module.getPaywalls(options);
       const paywalls: AdaptyPaywall[] = parseJson(result.paywalls);
       const products: AdaptyProduct[] = parseJson(result.product);
 
