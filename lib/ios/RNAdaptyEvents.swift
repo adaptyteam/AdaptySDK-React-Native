@@ -8,7 +8,7 @@ class RNAdaptyEvents: RCTEventEmitter, AdaptyDelegate {
   }
 
   override func supportedEvents() -> [String]! {
-    return ["onPromoReceive", "onPurchaseSuccess", "onPurchaseFailed", "onInfoUpdate"]
+    return ["onPromoReceived", "onPurchaseSuccess", "onPurchaseFailed", "onInfoUpdate"]
   }
 
   @objc func check() {
@@ -31,6 +31,6 @@ class RNAdaptyEvents: RCTEventEmitter, AdaptyDelegate {
   }
 
   func didReceivePromo(_ promo: PromoModel) {
-    sendEvent(withName: "onPromoReceive", body: ["promo": promo])
+    sendEvent(withName: "onPromoReceived", body: ["promo": promo])
   }
 }
