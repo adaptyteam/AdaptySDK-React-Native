@@ -1,7 +1,12 @@
 import { Platform } from 'react-native';
 import { AdaptyDefaultOptions } from 'react-native-adapty/utils';
 import { attemptToDecodeError, isSdkAuthorized } from './error';
-import { AdaptyContext, AdaptyProduct, AdaptyPurchaserInfo } from './types';
+import {
+  AdaptyContext,
+  AdaptyPurchaserInfo,
+  MakePurchaseResult,
+  RestorePurchasesResult,
+} from './types';
 
 export class Purchases {
   private _ctx: AdaptyContext;
@@ -90,19 +95,32 @@ export class Purchases {
    */
   public async makePurchase(
     productVendorId: string,
-  ): Promise<{
-    receipt: string;
-    product: AdaptyProduct | null;
-    purchaserInfo: AdaptyPurchaserInfo | null;
-  }> {
+    options: AdaptyDefaultOptions = {},
+  ): Promise<MakePurchaseResult> {
     isSdkAuthorized(this._ctx.isActivated);
 
-    /** @todo mbe without json */
-    // const str = JSON.stringify(product);
+    const parseJson = (data: {
+      receipt: string;
+      product?: string;
+      purchaserInfo?: string;
+    }): MakePurchaseResult => {
+      return {
+        receipt: data.receipt,
+        ...(data.product && { product: JSON.parse(data.product) }),
+        ...(data.purchaserInfo && {
+          purchaserInfo: JSON.parse(data.purchaserInfo),
+        }),
+      };
+    };
 
     try {
-      const result: any = await this._ctx.module.makePurchase(productVendorId);
-      return result;
+      const result = await this._ctx.module.makePurchase(
+        productVendorId,
+        options,
+      );
+
+      const data = parseJson(result);
+      return data;
     } catch (error) {
       throw attemptToDecodeError(error);
     }
