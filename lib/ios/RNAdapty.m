@@ -33,7 +33,8 @@ RCT_EXTERN_METHOD(
 )
 
 RCT_EXTERN_METHOD(
-                  getPurchaseInfo: (RCTPromiseResolveBlock)resolve
+                  getPurchaseInfo: (NSDictionary)options
+                  resolver:        (RCTPromiseResolveBlock)resolve
                   rejecter:        (RCTPromiseRejectBlock)reject
 )
 
@@ -44,6 +45,7 @@ RCT_EXTERN_METHOD(
 
 RCT_EXTERN_METHOD(
                   makePurchase: (NSString)productId
+                  options:      (NSDictionary)options
                   resolver:     (RCTPromiseResolveBlock)resolve
                   rejecter:     (RCTPromiseRejectBlock)reject
 )
@@ -59,7 +61,8 @@ RCT_EXTERN_METHOD(
                   rejecter: (RCTPromiseRejectBlock)reject
 )
 RCT_EXTERN_METHOD(
-                  getPaywalls: (RCTPromiseResolveBlock)resolve
+                  getPaywalls: (NSDictionary)options
+                  resolver:    (RCTPromiseResolveBlock)resolve
                   rejecter:    (RCTPromiseRejectBlock)reject
 )
 

@@ -150,10 +150,10 @@ class RNAdapty: NSObject {
 
   /* PURCHASES */
   @objc
-  func makePurchase(_ productId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping  RCTPromiseRejectBlock) {
+  func makePurchase(_ productId: String, options: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping  RCTPromiseRejectBlock) {
     Adapty.getPaywalls { (_, products, state, error) in
-      if state != .synced {
-        return
+      if shouldDrop(options, with: state) {
+        return;
       }
 
       if error != nil {
@@ -180,46 +180,52 @@ class RNAdapty: NSObject {
           return reject("Error in: makePurchase", error?.localizedDescription, nil)
         }
 
-        let dict: NSDictionary = [
-          "purchaserInfo": purchaserInfo as Any,
-          "receipt": receipt  as Any,
-          "appleValidationResult": appleValidationResult as Any,
-          "product": product as Any
-        ]
+        var dict: [String: String?] = ["receipt": receipt]
+        
+        if (purchaserInfo != nil) {
+          dict["purchaserInfo"] = encodeJson(from: purchaserInfo)
+        }
+        if (product != nil) {
+          dict["product"] = encodeJson(from: product)
+        }
+        
         return resolve(dict)
       }
     }
   }
 
   @objc
-  func getPurchaseInfo(_ resolve: @escaping  RCTPromiseResolveBlock, rejecter reject: @escaping  RCTPromiseRejectBlock) {
+  func getPurchaseInfo(_ options: NSDictionary, resolver resolve: @escaping  RCTPromiseResolveBlock, rejecter reject: @escaping  RCTPromiseRejectBlock) {
     Adapty.getPurchaserInfo { (info, state, error) in
-      if state != .synced {
-        return
+      if shouldDrop(options, with: state) {
+        return;
       }
 
       if error != nil {
           return reject("Error in: getPurchaseInfo", error?.localizedDescription, nil)
       }
 
-      let encoder = JSONEncoder()
-
-      if let json = try? encoder.encode(info) {
-        if let jsonString = String(data: json, encoding: .utf8) {
-          return resolve(jsonString)
-        }
-      }
+      resolve(encodeJson(from: info))
     }
   }
 
   @objc
   func restorePurchases(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    Adapty.restorePurchases { (error) in
+    Adapty.restorePurchases { (purchaserInfo, receipt, _, error) in
       if error != nil {
         return reject("Error in: restorePurchases", error?.localizedDescription, error)
       }
-
-      return resolve(true)
+      
+      var dict: [String: String?] = [:]
+      
+      if purchaserInfo != nil {
+        dict["purchaserInfo"] = encodeJson(from: purchaserInfo)
+      }
+      if receipt != nil {
+        dict["receipt"] = receipt
+      }
+     
+      return resolve(dict)
     }
   }
 
@@ -230,10 +236,11 @@ class RNAdapty: NSObject {
         return reject("Error in: validateReceipt", error?.localizedDescription, error)
       }
 
-      let dict: NSDictionary = [
-       "purchaserInfo": purchaserInfo as Any,
-       "response": response as Any
-     ]
+      var dict: [String: String?] = [:]
+      
+      if purchaserInfo != nil {
+        dict["purchaserInfo"] = encodeJson(from: purchaserInfo)
+      }
 
      return resolve(dict)
     }
@@ -252,12 +259,12 @@ class RNAdapty: NSObject {
 
   /* PAYWALLS */
   @objc
-  func getPaywalls(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func getPaywalls(_ options: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.getPaywalls { (paywalls, products, state, error) in
-      if state == .cached {
-        return
+      if shouldDrop(options, with: state) {
+        return;
       }
-
+      
       if error != nil {
            return reject("Error in: getPaywalls", error?.localizedDescription, nil)
       }
@@ -278,4 +285,29 @@ class RNAdapty: NSObject {
       return resolve(["paywalls": stringPaywalls, "product": stringProduct])
     }
   }
+}
+
+
+func shouldDrop(_ options: NSDictionary, with state: DataState) -> Bool {
+  if let options = options as? [String: Bool?] {
+    switch options["cached"] {
+    case true:
+      return state == .synced
+    case nil, false, _:
+      return state == .cached
+    }
+  } else {
+    return state == .cached
+  }
+}
+
+func encodeJson<T: Encodable>(from data: T) -> String? {
+  let encoder = JSONEncoder()
+
+  if let json = try? encoder.encode(data) {
+    if let jsonString = String(data: json, encoding: .utf8) {
+      return jsonString
+    }
+  }
+  return nil
 }
