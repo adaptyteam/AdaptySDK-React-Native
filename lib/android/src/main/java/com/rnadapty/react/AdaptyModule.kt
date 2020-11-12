@@ -1,31 +1,40 @@
 package com.rnadapty.react
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import com.adapty.Adapty
 import com.adapty.api.AttributionType
-import com.adapty.api.entity.containers.OnPromoReceivedListener
-import com.adapty.api.entity.containers.Promo
 import com.adapty.api.entity.profile.update.Date
 import com.adapty.api.entity.profile.update.Gender
 import com.adapty.api.entity.profile.update.ProfileParameterBuilder
 import com.adapty.api.entity.purchaserInfo.OnPurchaserInfoUpdatedListener
 import com.adapty.api.entity.purchaserInfo.model.PurchaserInfoModel
-import com.adapty.utils.LogLevel
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.text.SimpleDateFormat
-import com.adapty.api.entity.containers.Paywall
-import com.adapty.api.entity.containers.Product
 import com.adapty.api.ApiClient
 import android.util.Log
+import com.adapty.api.entity.DataState
+import com.adapty.api.entity.paywalls.OnPromoReceivedListener
+import com.adapty.api.entity.paywalls.PromoModel
+import com.adapty.api.entity.validate.GoogleValidationResult
+import com.adapty.purchase.PurchaseType
+import com.adapty.utils.AdaptyLogLevel
 
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
     val gson = Gson()
 
     override fun getName(): String {
         return "RNAdapty"
+    }
+
+    fun shouldDrop(options: ReadableMap, state: DataState): Boolean {
+        return when (options.getBoolean("cached")) {
+            true -> state == DataState.SYNCED
+            else -> state == DataState.CACHED
+        }
     }
 
     private fun sendEvent(reactContext: ReactContext,
@@ -38,14 +47,15 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
     private fun subscribeToEvents() {
         Adapty.setOnPromoReceivedListener(object: OnPromoReceivedListener {
-            override fun onPromoReceived(promo: Promo) {
+            override fun onPromoReceived(promo: PromoModel) {
                 println("[EVENT] Received Promo")
                 val data = promo.serializeToMap()
-                sendEvent(reactApplicationContext, "onCheck", toWritableMap(data))
             }
         })
+
+
         Adapty.setOnPurchaserInfoUpdatedListener(object: OnPurchaserInfoUpdatedListener {
-            override fun didReceiveUpdatedPurchaserInfo(purchaserInfo: PurchaserInfoModel) {
+            override fun onPurchaserInfoReceived(purchaserInfo: PurchaserInfoModel) {
                 println("[EVENT] Received Purchaser info")
                 val data = purchaserInfo.serializeToMap()
                 sendEvent(reactApplicationContext, "onCheck", toWritableMap(data))
@@ -58,9 +68,9 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         Adapty.activate(reactApplicationContext, sdkKey, customerUserId)
 
         when (logLevel) {
-            "verbose" -> Adapty.setLogLevel(LogLevel.VERBOSE)
-            "error" -> Adapty.setLogLevel(LogLevel.ERROR)
-            else -> Adapty.setLogLevel(LogLevel.NONE)
+            "verbose" -> Adapty.setLogLevel(AdaptyLogLevel.VERBOSE)
+            "error" -> Adapty.setLogLevel(AdaptyLogLevel.ERROR)
+            else -> Adapty.setLogLevel(AdaptyLogLevel.NONE)
         }
 
         if (observerMode) {
@@ -96,6 +106,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
     @ReactMethod
     fun updateProfile(updates: ReadableMap, promise: Promise) {
         val params = ProfileParameterBuilder()
@@ -172,33 +183,31 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
     }
 
+
+
     @ReactMethod
-    fun getPaywalls(promise: Promise) {
+    fun getPaywalls(options: ReadableMap,promise: Promise) {
         Adapty.getPaywalls { paywalls, products, state, error ->
-            if (state != "synced") {
-                return@getPaywalls
-            }
+           if (shouldDrop(options, state)) {
+               return@getPaywalls
+           }
 
             if (error != null) {
                 promise.reject("Error in: getPaywalls", error)
                 return@getPaywalls
             }
 
-            val paywallsData = paywalls.mapNotNull { it.attributes }
             val hm: HashMap<String, String> = HashMap()
-
-
             hm["products"] = gson.toJson(products)
-            hm["paywalls"] = gson.toJson(paywallsData)
-
+            hm["paywalls"] = gson.toJson(paywalls)
             promise.resolve(toWritableMap(hm))
         }
     }
 
     @ReactMethod
-    fun makePurchase(productId: String, promise: Promise) {
+    fun makePurchase(productId: String, options: ReadableMap, promise: Promise) {
         Adapty.getPaywalls { _, products, state, error ->
-            if (state == "cached") {
+            if (shouldDrop(options, state)) {
                 return@getPaywalls
             }
 
@@ -216,18 +225,18 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
             currentActivity.let {
                 if (it is Activity) {
-                    Adapty.makePurchase(it, product) { purchase, response, error ->
+                    Adapty.makePurchase(it, product) { purchaserInfo, token, googleValidationResult, product ,error ->
                         if (error != null) {
                             promise.reject("Error in makePurchase", error)
                             return@makePurchase
                         }
 
-
-
-                        val hm: HashMap<String, Any> = HashMap()
-                        hm["product"] = purchase.serializeToMap()
-                        hm["receipt"] = purchase!!.purchaseToken
-                        hm["purchaserInfo"] = response?.data?.attributes.serializeToMap()
+                        val hm: HashMap<String, String> = HashMap()
+                        hm["purchaserInfo"] = gson.toJson(purchaserInfo)
+                        hm["product"] = gson.toJson(product.serializeToMap())
+                        if (token != null) {
+                            hm["receipt"] = token
+                        }
 
                         val map = toWritableMap(hm)
                         promise.resolve(map)
@@ -240,21 +249,30 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
     @ReactMethod
     fun restorePurchases(promise: Promise) {
-        Adapty.restorePurchases { _, error ->
+        Adapty.restorePurchases { purchaserInfo, list , error ->
             if (error != null) {
                 promise.reject("Error in: restorePurchases", error)
                 return@restorePurchases
             }
 
-            promise.resolve(true)
+            val receipts = list?.mapNotNull { it.purchaseToken }
+
+            val hm: HashMap<String, String> = HashMap()
+            hm["purchaserInfo"] = gson.toJson(purchaserInfo)
+
+            if (receipts != null && receipts.isNotEmpty()) {
+                hm["receipt"] = receipts.last()
+            }
+
+            val map = toWritableMap(hm)
+            promise.resolve(map)
         }
     }
 
     @ReactMethod
     fun validateReceipt(productId: String, receipt: String, promise: Promise) {
-
         Adapty.getPaywalls { _, products, state, error ->
-            if (state == "cached") {
+            if (state == DataState.SYNCED) {
                 return@getPaywalls
             }
 
@@ -265,18 +283,31 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
             val product = products.find { it.vendorProductId == productId }
 
-            if (product == null || product.skuDetails == null) {
+            if (product?.skuDetails == null) {
                 promise.reject("Error while getting the product", "Product with such vendorID was not found.")
                 return@getPaywalls
             }
 
-            Adapty.validatePurchase(product.skuDetails!!.type, productId, receipt) { _, error ->
+            val type: PurchaseType? = when (product.skuDetails?.type) {
+                "subs" -> PurchaseType.SUBS
+                "inapp" -> PurchaseType.INAPP
+                else -> null
+            }
+            if (type == null) {
+                promise.reject("Error in: validateReceipt", "Error while extracting product type")
+                return@getPaywalls
+            }
+
+            Adapty.validatePurchase(type, productId, receipt) { purchaserInfo ,_, _, error ->
                 if (error != null) {
                     promise.reject("Error in: validateReceipt", error)
                     return@validatePurchase
                 }
 
-                promise.resolve(true)
+                val hm: HashMap<String, Any> = HashMap()
+                hm["purchaserInfo"] = gson.toJson(purchaserInfo)
+                val map = toWritableMap(hm)
+                promise.resolve(map)
             }
         }
     }
@@ -300,8 +331,12 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun getPurchaseInfo(promise: Promise) {
-        Adapty.getPurchaserInfo { purchaserInfo, _, error ->
+    fun getPurchaseInfo(options: ReadableMap, promise: Promise) {
+        Adapty.getPurchaserInfo { purchaserInfo, state, error ->
+            if (shouldDrop(options, state)) {
+                return@getPurchaserInfo
+            }
+
             if (error != null) {
                 promise.reject("Error in: getPurchaserInfo", error)
                 return@getPurchaserInfo
@@ -314,19 +349,19 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
     @ReactMethod
     fun updateAttribution(map: ReadableMap, source: String, promise: Promise) {
-        var sourceType = ""
-
-        when (source) {
-            "Branch" -> sourceType = AttributionType.BRANCH
-            "Adjust" -> sourceType = AttributionType.ADJUST
-            "AppsFlyer" -> sourceType = AttributionType.APPSFLYER
-            else -> {
-                promise.reject("Error in: updateAttribution", "Source of attribution is not defined")
-                return@updateAttribution
-            }
+        val sourceType: AttributionType? = when (source) {
+            "Branch" -> AttributionType.BRANCH
+            "Adjust" -> AttributionType.ADJUST
+            "AppsFlyer" -> AttributionType.APPSFLYER
+            else -> null
         }
 
-        Adapty.updateAttribution(map, sourceType)
+        if (sourceType == null) {
+            promise.reject("Error in: updateAttribution", "Source of attribution is not defined")
+            return
+        }
+
+        Adapty.updateAttribution(map, sourceType) {}
         promise.resolve(true)
     }
 
