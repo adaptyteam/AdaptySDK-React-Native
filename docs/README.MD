@@ -109,10 +109,14 @@ adapty.user.logout();
 ### Acquiring user purchases status with `adapty.purchases.getInfo`
 > iOS: 👌, Android 👌
 
-If your user obtains any product or subscription, you can easily get such information:
+If your user obtains any product or subscription, you can easily get such information.
+Methods supports caching. This way data would be fetched on app initialization and reused on call. 
 
 ```ts
 const info = await adapty.purchases.getInfo();
+
+// If you don't want to refetch
+const infoCached = await adapty.purchases.getInfo({ cached: true });
 
 // For example, check if user has active subscription
 const isUserSubscribed = info.paidAccessLevels?.level_configured_in_dashboard?.isActive;
@@ -123,9 +127,13 @@ const isUserSubscribed = info.paidAccessLevels?.level_configured_in_dashboard?.i
 In order for this to work, please, make sure you have filled Apple Connect products into Adapty Dashboard
 
 You can perform native purchases and log them to your Adapty dashboard in one action. This function will return a receipt and a product user has purchased on completion.
+Method refetches native product data, thus supports caching.
 
 ```ts
 const purchase = await adapty.purchases.makePurchase('500_coins');
+
+// if you don't want to refetch native product data
+adapty.purchases.makePurchase('500_coins', { caching: true })
 ```
 
 ### Restoring unresolved purchases with `adapty.purchases.restore`
@@ -140,10 +148,10 @@ adapty.purchases.restore();
 ### Validating receipts with `adapty.purchases.validate`
 > iOS: 👌, Android 👌
 
-You can easily validate receipts with Adapty SDK:
+You can easily validate receipts with Adapty SDK
 
 ```ts
-adapty.purchases.restore();
+adapty.purchases.validateReceipt(productId, receipt);
 ```
 
 ## Promo methods
@@ -162,9 +170,12 @@ adapty.promo.getPromo();
 ### Collecting all paywalls with `adapty.paywalls.getPaywalls`
 > iOS: 👌, Android 👌
 
-You can manually get a list of available paywalls and products:
+You can manually get a list of available paywalls and products. Method supports caching on app initialization.
 
 ```ts
 adapty.paywalls.getPaywalls();
+
+// if you want to use cached paywalls
+adapty.paywalls.getPaywalls({ cached: true });
 ```
 
