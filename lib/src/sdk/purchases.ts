@@ -111,6 +111,7 @@ export class Purchases {
   /**
    *
    * @throws AdaptyError
+   * @deprecated
    */
   public async validateReceipt(
     productId: string,
