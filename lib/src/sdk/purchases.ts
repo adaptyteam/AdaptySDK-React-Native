@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { AdaptyDefaultOptions } from 'react-native-adapty/utils';
 import { attemptToDecodeError, isSdkAuthorized } from './error';
 import { AdaptyContext, AdaptyProduct, AdaptyPurchaserInfo } from './types';
 
@@ -42,7 +43,9 @@ export class Purchases {
    * @returns Promised
    * @throws AdaptyError
    */
-  public async getInfo(): Promise<AdaptyPurchaserInfo> {
+  public async getInfo(
+    options: AdaptyDefaultOptions = {},
+  ): Promise<AdaptyPurchaserInfo> {
     isSdkAuthorized(this._ctx.isActivated);
 
     const parseJson = (jsonString: string): AdaptyPurchaserInfo => {
@@ -75,7 +78,7 @@ export class Purchases {
     };
 
     try {
-      const result = await this._ctx.module.getPurchaseInfo();
+      const result = await this._ctx.module.getPurchaseInfo(options);
       return parseJson(result);
     } catch (error) {
       throw attemptToDecodeError(error);
