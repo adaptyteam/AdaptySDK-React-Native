@@ -12,6 +12,13 @@ export interface AdaptyContext {
   customerUserId?: string;
 }
 
+export enum AdaptyEvent {
+  OnPurchaseSuccess = 'onPurchaseSuccess',
+  OnPurchaseFailed = 'onPurchaseFailed',
+  OnInfoUpdate = 'onInfoUpdate',
+  OnPromoReceived = 'onPromoReceived',
+}
+
 export type AdaptyVendorStore = 'app_store' | 'play_store' | 'adapty';
 export type AdaptyIntroductoryOfferType =
   | 'free_trial'
