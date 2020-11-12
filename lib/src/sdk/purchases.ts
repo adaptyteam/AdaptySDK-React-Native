@@ -14,12 +14,23 @@ export class Purchases {
    *
    * @throws AdaptyError
    */
-  public async restore(): Promise<void> {
+  public async restore(): Promise<RestorePurchasesResult> {
     isSdkAuthorized(this._ctx.isActivated);
 
+    const parseJson = (data: {
+      receipt?: string;
+      purchaserInfo?: string;
+    }): RestorePurchasesResult => {
+      return {
+        ...(data.receipt && { receipt: data.receipt }),
+        ...(data.purchaserInfo && {
+          purchaserInfo: JSON.parse(data.purchaserInfo),
+        }),
+      };
+    };
     try {
       const result = await this._ctx.module.restorePurchases();
-      return result;
+      return parseJson(result);
     } catch (error) {
       throw attemptToDecodeError(error);
     }

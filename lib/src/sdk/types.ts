@@ -457,3 +457,14 @@ export interface AdaptyPaywall {
    */
   visualPaywall: string;
 }
+
+export interface MakePurchaseResult {
+  receipt: string;
+  product?: AdaptyProduct;
+  purchaserInfo?: AdaptyPurchaserInfo;
+}
+
+export interface RestorePurchasesResult {
+  receipt?: string;
+  purchaserInfo?: AdaptyPurchaserInfo;
+}
