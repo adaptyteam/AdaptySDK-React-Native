@@ -8,16 +8,11 @@ Adapty React-Native SDK
 </p>
 
 
-* [Prerequisites](#prerequisites)
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Initialization](#initialization)
 * [Usage](#usage)
 * [License](#license)
-
-## Prerequisites
-
-This package is currently in beta. Please, consider it, if you have decided to use it.
 
 ## Requirements
 * React Native v0.60+
