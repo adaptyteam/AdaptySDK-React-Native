@@ -30,7 +30,10 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         return "RNAdapty"
     }
 
-    fun shouldDrop(options: ReadableMap, state: DataState): Boolean {
+    fun shouldDrop(options: ReadableMap?, state: DataState): Boolean {
+        if (options == null || !options.hasKey("cached")) {
+            return state == DataState.CACHED
+        }
         return when (options.getBoolean("cached")) {
             true -> state == DataState.SYNCED
             else -> state == DataState.CACHED
