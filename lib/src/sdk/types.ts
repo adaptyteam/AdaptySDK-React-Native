@@ -162,7 +162,7 @@ export interface AdaptyPurchaserInfo {
    * @see AdaptyPaidAccessLevelsInfo
    *
    */
-  paidAccessLevels?: { [accessLevelId: string]: AdaptyPaidAccessLevelsInfo };
+  accessLevels?: { [accessLevelId: string]: AdaptyPaidAccessLevelsInfo };
   /**
    * Object where the keys are vendor product ids
    * Not passed if the customer has no subscriptions.

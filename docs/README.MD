@@ -121,7 +121,7 @@ const info = await adapty.purchases.getInfo();
 const infoCached = await adapty.purchases.getInfo({ cached: true });
 
 // For example, check if user has active subscription
-const isUserSubscribed = info.paidAccessLevels?.level_configured_in_dashboard?.isActive;
+const isUserSubscribed = info.accessLevels?.level_configured_in_dashboard?.isActive;
 ```
 
 ### Making Purchases with `adapty.purchases.makePurchase`
