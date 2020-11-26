@@ -8,16 +8,11 @@ Adapty React-Native SDK
 </p>
 
 
-* [Prerequisites](#prerequisites)
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Initialization](#initialization)
 * [Usage](#usage)
 * [License](#license)
-
-## Prerequisites
-
-This package is currently in beta. Please, consider it, if you have decided to use it.
 
 ## Requirements
 * React Native v0.60+
@@ -138,7 +133,7 @@ adapty.purchases.makePurchase('500_coins');
 
 ### Listening to Adapty events
 
-> ⚠️ Listeners are current WIP — they might work inconsistently on iOS and they won't work on Android.
+> ⚠️ Listeners are current WIP
 
 Sometimes you want to subscribe user to an Adapty-connected update. In order to create an event listener, you should use `addEventListener` method of the `adapty` instance:
 
