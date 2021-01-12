@@ -9,6 +9,7 @@ Adapty React-Native SDK
 
 
 * [Requirements](#requirements)
+* [Concerning Expo](#concerning-expo)
 * [Installation](#installation)
 * [Initialization](#initialization)
 * [Usage](#usage)
@@ -16,6 +17,11 @@ Adapty React-Native SDK
 
 ## Requirements
 * React Native v0.60+
+
+## Concerning Expo
+The idea behind Expo makes it impossible to perform purchases with an Expo-based app, unless you have a bare workflow. You have to eject to ExpoKit in order to use this library.
+
+If you have decided to eject your app, consider [official docs](https://docs.expo.io/expokit/eject/).
 
 ## Installation
 
