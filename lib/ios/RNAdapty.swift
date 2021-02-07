@@ -55,7 +55,15 @@ class RNAdapty: NSObject {
       return resolve(true)
     }
   }
-
+  
+  @objc
+  func logShowPaywall(_ variationId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    
+    guard let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
+      return reject("adapty_error", "Paywall with such variation ID wasn't found", nil)
+    }
+    Adapty.logShowPaywall(paywall)
+  }
   
   @objc
   func getAPNSToken(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
