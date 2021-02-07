@@ -34,113 +34,78 @@ export type AdaptyPromotionalOfferType =
  */
 export interface AdaptyProduct {
   /**
-   * Unique identifier of a product
-   */
-  vendorProductId: string;
-  /**
-   * Eligibility of user for introductory offer
-   * @todo @type
-   */
-  introductoryOfferEligibility: any;
-  /**
-   * Eligibility of user for promotional offer
-   *  @todo @type
-   */
-  promotionalOfferEligibility: any;
-  /**
-   * ID of the offer, provided by Adapty
-   * for this specific user
-   */
-  promotionalOfferId: string;
-  /**
-   * A description of the product
-   */
-  localizedDescription: string;
-  /**
-   * The name of the product
-   */
-  localizedTitle: string;
-  /**
-   * The cost of the product in the local currency
-   * @todo @type
-   */
-  price: any;
-  /**
-   *
-   * Product locale currency code
-   * @todo @type
-   */
-  currencyCode: string;
-  /**
-   * Product locale currency symbol
-   * @todo @type
-   */
-  regionCode: string;
-  /**
    * The period details for products that are subscriptions
    * @see AdaptyProductSubscriptionPeriod
    */
   subscriptionPeriod: AdaptyProductSubscriptionPeriod;
+  /** Localized subscription period of the product */
+  localizedSubscriptionPeriod: string; // @todo NO ANDROID
   /**
    * An object containing introductory price information for the product
    * @see AdaptyIntroductoryDiscount
    */
   introductoryDiscount: AdaptyProductDiscount;
+  /** Product locale currency symbol @example "RU" */
+  regionCode: string; // @todo NO ANDROID
+  /** Eligibility of user for introductory offer */
+  introductoryOfferEligibility: boolean;
   /**
    * Array of discount offers available for the product
    * @see AdaptyProductDiscount
    */
-  discounts: AdaptyProductDiscount[];
+  discounts: AdaptyProductDiscount[]; // @todo NO ANDROID
+  /** Eligibility of a user for promotional offer */
+  promotionalOfferEligibility: boolean;
+  /** The cost of the product in the local currency */
+  price: number;
   /**
    * The identifier of the subscription group
    * to which the subscription belongs
    */
-  subscriptionGroupIdentifier: string;
-  /**
-   * Localized price of the product
-   */
+  subscriptionGroupIdentifier: string; // @todo NO ANDROID
+  /** @example "$" */
+  currencySymbol: string;
+  /** Unique identifier of a product */
+  vendorProductId: string;
+  /** A description of the product */
+  localizedDescription: string;
+  /** Name of the product */
+  localizedTitle: string;
+  /** Localized price of the product */
   localizedPrice: string;
+  /** Paywall unique ID */
+  variationId?: string;
+  /** Product locale currency code @example "RUB" */
+  currencyCode: string;
   /**
-   * Localized subscription period of the product
+   * ID of the offer, provided by Adapty
+   * for this specific user
    */
-  localizedSubscriptionPeriod: string;
+  promotionalOfferId?: string; // @todo NO ANDROID
 }
 
 export interface AdaptyProductDiscount {
   /**
-   * The discount price of the product in the local currency
-   */
-  price: string;
-  /**
-   * A string used to uniquely identify a discount offer for a product
-   */
-  identifier: string;
-  /**
    * An object that defines the period for the product discount
    */
   subscriptionPeriod: AdaptyProductSubscriptionPeriod;
+  /** The discount price of the product in the local currency */
+  price: number;
+  /** Localized number of periods of the discount */
+  localizedNumberOfPeriods: number; // @todo NO ANDROID
+  /** Localized subscription period of the discount */
+  localizedSubscriptionPeriod: string; // @todo NO ANDROID
+  /** A string used to uniquely identify a discount offer for a product*/
+  identifier: string; // @todo NO ANDROID
+  /** The payment mode for this product discount */
+  paymentMode: number; // @todo NO ANDROID
+  /** Localized price of the discount */
+  localizedPrice: string;
   /**
    * An integer that indicates the number of periods the product
    * discount is available
    */
   numberOfPeriods: number;
-  /**
-   * The payment mode for this product discount
-   * @todo @type
-   */
-  paymentMode: any;
-  /**
-   * Localized price of the discount
-   */
-  localizedPrice: string;
-  /**
-   * Localized subscription period of the discount
-   */
-  localizedSubscriptionPeriod: string;
-  /**
-   * Localized number of periods of the discount
-   */
-  localizedNumberOfPeriods: number;
 }
 
 export interface AdaptyProductSubscriptionPeriod {
@@ -148,12 +113,13 @@ export interface AdaptyProductSubscriptionPeriod {
    * The increment of time that a subscription period is
    * specified in
    */
-  until: string;
+  unit: number;
   /**
    * The number of units per subscription period
    */
   numberOfUnits: number;
 }
+
 export interface AdaptyPurchaserInfo {
   /**
    * Object where the keys are paid access level identifiers
@@ -410,9 +376,7 @@ export interface AdaptyPromo {
    * @todo string?
    */
   promoType: string;
-  /**
-   * Unique identifier of the promo
-   */
+  /** Unique identifier of the promo */
   variationId: string;
   /**
    * DateTime of when current promo offer will expire
@@ -430,32 +394,26 @@ export interface AdaptyPromo {
  * Cntains info about paywall
  */
 export interface AdaptyPaywall {
-  /**
-   * Name of the paywall in dashboard
-   */
-  developerId: string;
-  /**
-   * Unique identifier of the paywall
-   */
-  variationId: string;
-  /**
-   * Revision of the paywall
-   */
-  revision: any;
-  /**
-   * true if this pawall is related to some promo
-   * @see AdaptyPromo
-   */
-  isPromo: boolean;
+  /** Revision of the paywall */
+  revision: number;
+  /** HTML representation of the paywall */
+  visualPaywall?: string; // @todo NO ANDROID
   /**
    * An array of products relatedd to this paywall
    * @see AdaptyProduct
    */
   products: AdaptyProduct[];
+  /** Name of the paywall in dashboard*/
+  developerId: string;
   /**
-   * HTML representation of the paywall
+   * true if this pawall is related to some promo
+   * @see AdaptyPromo
    */
-  visualPaywall: string;
+  isPromo: boolean;
+  /** String / JSON */
+  customPayloadString?: string;
+  /** Unique identifier of the paywall */
+  variationId: string;
 }
 
 export interface MakePurchaseResult {
@@ -466,5 +424,6 @@ export interface MakePurchaseResult {
 
 export interface RestorePurchasesResult {
   receipt?: string;
+  googleValidationResults?: string[];
   purchaserInfo?: AdaptyPurchaserInfo;
 }
