@@ -222,18 +222,15 @@ class RNAdapty: NSObject {
   }
 
   @objc
-  func getPurchaseInfo(_ options: NSDictionary, resolver resolve: @escaping  RCTPromiseResolveBlock, rejecter reject: @escaping  RCTPromiseRejectBlock) {
-    Adapty.getPurchaserInfo { (info, state, error) in
-      if shouldDrop(options, with: state) {
-        return;
-      }
-
+  func getPurchaseInfo(_ options: NSDictionary, resolver resolve: @escaping  RCTPromiseResolveBlock,
+                       rejecter reject: @escaping  RCTPromiseRejectBlock) {
+    let forceUpdate = options.value(forKey: "forceUpdate") as? Bool ?? false
+    Adapty.getPurchaserInfo(forceUpdate: forceUpdate) { (info, error) in
       if let error = error {
         let (c, json, err) = unwrapError(error);
         return reject(c,json, err);
       }
-
-      resolve(encodeJson(from: info))
+      return resolve(encodeJson(from: info))
     }
   }
 
@@ -290,6 +287,9 @@ class RNAdapty: NSObject {
   /* PAYWALLS */
   @objc
   func getPaywalls(_ options: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    let forceUpdate = options.value(forKey: "forceUpdate") as? Bool ?? false
+    
+    Adapty.getPaywalls(forceUpdate: forceUpdate) { (paywalls, products, error) in
       if let error = error {
         let (c, json, err) = unwrapError(error);
         return reject(c,json, err);
