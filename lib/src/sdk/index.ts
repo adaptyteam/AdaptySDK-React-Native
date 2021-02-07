@@ -43,6 +43,21 @@ export class Adapty extends AdaptyEventEmitter {
     consumer._ctx.sdkKey = sdkKey;
   }
 
+  public async getApnsToken() {
+    try {
+      return this._ctx.module.getAPNSToken();
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
+  }
+  public async setApnsToken(token: string) {
+    try {
+      this._ctx.module.setAPNSToken(token);
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
+  }
+
   /**
    * Updates
    *
