@@ -28,7 +28,8 @@ class RNAdapty: NSObject {
   @objc
   func updateAttribution(_ dict: NSDictionary, source: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     guard let attribution = dict as? [AnyHashable: Any] else {
-      return reject("Error in: updateAttribution", "Failed to convert object to [AnyHashable: Any]", nil)
+      let (c,json, err) = unwrapCustomError("Failed to convert object to [AnyHashable: Any]")
+      return reject(c,json, err)
     }
 
     func parseSource(_ str: String) -> AttributionNetwork {
@@ -52,7 +53,7 @@ class RNAdapty: NSObject {
         return reject(c,json, err);
       }
 
-      return resolve(true)
+      return resolve(nil)
     }
   }
   
@@ -60,7 +61,8 @@ class RNAdapty: NSObject {
   func logShowPaywall(_ variationId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     
     guard let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
-      return reject("adapty_error", "Paywall with such variation ID wasn't found", nil)
+      let (c,json, err) = unwrapCustomError("Paywall with such variation ID wasn't found")
+      return reject(c, json, err)
     }
     Adapty.logShowPaywall(paywall)
   }
@@ -73,8 +75,9 @@ class RNAdapty: NSObject {
   @objc
   func setAPNSToken(_ apns: String,resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     guard let utf8Str = apns.data(using: .utf8) else {
-           return reject("adapty_error", "Invalod APNS Token passed", nil)
-       }
+      let (c,json, err) = unwrapCustomError("Invalid APNS Token passed")
+      return reject(c, json, err)
+     }
     
        let base64Encoded = utf8Str.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
        Adapty.apnsToken = Data(base64Encoded: base64Encoded)
@@ -90,7 +93,7 @@ class RNAdapty: NSObject {
       return reject(c,json, err);
     }
 
-    return resolve(true)
+    return resolve(nil)
    }
   }
 
@@ -102,7 +105,7 @@ class RNAdapty: NSObject {
         return reject(c,json, err);
       }
 
-      return resolve(true)
+      return resolve(nil)
     }
   }
 
@@ -342,21 +345,19 @@ func encodeJson<T: Encodable>(from data: T) -> String? {
   return nil
 }
 
-extension AdaptyError: Encodable {
-  enum CodingKeys: CodingKey {
-    case code, adaptyCode, localizedDescription
-  }
-  public func encode(to encoder: Encoder) throws {
-    
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.code, forKey: .code)
-    try container.encode(self.adaptyErrorCode.rawValue, forKey: .adaptyCode)
-    
-    if let desc = self.userInfo["NSLocalizedDescription"] as? String? {
-      try container.encode(desc, forKey: .localizedDescription)
-    }
-   
-  }
+func unwrapCustomError(_ message: String,
+                       adaptyCode: AdaptyErrorCode = .unknown,
+                       code: Int = 0) -> (String, String?, AdaptyError?) {
+  // AdaptyError initializer is unaccessible
+  let error: [String: String] = [
+    "localizedDescription": message,
+    "adaptyCode": String(adaptyCode.rawValue),
+    "code": String(code)
+  ]
+  
+  let json = encodeJson(from: error)
+
+  return ("adapty_error", json, nil)
 }
 
 
