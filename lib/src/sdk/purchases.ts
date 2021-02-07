@@ -1,8 +1,8 @@
-import { Platform } from 'react-native';
-import { AdaptyDefaultOptions } from 'react-native-adapty/utils';
+import { AdaptyDefaultOptions } from '../utils';
 import { attemptToDecodeError, isSdkAuthorized } from './error';
 import {
   AdaptyContext,
+  AdaptyProduct,
   AdaptyPurchaserInfo,
   MakePurchaseResult,
   RestorePurchasesResult,
@@ -23,20 +23,10 @@ export class Purchases {
   public async restore(): Promise<RestorePurchasesResult> {
     isSdkAuthorized(this._ctx.isActivated);
 
-    const parseJson = (data: {
-      receipt?: string;
-      purchaserInfo?: string;
-    }): RestorePurchasesResult => {
-      return {
-        ...(data.receipt && { receipt: data.receipt }),
-        ...(data.purchaserInfo && {
-          purchaserInfo: JSON.parse(data.purchaserInfo),
-        }),
-      };
-    };
     try {
-      const result = await this._ctx.module.restorePurchases();
-      return parseJson(result);
+      const json = await this._ctx.module.restorePurchases();
+      const result = JSON.parse(json) as RestorePurchasesResult;
+      return result;
     } catch (error) {
       throw attemptToDecodeError(error);
     }
@@ -53,38 +43,10 @@ export class Purchases {
   ): Promise<AdaptyPurchaserInfo> {
     isSdkAuthorized(this._ctx.isActivated);
 
-    const parseJson = (jsonString: string): AdaptyPurchaserInfo => {
-      try {
-        const object: AdaptyPurchaserInfo = JSON.parse(jsonString);
-
-        // Remove empty and `{}` keys
-        const filteredObject = Object.keys(object).reduce((acc, key) => {
-          const infoKey: keyof AdaptyPurchaserInfo = key as keyof AdaptyPurchaserInfo;
-
-          const objectValue = object[infoKey];
-
-          if (!objectValue) {
-            return acc;
-          }
-
-          if (typeof objectValue === 'object' && !Array.isArray(objectValue)) {
-            if (Object.keys(objectValue).length === 0) {
-              return acc;
-            }
-          }
-
-          return { ...acc, [infoKey]: objectValue };
-        }, {});
-
-        return filteredObject;
-      } catch (error) {
-        return {} as any;
-      }
-    };
-
     try {
-      const result = await this._ctx.module.getPurchaseInfo(options);
-      return parseJson(result);
+      const json = await this._ctx.module.getPurchaseInfo(options);
+      const result = JSON.parse(json) as AdaptyPurchaserInfo;
+      return result;
     } catch (error) {
       throw attemptToDecodeError(error);
     }
@@ -94,72 +56,19 @@ export class Purchases {
    * @throws AdaptyError
    */
   public async makePurchase(
-    productVendorId: string,
-    options: AdaptyDefaultOptions = {},
+    product: AdaptyProduct,
   ): Promise<MakePurchaseResult> {
     isSdkAuthorized(this._ctx.isActivated);
 
-    const parseJson = (data: {
-      receipt: string;
-      product?: string;
-      purchaserInfo?: string;
-    }): MakePurchaseResult => {
-      return {
-        receipt: data.receipt,
-        ...(data.product && { product: JSON.parse(data.product) }),
-        ...(data.purchaserInfo && {
-          purchaserInfo: JSON.parse(data.purchaserInfo),
-        }),
-      };
-    };
-
     try {
-      const result = await this._ctx.module.makePurchase(
-        productVendorId,
-        options,
+      const json = await this._ctx.module.makePurchase(
+        product.vendorProductId,
+        product.variationId,
       );
 
-      const data = parseJson(result);
-      return data;
-    } catch (error) {
-      throw attemptToDecodeError(error);
-    }
-  }
-
-  /**
-   *
-   * @throws AdaptyError
-   * @deprecated
-   */
-  public async validateReceipt(
-    productId: string,
-    receipt: string,
-  ): Promise<{
-    purchaserInfo?: AdaptyPurchaserInfo;
-  }> {
-    isSdkAuthorized(this._ctx.isActivated);
-
-    const parseJson = (data: {
-      purchaserInfo?: string;
-    }): { purchaserInfo?: AdaptyPurchaserInfo } => {
-      return {
-        ...(data.purchaserInfo && {
-          purchaserInfo: JSON.parse(data.purchaserInfo),
-        }),
-      };
-    };
-
-    try {
-      if (Platform.OS === 'android') {
-        const result = await this._ctx.module.validateReceipt(
-          productId,
-          receipt,
-        );
-        return parseJson(result);
-      }
-
-      const result = await this._ctx.module.validateReceipt(receipt);
-      return parseJson(result);
+      const result = JSON.parse(json) as MakePurchaseResult;
+      // console.log('RESULT PURCHASE\n\n', result);
+      return result;
     } catch (error) {
       throw attemptToDecodeError(error);
     }

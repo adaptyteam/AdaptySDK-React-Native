@@ -1,5 +1,5 @@
 import { attemptToDecodeError, isSdkAuthorized } from './error';
-import { AdaptyContext } from './types';
+import { AdaptyContext, AdaptyPromo } from './types';
 
 export class Promo {
   private _ctx: AdaptyContext;
@@ -7,11 +7,12 @@ export class Promo {
     this._ctx = context;
   }
 
-  public async getPromo() {
+  public async getPromo(): Promise<AdaptyPromo> {
     isSdkAuthorized(this._ctx.isActivated);
 
     try {
-      const result = await this._ctx.module.getPromo();
+      const json = await this._ctx.module.getPromo();
+      const result = JSON.parse(json) as AdaptyPromo;
       return result;
     } catch (error) {
       throw attemptToDecodeError(error);

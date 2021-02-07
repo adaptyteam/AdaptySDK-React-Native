@@ -1,31 +1,28 @@
 import { NativeModules } from 'react-native';
 
 export interface AdaptyDefaultOptions {
-  cached?: boolean;
+  forceUpdate?: boolean;
 }
 export interface AdaptyModule {
   identify: (uId: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (fields: Object) => Promise<void>;
-
-  restorePurchases: () => Promise<{ receipt: string; purchaserInfo?: string }>;
+  logShowPaywall: (variationId: string) => Promise<void>;
+  getAPNSToken: () => Promise<string>;
+  setAPNSToken: (token: string) => Promise<void>;
+  // JSON: AdaptyPurchaserInfo
   getPurchaseInfo: (options?: AdaptyDefaultOptions) => Promise<string>;
+  // JSON: { receipt: string; purchaserInfo?: AdaptyPurchaserInfo }
+  restorePurchases: () => Promise<string>;
+  // JSON: { receipt: string; product?: string; purchaserInfo?: string; }
   makePurchase: (
     product: string,
-    options?: AdaptyDefaultOptions,
-  ) => Promise<{
-    receipt: string;
-    product?: string;
-    purchaserInfo?: string;
-  }>;
-  validateReceipt: (
-    productId: string,
-    receipt?: string,
-  ) => Promise<{ purchaserInfo: string }>;
-  getPromo: () => Promise<any>;
-  getPaywalls: (
-    options?: AdaptyDefaultOptions,
-  ) => Promise<{ paywalls: string; product: string }>;
+    variationId: string | undefined,
+  ) => Promise<string>;
+  // JSON: AdaptyPromo
+  getPromo: () => Promise<string>;
+  // JSON: { paywalls: string; product: string }
+  getPaywalls: (options?: AdaptyDefaultOptions) => Promise<string>;
 
   activate: (
     sdkKey: string,

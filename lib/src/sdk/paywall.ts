@@ -1,12 +1,24 @@
-import { Platform } from 'react-native';
-import { snakeToCamel } from '../utils';
+import { AdaptyDefaultOptions } from '../utils';
 import { attemptToDecodeError, isSdkAuthorized } from './error';
 import { AdaptyContext, AdaptyPaywall, AdaptyProduct } from './types';
 
+interface GetPaywallsResult {
+  paywalls: AdaptyPaywall[];
+  products: AdaptyProduct[];
+}
 export class AdaptyPaywalls {
   private _ctx: AdaptyContext;
   constructor(context: AdaptyContext) {
     this._ctx = context;
+  }
+
+  public async logShow(variationId: string): Promise<void> {
+    try {
+      await this._ctx.module.logShowPaywall(variationId);
+      return;
+    } catch (error) {
+      attemptToDecodeError(error);
+    }
   }
 
   /**
@@ -14,58 +26,24 @@ export class AdaptyPaywalls {
    * Object of
    */
   public async getPaywalls(
-    options: { cached?: boolean } = {},
+    options: AdaptyDefaultOptions = {},
   ): Promise<{
     paywalls: AdaptyPaywall[];
     products: AdaptyProduct[];
   }> {
     isSdkAuthorized(this._ctx.isActivated);
 
-    const parseJson = <T>(json: string): T[] => {
-      try {
-        const array = JSON.parse(json);
-
-        if (Platform.OS === 'android') {
-          return snakeToCamel(array);
-        }
-
-        return array;
-      } catch (error) {
-        return [];
-      }
-    };
-
     try {
-      const result = await this._ctx.module.getPaywalls(options);
-      const paywalls: AdaptyPaywall[] = parseJson(result.paywalls);
-      const products: AdaptyProduct[] = parseJson(result.product);
+      const json = await this._ctx.module.getPaywalls(options);
 
-      products.forEach((product: Record<string, any>) => {
-        if (product.hasOwnProperty('title')) {
-          product.localizedTitle = product.title;
-          delete product.title;
-        }
-        if (product.hasOwnProperty('price')) {
-          product.localizedPrice = product.price;
-          delete product.price;
-        }
-      });
+      const result = JSON.parse(json) as GetPaywallsResult;
 
-      paywalls.forEach(paywall => {
-        paywall.products.forEach((product: Record<string, any>) => {
-          if (product.hasOwnProperty('title')) {
-            product.localizedTitle = product.title;
-            delete product.title;
-          }
-          if (product.hasOwnProperty('price')) {
-            product.localizedPrice = product.price;
-            delete product.price;
-          }
-        });
-        return paywall;
-      });
+      // console.log('\n-------------------\nPAYWALLS RESULT:');
+      // result.paywalls.forEach((paywall) => console.log(Object.keys(paywall), paywall.developerId));
+      // result.products.forEach((product) => console.log(Object.keys(product), product.vendorProductId));
 
-      return { paywalls, products };
+      // console.log('\n-------------------\nPAYWALLS END!');
+      return result;
     } catch (error) {
       throw attemptToDecodeError(error);
     }
