@@ -94,8 +94,9 @@ export async function activateAdapty(props: AdaptyActivateArgs): Promise<void> {
   const sdkKey = props.sdkKey;
   if (!sdkKey) {
     throw new AdaptyError({
-      title: 'Adapty init error',
-      description: "SDK Key wasn't passed",
+      adaptyCode: 'sdkNotActive',
+      code: 400,
+      localizedDescription: 'SDK private key was not passed',
     });
   }
 
