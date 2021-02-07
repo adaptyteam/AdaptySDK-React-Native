@@ -56,6 +56,23 @@ class RNAdapty: NSObject {
     }
   }
 
+  
+  @objc
+  func getAPNSToken(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    return resolve(Adapty.apnsTokenString)
+   }
+  
+  @objc
+  func setAPNSToken(_ apns: String,resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    guard let utf8Str = apns.data(using: .utf8) else {
+           return reject("adapty_error", "Invalod APNS Token passed", nil)
+       }
+    
+       let base64Encoded = utf8Str.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
+       Adapty.apnsToken = Data(base64Encoded: base64Encoded)
+       resolve(nil)
+   }
+
   /* USERS */
   @objc
   func identify(_ uId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
