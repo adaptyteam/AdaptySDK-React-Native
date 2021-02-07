@@ -47,8 +47,9 @@ class RNAdapty: NSObject {
     }
 
     Adapty.updateAttribution(attribution, source: parseSource(source)) { (error) in
-      if error != nil {
-        return reject("Error in: updateAttribution", error?.localizedDescription, nil)
+      if let error = error {
+        let (c, json, err) = unwrapError(error);
+        return reject(c,json, err);
       }
 
       return resolve(true)
@@ -59,8 +60,9 @@ class RNAdapty: NSObject {
   @objc
   func identify(_ uId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
    Adapty.identify(uId) { (error) in
-    if error != nil {
-      return reject("Error in: userIdentify", error?.localizedDescription, nil)
+    if let error = error {
+      let (c, json, err) = unwrapError(error);
+      return reject(c,json, err);
     }
 
     return resolve(true)
@@ -70,8 +72,9 @@ class RNAdapty: NSObject {
   @objc
   func logout(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.logout { (error) in
-      if error != nil {
-        return reject("Error in: userLogout", error?.localizedDescription, nil)
+      if let error = error {
+        let (c, json, err) = unwrapError(error);
+        return reject(c,json, err);
       }
 
       return resolve(true)
@@ -141,8 +144,9 @@ class RNAdapty: NSObject {
     }
 
     Adapty.updateProfile(params: params) { (error) in
-      if error != nil {
-        return reject("Error in: updateProfile", error?.localizedDescription, nil)
+      if let error = error {
+        let (c, json, err) = unwrapError(error);
+        return reject(c,json, err);
       }
       return resolve(true)
     }
@@ -173,12 +177,10 @@ class RNAdapty: NSObject {
         return reject("Error in paywalls of makePurchase", "Failed to find the product with this vendorID", nil)
       }
 
-      let product = fittingProducts[0]
-
-      Adapty.makePurchase(product: product) { (purchaserInfo, receipt, appleValidationResult, product, error) in
-        if error != nil {
-          return reject("Error in: makePurchase", error?.localizedDescription, nil)
-        }
+      if let error = error {
+        let (c, json, err) = unwrapError(error);
+        return reject(c,json, err);
+      }
 
         var dict: [String: String?] = ["receipt": receipt]
         
@@ -201,8 +203,9 @@ class RNAdapty: NSObject {
         return;
       }
 
-      if error != nil {
-          return reject("Error in: getPurchaseInfo", error?.localizedDescription, nil)
+      if let error = error {
+        let (c, json, err) = unwrapError(error);
+        return reject(c,json, err);
       }
 
       resolve(encodeJson(from: info))
@@ -212,8 +215,9 @@ class RNAdapty: NSObject {
   @objc
   func restorePurchases(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.restorePurchases { (purchaserInfo, receipt, _, error) in
-      if error != nil {
-        return reject("Error in: restorePurchases", error?.localizedDescription, error)
+      if let error = error {
+        let (c, json, err) = unwrapError(error);
+        return reject(c,json, err);
       }
       
       var dict: [String: String?] = [:]
@@ -232,8 +236,9 @@ class RNAdapty: NSObject {
   @objc
   func validateReceipt(_ receipt: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.validateReceipt(receipt) { (purchaserInfo, response, error) in
-      if error != nil {
-        return reject("Error in: validateReceipt", error?.localizedDescription, error)
+      if let error = error {
+        let (c, json, err) = unwrapError(error);
+        return reject(c,json, err);
       }
 
       var dict: [String: String?] = [:]
@@ -260,9 +265,9 @@ class RNAdapty: NSObject {
   /* PAYWALLS */
   @objc
   func getPaywalls(_ options: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    Adapty.getPaywalls { (paywalls, products, state, error) in
-      if shouldDrop(options, with: state) {
-        return;
+      if let error = error {
+        let (c, json, err) = unwrapError(error);
+        return reject(c,json, err);
       }
       
       if error != nil {
@@ -310,4 +315,29 @@ func encodeJson<T: Encodable>(from data: T) -> String? {
     }
   }
   return nil
+}
+
+extension AdaptyError: Encodable {
+  enum CodingKeys: CodingKey {
+    case code, adaptyCode, localizedDescription
+  }
+  public func encode(to encoder: Encoder) throws {
+    
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(self.code, forKey: .code)
+    try container.encode(self.adaptyErrorCode.rawValue, forKey: .adaptyCode)
+    
+    if let desc = self.userInfo["NSLocalizedDescription"] as? String? {
+      try container.encode(desc, forKey: .localizedDescription)
+    }
+   
+  }
+}
+
+
+func unwrapError(_ error: AdaptyError) -> (String, String, AdaptyError?) {
+  if let json = encodeJson(from: error) {
+    return ("adapty_error", json, nil)
+  }
+    return ("adapty_error", "", error)
 }
