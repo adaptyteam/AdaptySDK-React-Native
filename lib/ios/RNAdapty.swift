@@ -4,16 +4,31 @@ import Adapty
 @objc(RNAdapty)
 class RNAdapty: NSObject {
   let events = RNAdaptyEvents()
+  
+  private var paywalls = [PaywallModel]()
+  private var products = [ProductModel]()
 
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
+  }
+  
+  private func cachePaywalls(_ paywalls: [PaywallModel]?) {
+    self.paywalls.removeAll()
+    if let paywalls = paywalls {
+      self.paywalls.append(contentsOf: paywalls)
+    }
+  }
+  private func cacheProducts(_ products: [ProductModel]?) {
+    self.products.removeAll()
+    if let products = products {
+      self.products.append(contentsOf: products)
+    }
   }
 
   /* INITIALIZATION */
   @objc
   func activate(_ sdkKey: String, uId: String?, observerMode: Bool, logLevel: String) {
     Adapty.activate(sdkKey, observerMode: observerMode, customerUserId: uId)
-    
     switch logLevel {
     case "verbose":
       Adapty.logLevel = .verbose
@@ -176,51 +191,29 @@ class RNAdapty: NSObject {
         let (c, json, err) = unwrapError(error);
         return reject(c,json, err);
       }
-      return resolve(true)
+      return resolve(nil)
     }
   }
 
   /* PURCHASES */
   @objc
-  func makePurchase(_ productId: String, options: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping  RCTPromiseRejectBlock) {
-    Adapty.getPaywalls { (_, products, state, error) in
-      if shouldDrop(options, with: state) {
-        return;
-      }
-
-      if error != nil {
-        return reject("Error in paywalls of makePurchase", "Failed to get a list of products", error)
-      }
-
-      guard let products = products else {
-        return reject("Error in paywalls of makePurchase", "Failed to find the product", nil)
-      }
-
-      let fittingProducts = products.filter { (product) in
-        print(product.vendorProductId)
-        return product.vendorProductId == productId
-      }
-
-      if fittingProducts.count < 1 {
-        return reject("Error in paywalls of makePurchase", "Failed to find the product with this vendorID", nil)
-      }
-
+  func makePurchase(_ productId: String, variationId: String?, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping  RCTPromiseRejectBlock) {
+    guard let product = findProduct(productId: productId, variationId: variationId) else {
+      let (c,json, err) = unwrapCustomError("Product with such ID wasn't found", adaptyCode: .noProductsFound)
+      return reject(c, json, err)
+    }
+    
+    Adapty.makePurchase(product: product) {
+      (purchaserInfo, receipt, appleValidationResult, product, error) in
       if let error = error {
         let (c, json, err) = unwrapError(error);
         return reject(c,json, err);
       }
 
-        var dict: [String: String?] = ["receipt": receipt]
-        
-        if (purchaserInfo != nil) {
-          dict["purchaserInfo"] = encodeJson(from: purchaserInfo)
-        }
-        if (product != nil) {
-          dict["product"] = encodeJson(from: product)
-        }
-        
-        return resolve(dict)
-      }
+      let result = MakePurchaseResult(purchaserInfo: purchaserInfo,
+                         receipt: receipt,
+                         product: product)
+      return resolve(encodeJson(from: result))
     }
   }
 
@@ -245,45 +238,21 @@ class RNAdapty: NSObject {
         return reject(c,json, err);
       }
       
-      var dict: [String: String?] = [:]
-      
-      if purchaserInfo != nil {
-        dict["purchaserInfo"] = encodeJson(from: purchaserInfo)
-      }
-      if receipt != nil {
-        dict["receipt"] = receipt
-      }
-     
-      return resolve(dict)
-    }
-  }
-
-  @objc
-  func validateReceipt(_ receipt: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    Adapty.validateReceipt(receipt) { (purchaserInfo, response, error) in
-      if let error = error {
-        let (c, json, err) = unwrapError(error);
-        return reject(c,json, err);
-      }
-
-      var dict: [String: String?] = [:]
-      
-      if purchaserInfo != nil {
-        dict["purchaserInfo"] = encodeJson(from: purchaserInfo)
-      }
-
-     return resolve(dict)
+      let result = RestorePurchasesResult(purchaserInfo: purchaserInfo,
+                                          receipt: receipt)
+      return resolve(encodeJson(from: result))
     }
   }
 
   @objc
   func getPromo(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.getPromo { (promo, error) in
-      if error != nil {
-        return reject("Error in: getPromo", error?.localizedDescription, nil)
+      if let error = error {
+          let (c, json, err) = unwrapError(error);
+          return reject(c,json, err);
       }
 
-      return resolve(promo)
+      return resolve(encodeJson(from: promo))
     }
   }
 
@@ -298,40 +267,20 @@ class RNAdapty: NSObject {
         return reject(c,json, err);
       }
       
-      if error != nil {
-           return reject("Error in: getPaywalls", error?.localizedDescription, nil)
-      }
-
-      let encoder = JSONEncoder()
-
-      var stringPaywalls: String?
-      var stringProduct: String?
-
-      if let jsonPaywalls = try? encoder.encode(paywalls) {
-        stringPaywalls = String(data: jsonPaywalls, encoding: .utf8)
-      }
-
-      if let jsonProduct = try? encoder.encode(products) {
-        stringProduct = String(data: jsonProduct, encoding: .utf8)
-      }
-
-      return resolve(["paywalls": stringPaywalls, "product": stringProduct])
+      self.cachePaywalls(paywalls)
+      self.cacheProducts(products)
+      let result = GetPaywallsResult(paywalls: paywalls, products: products)
+      return resolve(encodeJson(from: result))
     }
   }
-}
-
-
-func shouldDrop(_ options: NSDictionary, with state: DataState) -> Bool {
-  if let options = options as? [String: Bool?] {
-    switch options["cached"] {
-    case true:
-      return state == .synced
-    case nil, false, _:
-      return state == .cached
+  
+  private func findProduct(productId: String, variationId: String?) -> ProductModel? {
+    guard let variationId = variationId,
+    let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
+      return products.first(where: { $0.vendorProductId == productId })
     }
-  } else {
-    return state == .cached
-  }
+    return paywall.products.first(where: { $0.vendorProductId == productId })
+ }
 }
 
 func encodeJson<T: Encodable>(from data: T) -> String? {
@@ -359,7 +308,6 @@ func unwrapCustomError(_ message: String,
 
   return ("adapty_error", json, nil)
 }
-
 
 func unwrapError(_ error: AdaptyError) -> (String, String, AdaptyError?) {
   if let json = encodeJson(from: error) {
