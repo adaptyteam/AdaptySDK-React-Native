@@ -12,37 +12,27 @@ import com.adapty.api.entity.purchaserInfo.model.PurchaserInfoModel
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import java.text.SimpleDateFormat
-import com.adapty.api.ApiClient
-import android.util.Log
-import com.adapty.api.entity.DataState
+import com.adapty.api.AdaptyError
 import com.adapty.api.entity.paywalls.OnPromoReceivedListener
+import com.adapty.api.entity.paywalls.PaywallModel
+import com.adapty.api.entity.paywalls.ProductModel
 import com.adapty.api.entity.paywalls.PromoModel
-import com.adapty.api.entity.validate.GoogleValidationResult
-import com.adapty.purchase.PurchaseType
 import com.adapty.utils.AdaptyLogLevel
+import com.rnadapty.react.models.*
 
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
     val gson = Gson()
+    private val products = HashMap<String, ProductModel>()
+    private val paywalls = ArrayList<PaywallModel>()
 
     override fun getName(): String {
         return "RNAdapty"
     }
 
-    fun shouldDrop(options: ReadableMap?, state: DataState): Boolean {
-        if (options == null || !options.hasKey("cached")) {
-            return state == DataState.CACHED
-        }
-        return when (options.getBoolean("cached")) {
-            true -> state == DataState.SYNCED
-            else -> state == DataState.CACHED
-        }
-    }
-
     private fun sendEvent(reactContext: ReactContext,
                           eventName: String,
-                          params: Any) {
+                          params: String) {
         reactContext
                 .getJSModule(RCTDeviceEventEmitter::class.java)
                 .emit(eventName, params)
@@ -52,19 +42,31 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         Adapty.setOnPromoReceivedListener(object: OnPromoReceivedListener {
             override fun onPromoReceived(promo: PromoModel) {
                 println("[EVENT] Received Promo")
-                val data = promo.serializeToMap()
+                sendEvent(reactApplicationContext, "onPromoReceived", gson.toJson(AdaptyRNPromo.from(promo)))
+
             }
         })
-
 
         Adapty.setOnPurchaserInfoUpdatedListener(object: OnPurchaserInfoUpdatedListener {
             override fun onPurchaserInfoReceived(purchaserInfo: PurchaserInfoModel) {
                 println("[EVENT] Received Purchaser info")
-                val data = purchaserInfo.serializeToMap()
-                sendEvent(reactApplicationContext, "onCheck", toWritableMap(data))
+                sendEvent(reactApplicationContext, "onInfoUpdate", gson.toJson(purchaserInfo))
             }
         })
     }
+
+    @ReactMethod
+    fun logShowPaywall(variationId: String, promise: Promise) {
+        val paywall = paywalls.firstOrNull { it.variationId == variationId }
+
+        if (paywall == null) {
+            throwUnknownError(promise, "Paywall with such variationID found")
+            return@logShowPaywall
+        }
+       Adapty.logShowPaywall(paywall)
+        promise.resolve(null)
+    }
+
 
     @ReactMethod
     fun activate(sdkKey: String, customerUserId: String?, observerMode: Boolean, logLevel: String, promise: Promise) {
@@ -77,23 +79,22 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
 
         if (observerMode) {
-            Adapty.syncPurchases { }
+//            Adapty.syncPurchases { }
         }
 
         subscribeToEvents()
 
-        promise.resolve(true)
+        promise.resolve(null)
     }
 
     @ReactMethod
     fun logout(promise: Promise) {
         Adapty.logout { error ->
             if (error != null) {
-                promise.reject("Error in: logout", error)
-                return@logout;
+                throwError(promise, error)
+            } else {
+                promise.resolve(null)
             }
-            promise.resolve(true)
-            return@logout;
         }
     }
 
@@ -101,11 +102,10 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     fun identify(customerUserId: String, promise: Promise) {
         Adapty.identify(customerUserId) { error ->
             if (error != null) {
-                promise.reject("Error in: identify", error)
-                return@identify
+                throwError(promise, error)
+            } else {
+                promise.resolve(null)
             }
-            promise.resolve(true)
-            return@identify
         }
     }
 
@@ -178,155 +178,8 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
         Adapty.updateProfile(params) { error ->
             if (error != null) {
-                promise.reject("Error in: updateProfile", error)
+                throwError(promise, error)
                 return@updateProfile
-            }
-
-            promise.resolve(true)
-        }
-    }
-
-
-
-    @ReactMethod
-    fun getPaywalls(options: ReadableMap,promise: Promise) {
-        Adapty.getPaywalls { paywalls, products, state, error ->
-           if (shouldDrop(options, state)) {
-               return@getPaywalls
-           }
-
-            if (error != null) {
-                promise.reject("Error in: getPaywalls", error)
-                return@getPaywalls
-            }
-
-            val hm: HashMap<String, String> = HashMap()
-            hm["products"] = gson.toJson(products)
-            hm["paywalls"] = gson.toJson(paywalls)
-            promise.resolve(toWritableMap(hm))
-        }
-    }
-
-    @ReactMethod
-    fun makePurchase(productId: String, options: ReadableMap, promise: Promise) {
-        Adapty.getPaywalls { _, products, state, error ->
-            if (shouldDrop(options, state)) {
-                return@getPaywalls
-            }
-
-            if (error != null) {
-                promise.reject("Error, while getting list of products [1]", error)
-                return@getPaywalls
-            }
-
-            val product = products.find { it.vendorProductId == productId }
-
-            if (product == null) {
-                promise.reject("Error while getting the product", "Product with such vendorID was not found.")
-                return@getPaywalls
-            }
-
-            currentActivity.let {
-                if (it is Activity) {
-                    Adapty.makePurchase(it, product) { purchaserInfo, token, googleValidationResult, product ,error ->
-                        if (error != null) {
-                            promise.reject("Error in makePurchase", error)
-                            return@makePurchase
-                        }
-
-                        val hm: HashMap<String, String> = HashMap()
-                        hm["purchaserInfo"] = gson.toJson(purchaserInfo)
-                        hm["product"] = gson.toJson(product.serializeToMap())
-                        if (token != null) {
-                            hm["receipt"] = token
-                        }
-
-                        val map = toWritableMap(hm)
-                        promise.resolve(map)
-                    }
-                }
-            }
-            return@getPaywalls
-        }
-    }
-
-    @ReactMethod
-    fun restorePurchases(promise: Promise) {
-        Adapty.restorePurchases { purchaserInfo, list , error ->
-            if (error != null) {
-                promise.reject("Error in: restorePurchases", error)
-                return@restorePurchases
-            }
-
-            val receipts = list?.mapNotNull { it.purchaseToken }
-
-            val hm: HashMap<String, String> = HashMap()
-            hm["purchaserInfo"] = gson.toJson(purchaserInfo)
-
-            if (receipts != null && receipts.isNotEmpty()) {
-                hm["receipt"] = receipts.last()
-            }
-
-            val map = toWritableMap(hm)
-            promise.resolve(map)
-        }
-    }
-
-    @ReactMethod
-    fun validateReceipt(productId: String, receipt: String, promise: Promise) {
-        Adapty.getPaywalls { _, products, state, error ->
-            if (state == DataState.SYNCED) {
-                return@getPaywalls
-            }
-
-            if (error != null) {
-                promise.reject("Error, while getting list of products [1]", error)
-                return@getPaywalls
-            }
-
-            val product = products.find { it.vendorProductId == productId }
-
-            if (product?.skuDetails == null) {
-                promise.reject("Error while getting the product", "Product with such vendorID was not found.")
-                return@getPaywalls
-            }
-
-            val type: PurchaseType? = when (product.skuDetails?.type) {
-                "subs" -> PurchaseType.SUBS
-                "inapp" -> PurchaseType.INAPP
-                else -> null
-            }
-            if (type == null) {
-                promise.reject("Error in: validateReceipt", "Error while extracting product type")
-                return@getPaywalls
-            }
-
-            Adapty.validatePurchase(type, productId, receipt) { purchaserInfo ,_, _, error ->
-                if (error != null) {
-                    promise.reject("Error in: validateReceipt", error)
-                    return@validatePurchase
-                }
-
-                val hm: HashMap<String, Any> = HashMap()
-                hm["purchaserInfo"] = gson.toJson(purchaserInfo)
-                val map = toWritableMap(hm)
-                promise.resolve(map)
-            }
-        }
-    }
-
-    @ReactMethod
-    fun getPromo(promise: Promise) {
-        Adapty.getPromo { promo, error ->
-            if (error != null) {
-                promise.reject("Error in: getPromo", error)
-                return@getPromo
-            }
-
-            if (promo != null) {
-                val promoMap = promo.serializeToMap()
-                val data = toWritableMap(promoMap)
-                promise.resolve(data)
             }
 
             promise.resolve(null)
@@ -334,14 +187,85 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun getPurchaseInfo(options: ReadableMap, promise: Promise) {
-        Adapty.getPurchaserInfo { purchaserInfo, state, error ->
-            if (shouldDrop(options, state)) {
-                return@getPurchaserInfo
+    fun getPaywalls(options: ReadableMap,promise: Promise) {
+        val forceUpate = unwrapForceUpdate(options)
+
+        Adapty.getPaywalls(forceUpate) { paywalls, products, error ->
+            if (error != null) {
+                throwError(promise, error)
+                return@getPaywalls
             }
 
+            cachePaywalls(paywalls)
+            cacheProducts(products)
+            val json = gson.toJson(GetPaywallsResult(paywalls.map(AdaptyRNPaywall::from), products.map(AdaptyRNProduct::from)))
+            promise.resolve(json)
+        }
+    }
+
+    @ReactMethod
+    fun makePurchase(productId: String, variationId: String?, promise: Promise) {
+        val product = variationId?.let { variationId ->
+            paywalls.firstOrNull { it.variationId == variationId }?.products?.firstOrNull { it.vendorProductId == productId }
+        } ?: products[productId]
+
+        if (product == null) {
+            throwUnknownError(promise,"Product with such vendorID was not found.")
+            return@makePurchase
+        }
+
+        currentActivity.let {
+            if (it is Activity) {
+                Adapty.makePurchase(it, product) { info, token, result, product, error ->
+                    if (error != null) {
+                        throwError(promise, error)
+                        return@makePurchase
+                    }
+
+                    val json = gson.toJson(MakePurchaseResult(info, token,result, AdaptyRNProduct.from(product)))
+                    promise.resolve(json)
+                }
+            }
+        }
+    }
+
+    @ReactMethod
+    fun restorePurchases(promise: Promise) {
+        Adapty.restorePurchases { purchaserInfo, list , error ->
             if (error != null) {
-                promise.reject("Error in: getPurchaserInfo", error)
+                throwError(promise, error)
+                return@restorePurchases
+            }
+
+            val json = gson.toJson(RestoreResult(purchaserInfo, list))
+            promise.resolve(json)
+        }
+    }
+
+    @ReactMethod
+    fun getPromo(promise: Promise) {
+        Adapty.getPromo { promo, error ->
+            if (error != null) {
+                throwError(promise, error)
+                return@getPromo
+            }
+
+            if (promo == null) {
+                promise.resolve(null)
+            } else {
+                val json = gson.toJson(AdaptyRNPromo.from(promo))
+                promise.resolve(json)
+            }
+        }
+    }
+
+    @ReactMethod
+    fun getPurchaseInfo(options: ReadableMap, promise: Promise) {
+        val forceUpdate = unwrapForceUpdate(options)
+
+        Adapty.getPurchaserInfo(forceUpdate) { purchaserInfo, error ->
+            if (error != null) {
+                throwError(promise, error)
                 return@getPurchaserInfo
             }
 
@@ -360,58 +284,36 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
 
         if (sourceType == null) {
-            promise.reject("Error in: updateAttribution", "Source of attribution is not defined")
+            throwUnknownError(promise,"Source of attribution is not defined")
             return
         }
 
         Adapty.updateAttribution(map, sourceType) {}
-        promise.resolve(true)
+        promise.resolve(null)
     }
 
-    private fun toWritableArray(array: Array<Any?>): WritableArray {
-        val writableArray: WritableArray = WritableNativeArray()
 
-        for (element in array) {
-            when (element) {
-                is String -> writableArray.pushString(element)
-                is Int -> writableArray.pushInt(element)
-                is Double -> writableArray.pushDouble(element)
-                is Boolean -> writableArray.pushBoolean(element)
-                is Map<*, *> -> writableArray.pushMap(toWritableMap(element.serializeToMap()))
-                is Array<*> -> writableArray.pushArray(toWritableArray(element as Array<Any?>))
-                is List<*> -> writableArray.pushArray(toWritableArray(element.toTypedArray()))
-                null -> writableArray.pushNull()
+    private fun unwrapForceUpdate(options: ReadableMap?): Boolean {
+        if (options == null || !options.hasKey("forceUpdate")) {
+            return false
+        }
+        return options.getBoolean("forceUpdate")
+    }
+    private fun cachePaywalls(paywalls: List<PaywallModel>) = this.paywalls.run {
+        clear()
+        addAll(paywalls)
+    }
+    private fun cacheProducts(products: List<ProductModel>) = this.products.run {
+        clear()
+        products.forEach { product ->
+            product.vendorProductId?.let { id ->
+                put(id, product)
             }
         }
-        return writableArray
     }
+    private fun throwError(promise: Promise, error: AdaptyError) =
+            promise.reject("adapty_error", gson.toJson(AdaptyRNError.from(error)))
 
-    private fun toWritableMap(map: Map<String, *>): WritableMap {
-        val writableMap: WritableMap = WritableNativeMap()
-
-        for ((key, value) in map) {
-            when (value) {
-                is String -> writableMap.putString(key, value)
-                is Int -> writableMap.putInt(key, value)
-                is Double -> writableMap.putDouble(key, value)
-                is Boolean -> writableMap.putBoolean(key, value)
-                is Map<*, *> -> writableMap.putMap(key, toWritableMap(value.serializeToMap()))
-                is Array<*> -> writableMap.putArray(key, toWritableArray(value as Array<Any?>))
-                is List<*> -> writableMap.putArray(key, toWritableArray(value.toTypedArray()))
-                null -> writableMap.putNull(key)
-            }
-        }
-        return writableMap
-    }
-
-    //convert an object of type I to type O
-    inline fun <I, reified O> I.convert(): O {
-        val json = gson.toJson(this)
-        return gson.fromJson(json, object : TypeToken<O>() {}.type)
-    }
-
-    //convert a data class to a map
-    fun <T> T.serializeToMap(): Map<String, Any> {
-        return convert()
-    }
+    private fun throwUnknownError(promise: Promise, message: String) =
+            promise.reject("adapty_error", gson.toJson(AdaptyRNError.from(message)))
 }
