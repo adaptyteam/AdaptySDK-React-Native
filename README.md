@@ -1,156 +1,29 @@
-<h1 align="center">
-<img src="https://raw.githubusercontent.com/adaptyteam/AdaptySDK-iOS/master/adapty.png"><br />
-Adapty React-Native SDK
-</h1>
-<p align="center">
-  <a href="https://www.npmjs.com/package/react-native-adapty"><img src="https://img.shields.io/npm/dt/react-native-adapty?style=for-the-badge" alt="npm:  downloads" /></a>
-  <a href="https://www.npmjs.com/package/react-native-adapty"><img src="https://img.shields.io/npm/v/react-native-adapty?style=for-the-badge" alt="npm: latest version" /></a>
-</p>
+# Adapty React-Native SDK
+  <a href="https://www.npmjs.com/package/react-native-adapty"><img src="https://img.shields.io/npm/dt/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=yarn" alt="npm:  downloads" /></a>
+  <a href="https://www.npmjs.com/package/react-native-adapty"><img src="https://img.shields.io/npm/v/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=npm" alt="npm: latest version" /></a>
+  
+<img src="https://raw.githubusercontent.com/adaptyteam/AdaptySDK-iOS/master/adapty.png">
+Adapty SDK is an open-source framework that makes implementing in-app subscriptions fast and easy. It’s 100% open-source and lightweight.
 
+After integrating Adapty SDK you can use:
+* [A/B Testing](https://docs.adapty.io/purchase-infrastructure/ab-tests)
+* [Promo campaigns](https://docs.adapty.io/profiles-and-promo-campaigns/promo-campaigns)
+* [Subscribers CRM](https://docs.adapty.io/profiles-and-promo-campaigns/profiles)
+* [Subscription Events](https://docs.adapty.io/analytics/integrations)
+* Purchase infrastructure
+* And much more! 🔥🧑‍🚒👨‍🚒
 
-* [Requirements](#requirements)
-* [Concerning Expo](#concerning-expo)
-* [Installation](#installation)
-* [Initialization](#initialization)
-* [Usage](#usage)
-* [License](#license)
 
 ## Requirements
 * React Native v0.60+
 
-## Concerning Expo
-The idea behind Expo makes it impossible to perform purchases with an Expo-based app, unless you have a bare workflow. You have to eject to ExpoKit in order to use this library.
-
-If you have decided to eject your app, consider [official docs](https://docs.expo.io/expokit/eject/).
-
 ## Installation
-
-> Lower you will find instructions how to install Adapty via autolinking feature. If you have to link this library manually, please, look through [this doc](docs/manual_linking.md) instead.
-
-1. Run an installation command:
 
 ```sh
 yarn add react-native-adapty
 ```
 
-or 
-
-```sh
-npm i react-native-adapty --save
-```
-
-2. Install required iOS pods:
-
-```sh
-cd ios && pod install && cd ../
-```
-
-3. For android devices you currently need to add Kotlin in `android/build.gradle` and to enable multiDex in your `app/build.gradle`:
-
-```diff
-// android/build.gradle
-
-...
-buildscript {
-  ...
-  dependencies {
-    ...
-+   classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0"
-  }
-}
-...
-```
-
-```diff
-// android/app/build.gradle
-
-...
-android {
-  ...
-  defaultConfig {
-    ...
-+   multiDexEnabled true
-  }
-}
-```
-
-4. All set! 🎉
-
-## Initialization
-
-Initialize Adapty SDK __in a core component__. You can use a function inside , 
-depending of what code-style you prefer. Consider those are the same:
-
-```tsx
-import { activateAdapty } from "react-native-adapty";
-
-const App: React.FC = () => {
-  ...
-  useEffect(() => {
-    activateAdapty({ sdkKey: "YOUR_SDK_KEY" });
-  },[]);
-  ...
-}
-```
-
-or
-
-```tsx
-import { activateAdapty } from "react-native-adapty";
-
-class App extends Component {
-  ...
-  componentDidMount() {
-    activateAdapty({ sdkKey: "YOUR_SDK_KEY" });
-  }
-  ...
-}
-```
-
-Whatever method you've chosen, you have to replace `YOUR_SDK_KEY` with your public SDK key. You can obtain one by signing up on [Adapty website](https://adapty.io).
-
-There are also several optional parameters, you can pass during initialization. These are `customerUserId`, `observerMode` and `logLevel`.
-
-## Usage
-
-In this SDK you may find two types of callable methods: API requests and event emitters.
-
-### Using API methods
-
-For the most part, you would be using API requests: they are promises categorized inside the `adapty` instance.
-
-Most of these methods can throw an error typed as `AdaptyError`, make sure to handle those as you need.
-
-You can find extended API documentation [inside the docs folder](/docs).
-
-#### Example
-
-```ts
-import { adapty } from "react-native-adapty";
-
-// for example
-adapty.user.updateProfile({
-  name: "John Doe"
-});
-
-// or
-adapty.purchases.makePurchase('500_coins');
-```
-
-### Listening to Adapty events
-
-> ⚠️ Listeners are current WIP
-
-Sometimes you want to subscribe user to an Adapty-connected update. In order to create an event listener, you should use `addEventListener` method of the `adapty` instance:
-
-```ts
-// For example
-adapty.addEventListener('onPurchaseFailed', error => {
-  navigate("ViewError", { error })
-})
-```
-
-You may find extended documentation in [here](docs/README.md)
+Please refer to our [documentation](https://docs.adapty.io/sdk/integrating-adapty-sdk/rn-sdk-intro) to add Adapty SDK to your project and discover it's capabilities! 🚀
 
 ## License
 
