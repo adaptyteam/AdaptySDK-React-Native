@@ -1,4 +1,4 @@
-# Adapty React-Native SDK
+# Adapty React Native SDK
   <a href="https://www.npmjs.com/package/react-native-adapty"><img src="https://img.shields.io/npm/dt/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=yarn" alt="npm:  downloads" /></a>
   <a href="https://www.npmjs.com/package/react-native-adapty"><img src="https://img.shields.io/npm/v/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=npm" alt="npm: latest version" /></a>
   
