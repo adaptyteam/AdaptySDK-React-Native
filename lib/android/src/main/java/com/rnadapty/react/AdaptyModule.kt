@@ -67,6 +67,17 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         promise.resolve(null)
     }
 
+    @ReactMethod
+    fun setExternalAnalyticsEnabled(isEnabled: Boolean, promise: Promise) {
+        Adapty.setExternalAnalyticsEnabled(isEnabled) {
+            if (it != null) {
+                throwError(promise, it)
+            } else {
+                promise.resolve(null)
+            }
+        }
+    }
+
 
     @ReactMethod
     fun activate(sdkKey: String, customerUserId: String?, observerMode: Boolean, logLevel: String, promise: Promise) {
