@@ -94,6 +94,9 @@ export interface AdaptyProduct {
 
   paywallName?: string;
   paywallABTestName?: string;
+
+  /** Androi-only */
+  freeTrialPeriod?: AdaptyProductSubscriptionPeriod;
 }
 
 export interface AdaptyProductDiscount {

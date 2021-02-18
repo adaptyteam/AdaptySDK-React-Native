@@ -50,6 +50,9 @@ class AdaptyRNProduct {
     @SerializedName("paywallABTestName")
     var paywallABTestName: String? = null
 
+    @SerializedName("freeTrialPeriod")
+    var freeTrialPeriod: AdaptyRNProductSubscriptionPeriod? = null
+
     companion object {
         fun from(product: ProductModel) = AdaptyRNProduct().apply {
             vendorProductId = product.vendorProductId
@@ -67,6 +70,7 @@ class AdaptyRNProduct {
             promotionalOfferEligibility = product.promotionalOfferEligibility
             introductoryDiscount = product.introductoryDiscount?.let(AdaptyRNDiscount.Companion::from)
             skuDetails = product.skuDetails
+            freeTrialPeriod = product.freeTrialPeriod?.let(AdaptyRNProductSubscriptionPeriod.Companion::from)
         }
     }
 }
