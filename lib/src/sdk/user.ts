@@ -57,6 +57,10 @@ export interface AdaptyUser {
    */
   facebookUserId: string;
   /**
+   * Facebook Anonymous ID
+   */
+  facebookAnonymousId: string;
+  /**
    * Amplitude UserID
    * @example "00000000000000"
    */

@@ -137,6 +137,9 @@ class RNAdapty: NSObject {
     if let facebookUserId = dict.value(forKey: "facebookUserId") as?  String ?? nil {
       _ = params.withFacebookUserId(facebookUserId)
     }
+    if let facebookAnonymousId = dict.value(forKey: "facebookAnonymousId") as? String ?? nil {
+      _ = params.withFacebookAnonymousId(facebookAnonymousId)
+    }
     if let amplitudeUserId = dict.value(forKey: "amplitudeUserId") as? String ?? nil {
       _ = params.withAmplitudeUserId(amplitudeUserId)
     }
