@@ -438,6 +438,8 @@ export interface AdaptyPaywall {
   customPayloadString?: string;
   /** Unique identifier of the paywall */
   variationId: string;
+  name?: string;
+  abTestName?: string;
 }
 
 export interface MakePurchaseResult {
