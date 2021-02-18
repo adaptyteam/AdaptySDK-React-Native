@@ -4,14 +4,14 @@ import Adapty
 @objc(RNAdapty)
 class RNAdapty: NSObject {
   let events = RNAdaptyEvents()
-  
+
   private var paywalls = [PaywallModel]()
   private var products = [ProductModel]()
 
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
   }
-  
+
   private func cachePaywalls(_ paywalls: [PaywallModel]?) {
     self.paywalls.removeAll()
     if let paywalls = paywalls {
@@ -25,7 +25,6 @@ class RNAdapty: NSObject {
     }
   }
 
-  /* INITIALIZATION */
   @objc
   func activate(_ sdkKey: String, uId: String?, observerMode: Bool, logLevel: String) {
     Adapty.activate(sdkKey, observerMode: observerMode, customerUserId: uId)
@@ -39,12 +38,14 @@ class RNAdapty: NSObject {
     }
   }
 
-  /* TRACKERS */
   @objc
-  func updateAttribution(_ dict: NSDictionary, source: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func updateAttribution(_ dict: NSDictionary,
+                         source: String,
+                         resolver resolve: @escaping RCTPromiseResolveBlock,
+                         rejecter reject: @escaping RCTPromiseRejectBlock) {
     guard let attribution = dict as? [AnyHashable: Any] else {
-      let (c,json, err) = unwrapCustomError("Failed to convert object to [AnyHashable: Any]")
-      return reject(c,json, err)
+      let (c, json, err) = unwrapCustomError("Failed to convert object to [AnyHashable: Any]")
+      return reject(c, json, err)
     }
 
     func parseSource(_ str: String) -> AttributionNetwork {
@@ -64,8 +65,8 @@ class RNAdapty: NSObject {
 
     Adapty.updateAttribution(attribution, source: parseSource(source)) { (error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error);
-        return reject(c,json, err);
+        let (c, json, err) = unwrapError(error)
+        return reject(c, json, err)
       }
 
       return resolve(nil)
@@ -85,37 +86,46 @@ class RNAdapty: NSObject {
     }
   }
 
+  @objc
+  func logShowPaywall(_ variationId: String,
+                      resolver resolve: @escaping RCTPromiseResolveBlock,
+                      rejecter reject: @escaping RCTPromiseRejectBlock) {
+
     guard let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
-      let (c,json, err) = unwrapCustomError("Paywall with such variation ID wasn't found")
+      let (c, json, err) = unwrapCustomError("Paywall with such variation ID wasn't found")
       return reject(c, json, err)
     }
     Adapty.logShowPaywall(paywall)
   }
-  
+
   @objc
-  func getAPNSToken(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func getAPNSToken(_ resolve: @escaping RCTPromiseResolveBlock,
+                    rejecter reject: @escaping RCTPromiseRejectBlock) {
     return resolve(Adapty.apnsTokenString)
    }
-  
+
   @objc
-  func setAPNSToken(_ apns: String,resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func setAPNSToken(_ apns: String,
+                    resolver resolve: @escaping RCTPromiseResolveBlock,
+                    rejecter reject: @escaping RCTPromiseRejectBlock) {
     guard let utf8Str = apns.data(using: .utf8) else {
-      let (c,json, err) = unwrapCustomError("Invalid APNS Token passed")
+      let (c, json, err) = unwrapCustomError("Invalid APNS Token passed")
       return reject(c, json, err)
      }
-    
-       let base64Encoded = utf8Str.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
-       Adapty.apnsToken = Data(base64Encoded: base64Encoded)
-       resolve(nil)
+
+     let base64Encoded = utf8Str.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
+     Adapty.apnsToken = Data(base64Encoded: base64Encoded)
+     resolve(nil)
    }
 
-  /* USERS */
   @objc
-  func identify(_ uId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func identify(_ uId: String,
+                resolver resolve: @escaping RCTPromiseResolveBlock,
+                rejecter reject: @escaping RCTPromiseRejectBlock) {
    Adapty.identify(uId) { (error) in
     if let error = error {
-      let (c, json, err) = unwrapError(error);
-      return reject(c,json, err);
+      let (c, json, err) = unwrapError(error)
+      return reject(c, json, err)
     }
 
     return resolve(nil)
@@ -123,11 +133,12 @@ class RNAdapty: NSObject {
   }
 
   @objc
-  func logout(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func logout(_ resolve: @escaping RCTPromiseResolveBlock,
+              rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.logout { (error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error);
-        return reject(c,json, err);
+        let (c, json, err) = unwrapError(error)
+        return reject(c, json, err)
       }
 
       return resolve(nil)
@@ -135,9 +146,11 @@ class RNAdapty: NSObject {
   }
 
   @objc
-  func updateProfile(_ dict: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func updateProfile(_ dict: NSDictionary,
+                     resolver resolve: @escaping RCTPromiseResolveBlock,
+                     rejecter reject: @escaping RCTPromiseRejectBlock) {
     let params = ProfileParameterBuilder()
-    
+
     if let email = dict.value(forKey: "email") as? String ?? nil {
       _ = params.withEmail(email)
     }
@@ -181,46 +194,47 @@ class RNAdapty: NSObject {
     if let birthdayStr = dict.value(forKey: "birthday") as? String ?? nil {
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-      
+
       if let birthday = dateFormatter.date(from: birthdayStr) {
         _ = params.withBirthday(birthday)
       }
     }
-    
+
     if let customObj = dict.value(forKey: "customAttributes") as? NSDictionary ?? nil {
       var customAttributes: [String: AnyObject] = [:]
-      
+
       let keys = customObj.allKeys.compactMap { $0 as? String }
       for key in keys {
         let keyValue = customObj.value(forKey: key) as AnyObject
         customAttributes[key] = keyValue
       }
-      
+
       _ = params.withCustomAttributes(customAttributes)
     }
 
     Adapty.updateProfile(params: params) { (error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error);
-        return reject(c,json, err);
+        let (c, json, err) = unwrapError(error)
+        return reject(c, json, err)
       }
       return resolve(nil)
     }
   }
 
-  /* PURCHASES */
   @objc
-  func makePurchase(_ productId: String, variationId: String?, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping  RCTPromiseRejectBlock) {
+  func makePurchase(_ productId: String, variationId: String?,
+                    resolver resolve: @escaping RCTPromiseResolveBlock,
+                    rejecter reject: @escaping  RCTPromiseRejectBlock) {
     guard let product = findProduct(productId: productId, variationId: variationId) else {
-      let (c,json, err) = unwrapCustomError("Product with such ID wasn't found", adaptyCode: .noProductsFound)
+      let (c, json, err) = unwrapCustomError("Product with such ID wasn't found", adaptyCode: .noProductsFound)
       return reject(c, json, err)
     }
-    
+
     Adapty.makePurchase(product: product) {
-      (purchaserInfo, receipt, appleValidationResult, product, error) in
+      (purchaserInfo, receipt, _, product, error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error);
-        return reject(c,json, err);
+        let (c, json, err) = unwrapError(error)
+        return reject(c, json, err)
       }
 
       let result = MakePurchaseResult(purchaserInfo: purchaserInfo,
@@ -231,26 +245,28 @@ class RNAdapty: NSObject {
   }
 
   @objc
-  func getPurchaseInfo(_ options: NSDictionary, resolver resolve: @escaping  RCTPromiseResolveBlock,
+  func getPurchaseInfo(_ options: NSDictionary,
+                       resolver resolve: @escaping  RCTPromiseResolveBlock,
                        rejecter reject: @escaping  RCTPromiseRejectBlock) {
     let forceUpdate = options.value(forKey: "forceUpdate") as? Bool ?? false
     Adapty.getPurchaserInfo(forceUpdate: forceUpdate) { (info, error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error);
-        return reject(c,json, err);
+        let (c, json, err) = unwrapError(error)
+        return reject(c, json, err)
       }
       return resolve(encodeJson(from: info))
     }
   }
 
   @objc
-  func restorePurchases(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func restorePurchases(_ resolve: @escaping RCTPromiseResolveBlock,
+                        rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.restorePurchases { (purchaserInfo, receipt, _, error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error);
-        return reject(c,json, err);
+        let (c, json, err) = unwrapError(error)
+        return reject(c, json, err)
       }
-      
+
       let result = RestorePurchasesResult(purchaserInfo: purchaserInfo,
                                           receipt: receipt)
       return resolve(encodeJson(from: result))
@@ -258,11 +274,12 @@ class RNAdapty: NSObject {
   }
 
   @objc
-  func getPromo(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func getPromo(_ resolve: @escaping RCTPromiseResolveBlock,
+                rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.getPromo { (promo, error) in
       if let error = error {
-          let (c, json, err) = unwrapError(error);
-          return reject(c,json, err);
+          let (c, json, err) = unwrapError(error)
+          return reject(c, json, err)
       }
 
       return resolve(encodeJson(from: promo))
@@ -284,21 +301,25 @@ class RNAdapty: NSObject {
     }
   }
 
+  @objc
+  func getPaywalls(_ options: NSDictionary,
+                   resolver resolve: @escaping RCTPromiseResolveBlock,
+                   rejecter reject: @escaping RCTPromiseRejectBlock) {
     let forceUpdate = options.value(forKey: "forceUpdate") as? Bool ?? false
-    
+
     Adapty.getPaywalls(forceUpdate: forceUpdate) { (paywalls, products, error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error);
-        return reject(c,json, err);
+        let (c, json, err) = unwrapError(error)
+        return reject(c, json, err)
       }
-      
+
       self.cachePaywalls(paywalls)
       self.cacheProducts(products)
       let result = GetPaywallsResult(paywalls: paywalls, products: products)
       return resolve(encodeJson(from: result))
     }
   }
-  
+
   private func findProduct(productId: String, variationId: String?) -> ProductModel? {
     guard let variationId = variationId,
     let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
@@ -328,7 +349,7 @@ func unwrapCustomError(_ message: String,
     "adaptyCode": String(adaptyCode.rawValue),
     "code": String(code)
   ]
-  
+
   let json = encodeJson(from: error)
 
   return ("adapty_error", json, nil)
