@@ -86,7 +86,7 @@ export function useAdapty(props: AdaptyActivateArgs): void {
 export async function activateAdapty(props: AdaptyActivateArgs): Promise<void> {
   const module = extractModule();
 
-  const userId = String(props.customerUserId) || null;
+  const userId = props.customerUserId?.toString() || null;
 
   const DEFAULT_LOG_LEVEL = 'none';
   const logLevel = props.logLevel || DEFAULT_LOG_LEVEL;
