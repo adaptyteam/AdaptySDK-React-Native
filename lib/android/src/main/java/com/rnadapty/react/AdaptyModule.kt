@@ -78,6 +78,16 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
     }
 
+    @ReactMethod
+    fun setVariationID(variationId: String, transactionId: String, promise: Promise) {
+        Adapty.setTransactionVariationId(transactionId, variationId) {
+            if (it != null) {
+                throwError(promise, it)
+            } else {
+                promise.resolve(null)
+            }
+        }
+    }
 
     @ReactMethod
     fun activate(sdkKey: String, customerUserId: String?, observerMode: Boolean, logLevel: String, promise: Promise) {
