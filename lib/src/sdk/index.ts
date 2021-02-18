@@ -58,6 +58,15 @@ export class Adapty extends AdaptyEventEmitter {
     }
   }
 
+  public async setIsExternalAnalyticsEnabled(
+    isEnabled: boolean,
+  ): Promise<void> {
+    try {
+      this._ctx.module.setExternalAnalyticsEnabled(isEnabled);
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
+  }
   /**
    * Updates
    *

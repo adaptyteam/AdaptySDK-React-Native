@@ -71,10 +71,20 @@ class RNAdapty: NSObject {
       return resolve(nil)
     }
   }
-  
+
   @objc
-  func logShowPaywall(_ variationId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    
+  func setExternalAnalyticsEnabled(_ isEnabled: Bool,
+                                   resolver resolve: @escaping RCTPromiseResolveBlock,
+                                   rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Adapty.setExternalAnalyticsEnabled(isEnabled) { (error) in
+      if let error = error {
+        let (c, json, err) = unwrapError(error)
+        return reject(c, json, err)
+      }
+      resolve(nil)
+    }
+  }
+
     guard let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
       let (c,json, err) = unwrapCustomError("Paywall with such variation ID wasn't found")
       return reject(c, json, err)

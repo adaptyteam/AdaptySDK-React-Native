@@ -23,7 +23,7 @@ export interface AdaptyModule {
   getPromo: () => Promise<string>;
   // JSON: { paywalls: string; product: string }
   getPaywalls: (options?: AdaptyDefaultOptions) => Promise<string>;
-
+  setExternalAnalyticsEnabled: (isEnabled: boolean) => Promise<void>;
   activate: (
     sdkKey: string,
     userId: string | any,
