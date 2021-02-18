@@ -73,4 +73,18 @@ export class Purchases {
       throw attemptToDecodeError(error);
     }
   }
+
+  /**
+   * Associates transaction with a certain paywall
+   */
+  public async setVariationId(
+    variationId: string,
+    transactionId: string,
+  ): Promise<void> {
+    try {
+      await this._ctx.module.setVariationID(variationId, transactionId);
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
+  }
 }

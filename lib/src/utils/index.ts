@@ -24,6 +24,7 @@ export interface AdaptyModule {
   // JSON: { paywalls: string; product: string }
   getPaywalls: (options?: AdaptyDefaultOptions) => Promise<string>;
   setExternalAnalyticsEnabled: (isEnabled: boolean) => Promise<void>;
+  setVariationID: (variationId: string, transactionId: string) => Promise<void>;
   activate: (
     sdkKey: string,
     userId: string | any,

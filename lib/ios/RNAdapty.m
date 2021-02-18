@@ -71,6 +71,12 @@ RCT_EXTERN_METHOD(
                   rejecter:                    (RCTPromiseRejectBlock)reject
 )
 
+RCT_EXTERN_METHOD(
+                  setVariationID: (NSString)variationId
+                  transactionId:  (NSString)transactionId
+                  resolver:       (RCTPromiseResolveBlock)resolve
+                  rejecter:       (RCTPromiseRejectBlock)reject
+)
 
 RCT_EXTERN_METHOD(
                   getAPNSToken: (RCTPromiseResolveBlock)resolve

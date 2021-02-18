@@ -269,9 +269,21 @@ class RNAdapty: NSObject {
     }
   }
 
-  /* PAYWALLS */
   @objc
-  func getPaywalls(_ options: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func setVariationID(_ variationId: String,
+                      transactionId: String,
+                      resolver resolve: @escaping RCTPromiseResolveBlock,
+                      rejecter reject: @escaping RCTPromiseRejectBlock
+                      ) {
+    Adapty.setVariationId(<#T##variationId: String##String#>, forTransactionId: <#T##String#>) {(error) in
+      if let error = error {
+            let (c, json, err) = unwrapError(error)
+            return reject(c, json, err)
+      }
+      resolve(nil)
+    }
+  }
+
     let forceUpdate = options.value(forKey: "forceUpdate") as? Bool ?? false
     
     Adapty.getPaywalls(forceUpdate: forceUpdate) { (paywalls, products, error) in
