@@ -144,6 +144,10 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             val email = map.getValue("email")
             params.withEmail(email.toString())
         }
+        if (map.containsKey("facebookAnonymousId")) {
+            val anonymousId = map.getValue("facebookAnonymousId")
+            params.withFacebookAnonymousId(anonymousId)
+        }
         if (map.containsKey("amplitudeDeviceId")) {
             val ampId = map.getValue("amplitudeDeviceId")
             params.withAmplitudeDeviceId(ampId.toString())
