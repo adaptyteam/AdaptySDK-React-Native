@@ -44,6 +44,12 @@ class AdaptyRNProduct {
     @SerializedName("skuDetails")
     var skuDetails: SkuDetails? = null
 
+    @SerializedName("paywallName")
+    var paywallName: String? = null
+
+    @SerializedName("paywallABTestName")
+    var paywallABTestName: String? = null
+
     companion object {
         fun from(product: ProductModel) = AdaptyRNProduct().apply {
             vendorProductId = product.vendorProductId
@@ -53,6 +59,8 @@ class AdaptyRNProduct {
             price = product.price?.toDouble()
             localizedPrice = product.localizedPrice
             currencyCode = product.currencyCode
+            paywallABTestName = product.paywallABTestName
+            paywallName = product.paywallName
             currencySymbol = product.currencySymbol
             subscriptionPeriod = product.subscriptionPeriod?.let(AdaptyRNProductSubscriptionPeriod.Companion::from)
             introductoryOfferEligibility = product.introductoryOfferEligibility

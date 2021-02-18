@@ -91,6 +91,9 @@ export interface AdaptyProduct {
    * @todo NO VALUE ANDROID
    */
   promotionalOfferId?: string;
+
+  paywallName?: string;
+  paywallABTestName?: string;
 }
 
 export interface AdaptyProductDiscount {
