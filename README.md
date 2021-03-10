@@ -26,7 +26,7 @@ Start analyzing real-time metrics of your app with advanced filters, such as ad 
 yarn add react-native-adapty
 ```
 
-Read the [documentation](https://docs.adapty.io/sdk/integrating-adapty-sdk/ios-sdk-intro/rn-sdk-installation) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
+Read the [documentation](https://docs.adapty.io/sdk/integrating-adapty-sdk/rn-sdk-intro) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
 ## License
 Adapty is available under the MIT license. See [LICENSE](https://github.com/adaptyteam/AdaptySDK-React-Native/blob/master/LICENSE) for details.
