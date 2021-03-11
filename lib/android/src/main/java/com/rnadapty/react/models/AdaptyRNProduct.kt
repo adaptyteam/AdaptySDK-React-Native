@@ -33,10 +33,10 @@ class AdaptyRNProduct {
     var subscriptionPeriod: AdaptyRNProductSubscriptionPeriod? = null
 
     @SerializedName("introductoryOfferEligibility")
-    var introductoryOfferEligibility = true
+    var introductoryOfferEligibility = false
 
     @SerializedName("promotionalOfferEligibility")
-    var promotionalOfferEligibility = true
+    var promotionalOfferEligibility = false
 
     @SerializedName("introductoryDiscount")
     var introductoryDiscount: AdaptyRNDiscount? = null
