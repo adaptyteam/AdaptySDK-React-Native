@@ -292,7 +292,7 @@ class RNAdapty: NSObject {
                       resolver resolve: @escaping RCTPromiseResolveBlock,
                       rejecter reject: @escaping RCTPromiseRejectBlock
                       ) {
-    Adapty.setVariationId(<#T##variationId: String##String#>, forTransactionId: <#T##String#>) {(error) in
+    Adapty.setVariationId(variationId, forTransactionId: transactionId) {(error) in
       if let error = error {
             let (c, json, err) = unwrapError(error)
             return reject(c, json, err)
