@@ -146,7 +146,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
         if (map.containsKey("facebookAnonymousId")) {
             val anonymousId = map.getValue("facebookAnonymousId")
-            params.withFacebookAnonymousId(anonymousId)
+            params.withFacebookAnonymousId(anonymousId.toString())
         }
         if (map.containsKey("amplitudeDeviceId")) {
             val ampId = map.getValue("amplitudeDeviceId")
@@ -313,7 +313,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             return
         }
 
-        Adapty.updateAttribution(map, sourceType) {}
+        Adapty.updateAttribution(map.toHashMap(), sourceType) {}
         promise.resolve(null)
     }
 
