@@ -14,9 +14,9 @@ Return churned subscribers with promotional trigger-based push notifications.
 Explore user's payment events from starting the trial to subscription cancellation or billing issues.
 - [Forward in-app purchases events](https://doc.adapty.io/docs/events?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
 Send subscription events to 3rd party analytics, attribution, and ad services with no coding. Even if a user uninstalled an app.
-- [Implement in-app purchases with no server code](https://doc.adapty.io/docs/ios-sdk-configuration?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
+- [Implement in-app purchases with no server code](https://doc.adapty.io/docs/react-native-sdk-configuration?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
 In-app purchases with server-side receipt validation in minutes. Apple Promotional Offers supported out-of-the-box.
-- [Analytics](https://doc.adapty.io/docs/app-store-analytics?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
+- [Analytics](https://doc.adapty.io/docs/analytics-charts?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
 Start analyzing real-time metrics of your app with advanced filters, such as ad network, ad campaign, country, A/B test, etc.
 - 24/7 support
 
