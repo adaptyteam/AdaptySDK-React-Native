@@ -55,6 +55,11 @@ export interface AdaptyProduct {
   regionCode: string;
   /** Eligibility of user for introductory offer */
   introductoryOfferEligibility: boolean;
+
+  /**
+   * @since iOS 14.0+ only
+   */
+  isFamilyShareable?: boolean;
   /**
    * Array of discount offers available for the product
    * @see AdaptyProductDiscount
