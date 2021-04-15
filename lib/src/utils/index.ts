@@ -4,6 +4,8 @@ export interface AdaptyDefaultOptions {
   forceUpdate?: boolean;
 }
 export interface AdaptyModule {
+  presentCodeRedemptionSheet: () => void;
+
   identify: (uId: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (fields: Object) => Promise<void>;

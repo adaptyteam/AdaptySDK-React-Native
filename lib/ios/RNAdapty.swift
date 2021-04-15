@@ -302,6 +302,11 @@ class RNAdapty: NSObject {
   }
 
   @objc
+  func presentCodeRedemptionSheet() {
+    Adapty.presentCodeRedemptionSheet()
+  }
+  
+  @objc
   func getPaywalls(_ options: NSDictionary,
                    resolver resolve: @escaping RCTPromiseResolveBlock,
                    rejecter reject: @escaping RCTPromiseRejectBlock) {

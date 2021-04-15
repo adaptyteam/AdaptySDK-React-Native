@@ -1,6 +1,9 @@
 #import "React/RCTBridgeModule.h"
 
 @interface RCT_EXTERN_MODULE(RNAdapty, NSObject)
+
+RCT_EXTERN_METHOD(presentCodeRedemptionSheet)
+
 RCT_EXTERN_METHOD(
                   activate:     (NSString)sdkKey
                   uId:          (NSString)uId
