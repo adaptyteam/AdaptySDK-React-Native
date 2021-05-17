@@ -336,6 +336,9 @@ class RNAdapty: NSObject {
 
 func encodeJson<T: Encodable>(from data: T) -> String? {
   let encoder = JSONEncoder()
+  if #available(iOS 10.0, *) {
+    encoder.dateEncodingStrategy = .iso8601
+  }
 
   if let json = try? encoder.encode(data) {
     if let jsonString = String(data: json, encoding: .utf8) {
