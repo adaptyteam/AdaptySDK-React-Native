@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C10C8B625D19A1400CCD6AD /* RNModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C10C8B525D19A1400CCD6AD /* RNModels.swift */; };
 		9C3BB65425236EED00D08A07 /* RNAdaptyEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65025236EED00D08A07 /* RNAdaptyEvents.m */; };
 		9C3BB65525236EED00D08A07 /* RNAdaptyEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65125236EED00D08A07 /* RNAdaptyEvents.swift */; };
 		9C3BB65625236EED00D08A07 /* RNAdapty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65225236EED00D08A07 /* RNAdapty.swift */; };
@@ -26,6 +27,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9C10C8B525D19A1400CCD6AD /* RNModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNModels.swift; sourceTree = "<group>"; };
 		9C3BB63D25236E6100D08A07 /* libRNAdapty.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNAdapty.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNAdapty-Bridging-Header.h"; sourceTree = "<group>"; };
 		9C3BB65025236EED00D08A07 /* RNAdaptyEvents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNAdaptyEvents.m; sourceTree = "<group>"; };
@@ -52,6 +54,7 @@
 				9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */,
 				9C3BB65325236EED00D08A07 /* RNAdapty.m */,
 				9C3BB65225236EED00D08A07 /* RNAdapty.swift */,
+				9C10C8B525D19A1400CCD6AD /* RNModels.swift */,
 				9C3BB65025236EED00D08A07 /* RNAdaptyEvents.m */,
 				9C3BB65125236EED00D08A07 /* RNAdaptyEvents.swift */,
 			);
@@ -123,6 +126,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9C3BB65725236EED00D08A07 /* RNAdapty.m in Sources */,
+				9C10C8B625D19A1400CCD6AD /* RNModels.swift in Sources */,
 				9C3BB65425236EED00D08A07 /* RNAdaptyEvents.m in Sources */,
 				9C3BB65525236EED00D08A07 /* RNAdaptyEvents.swift in Sources */,
 				9C3BB65625236EED00D08A07 /* RNAdapty.swift in Sources */,
@@ -239,6 +243,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
