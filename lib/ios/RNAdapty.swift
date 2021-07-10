@@ -223,6 +223,7 @@ class RNAdapty: NSObject {
 
   @objc
   func makePurchase(_ productId: String, variationId: String?,
+                    offerId: String?,
                     resolver resolve: @escaping RCTPromiseResolveBlock,
                     rejecter reject: @escaping  RCTPromiseRejectBlock) {
     guard let product = findProduct(productId: productId, variationId: variationId) else {
@@ -230,7 +231,7 @@ class RNAdapty: NSObject {
       return reject(c, json, err)
     }
 
-    Adapty.makePurchase(product: product) {
+    Adapty.makePurchase(product: product, offerId: offerId) {
       (purchaserInfo, receipt, _, product, error) in
       if let error = error {
         let (c, json, err) = unwrapError(error)

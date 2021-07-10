@@ -2,6 +2,7 @@ package com.rnadapty.react
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.util.Log
 import com.adapty.Adapty
 import com.adapty.api.AttributionType
 import com.adapty.api.entity.profile.update.Date
@@ -140,10 +141,6 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             val email = map.getValue("email")
             params.withEmail(email.toString())
         }
-        if (map.containsKey("email")) {
-            val email = map.getValue("email")
-            params.withEmail(email.toString())
-        }
         if (map.containsKey("facebookAnonymousId")) {
             val anonymousId = map.getValue("facebookAnonymousId")
             params.withFacebookAnonymousId(anonymousId.toString())
@@ -229,7 +226,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun makePurchase(productId: String, variationId: String?, promise: Promise) {
+    fun makePurchase(productId: String, variationId: String?, offerId: String?, promise: Promise) {
         val product = variationId?.let { variationId ->
             paywalls.firstOrNull { it.variationId == variationId }?.products?.firstOrNull { it.vendorProductId == productId }
         } ?: products[productId]
@@ -295,6 +292,8 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             }
 
             val json = gson.toJson(purchaserInfo)
+            Log.d("Purchaser info JSON", json)
+            println(purchaserInfo)
             promise.resolve(json)
         }
     }

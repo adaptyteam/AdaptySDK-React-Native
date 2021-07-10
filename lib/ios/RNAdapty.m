@@ -48,7 +48,8 @@ RCT_EXTERN_METHOD(
 
 RCT_EXTERN_METHOD(
                   makePurchase: (NSString)productId
-                  variationId: (NSString)variationId
+                  variationId:  (NSString)variationId
+                  offerId:      (NSString)offerId
                   resolver:     (RCTPromiseResolveBlock)resolve
                   rejecter:     (RCTPromiseRejectBlock)reject
 )

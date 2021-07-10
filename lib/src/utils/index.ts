@@ -20,6 +20,7 @@ export interface AdaptyModule {
   makePurchase: (
     product: string,
     variationId: string | undefined,
+    offerId?: string,
   ) => Promise<string>;
   // JSON: AdaptyPromo
   getPromo: () => Promise<string>;

@@ -57,6 +57,7 @@ export class Purchases {
    */
   public async makePurchase(
     product: AdaptyProduct,
+    offerId?: string,
   ): Promise<MakePurchaseResult> {
     isSdkAuthorized(this._ctx.isActivated);
 
@@ -64,10 +65,10 @@ export class Purchases {
       const json = await this._ctx.module.makePurchase(
         product.vendorProductId,
         product.variationId,
+        offerId,
       );
 
       const result = JSON.parse(json) as MakePurchaseResult;
-      // console.log('RESULT PURCHASE\n\n', result);
       return result;
     } catch (error) {
       throw attemptToDecodeError(error);
