@@ -6,6 +6,7 @@ export interface AdaptyDefaultOptions {
 export interface AdaptyModule {
   presentCodeRedemptionSheet: () => void;
 
+  setFallbackPaywalls: (paywalls: string) => Promise<void>;
   identify: (uId: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (fields: Object) => Promise<void>;
@@ -20,7 +21,7 @@ export interface AdaptyModule {
   makePurchase: (
     product: string,
     variationId: string | undefined,
-    offerId?: string,
+    param?: string | Record<string, any>,
   ) => Promise<string>;
   // JSON: AdaptyPromo
   getPromo: () => Promise<string>;
@@ -38,6 +39,7 @@ export interface AdaptyModule {
   updateAttribution: (
     object: Object,
     source: 'Branch' | 'AppsFlyer' | 'Adjust' | 'Custom' | 'AppleSearchAds',
+    networkUserId: string,
   ) => Promise<void>;
 }
 
