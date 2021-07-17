@@ -3,8 +3,17 @@ import Adapty
 
 @objc(RNAdaptyEvents)
 class RNAdaptyEvents: RCTEventEmitter, AdaptyDelegate {
+  var hasListeners = false
+
   override static func requiresMainQueueSetup() -> Bool {
     return true
+  }
+
+  override func startObserving() {
+    hasListeners = true
+  }
+  override func stopObserving() {
+    hasListeners = false
   }
 
   override func supportedEvents() -> [String]! {
@@ -12,25 +21,33 @@ class RNAdaptyEvents: RCTEventEmitter, AdaptyDelegate {
   }
 
   @objc func check() {
-    sendEvent(withName: "onInfoUpdate", body: ["test": "data"])
+    self.sendEvent(withName: "onInfoUpdate", body: ["test": "data"])
   }
 
+  @objc
   func didPurchase(product: ProductModel, purchaserInfo: PurchaserInfoModel?, receipt: String?, appleValidationResult: Parameters?, paywall: PaywallViewController) {
-    print("[] DID PURCHASE")
-    sendEvent(withName: "onPurchaseSuccess", body: ["purchase": "success"])
+    if hasListeners {
+      self.sendEvent(withName: "onPurchaseSuccess", body: ["purchase": "success"])
+    }
   }
 
+  @objc
   func didFailPurchase(product: ProductModel, error: Error, paywall: PaywallViewController) {
-    print("[] DID FAIL")
-    sendEvent(withName: "onPurchaseFailed", body: ["purchase": "failed"])
+    if hasListeners {
+      self.sendEvent(withName: "onPurchaseFailed", body: ["purchase": "failed"])
+    }
   }
 
+  @objc
   func didReceiveUpdatedPurchaserInfo(_ purchaserInfo: PurchaserInfoModel) {
-    print("[] DID UPDATE")
-      sendEvent(withName: "onInfoUpdate", body: ["promo": purchaserInfo])
+    if hasListeners {
+      self.sendEvent(withName: "onInfoUpdate", body: ["promo": purchaserInfo])
+    }
   }
 
   func didReceivePromo(_ promo: PromoModel) {
-    sendEvent(withName: "onPromoReceived", body: ["promo": promo])
+    if hasListeners {
+      self.sendEvent(withName: "onPromoReceived", body: ["promo": promo])
+    }
   }
 }

@@ -8,15 +8,15 @@
 import Adapty
 import Foundation
 
-struct GetPaywallsResult: Codable {
-  let paywalls: [PaywallModel]?
-  let products: [ProductModel]?
+struct GetPaywallsResult: Encodable {
+  let paywalls: [AdaptyPaywall]?
+  let products: [AdaptyProduct]?
 }
 
-struct MakePurchaseResult: Codable {
+struct MakePurchaseResult: Encodable {
     let purchaserInfo: PurchaserInfoModel?
     let receipt: String?
-    let product: ProductModel?
+    let product: AdaptyProduct?
 }
 
 struct RestorePurchasesResult: Codable {

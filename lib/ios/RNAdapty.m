@@ -14,6 +14,7 @@ RCT_EXTERN_METHOD(
 RCT_EXTERN_METHOD(
                   updateAttribution:  (NSDictionary)dict
                   source:             (NSString)source
+                  networkUserId:      (NSString)networkUserId
                   resolver:           (RCTPromiseResolveBlock)resolve
                   rejecter:           (RCTPromiseRejectBlock)reject
 )
@@ -22,6 +23,11 @@ RCT_EXTERN_METHOD(
                   identify: (NSString)uId
                   resolver: (RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject
+)
+RCT_EXTERN_METHOD(
+                  setFallbackPaywalls: (NSString)paywalls
+                  resolver:            (RCTPromiseResolveBlock)resolve
+                  rejecter:            (RCTPromiseRejectBlock)reject
 )
 
 RCT_EXTERN_METHOD(

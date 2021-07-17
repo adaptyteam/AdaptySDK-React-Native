@@ -11,7 +11,6 @@ class RNAdapty: NSObject {
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
   }
-
   private func cachePaywalls(_ paywalls: [PaywallModel]?) {
     self.paywalls.removeAll()
     if let paywalls = paywalls {
@@ -41,10 +40,11 @@ class RNAdapty: NSObject {
   @objc
   func updateAttribution(_ dict: NSDictionary,
                          source: String,
+                         networkUserId: String,
                          resolver resolve: @escaping RCTPromiseResolveBlock,
                          rejecter reject: @escaping RCTPromiseRejectBlock) {
     guard let attribution = dict as? [AnyHashable: Any] else {
-      let (c, json, err) = unwrapCustomError("Failed to convert object to [AnyHashable: Any]")
+      let (c, json, err) = Utils.unwrapCustomError("Failed to convert object to [AnyHashable: Any]")
       return reject(c, json, err)
     }
 
@@ -63,9 +63,11 @@ class RNAdapty: NSObject {
       }
     }
 
-    Adapty.updateAttribution(attribution, source: parseSource(source)) { (error) in
+    Adapty.updateAttribution(attribution,
+                             source: parseSource(source),
+                             networkUserId: networkUserId) { (error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
         return reject(c, json, err)
       }
 
@@ -79,7 +81,20 @@ class RNAdapty: NSObject {
                                    rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.setExternalAnalyticsEnabled(isEnabled) { (error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
+        return reject(c, json, err)
+      }
+      resolve(nil)
+    }
+  }
+
+  @objc
+  func setFallbackPaywalls(_ paywalls: String,
+                resolver resolve: @escaping RCTPromiseResolveBlock,
+                rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Adapty.setFallbackPaywalls(paywalls) { (error) in
+      if let error = error {
+        let (c, json, err) = Utils.unwrapError(error)
         return reject(c, json, err)
       }
       resolve(nil)
@@ -90,9 +105,8 @@ class RNAdapty: NSObject {
   func logShowPaywall(_ variationId: String,
                       resolver resolve: @escaping RCTPromiseResolveBlock,
                       rejecter reject: @escaping RCTPromiseRejectBlock) {
-
     guard let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
-      let (c, json, err) = unwrapCustomError("Paywall with such variation ID wasn't found")
+      let (c, json, err) = Utils.unwrapCustomError("Paywall with such variation ID wasn't found")
       return reject(c, json, err)
     }
     Adapty.logShowPaywall(paywall)
@@ -109,7 +123,7 @@ class RNAdapty: NSObject {
                     resolver resolve: @escaping RCTPromiseResolveBlock,
                     rejecter reject: @escaping RCTPromiseRejectBlock) {
     guard let utf8Str = apns.data(using: .utf8) else {
-      let (c, json, err) = unwrapCustomError("Invalid APNS Token passed")
+      let (c, json, err) = Utils.unwrapCustomError("Invalid APNS Token passed")
       return reject(c, json, err)
      }
 
@@ -124,7 +138,7 @@ class RNAdapty: NSObject {
                 rejecter reject: @escaping RCTPromiseRejectBlock) {
    Adapty.identify(uId) { (error) in
     if let error = error {
-      let (c, json, err) = unwrapError(error)
+      let (c, json, err) = Utils.unwrapError(error)
       return reject(c, json, err)
     }
 
@@ -137,7 +151,7 @@ class RNAdapty: NSObject {
               rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.logout { (error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
         return reject(c, json, err)
       }
 
@@ -214,7 +228,7 @@ class RNAdapty: NSObject {
 
     Adapty.updateProfile(params: params) { (error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
         return reject(c, json, err)
       }
       return resolve(nil)
@@ -227,35 +241,35 @@ class RNAdapty: NSObject {
                     resolver resolve: @escaping RCTPromiseResolveBlock,
                     rejecter reject: @escaping  RCTPromiseRejectBlock) {
     guard let product = findProduct(productId: productId, variationId: variationId) else {
-      let (c, json, err) = unwrapCustomError("Product with such ID wasn't found", adaptyCode: .noProductsFound)
+      let (c, json, err) = Utils.unwrapCustomError("Product with such ID wasn't found", adaptyCode: .noProductsFound)
       return reject(c, json, err)
     }
 
     Adapty.makePurchase(product: product, offerId: offerId) {
       (purchaserInfo, receipt, _, product, error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
         return reject(c, json, err)
       }
 
       let result = MakePurchaseResult(purchaserInfo: purchaserInfo,
                          receipt: receipt,
-                         product: product)
-      return resolve(encodeJson(from: result))
+                         product: AdaptyProduct.init(product))
+      return resolve(Utils.encodeJson(from: result))
     }
   }
 
   @objc
   func getPurchaseInfo(_ options: NSDictionary,
-                       resolver resolve: @escaping  RCTPromiseResolveBlock,
-                       rejecter reject: @escaping  RCTPromiseRejectBlock) {
+                       resolver resolve: @escaping RCTPromiseResolveBlock,
+                       rejecter reject: @escaping RCTPromiseRejectBlock) {
     let forceUpdate = options.value(forKey: "forceUpdate") as? Bool ?? false
     Adapty.getPurchaserInfo(forceUpdate: forceUpdate) { (info, error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
         return reject(c, json, err)
       }
-      return resolve(encodeJson(from: info))
+      return resolve(Utils.encodeJson(from: info))
     }
   }
 
@@ -264,13 +278,13 @@ class RNAdapty: NSObject {
                         rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.restorePurchases { (purchaserInfo, receipt, _, error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
         return reject(c, json, err)
       }
 
       let result = RestorePurchasesResult(purchaserInfo: purchaserInfo,
                                           receipt: receipt)
-      return resolve(encodeJson(from: result))
+      return resolve(Utils.encodeJson(from: result))
     }
   }
 
@@ -279,11 +293,11 @@ class RNAdapty: NSObject {
                 rejecter reject: @escaping RCTPromiseRejectBlock) {
     Adapty.getPromo { (promo, error) in
       if let error = error {
-          let (c, json, err) = unwrapError(error)
-          return reject(c, json, err)
+        let (c, json, err) = Utils.unwrapError(error)
+        return reject(c, json, err)
       }
 
-      return resolve(encodeJson(from: promo))
+      return resolve(Utils.encodeJson(from: promo))
     }
   }
 
@@ -295,7 +309,7 @@ class RNAdapty: NSObject {
                       ) {
     Adapty.setVariationId(variationId, forTransactionId: transactionId) {(error) in
       if let error = error {
-            let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
             return reject(c, json, err)
       }
       resolve(nil)
@@ -315,14 +329,18 @@ class RNAdapty: NSObject {
 
     Adapty.getPaywalls(forceUpdate: forceUpdate) { (paywalls, products, error) in
       if let error = error {
-        let (c, json, err) = unwrapError(error)
+        let (c, json, err) = Utils.unwrapError(error)
         return reject(c, json, err)
       }
 
       self.cachePaywalls(paywalls)
       self.cacheProducts(products)
-      let result = GetPaywallsResult(paywalls: paywalls, products: products)
-      return resolve(encodeJson(from: result))
+
+      let prods = products?.map { AdaptyProduct.init($0) }
+      let paywallsAdapty = paywalls?.map { AdaptyPaywall.init($0) }
+
+      let result = GetPaywallsResult(paywalls: paywallsAdapty, products: prods)
+      return resolve(Utils.encodeJson(from: result))
     }
   }
 
@@ -333,40 +351,4 @@ class RNAdapty: NSObject {
     }
     return paywall.products.first(where: { $0.vendorProductId == productId })
  }
-}
-
-func encodeJson<T: Encodable>(from data: T) -> String? {
-  let encoder = JSONEncoder()
-  if #available(iOS 10.0, *) {
-    encoder.dateEncodingStrategy = .iso8601
-  }
-
-  if let json = try? encoder.encode(data) {
-    if let jsonString = String(data: json, encoding: .utf8) {
-      return jsonString
-    }
-  }
-  return nil
-}
-
-func unwrapCustomError(_ message: String,
-                       adaptyCode: AdaptyErrorCode = .unknown,
-                       code: Int = 0) -> (String, String?, AdaptyError?) {
-  // AdaptyError initializer is unaccessible
-  let error: [String: String] = [
-    "localizedDescription": message,
-    "adaptyCode": String(adaptyCode.rawValue),
-    "code": String(code)
-  ]
-
-  let json = encodeJson(from: error)
-
-  return ("adapty_error", json, nil)
-}
-
-func unwrapError(_ error: AdaptyError) -> (String, String, AdaptyError?) {
-  if let json = encodeJson(from: error) {
-    return ("adapty_error", json, nil)
-  }
-    return ("adapty_error", "", error)
 }
