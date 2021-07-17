@@ -2,15 +2,15 @@ import { extractModule } from '../utils';
 import { attemptToDecodeError, isSdkAuthorized } from './error';
 import { AdaptyEventEmitter } from './events';
 import { AdaptyPaywalls } from './paywall';
+import { Profile } from './profile';
 import { Promo } from './promo';
 import { Purchases } from './purchases';
 import { AdaptyContext } from './types';
-import { User } from './user';
 
 export class Adapty extends AdaptyEventEmitter {
-  private _ctx: AdaptyContext;
+  #ctx: AdaptyContext;
 
-  public user: User;
+  public profile: Profile;
   public purchases: Purchases;
   public promo: Promo;
   public paywalls: AdaptyPaywalls;
@@ -18,7 +18,7 @@ export class Adapty extends AdaptyEventEmitter {
   constructor() {
     super();
 
-    this._ctx = {
+    this.#ctx = {
       module: extractModule(),
       isActivated: false,
       sdkKey: undefined,
@@ -26,10 +26,10 @@ export class Adapty extends AdaptyEventEmitter {
       customerUserId: undefined,
     };
 
-    this.user = new User(this._ctx);
-    this.purchases = new Purchases(this._ctx);
-    this.promo = new Promo(this._ctx);
-    this.paywalls = new AdaptyPaywalls(this._ctx);
+    this.profile = new Profile(this.#ctx);
+    this.purchases = new Purchases(this.#ctx);
+    this.promo = new Promo(this.#ctx);
+    this.paywalls = new AdaptyPaywalls(this.#ctx);
   }
 
   /**
@@ -39,20 +39,20 @@ export class Adapty extends AdaptyEventEmitter {
    * @function activateAdapty or @function useAdapty
    */
   static activateSdk(consumer: Adapty, sdkKey: string) {
-    consumer._ctx.isActivated = true;
-    consumer._ctx.sdkKey = sdkKey;
+    consumer.#ctx.isActivated = true;
+    consumer.#ctx.sdkKey = sdkKey;
   }
 
   public async getApnsToken() {
     try {
-      return this._ctx.module.getAPNSToken();
+      return this.#ctx.module.getAPNSToken();
     } catch (error) {
       throw attemptToDecodeError(error);
     }
   }
   public async setApnsToken(token: string) {
     try {
-      this._ctx.module.setAPNSToken(token);
+      this.#ctx.module.setAPNSToken(token);
     } catch (error) {
       throw attemptToDecodeError(error);
     }
@@ -62,7 +62,7 @@ export class Adapty extends AdaptyEventEmitter {
     isEnabled: boolean,
   ): Promise<void> {
     try {
-      this._ctx.module.setExternalAnalyticsEnabled(isEnabled);
+      this.#ctx.module.setExternalAnalyticsEnabled(isEnabled);
     } catch (error) {
       throw attemptToDecodeError(error);
     }
@@ -73,13 +73,18 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws AdaptyError
    */
   public async updateAttribution(
+    networkUserId: string,
     attribution: Object,
     source: 'Adjust' | 'AppsFlyer' | 'Branch' | 'Custom' | 'AppleSearchAds',
   ): Promise<void> {
-    isSdkAuthorized(this._ctx.isActivated);
+    isSdkAuthorized(this.#ctx.isActivated);
 
     try {
-      return this._ctx.module.updateAttribution(attribution, source);
+      return this.#ctx.module.updateAttribution(
+        attribution,
+        source,
+        networkUserId,
+      );
     } catch (error) {
       throw attemptToDecodeError(error);
     }

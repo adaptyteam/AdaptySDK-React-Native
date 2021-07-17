@@ -3,9 +3,9 @@ import { AdaptyError, attemptToDecodeError, isSdkAuthorized } from './error';
 import { AdaptyContext, AdaptyPromo } from './types';
 
 export class Promo {
-  private _ctx: AdaptyContext;
+  #ctx: AdaptyContext;
   constructor(context: AdaptyContext) {
-    this._ctx = context;
+    this.#ctx = context;
   }
 
   /**
@@ -22,20 +22,20 @@ export class Promo {
       });
     }
 
-    isSdkAuthorized(this._ctx.isActivated);
+    isSdkAuthorized(this.#ctx.isActivated);
 
     try {
-      this._ctx.module.presentCodeRedemptionSheet();
+      this.#ctx.module.presentCodeRedemptionSheet();
     } catch (error) {
       throw attemptToDecodeError(error);
     }
   }
 
   public async getPromo(): Promise<AdaptyPromo> {
-    isSdkAuthorized(this._ctx.isActivated);
+    isSdkAuthorized(this.#ctx.isActivated);
 
     try {
-      const json = await this._ctx.module.getPromo();
+      const json = await this.#ctx.module.getPromo();
       const result = JSON.parse(json) as AdaptyPromo;
       return result;
     } catch (error) {
