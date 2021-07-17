@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { adapty } from './adapty';
 import { Adapty } from './sdk';
 import { AdaptyError } from './sdk/error';
@@ -51,22 +50,7 @@ interface AdaptyActivateArgs {
 }
 
 /**
- * @deprecated
- * Consider always placing this hook
- * in a core component to be able to use
- * SDK anywhere in your application.
  *
- * This hook should be mounted before using an SDK.
- * For more information about arguments look for an @interface AdaptyActivateArgs
- */
-export function useAdapty(props: AdaptyActivateArgs): void {
-  useEffect(() => {
-    activateAdapty(props);
-  }, [props]);
-}
-
-/**
- * @description
  * This function makes it possible
  * to use Adapty SDK, consider placing it
  * inside a core `useEffect` or a core `didComponentMount`
@@ -79,7 +63,7 @@ export function useAdapty(props: AdaptyActivateArgs): void {
  *   });
  * },[myUser.id]);
  *
- * @description
+ *
  * This function should be called before using an SDK.
  * For more information about arguments look for an @interface AdaptyActivateArgs
  */
