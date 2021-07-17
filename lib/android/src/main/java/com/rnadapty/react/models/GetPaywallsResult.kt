@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class GetPaywallsResult(
         @SerializedName("paywalls")
-        val paywalls: List<AdaptyRNPaywall>,
+        val paywalls: ArrayList<AdaptyPaywall>,
         @SerializedName("products")
-        val products: List<AdaptyRNProduct>
+        val products: ArrayList<AdaptyProduct>
 )

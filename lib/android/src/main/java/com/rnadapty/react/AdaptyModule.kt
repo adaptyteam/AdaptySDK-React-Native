@@ -1,26 +1,28 @@
 package com.rnadapty.react
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
-import com.adapty.Adapty
-import com.adapty.api.AttributionType
-import com.adapty.api.entity.profile.update.Date
-import com.adapty.api.entity.profile.update.Gender
-import com.adapty.api.entity.profile.update.ProfileParameterBuilder
-import com.adapty.api.entity.purchaserInfo.OnPurchaserInfoUpdatedListener
-import com.adapty.api.entity.purchaserInfo.model.PurchaserInfoModel
+
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.google.gson.Gson
-import java.text.SimpleDateFormat
-import com.adapty.api.AdaptyError
-import com.adapty.api.entity.paywalls.OnPromoReceivedListener
-import com.adapty.api.entity.paywalls.PaywallModel
-import com.adapty.api.entity.paywalls.ProductModel
-import com.adapty.api.entity.paywalls.PromoModel
+
+import com.adapty.Adapty
+import com.adapty.listeners.*
+import com.adapty.models.*
+import com.adapty.models.Date
+import com.adapty.utils.ProfileParameterBuilder
 import com.adapty.utils.AdaptyLogLevel
+import com.adapty.models.SubscriptionUpdateParamModel.ProrationMode
+import com.adapty.errors.AdaptyError
+
 import com.rnadapty.react.models.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
     val gson = Gson()
@@ -43,7 +45,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         Adapty.setOnPromoReceivedListener(object: OnPromoReceivedListener {
             override fun onPromoReceived(promo: PromoModel) {
                 println("[EVENT] Received Promo")
-                sendEvent(reactApplicationContext, "onPromoReceived", gson.toJson(AdaptyRNPromo.from(promo)))
+                sendEvent(reactApplicationContext, "onPromoReceived", gson.toJson(AdaptyPromo(promo)))
 
             }
         })
@@ -64,7 +66,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             throwUnknownError(promise, "Paywall with such variationID found")
             return@logShowPaywall
         }
-       Adapty.logShowPaywall(paywall)
+        Adapty.logShowPaywall(paywall)
         promise.resolve(null)
     }
 
@@ -79,6 +81,16 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
     }
 
+    @ReactMethod
+    fun setFallbackPaywall(paywalls: String, promise: Promise) {
+        Adapty.setFallbackPaywalls(paywalls) {
+            if (it != null) {
+                throwError(promise, it)
+            } else {
+                promise.resolve(null)
+            }
+        }
+    }
     @ReactMethod
     fun setVariationID(variationId: String, transactionId: String, promise: Promise) {
         Adapty.setTransactionVariationId(transactionId, variationId) {
@@ -131,7 +143,6 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         }
     }
 
-    @SuppressLint("SimpleDateFormat")
     @ReactMethod
     fun updateProfile(updates: ReadableMap, promise: Promise) {
         val params = ProfileParameterBuilder()
@@ -162,9 +173,9 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             params.withAppmetricaProfileId(appId.toString())
         }
         if (map.containsKey("birthday")) {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-            val date = formatter.parse(map.getValue("birthday").toString())
-            params.withBirthday(Date(date.year, date.month + 1, date.date))
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+            val date = LocalDate.parse(map.getValue("birthday").toString(), formatter)
+            params.withBirthday(Date(date.year, date.monthValue, date.dayOfMonth))
         }
         if (map.containsKey("customAttributes")) {
             val attrs = map.getValue("customAttributes") as HashMap<String, Any>
@@ -218,15 +229,29 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
                 return@getPaywalls
             }
 
-            cachePaywalls(paywalls)
-            cacheProducts(products)
-            val json = gson.toJson(GetPaywallsResult(paywalls.map(AdaptyRNPaywall::from), products.map(AdaptyRNProduct::from)))
+            var paywallsAdapty = ArrayList<AdaptyPaywall>(0);
+            var productsAdapty = ArrayList<AdaptyProduct>(0);
+
+            if (paywalls != null) {
+                cachePaywalls(paywalls)
+                paywallsAdapty = ArrayList(paywalls.map { AdaptyPaywall(it) })
+            }
+            if (products != null) {
+                cacheProducts(products)
+                productsAdapty = ArrayList(products.map { AdaptyProduct(it) })
+            }
+
+            val result = GetPaywallsResult(
+                paywallsAdapty,
+                productsAdapty
+            )
+            val json = gson.toJson(result)
             promise.resolve(json)
         }
     }
 
     @ReactMethod
-    fun makePurchase(productId: String, variationId: String?, offerId: String?, promise: Promise) {
+    fun makePurchase(productId: String, variationId: String?, subParams: ReadableMap?, promise: Promise) {
         val product = variationId?.let { variationId ->
             paywalls.firstOrNull { it.variationId == variationId }?.products?.firstOrNull { it.vendorProductId == productId }
         } ?: products[productId]
@@ -238,13 +263,36 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
         currentActivity.let {
             if (it is Activity) {
-                Adapty.makePurchase(it, product) { info, token, result, product, error ->
+                var subsUpdate: SubscriptionUpdateParamModel? = null
+                if (subParams != null) {
+                    var oldSubVendorProductId: String? = null
+
+                    if (subParams.hasKey("oldSubVendorProductId")) {
+                        oldSubVendorProductId = subParams.getString("oldSubVendorProductId")
+                    }
+                    if (subParams.hasKey("prorationMode")) {
+                        val prorationMode = when (subParams.getString("prorationMode")) {
+                            "immediate_with_time_proration" -> ProrationMode.IMMEDIATE_WITH_TIME_PRORATION
+                            "immediate_and_charge_prorated_price" -> ProrationMode.IMMEDIATE_AND_CHARGE_PRORATED_PRICE
+                            "immediate_without_proration" -> ProrationMode.IMMEDIATE_WITHOUT_PRORATION
+                            "deferred" -> ProrationMode.DEFERRED
+                            "immediate_and_charge_full_price" -> ProrationMode.IMMEDIATE_AND_CHARGE_PRORATED_PRICE
+                            else -> null
+                        }
+
+                        if (prorationMode != null && oldSubVendorProductId != null) {
+                            subsUpdate = SubscriptionUpdateParamModel(oldSubVendorProductId, prorationMode)
+                        }
+                    }
+                }
+
+                Adapty.makePurchase(it, product, subsUpdate) { info, token, result, product, error ->
                     if (error != null) {
                         throwError(promise, error)
                         return@makePurchase
                     }
 
-                    val json = gson.toJson(MakePurchaseResult(info, token,result, AdaptyRNProduct.from(product)))
+                    val json = gson.toJson(MakePurchaseResult(info, token,result, AdaptyProduct(product)))
                     promise.resolve(json)
                 }
             }
@@ -275,7 +323,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             if (promo == null) {
                 promise.resolve(null)
             } else {
-                val json = gson.toJson(AdaptyRNPromo.from(promo))
+                val json = gson.toJson(AdaptyPromo(promo))
                 promise.resolve(json)
             }
         }
@@ -299,7 +347,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun updateAttribution(map: ReadableMap, source: String, promise: Promise) {
+    fun updateAttribution(map: ReadableMap, source: String, networkUserId: String, promise: Promise) {
         val sourceType: AttributionType? = when (source) {
             "Branch" -> AttributionType.BRANCH
             "Adjust" -> AttributionType.ADJUST
@@ -312,8 +360,13 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             return
         }
 
-        Adapty.updateAttribution(map.toHashMap(), sourceType) {}
-        promise.resolve(null)
+        Adapty.updateAttribution(map.toHashMap(), sourceType, networkUserId) {
+            if (it != null) {
+                throwError(promise, it)
+            } else {
+                promise.resolve(null)
+            }
+        }
     }
 
 
@@ -329,11 +382,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     }
     private fun cacheProducts(products: List<ProductModel>) = this.products.run {
         clear()
-        products.forEach { product ->
-            product.vendorProductId?.let { id ->
-                put(id, product)
-            }
-        }
+        products.forEach { product -> put(product.vendorProductId, product) }
     }
     private fun throwError(promise: Promise, error: AdaptyError) =
             promise.reject("adapty_error", gson.toJson(AdaptyRNError.from(error)))

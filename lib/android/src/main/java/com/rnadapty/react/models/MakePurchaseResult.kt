@@ -1,7 +1,7 @@
 package com.rnadapty.react.models
 
-import com.adapty.api.entity.purchaserInfo.model.PurchaserInfoModel
-import com.adapty.api.entity.validate.GoogleValidationResult
+import com.adapty.models.PurchaserInfoModel
+import com.adapty.models.GoogleValidationResult
 import com.google.gson.annotations.SerializedName
 
 data class MakePurchaseResult(
@@ -12,5 +12,5 @@ data class MakePurchaseResult(
         @SerializedName("googleValidationResult")
         val googleValidationResult: GoogleValidationResult?,
         @SerializedName("product")
-        val product: AdaptyRNProduct
+        val product: AdaptyProduct
 )
