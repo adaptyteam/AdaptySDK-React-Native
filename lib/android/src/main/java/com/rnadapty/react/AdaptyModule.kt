@@ -21,8 +21,6 @@ import com.adapty.models.SubscriptionUpdateParamModel.ProrationMode
 import com.adapty.errors.AdaptyError
 
 import com.rnadapty.react.models.*
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
     val gson = Gson()
@@ -172,11 +170,11 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             val appId = map.getValue("appmetricaProfileId")
             params.withAppmetricaProfileId(appId.toString())
         }
-        if (map.containsKey("birthday")) {
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-            val date = LocalDate.parse(map.getValue("birthday").toString(), formatter)
-            params.withBirthday(Date(date.year, date.monthValue, date.dayOfMonth))
-        }
+        // if (map.containsKey("birthday")) {
+        //     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        //     val date = LocalDate.parse(map.getValue("birthday").toString(), formatter)
+        //     params.withBirthday(Date(date.year, date.monthValue, date.dayOfMonth))
+        // }
         if (map.containsKey("customAttributes")) {
             val attrs = map.getValue("customAttributes") as HashMap<String, Any>
             params.withCustomAttributes(attrs)
