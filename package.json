@@ -21,11 +21,22 @@
   "main": "./lib/dist/index.js",
   "types": "./lib/dist/index.d.ts",
   "files": [
-    "/lib/android",
-    "/lib/ios",
-    "/lib/dist",
-    "*.podspec",
-    "react-native.config.js"
+    "lib/dist",
+    "lib/ios",
+    "!lib/ios/build",
+    "!lib/ios/RNAdapty.xcodeproj/project.xcworkspace",
+    "!lib/ios/RNAdapty.xcodeproj/xcuserdata",
+    "lib/android",
+    "!lib/android/gradlew*",
+    "!lib/android/.gradle",
+    "!lib/android/gradle",
+    "!lib/android/build",
+    "!lib/android/local.properties",
+    "react-native-adapty.podspec",
+    "react-native.config.js",
+    "scripts",
+    "!**/.DS_Store",
+    "!**/.gitignore"
   ],
   "keywords": [
     "react-native",
@@ -42,7 +53,8 @@
     "xcode-example": "open example/ios/example.xcworkspace",
     "studio": "open -a /Applications/'Android Studio.app' lib/android",
     "clean": "./scripts/clean.sh",
-    "husky": "husky install scripts"
+    "husky": "husky install scripts",
+    "pods": "cd example/ios && (pod install || true) && cd ../../"
   },
   "peerDependencies": {
     "react-native": ">= 0.60.0"
