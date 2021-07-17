@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "1.0.0",
+  "version": "1.0.0-2",
   "nativePackage": true,
   "description": "Adapty SDK",
   "license": "MIT",
@@ -23,6 +23,7 @@
   "files": [
     "lib/dist",
     "lib/ios",
+    "!node_modules",
     "!lib/ios/build",
     "!lib/ios/RNAdapty.xcodeproj/project.xcworkspace",
     "!lib/ios/RNAdapty.xcodeproj/xcuserdata",
@@ -35,8 +36,7 @@
     "react-native-adapty.podspec",
     "react-native.config.js",
     "scripts",
-    "!**/.DS_Store",
-    "!**/.gitignore"
+    "!**/.DS_Store"
   ],
   "keywords": [
     "react-native",
