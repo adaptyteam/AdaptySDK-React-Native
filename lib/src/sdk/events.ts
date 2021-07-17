@@ -3,23 +3,29 @@ import {
   NativeEventEmitter,
   NativeModules,
 } from 'react-native';
+import {
+  InfoUpdateEventCallback,
+  PromoReceievedEventCallback,
+  PurchaseFailedEventCallback,
+  PurchaseSuccessEventCallback,
+} from './types';
 
 type Callback<T> = (data: T) => void | Promise<void>;
 
 type AdaptyEventListenerArguments =
-  | [type: 'onPromoReceived', callback: Callback<any>]
-  | [type: 'onPurchaseSuccess', callback: Callback<any>]
-  | [type: 'onPurchaseFailed', callback: Callback<any>]
+  | [type: 'onPromoReceived', callback: PromoReceievedEventCallback]
+  | [type: 'onPurchaseSuccess', callback: PurchaseSuccessEventCallback]
+  | [type: 'onPurchaseFailed', callback: PurchaseFailedEventCallback]
   | [type: 'onPaywallClosed', callback: Callback<any>]
-  | [type: 'onInfoUpdate', callback: Callback<any>];
+  | [type: 'onInfoUpdate', callback: InfoUpdateEventCallback];
 
 export class AdaptyEventEmitter {
-  private _nativeEmitter;
-  private _listeners: EmitterSubscription[];
+  #nativeEmitter;
+  #listeners: EmitterSubscription[];
 
   constructor() {
-    this._nativeEmitter = new NativeEventEmitter(NativeModules.RNAdaptyEvents);
-    this._listeners = [];
+    this.#nativeEmitter = new NativeEventEmitter(NativeModules.RNAdaptyEvents);
+    this.#listeners = [];
   }
 
   /**
@@ -33,14 +39,14 @@ export class AdaptyEventEmitter {
   ): EmitterSubscription {
     const [eventName, callback] = args;
 
-    const subscription = this._nativeEmitter.addListener(eventName, callback);
+    const subscription = this.#nativeEmitter.addListener(eventName, callback);
 
-    this._listeners.push(subscription);
+    this.#listeners.push(subscription);
     return subscription;
   }
 
   public removeAllListeners(): void {
-    this._listeners.forEach(listener => listener.remove());
-    this._listeners = [];
+    this.#listeners.forEach(listener => listener.remove());
+    this.#listeners = [];
   }
 }
