@@ -7,17 +7,26 @@ interface GetPaywallsResult {
   products: AdaptyProduct[];
 }
 export class AdaptyPaywalls {
-  private _ctx: AdaptyContext;
+  #ctx: AdaptyContext;
   constructor(context: AdaptyContext) {
-    this._ctx = context;
+    this.#ctx = context;
+  }
+
+  public async setFallback(paywalls: string): Promise<void> {
+    try {
+      await this.#ctx.module.setFallbackPaywalls(paywalls);
+      return;
+    } catch (error) {
+      throw attemptToDecodeError(error);
+    }
   }
 
   public async logShow(variationId: string): Promise<void> {
     try {
-      await this._ctx.module.logShowPaywall(variationId);
+      await this.#ctx.module.logShowPaywall(variationId);
       return;
     } catch (error) {
-      attemptToDecodeError(error);
+      throw attemptToDecodeError(error);
     }
   }
 
@@ -25,16 +34,14 @@ export class AdaptyPaywalls {
    * @returns
    * Object of
    */
-  public async getPaywalls(
-    options: AdaptyDefaultOptions = {},
-  ): Promise<{
+  public async getPaywalls(options: AdaptyDefaultOptions = {}): Promise<{
     paywalls: AdaptyPaywall[];
     products: AdaptyProduct[];
   }> {
-    isSdkAuthorized(this._ctx.isActivated);
+    isSdkAuthorized(this.#ctx.isActivated);
 
     try {
-      const json = await this._ctx.module.getPaywalls(options);
+      const json = await this.#ctx.module.getPaywalls(options);
 
       const result = JSON.parse(json) as GetPaywallsResult;
 
