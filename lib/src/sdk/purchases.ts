@@ -1,30 +1,32 @@
+import { Platform } from 'react-native';
 import { AdaptyDefaultOptions } from '../utils';
 import { attemptToDecodeError, isSdkAuthorized } from './error';
 import {
   AdaptyContext,
   AdaptyProduct,
   AdaptyPurchaserInfo,
+  MakePurchaseParams,
   MakePurchaseResult,
   RestorePurchasesResult,
 } from './types';
 
 export class Purchases {
-  private _ctx: AdaptyContext;
+  #ctx: AdaptyContext;
   constructor(context: AdaptyContext) {
-    this._ctx = context;
+    this.#ctx = context;
   }
 
   /**
    * Use to restore purchases on a new device.
    * Purchases will appear in user's purchasesInfo
    *
-   * @throws AdaptyError
+   * @throws {@link AdaptyError}
    */
   public async restore(): Promise<RestorePurchasesResult> {
-    isSdkAuthorized(this._ctx.isActivated);
+    isSdkAuthorized(this.#ctx.isActivated);
 
     try {
-      const json = await this._ctx.module.restorePurchases();
+      const json = await this.#ctx.module.restorePurchases();
       const result = JSON.parse(json) as RestorePurchasesResult;
       return result;
     } catch (error) {
@@ -36,15 +38,15 @@ export class Purchases {
    * Updates any available fields to a current user
    *
    * @returns Promised
-   * @throws AdaptyError
+   * @throws {@link AdaptyError}
    */
   public async getInfo(
     options: AdaptyDefaultOptions = {},
   ): Promise<AdaptyPurchaserInfo> {
-    isSdkAuthorized(this._ctx.isActivated);
+    isSdkAuthorized(this.#ctx.isActivated);
 
     try {
-      const json = await this._ctx.module.getPurchaseInfo(options);
+      const json = await this.#ctx.module.getPurchaseInfo(options);
       const result = JSON.parse(json) as AdaptyPurchaserInfo;
       return result;
     } catch (error) {
@@ -57,18 +59,22 @@ export class Purchases {
    */
   public async makePurchase(
     product: AdaptyProduct,
-    offerId?: string,
+    params?: MakePurchaseParams,
   ): Promise<MakePurchaseResult> {
-    isSdkAuthorized(this._ctx.isActivated);
+    isSdkAuthorized(this.#ctx.isActivated);
 
     try {
-      const json = await this._ctx.module.makePurchase(
+      const json = await this.#ctx.module.makePurchase(
         product.vendorProductId,
         product.variationId,
-        offerId,
+        Platform.select<string | Record<string, any>>({
+          ios: params?.ios?.offerId,
+          macos: params?.ios?.offerId,
+          android: params?.android?.subscriptionUpdateParam,
+        }),
       );
 
-      const result = JSON.parse(json) as MakePurchaseResult;
+      const result: MakePurchaseResult = JSON.parse(json || '');
       return result;
     } catch (error) {
       throw attemptToDecodeError(error);
@@ -83,7 +89,7 @@ export class Purchases {
     transactionId: string,
   ): Promise<void> {
     try {
-      await this._ctx.module.setVariationID(variationId, transactionId);
+      await this.#ctx.module.setVariationID(variationId, transactionId);
     } catch (error) {
       throw attemptToDecodeError(error);
     }
