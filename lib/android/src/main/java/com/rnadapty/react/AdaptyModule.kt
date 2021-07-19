@@ -102,21 +102,18 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
     @ReactMethod
     fun activate(sdkKey: String, customerUserId: String?, observerMode: Boolean, logLevel: String, promise: Promise) {
-        Adapty.activate(reactApplicationContext, sdkKey, customerUserId)
+        UiThreadUtil.runOnUiThread {
+            Adapty.activate(reactApplicationContext, sdkKey, customerUserId)
 
-        when (logLevel) {
-            "verbose" -> Adapty.setLogLevel(AdaptyLogLevel.VERBOSE)
-            "error" -> Adapty.setLogLevel(AdaptyLogLevel.ERROR)
-            else -> Adapty.setLogLevel(AdaptyLogLevel.NONE)
+            when (logLevel) {
+                "verbose" -> Adapty.setLogLevel(AdaptyLogLevel.VERBOSE)
+                "error" -> Adapty.setLogLevel(AdaptyLogLevel.ERROR)
+                else -> Adapty.setLogLevel(AdaptyLogLevel.NONE)
+            }
+
+            subscribeToEvents()
+            promise.resolve(null)
         }
-
-        if (observerMode) {
-//            Adapty.syncPurchases { }
-        }
-
-        subscribeToEvents()
-
-        promise.resolve(null)
     }
 
     @ReactMethod
