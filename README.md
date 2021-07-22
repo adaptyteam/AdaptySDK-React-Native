@@ -3,7 +3,7 @@
   <a href="http://bit.ly/39cidVJ2"><img src="https://img.shields.io/npm/v/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=npm" alt="npm: latest version" /></a>
   
 <img src="https://github.com/adaptyteam/AdaptySDK-iOS/blob/master/adapty-schema.png">
-Adapty SDK is an open-source framework that makes implementing in-app subscriptions fast and easy. It’s 100% open-source and lightweight.
+Adapty SDK is an open-source framework that makes implementing in-app subscriptions for React Native fast and easy. It’s 100% open-source and lightweight.
 
 ## Install SDK to grow subscriptions:
 - [Price testing for paywalls on the fly](https://doc.adapty.io/docs/ab-test?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
