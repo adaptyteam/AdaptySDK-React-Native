@@ -34,7 +34,7 @@ struct AdaptyProductDiscountIos: Encodable {
 }
 struct AdaptyProductDiscount: Encodable {
   let price: Decimal
-  let subscriptionPeriod: ProductSubscriptionPeriodModel
+  let subscriptionPeriod: AdaptySubscriptionPeriod
   let numberOfPeriods: Int
   let localizedPrice: String?
 
@@ -42,7 +42,7 @@ struct AdaptyProductDiscount: Encodable {
 
   init(_ discount: ProductDiscountModel) {
     price = discount.price
-    subscriptionPeriod = discount.subscriptionPeriod
+    subscriptionPeriod = AdaptySubscriptionPeriod.init(discount.subscriptionPeriod)
     numberOfPeriods = discount.numberOfPeriods
     localizedPrice = discount.localizedPrice
 
