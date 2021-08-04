@@ -35,8 +35,6 @@ struct AdaptyProduct: Encodable {
 
   let ios: AdaptyProductIos
 
-  //  let variationId: String?
-
   init(_ product: ProductModel) {
     vendorProductId = product.vendorProductId
     introductoryOfferEligibility = product.introductoryOfferEligibility
@@ -48,10 +46,19 @@ struct AdaptyProduct: Encodable {
     currencyCode = product.currencyCode
     currencySymbol = product.currencySymbol
     regionCode = product.regionCode
-    subscriptionPeriod = AdaptySubscriptionPeriod.init(product.subscriptionPeriod)
     localizedPrice = product.localizedPrice
-    introductoryDiscount = AdaptyProductDiscount.init(product.introductoryDiscount)
-
+    
+    if let productSubscriptionPeriod = product.subscriptionPeriod {
+      subscriptionPeriod = AdaptySubscriptionPeriod.init(productSubscriptionPeriod)
+    } else {
+      subscriptionPeriod = nil
+    }
+    if let productIntroDiscount = product.introductoryDiscount {
+      introductoryDiscount = AdaptyProductDiscount.init(productIntroDiscount)
+    } else {
+      introductoryDiscount = nil
+    }
+    
     ios = AdaptyProductIos(
       discounts: product.discounts.map {AdaptyProductDiscount.init($0) },
                            isFamilyShareable: product.isFamilyShareable,
@@ -61,9 +68,5 @@ struct AdaptyProduct: Encodable {
                            regionCode: product.regionCode,
                            promotionalOfferEligibility: product.promotionalOfferEligibility
                            )
-  }
-
-  init?(_ none: Any?) {
-    return nil
   }
 }

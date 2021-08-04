@@ -32,8 +32,4 @@ struct AdaptyPaywall: Encodable {
     abTestName = paywall.abTestName
     name = paywall.name
   }
-
-  init?(_ none: Any?) {
-      return nil
-  }
 }

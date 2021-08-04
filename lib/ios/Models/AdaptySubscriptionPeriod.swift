@@ -28,8 +28,4 @@ struct AdaptySubscriptionPeriod: Encodable {
       unit = "unknown"
     }
   }
-
-  init?(_ none: Any?) {
-    return nil
-  }
 }

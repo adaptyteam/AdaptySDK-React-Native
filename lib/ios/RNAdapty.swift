@@ -252,9 +252,15 @@ class RNAdapty: NSObject {
         return reject(c, json, err)
       }
 
+      var adaptyProduct: AdaptyProduct?
+      if let product = product {
+        adaptyProduct = AdaptyProduct.init(product)
+      }
+      
       let result = MakePurchaseResult(purchaserInfo: purchaserInfo,
                          receipt: receipt,
-                         product: AdaptyProduct.init(product))
+                         product: adaptyProduct)
+      
       return resolve(Utils.encodeJson(from: result))
     }
   }

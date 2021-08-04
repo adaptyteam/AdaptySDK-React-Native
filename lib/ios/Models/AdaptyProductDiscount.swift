@@ -48,8 +48,4 @@ struct AdaptyProductDiscount: Encodable {
 
     ios = AdaptyProductDiscountIos.init(discount)
   }
-
-  init?(_ none: Any?) {
-      return nil
-  }
 }
