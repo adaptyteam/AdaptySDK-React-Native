@@ -47,7 +47,7 @@ struct AdaptyProduct: Encodable {
     currencySymbol = product.currencySymbol
     regionCode = product.regionCode
     localizedPrice = product.localizedPrice
-    
+
     if let productSubscriptionPeriod = product.subscriptionPeriod {
       subscriptionPeriod = AdaptySubscriptionPeriod.init(productSubscriptionPeriod)
     } else {
@@ -58,7 +58,7 @@ struct AdaptyProduct: Encodable {
     } else {
       introductoryDiscount = nil
     }
-    
+
     ios = AdaptyProductIos(
       discounts: product.discounts.map {AdaptyProductDiscount.init($0) },
                            isFamilyShareable: product.isFamilyShareable,

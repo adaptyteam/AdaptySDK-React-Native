@@ -256,11 +256,11 @@ class RNAdapty: NSObject {
       if let product = product {
         adaptyProduct = AdaptyProduct.init(product)
       }
-      
+
       let result = MakePurchaseResult(purchaserInfo: purchaserInfo,
                          receipt: receipt,
                          product: adaptyProduct)
-      
+
       return resolve(Utils.encodeJson(from: result))
     }
   }
