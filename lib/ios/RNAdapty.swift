@@ -254,7 +254,7 @@ class RNAdapty: NSObject {
 
       var adaptyProduct: AdaptyProduct?
       if let product = product {
-        adaptyProduct = AdaptyProduct.init(product)
+        adaptyProduct = AdaptyProduct.init(product, variationId)
       }
 
       let result = MakePurchaseResult(purchaserInfo: purchaserInfo,
@@ -342,7 +342,7 @@ class RNAdapty: NSObject {
       self.cachePaywalls(paywalls)
       self.cacheProducts(products)
 
-      let prods = products?.map { AdaptyProduct.init($0) }
+      let prods = products?.map { AdaptyProduct.init($0, nil) }
       let paywallsAdapty = paywalls?.map { AdaptyPaywall.init($0) }
 
       let result = GetPaywallsResult(paywalls: paywallsAdapty, products: prods)

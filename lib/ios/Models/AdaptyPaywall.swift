@@ -25,7 +25,7 @@ struct AdaptyPaywall: Encodable {
     variationId = paywall.variationId
     revision = paywall.revision
     isPromo = paywall.isPromo
-    products = paywall.products.map { AdaptyProduct.init($0) }
+    products = paywall.products.map { AdaptyProduct.init($0, paywall.variationId) }
     visualPaywall = paywall.visualPaywall
     customPayload = paywall.customPayloadString
     customPayloadString = paywall.customPayloadString
