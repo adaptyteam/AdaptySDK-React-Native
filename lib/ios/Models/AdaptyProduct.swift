@@ -48,7 +48,7 @@ struct AdaptyProduct: Encodable {
     currencySymbol = product.currencySymbol
     regionCode = product.regionCode
     localizedPrice = product.localizedPrice
-    localizedSubscriptionPeriod: product.localizedSubscriptionPeriod
+    localizedSubscriptionPeriod = product.localizedSubscriptionPeriod
 
     variationId = paywallVariationId
 
