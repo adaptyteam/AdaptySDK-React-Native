@@ -9,9 +9,10 @@ target 'example' do
 
   use_react_native!(:path => config["reactNativePath"])
   
+  
   pod 'react-native-adapty', :path => '../../'
 
-  use_flipper!
+  use_flipper!({ 'Flipper-Folly' => '2.5.3', 'Flipper' => '0.87.0', 'Flipper-RSocket' => '1.3.1' })
   post_install do |installer|
     flipper_post_install(installer)
   end
