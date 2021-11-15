@@ -1,6 +1,7 @@
 #import "React/RCTBridgeModule.h"
+#import "React/RCTEventEmitter.h"
 
-@interface RCT_EXTERN_MODULE(RNAdapty, NSObject)
+@interface RCT_EXTERN_MODULE(RNAdapty, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(presentCodeRedemptionSheet)
 

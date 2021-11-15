@@ -33,7 +33,6 @@ struct AdaptyProduct: Encodable {
   let subscriptionPeriod: AdaptySubscriptionPeriod?
   let introductoryDiscount: AdaptyProductDiscount?
   let localizedPrice: String?
-  
 
   let ios: AdaptyProductIos
 
@@ -49,9 +48,8 @@ struct AdaptyProduct: Encodable {
     currencySymbol = product.currencySymbol
     regionCode = product.regionCode
     localizedPrice = product.localizedPrice
-  
+
     variationId = paywallVariationId
-    
 
     if let productSubscriptionPeriod = product.subscriptionPeriod {
       subscriptionPeriod = AdaptySubscriptionPeriod.init(productSubscriptionPeriod)
