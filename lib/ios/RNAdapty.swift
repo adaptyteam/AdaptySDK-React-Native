@@ -11,6 +11,9 @@ class RNAdapty: NSObject {
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
   }
+  override init() {
+    Adapty.delegate = events;
+  }
   private func cachePaywalls(_ paywalls: [PaywallModel]?) {
     self.paywalls.removeAll()
     if let paywalls = paywalls {
