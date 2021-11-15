@@ -33,7 +33,7 @@ export interface AdaptyModule {
     sdkKey: string,
     userId: string | any,
     observerMode: boolean,
-    logLevel: 'errors' | 'verbose' | 'none',
+    logLevel: string,
   ) => Promise<void>;
 
   updateAttribution: (
