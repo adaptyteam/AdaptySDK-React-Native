@@ -63,6 +63,8 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
       Adapty.logLevel = .verbose
     case "errors":
       Adapty.logLevel = .errors
+    case "all":
+      Adapty.logLevel = .all
     default:
       Adapty.logLevel = .none
     }

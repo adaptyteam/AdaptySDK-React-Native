@@ -46,7 +46,7 @@ interface AdaptyActivateArgs {
   /**
    * @default "none"
    */
-  logLevel?: 'verbose' | 'errors' | 'none';
+  logLevel?: 'verbose' | 'errors' | 'none' | 'all';
 }
 
 /**
