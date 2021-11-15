@@ -17,10 +17,14 @@ export enum AdaptyEvent {
   OnPromoReceived = 'onPromoReceived',
 }
 
-export type PurchaseSuccessEventCallback = () => void;
-export type PurchaseFailedEventCallback = () => void;
-export type InfoUpdateEventCallback = () => void;
-export type PromoReceievedEventCallback = () => void;
+// export type PurchaseSuccessEventCallback = () => void | Promise<void>;
+// export type PurchaseFailedEventCallback = () => void;
+export type InfoUpdateEventCallback = (
+  purchaserInfo: AdaptyPurchaserInfo,
+) => void | Promise<void>;
+export type PromoReceievedEventCallback = (
+  promo: AdaptyPromo,
+) => void | Promise<void>;
 
 /** A store that processed a payment */
 export type AdaptyVendorStore = 'app_store' | 'play_store' | 'adapty';

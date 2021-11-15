@@ -3,28 +3,25 @@ import {
   NativeEventEmitter,
   NativeModules,
 } from 'react-native';
-import {
-  InfoUpdateEventCallback,
-  PromoReceievedEventCallback,
-  PurchaseFailedEventCallback,
-  PurchaseSuccessEventCallback,
-} from './types';
+import { InfoUpdateEventCallback, PromoReceievedEventCallback } from './types';
 
-type Callback<T> = (data: T) => void | Promise<void>;
+type EventName = 'onInfoUpdate' | 'onPromoReceived';
+type EventCallback = (data: any) => void | Promise<void>;
 
-type AdaptyEventListenerArguments =
-  | [type: 'onPromoReceived', callback: PromoReceievedEventCallback]
-  | [type: 'onPurchaseSuccess', callback: PurchaseSuccessEventCallback]
-  | [type: 'onPurchaseFailed', callback: PurchaseFailedEventCallback]
-  | [type: 'onPaywallClosed', callback: Callback<any>]
-  | [type: 'onInfoUpdate', callback: InfoUpdateEventCallback];
+type AddListenerFn<E extends EventName, C extends EventCallback> = (
+  event: E,
+  callback: C,
+) => EmitterSubscription;
+
+type Fn = AddListenerFn<'onInfoUpdate', InfoUpdateEventCallback> &
+  AddListenerFn<'onPromoReceived', PromoReceievedEventCallback>;
 
 export class AdaptyEventEmitter {
   #nativeEmitter;
   #listeners: EmitterSubscription[];
 
   constructor() {
-    this.#nativeEmitter = new NativeEventEmitter(NativeModules.RNAdaptyEvents);
+    this.#nativeEmitter = new NativeEventEmitter(NativeModules.RNAdapty);
     this.#listeners = [];
   }
 
@@ -34,16 +31,22 @@ export class AdaptyEventEmitter {
    * @param type defines which event you are listening to
    * @param callback defines what action would be called, when event fired
    */
-  public addEventListener(
-    ...args: AdaptyEventListenerArguments
+  private addListener(
+    event: EventName,
+    callback: EventCallback,
   ): EmitterSubscription {
-    const [eventName, callback] = args;
+    const parseCallback = (...data: string[]) => {
+      const args = data.map(arg => JSON.parse(arg));
+      (callback as any)(...args);
+    };
 
-    const subscription = this.#nativeEmitter.addListener(eventName, callback);
+    const subscription = this.#nativeEmitter.addListener(event, parseCallback);
 
     this.#listeners.push(subscription);
     return subscription;
   }
+
+  public addEventListener = this.addListener as unknown as Fn;
 
   public removeAllListeners(): void {
     this.#listeners.forEach(listener => listener.remove());
