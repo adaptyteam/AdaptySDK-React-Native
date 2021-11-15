@@ -11,12 +11,10 @@ import Foundation
 struct AdaptyProductDiscountIos: Encodable {
   let paymentMode: String
   let identifier: String?
-  let localizedSubscriptionPeriod: String?
   let localizedNumberOfPeriods: String?
 
   init(_ discount: ProductDiscountModel) {
     identifier = discount.identifier
-    localizedSubscriptionPeriod = discount.localizedSubscriptionPeriod
     localizedNumberOfPeriods = discount.localizedNumberOfPeriods
 
     switch discount.paymentMode {
@@ -37,6 +35,7 @@ struct AdaptyProductDiscount: Encodable {
   let subscriptionPeriod: AdaptySubscriptionPeriod
   let numberOfPeriods: Int
   let localizedPrice: String?
+  let localizedSubscriptionPeriod: String?
 
   let ios: AdaptyProductDiscountIos
 
@@ -45,6 +44,7 @@ struct AdaptyProductDiscount: Encodable {
     subscriptionPeriod = AdaptySubscriptionPeriod.init(discount.subscriptionPeriod)
     numberOfPeriods = discount.numberOfPeriods
     localizedPrice = discount.localizedPrice
+    localizedSubscriptionPeriod = discount.localizedSubscriptionPeriod
 
     ios = AdaptyProductDiscountIos.init(discount)
   }
