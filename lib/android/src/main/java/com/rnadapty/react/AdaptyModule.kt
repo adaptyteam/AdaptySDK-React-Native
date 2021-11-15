@@ -108,6 +108,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
             when (logLevel) {
                 "verbose" -> Adapty.setLogLevel(AdaptyLogLevel.VERBOSE)
                 "error" -> Adapty.setLogLevel(AdaptyLogLevel.ERROR)
+                "all" -> Adapty.setLogLevel(AdaptyLogLevel.ALL)
                 else -> Adapty.setLogLevel(AdaptyLogLevel.NONE)
             }
 
