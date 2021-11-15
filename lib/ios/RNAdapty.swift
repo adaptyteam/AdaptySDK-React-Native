@@ -2,15 +2,43 @@ import Foundation
 import Adapty
 
 @objc(RNAdapty)
-class RNAdapty: NSObject {
-  let events = RNAdaptyEvents()
-
+class RNAdapty: RCTEventEmitter, AdaptyDelegate {
+  private var hasListeners = false
   private var paywalls = [PaywallModel]()
   private var products = [ProductModel]()
 
-  @objc static func requiresMainQueueSetup() -> Bool {
+  override static func requiresMainQueueSetup() -> Bool {
     return true
   }
+  override func startObserving() {
+    hasListeners = true
+  }
+  override func stopObserving() {
+    hasListeners = false
+  }
+  override func supportedEvents() -> [String]! {
+    return ["onPromoReceived", "onInfoUpdate"]
+  }
+
+  //  Events
+  func didReceivePromo(_ promo: PromoModel) {
+    if !hasListeners {
+      return
+    }
+
+    let json = Utils.encodeJson(from: promo)
+    self.sendEvent(withName: "onPromoReceived", body: json)
+  }
+  func didReceiveUpdatedPurchaserInfo(_ info: PurchaserInfoModel) {
+      if !hasListeners {
+        return
+      }
+
+      let json = Utils.encodeJson(from: info)
+      self.sendEvent(withName: "onInfoUpdate", body: json)
+  }
+
+  // Private
   private func cachePaywalls(_ paywalls: [PaywallModel]?) {
     self.paywalls.removeAll()
     if let paywalls = paywalls {
@@ -24,9 +52,12 @@ class RNAdapty: NSObject {
     }
   }
 
+  //  Public
   @objc
   func activate(_ sdkKey: String, uId: String?, observerMode: Bool, logLevel: String) {
     Adapty.activate(sdkKey, observerMode: observerMode, customerUserId: uId)
+    Adapty.delegate = self
+
     switch logLevel {
     case "verbose":
       Adapty.logLevel = .verbose
@@ -35,6 +66,8 @@ class RNAdapty: NSObject {
     default:
       Adapty.logLevel = .none
     }
+
+    hasListeners = true
   }
 
   @objc
