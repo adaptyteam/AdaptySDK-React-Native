@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.source_files = "lib/ios/**/*.{h,c,m,swift}"
   s.requires_arc = true
 
-  s.dependency "Adapty", "1.13.2"
+  s.dependency "Adapty", "1.16.4"
   s.dependency "React"
 end
 
