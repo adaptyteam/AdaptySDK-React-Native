@@ -13,7 +13,6 @@ struct AdaptyProductIos: Encodable {
   let isFamilyShareable: Bool
   let promotionalOfferId: String?
   let subscriptionGroupIdentifier: String?
-  let localizedSubscriptionPeriod: String?
   let regionCode: String?
   let promotionalOfferEligibility: Bool
 }
@@ -33,6 +32,7 @@ struct AdaptyProduct: Encodable {
   let subscriptionPeriod: AdaptySubscriptionPeriod?
   let introductoryDiscount: AdaptyProductDiscount?
   let localizedPrice: String?
+  let localizedSubscriptionPeriod: String?
 
   let ios: AdaptyProductIos
 
@@ -48,6 +48,7 @@ struct AdaptyProduct: Encodable {
     currencySymbol = product.currencySymbol
     regionCode = product.regionCode
     localizedPrice = product.localizedPrice
+    localizedSubscriptionPeriod: product.localizedSubscriptionPeriod
 
     variationId = paywallVariationId
 
@@ -67,7 +68,6 @@ struct AdaptyProduct: Encodable {
                            isFamilyShareable: product.isFamilyShareable,
                            promotionalOfferId: product.promotionalOfferId,
                            subscriptionGroupIdentifier: product.subscriptionGroupIdentifier,
-                           localizedSubscriptionPeriod: product.localizedSubscriptionPeriod,
                            regionCode: product.regionCode,
                            promotionalOfferEligibility: product.promotionalOfferEligibility
                            )

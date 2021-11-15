@@ -174,6 +174,10 @@ export interface AdaptyProduct {
    */
   paywallABTestName?: string;
   /**
+   * Localized subscription period of the product
+   */
+  localizedSubscriptionPeriod?: string;
+  /**
    * Android-only features
    */
   android?: {
@@ -218,10 +222,6 @@ export interface AdaptyProduct {
      */
     subscriptionGroupIdentifier?: string;
     /**
-     * Localized subscription period of the product
-     */
-    localizedSubscriptionPeriod?: string;
-    /**
      * ISO 3166 ALPHA-2 region code of the user's localization (US, DE)
      * @see {@link https://en.wikipedia.org/wiki/ISO_3166}
      */
@@ -242,6 +242,8 @@ export interface AdaptyProductDiscount {
   localizedPrice: string;
   /** A number of periods this product discount is available */
   numberOfPeriods: number;
+  /** A formatted subscription period of a discount for a user's locale */
+  localizedSubscriptionPeriod: string;
   /**
    * iOS-only features
    * @since iOS 11.2, macOS 10.14.4
@@ -249,8 +251,6 @@ export interface AdaptyProductDiscount {
   ios?: {
     /** A formatted number of periods of a discount for a user's locale */
     localizedNumberOfPeriods: number;
-    /** A formatted subscription period of a discount for a user's locale */
-    localizedSubscriptionPeriod: string;
     /** A payment mode for this product discount */
     paymentMode: string;
     /**

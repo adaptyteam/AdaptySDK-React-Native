@@ -12,4 +12,6 @@ class AdaptyProductDiscount(discount: ProductDiscountModel) {
     var localizedPrice = discount.localizedPrice
     @SerializedName("subscriptionPeriod")
     var subscriptionPeriod: AdaptySubscriptionPeriod = AdaptySubscriptionPeriod(discount.subscriptionPeriod)
+    @SerializedName("localizedSubscriptionPeriod")
+    var localizedSubscriptionPeriod = discount.localizedSubscriptionPeriod
 }

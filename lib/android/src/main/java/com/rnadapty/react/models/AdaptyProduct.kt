@@ -9,6 +9,8 @@ class AdaptyProductAndroid(product: ProductModel) {
     var skuDetails: SkuDetails? = product.skuDetails
     @SerializedName("freeTrialPeriod")
     var freeTrialPeriod: AdaptySubscriptionPeriod? = product.freeTrialPeriod?.let { AdaptySubscriptionPeriod(it) }
+    @SerializedName("localizedFreeTrialPeriod")
+    var localizedFreeTrialPeriod: String? = product.localizedFreeTrialPeriod
 }
 
 class AdaptyProduct(product: ProductModel) {
@@ -38,6 +40,8 @@ class AdaptyProduct(product: ProductModel) {
     var paywallName = product.paywallName
     @SerializedName("paywallABTestName")
     var paywallABTestName = product.paywallABTestName
+    @SerializedName("localizedSubscriptionPeriod")
+    var localizedSubscriptionPeriod = product.localizedSubscriptionPeriod
     @SerializedName("android")
     var android: AdaptyProductAndroid? = AdaptyProductAndroid(product)
 }
