@@ -70,8 +70,19 @@ export class AdaptyError {
   }
 }
 
-export function attemptToDecodeError(error: Record<string, any>): AdaptyError {
-  const message: NativeError | undefined = JSON.parse(error.message);
+export function attemptToDecodeError(
+  error: NativeError | unknown | Record<string, any>,
+): AdaptyError {
+  if (typeof error !== 'object' || !error?.hasOwnProperty('message')) {
+    console.warn('[Adapty RN SDK]: Failed to parse Adapty error\n');
+    return new AdaptyError({
+      adaptyCode: 'unknown',
+      code: 400,
+      localizedDescription: JSON.stringify(error),
+    });
+  }
+
+  const message: NativeError | undefined = JSON.parse((error as any).message);
 
   if (message) {
     return new AdaptyError({
