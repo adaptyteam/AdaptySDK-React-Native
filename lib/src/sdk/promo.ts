@@ -9,6 +9,14 @@ export class Promo {
   }
 
   /**
+   * @description Returns true if a sheet that enables users
+   * to redeem subscription offer codes can be displayed.
+   */
+  public canPresentCodeRedemptionSheet() {
+    return Platform.OS === "ios" && parseInt(Platform.Version as string, 10) >= 14;
+  }
+  
+  /**
    * @description Displays a sheet that enables users
    * to redeem subscription offer codes that you generated in App Store Connect.
    */
