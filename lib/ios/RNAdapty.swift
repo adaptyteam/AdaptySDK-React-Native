@@ -17,7 +17,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     hasListeners = false
   }
   override func supportedEvents() -> [String]! {
-    return ["onPromoReceived", "onInfoUpdate"]
+    return ["onPromoReceived", "onInfoUpdate", "onDeferredPurchase"]
   }
 
   //  Events
@@ -36,6 +36,14 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
 
       let json = Utils.encodeJson(from: info)
       self.sendEvent(withName: "onInfoUpdate", body: json)
+  }
+  func paymentQueue(shouldAddStorePaymentFor product: ProductModel, defermentCompletion makeDeferredPurchase: @escaping DeferredPurchaseCompletion) {
+      if !hasListeners {
+        return
+      }
+
+      let json = Utils.encodeJson(from: AdaptyProduct(product, nil))
+      self.sendEvent(withName: "onDeferredPurchase", body: json)
   }
 
   // Private

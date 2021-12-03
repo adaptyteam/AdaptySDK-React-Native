@@ -25,6 +25,9 @@ export type InfoUpdateEventCallback = (
 export type PromoReceievedEventCallback = (
   promo: AdaptyPromo,
 ) => void | Promise<void>;
+export type DeferredPurchaseEventCallback = (
+  product: AdaptyProduct,
+) => void | Promise<void>;
 
 /** A store that processed a payment */
 export type AdaptyVendorStore = 'app_store' | 'play_store' | 'adapty';
