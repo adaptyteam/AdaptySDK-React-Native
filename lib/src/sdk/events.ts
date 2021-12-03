@@ -3,9 +3,9 @@ import {
   NativeEventEmitter,
   NativeModules,
 } from 'react-native';
-import { InfoUpdateEventCallback, PromoReceievedEventCallback } from './types';
+import { DeferredPurchaseEventCallback, InfoUpdateEventCallback, PromoReceievedEventCallback } from './types';
 
-type EventName = 'onInfoUpdate' | 'onPromoReceived';
+type EventName = 'onInfoUpdate' | 'onPromoReceived' | 'onDeferredPurchase';
 type EventCallback = (data: any) => void | Promise<void>;
 
 type AddListenerFn<E extends EventName, C extends EventCallback> = (
@@ -14,7 +14,8 @@ type AddListenerFn<E extends EventName, C extends EventCallback> = (
 ) => EmitterSubscription;
 
 type Fn = AddListenerFn<'onInfoUpdate', InfoUpdateEventCallback> &
-  AddListenerFn<'onPromoReceived', PromoReceievedEventCallback>;
+  AddListenerFn<'onPromoReceived', PromoReceievedEventCallback> &
+  AddListenerFn<'onDeferredPurchase', DeferredPurchaseEventCallback>;
 
 export class AdaptyEventEmitter {
   #nativeEmitter;
