@@ -98,6 +98,11 @@ export interface AdaptyProfile {
    */
   amplitudeUserId: string;
   /**
+   * Amplitude DeviceID
+   * @example "00000000000000"
+   */
+  amplitudeDeviceId: string;
+  /**
    * Mixpanel UserID
    * @example "00000000000000"
    */
