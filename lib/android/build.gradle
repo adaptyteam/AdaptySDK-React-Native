@@ -66,8 +66,8 @@ repositories {
 }
 
 dependencies {
-
-    api 'com.github.adaptyteam:AdaptySDK-Android:1.6.0'
+    
+    api 'com.github.adaptyteam:AdaptySDK-Android:1.6.1'
     implementation 'com.facebook.react:react-native:+'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.21"
     implementation 'com.google.code.gson:gson:2.8.7'
