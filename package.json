@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "nativePackage": true,
   "description": "Adapty SDK",
   "license": "MIT",
