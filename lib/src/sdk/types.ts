@@ -288,6 +288,8 @@ export interface AdaptyProductSubscriptionPeriod {
  * @see {@link https://doc.adapty.io/docs/rn-api-reference#adaptypurchaserinfo}
  */
 export interface AdaptyPurchaserInfo {
+  /** Profile ID */
+  profileId: string;
   /** An identifier of a user in your system */
   customerUserId: string;
   /**
