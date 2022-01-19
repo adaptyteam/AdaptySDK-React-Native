@@ -27,6 +27,9 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     private val products = HashMap<String, ProductModel>()
     private val paywalls = ArrayList<PaywallModel>()
 
+    private val promoPaywalls = ArrayList<PaywallModel>()
+    private val promoProducts = HashMap<String, ProductModel>()
+
     override fun getName(): String {
         return "RNAdapty"
     }
@@ -248,9 +251,15 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
     @ReactMethod
     fun makePurchase(productId: String, variationId: String?, subParams: ReadableMap?, promise: Promise) {
-        val product = variationId?.let { variationId ->
+        var product = variationId?.let { variationId ->
             paywalls.firstOrNull { it.variationId == variationId }?.products?.firstOrNull { it.vendorProductId == productId }
         } ?: products[productId]
+
+        if (product == null) {
+           product = variationId?.let {
+                promoPaywalls.firstOrNull { it.variationId == variationId}?.products?.firstOrNull { it.vendorProductId== productId}
+            } ?: promoProducts[productId]
+        }
 
         if (product == null) {
             throwUnknownError(promise,"Product with such vendorID was not found.")
@@ -318,10 +327,17 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
 
             if (promo == null) {
                 promise.resolve(null)
-            } else {
-                val json = gson.toJson(AdaptyPromo(promo))
-                promise.resolve(json)
+                return@getPromo
             }
+
+            val paywall = promo.paywall
+            if (paywall != null) {
+                cachePromoPaywall(paywall)
+                cachePromoProducts(paywall.products)
+            }
+
+            val json = gson.toJson(AdaptyPromo(promo))
+            promise.resolve(json)
         }
     }
 
@@ -379,6 +395,14 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     private fun cacheProducts(products: List<ProductModel>) = this.products.run {
         clear()
         products.forEach { product -> put(product.vendorProductId, product) }
+    }
+    private fun cachePromoPaywall(paywall: PaywallModel) = this.promoPaywalls.run {
+        clear()
+        add(paywall)
+    }
+    private fun cachePromoProducts(productList: List<ProductModel>) = this.promoProducts.run {
+        clear()
+        productList.forEach { product -> put(product.vendorProductId, product) }
     }
     private fun throwError(promise: Promise, error: AdaptyError) =
             promise.reject("adapty_error", gson.toJson(AdaptyRNError.from(error)))
