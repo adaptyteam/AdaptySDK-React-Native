@@ -7,6 +7,9 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
   private var paywalls = [PaywallModel]()
   private var products = [ProductModel]()
 
+  private var promoPaywalls = [PaywallModel]()
+  private var promoProducts = [ProductModel]()
+
   override static func requiresMainQueueSetup() -> Bool {
     return true
   }
@@ -57,6 +60,16 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     self.products.removeAll()
     if let products = products {
       self.products.append(contentsOf: products)
+    }
+  }
+  private func cachePromoPaywalls(_ paywall: PaywallModel) {
+    self.promoPaywalls.removeAll()
+    self.promoPaywalls.append(paywall)
+  }
+  private func cachePromoProducts(_ products: [ProductModel]?) {
+    self.promoProducts.removeAll()
+    if let products = products {
+      self.promoProducts.append(contentsOf: products)
     }
   }
 
@@ -346,6 +359,11 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         return reject(c, json, err)
       }
 
+      if let paywall = promo?.paywall {
+        self.cachePromoPaywalls(paywall)
+        self.cachePromoProducts(paywall.products)
+      }
+
       return resolve(Utils.encodeJson(from: promo))
     }
   }
@@ -394,10 +412,27 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
   }
 
   private func findProduct(productId: String, variationId: String?) -> ProductModel? {
-    guard let variationId = variationId,
-    let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
-      return products.first(where: { $0.vendorProductId == productId })
+    guard let variationId = variationId else {
+      return nil
     }
-    return paywall.products.first(where: { $0.vendorProductId == productId })
+
+    let product = paywalls.first(where: { $0.variationId == variationId })?.products.first(where: { $0.vendorProductId == productId })
+
+    if product == nil {
+      let promoProduct = promoPaywalls.first(where: { $0.variationId == variationId })?.products.first(where: {$0.vendorProductId == productId })
+
+      if let result = promoProduct {
+        return result
+      }
+
+      if let anyProduct = products.first(where: { $0.vendorProductId == productId }) {
+        return anyProduct
+      }
+      if let anyPromoProduct = promoProducts.first(where: { $0.vendorProductId == productId }) {
+        return anyPromoProduct
+      }
+    }
+
+    return product
  }
 }
