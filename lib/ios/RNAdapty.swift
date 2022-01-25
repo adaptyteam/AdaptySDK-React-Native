@@ -413,6 +413,14 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
 
   private func findProduct(productId: String, variationId: String?) -> ProductModel? {
     guard let variationId = variationId else {
+      if let anyProduct = products.first(where: { $0.vendorProductId == productId }) {
+        return anyProduct
+      }
+
+      if let anyPromoProduct = promoProducts.first(where: { $0.vendorProductId == productId }) {
+        return anyPromoProduct
+      }
+
       return nil
     }
 
