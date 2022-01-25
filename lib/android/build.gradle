@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -20,7 +20,7 @@ def safeExtGetInt(name) {
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion safeExtGetInt('compileSdkVersion')
@@ -30,7 +30,7 @@ android {
         minSdkVersion safeExtGetInt('minSdkVersion')
         targetSdkVersion safeExtGetInt('targetSdkVersion')
         versionCode 1
-        versionName '0.1'
+        versionName '1.3.7'
         multiDexEnabled true
     }
 
@@ -53,21 +53,16 @@ android {
 }
 
 repositories {
-    mavenLocal()
+    mavenCentral()
+    google()
     maven {
         url "$rootDir/../node_modules/react-native/android"
     }
-    maven {
-        url "$rootDir/../node_modules/jsc-android/dist"
-    }
-    maven { url 'https://jitpack.io' }
-    google()
-    jcenter()
 }
 
 dependencies {
-
     api 'com.github.adaptyteam:AdaptySDK-Android:1.7.0'
+    //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.21"
     implementation 'com.google.code.gson:gson:2.8.7'
