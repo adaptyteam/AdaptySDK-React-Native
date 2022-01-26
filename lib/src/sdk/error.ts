@@ -39,7 +39,21 @@ export type AdaptyErrorCode =
   | 'invalidProperty' // Received invalid property data
   | 'encodingFailed' // Parameters encoding failed
   | 'missingURL' // Request url is nil
-  | 'pendingPurchase'; // Android purchase not finalised yet
+  | 'pendingPurchase' // Android purchase not finalised yet
+  | 'adaptyNotInitialized' // SDK wasn't initialized before the call
+  | 'paywallNotFound'
+  | 'productNotFound'
+  | 'invalidJson'
+  | 'currentSubscriptionToUpdateNotFoundInHistory'
+  | 'billingServiceTimeout'
+  | 'featureNotSupported'
+  | 'billingServiceDisconnected'
+  | 'billingServiceUnavailable'
+  | 'billingUnavailable'
+  | 'developerError'
+  | 'billingError'
+  | 'itemAlreadyOwned'
+  | 'itemNotOwned';
 
 /**
  * @private
@@ -146,8 +160,36 @@ function mapAdaptyErrorCode(code: number): AdaptyErrorCode {
       return 'missingOfferParams';
     case 14:
       return 'invalidOfferPrice';
+    case 20:
+      return 'adaptyNotInitialized';
+    case 21:
+      return 'paywallNotFound';
+    case 22:
+      return 'productNotFound';
+    case 23:
+      return 'invalidJson';
+    case 24:
+      return 'currentSubscriptionToUpdateNotFoundInHistory';
     case 25:
       return 'pendingPurchase';
+    case 97:
+      return 'billingServiceTimeout';
+    case 98:
+      return 'featureNotSupported';
+    case 99:
+      return 'billingServiceDisconnected';
+    case 102:
+      return 'billingServiceUnavailable';
+    case 103:
+      return 'billingUnavailable';
+    case 105:
+      return 'developerError';
+    case 106:
+      return 'billingError';
+    case 107:
+      return 'itemAlreadyOwned';
+    case 108:
+      return 'itemNotOwned';
     case 1000:
       return 'noProductIDsFound';
     case 1001:
