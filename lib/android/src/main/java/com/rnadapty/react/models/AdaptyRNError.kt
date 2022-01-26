@@ -26,6 +26,7 @@ class AdaptyRNError private constructor(
             AdaptyErrorCode.PRODUCT_NOT_FOUND -> 22
             AdaptyErrorCode.INVALID_JSON -> 23
             AdaptyErrorCode.CURRENT_SUBSCRIPTION_TO_UPDATE_NOT_FOUND_IN_HISTORY -> 24
+            AdaptyErrorCode.PENDING_PURCHASE -> 25
             AdaptyErrorCode.BILLING_SERVICE_TIMEOUT -> 97
             AdaptyErrorCode.FEATURE_NOT_SUPPORTED -> 98
             AdaptyErrorCode.BILLING_SERVICE_DISCONNECTED -> 99

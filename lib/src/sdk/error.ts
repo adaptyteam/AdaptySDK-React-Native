@@ -38,7 +38,8 @@ export type AdaptyErrorCode =
   | 'missingParam' // Missing some of the required params
   | 'invalidProperty' // Received invalid property data
   | 'encodingFailed' // Parameters encoding failed
-  | 'missingURL'; // Request url is nil
+  | 'missingURL' // Request url is nil
+  | 'pendingPurchase'; // Android purchase not finalised yet
 
 /**
  * @private
@@ -145,6 +146,8 @@ function mapAdaptyErrorCode(code: number): AdaptyErrorCode {
       return 'missingOfferParams';
     case 14:
       return 'invalidOfferPrice';
+    case 25:
+      return 'pendingPurchase';
     case 1000:
       return 'noProductIDsFound';
     case 1001:
