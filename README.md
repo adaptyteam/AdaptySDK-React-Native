@@ -28,6 +28,10 @@ yarn add react-native-adapty
 
 Read the [documentation](https://docs.adapty.io/docs/react-native-sdk-installation?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
+## [Join our Discord community](https://go.adapty.io/subhub-community-react-rep)
+
+We've created a community for mobile app developers and marketers. Learn how to monetize your app, ask questions, post jobs, read industry news and analytics. Ad free.
+
 ## License
 Adapty is available under the MIT license. See [LICENSE](https://github.com/adaptyteam/AdaptySDK-React-Native/blob/master/LICENSE) for details.
 
