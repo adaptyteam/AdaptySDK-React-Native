@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   Button,
   SafeAreaView,
   ScrollView,
@@ -8,11 +7,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { activateAdapty, adapty } from 'react-native-adapty';
 import Config from 'react-native-config';
-
 import styles from './App.styles';
 
-import { activateAdapty, adapty } from 'react-native-adapty';
+// ADAPTY API KEY
+const ADAPTY_PUBLIC_KEY = Config.ADAPTY_PUBLIC_KEY;
 
 interface SampleUser {
   userId: string;
@@ -36,10 +36,10 @@ export const App: React.FC = () => {
      * effect hook: that way it mounts early on
      */
 
-    console.log('Public SDK Key: ', Config.ADAPTY_PUBLIC_KEY);
+    console.log('Public SDK Key: ', ADAPTY_PUBLIC_KEY);
 
     activateAdapty({
-      sdkKey: Config.ADAPTY_PUBLIC_KEY, // Your sdk key goes here
+      sdkKey: ADAPTY_PUBLIC_KEY, // Your sdk key goes here
       /*
        * Note, that we pass dynamic userId value, yet we don't
        * set userId as a useEffect hook dependency.
