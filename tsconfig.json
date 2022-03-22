@@ -21,6 +21,7 @@
     "module": "CommonJS",
     "noImplicitOverride":true,
     "baseUrl": ".",
+    "lib": ["ES2015"],
     "outDir": "./lib/dist",
     "types": ["jest", "react", "react-native"],
     "paths": {
