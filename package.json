@@ -36,15 +36,18 @@
   "scripts": {
     "prestart": "yarn build",
     "prepublish": "yarn build",
-    "start": "react-native start",
     "build": "rm -rf lib/dist && tsc --project tsconfig.build.json",
     "watch": "tsc --project tsconfig.json --watch",
     "xcode": "open lib/ios/RNAdapty.xcodeproj",
-    "xcode-example": "open example/ios/example.xcworkspace",
     "studio": "open -a /Applications/'Android Studio.app' lib/android",
     "clean": "./scripts/clean.sh",
     "husky": "husky install scripts",
-    "pods": "cd example/ios && (pod install || true) && cd ../../"
+    "example-start": "react-native start",
+    "example-ios": "react-native run-ios",
+    "example-android": "react-native run-android",
+    "example-pods": "pod install --project-directory=example/ios",
+    "example-xcode": "open example/ios/example.xcworkspace"
+    
   },
   "peerDependencies": {
     "react-native": ">= 0.60.0"
