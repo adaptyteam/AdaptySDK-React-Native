@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   Button,
   SafeAreaView,
   ScrollView,
@@ -9,10 +8,11 @@ import {
   View,
 } from 'react-native';
 import Config from 'react-native-config';
-
+import { activateAdapty, adapty, AdaptyPaywall } from '../../lib/src';
 import styles from './App.styles';
 
-import { activateAdapty, adapty } from 'react-native-adapty';
+// ADAPTY API KEY
+const ADAPTY_PUBLIC_KEY = Config.ADAPTY_PUBLIC_KEY;
 
 interface SampleUser {
   userId: string;
@@ -29,6 +29,7 @@ export const App: React.FC = () => {
   const [response, setResponse] = useState<SampleResponse | undefined>();
 
   const [idInputValue, setIdInputValue] = useState<string>('');
+  const [paywalls, setPaywalls] = useState<AdaptyPaywall[]>([]);
 
   useEffect(() => {
     /*
@@ -36,10 +37,10 @@ export const App: React.FC = () => {
      * effect hook: that way it mounts early on
      */
 
-    console.log('Public SDK Key: ', Config.ADAPTY_PUBLIC_KEY);
+    console.log('Public SDK Key: ', ADAPTY_PUBLIC_KEY);
 
     activateAdapty({
-      sdkKey: Config.ADAPTY_PUBLIC_KEY, // Your sdk key goes here
+      sdkKey: ADAPTY_PUBLIC_KEY, // Your sdk key goes here
       /*
        * Note, that we pass dynamic userId value, yet we don't
        * set userId as a useEffect hook dependency.
@@ -121,7 +122,7 @@ export const App: React.FC = () => {
               disabled={idInputValue === ''}
               onPress={async () => {
                 try {
-                  const result = await adapty.user.identify(idInputValue);
+                  const result = await adapty.profile.identify(idInputValue);
                   setUser({ userId: idInputValue });
                   setResponse({
                     functionCalled: 'Identify user',
@@ -152,14 +153,13 @@ export const App: React.FC = () => {
             title="adapty.user.updateProfile()"
             onPress={async () => {
               try {
-                const result = await adapty.user.updateProfile({
+                const result = await adapty.profile.update({
                   firstName: 'react',
                   lastName: 'native',
                   amplitudeUserId: '1111111',
                   appmetricaDeviceId: '222222222',
                   email: 'react@native.divan',
                   facebookUserId: '3333333',
-                  gender: 'f',
                   customAttributes: {
                     poweredBy: 'react-native',
                     foo: 'bar',
@@ -210,30 +210,28 @@ export const App: React.FC = () => {
         </View>
 
         <Text style={styles.titleSubText}>Purchase</Text>
+        <Text style={styles.text}>To purchase something, fetch paywalls</Text>
+
+        <Text style={styles.titleSubText}>Collect paywalls</Text>
         <View style={styles.exampleElementContainer}>
           <Text style={styles.text}>
-            You may purchase different kinds of products: consumables,
-            subscriptions, etc. via
-            <Text style={styles.codeText}>
-              {' '}
-              adapty.purchases.makePurchase()
-            </Text>
-            .
+            You may fetch all available paywalls in order to call one within
+            your application.
           </Text>
 
           <Button
-            title="adapty.purchases.makePurchase()"
+            title="adapty.paywalls.getPaywalls()"
             onPress={async () => {
               try {
-                const result = await adapty.purchases.makePurchase('232');
-
+                const result = await adapty.paywalls.getPaywalls();
+                setPaywalls(result.paywalls);
                 setResponse({
-                  functionCalled: 'Purchase',
+                  functionCalled: 'Collect paywalls',
                   response: result,
                 });
               } catch (error) {
                 setResponse({
-                  functionCalled: 'Purchase',
+                  functionCalled: 'Collect paywalls',
                   response: error,
                   isError: true,
                 });
@@ -241,6 +239,45 @@ export const App: React.FC = () => {
             }}
           />
         </View>
+        {paywalls.map(paywall => (
+          <View
+            style={styles.exampleElementContainer}
+            key={paywall.developerId}
+          >
+            <Text style={styles.titleSubText}>
+              Paywall: {paywall.name}|{paywall.developerId}
+            </Text>
+
+            {paywall.products.map(product => (
+              <View key={product.vendorProductId}>
+                <Text>{product.localizedTitle}</Text>
+                <Text>{product.localizedDescription}</Text>
+
+                <Button
+                  title={product.localizedPrice}
+                  onPress={async () => {
+                    try {
+                      const result = await adapty.purchases.makePurchase(
+                        product,
+                      );
+
+                      setResponse({
+                        functionCalled: 'Purchase',
+                        response: result,
+                      });
+                    } catch (error) {
+                      setResponse({
+                        functionCalled: 'Purchase',
+                        response: error,
+                        isError: true,
+                      });
+                    }
+                  }}
+                />
+              </View>
+            ))}
+          </View>
+        ))}
 
         <Text style={styles.titleSubText}>Restore purchases</Text>
         <View style={styles.exampleElementContainer}>
@@ -263,61 +300,6 @@ export const App: React.FC = () => {
               } catch (error) {
                 setResponse({
                   functionCalled: 'Restore',
-                  response: error,
-                  isError: true,
-                });
-              }
-            }}
-          />
-        </View>
-
-        <Text style={styles.titleSubText}>Validate receipt</Text>
-        <View style={styles.exampleElementContainer}>
-          <Text style={styles.text}>
-            You may validate any purchased good via
-            <Text style={styles.codeText}> adapty.purchases.validate()</Text> to
-            fetch restored goods.
-          </Text>
-
-          <Button
-            title="adapty.purchases.restore()"
-            onPress={async () => {
-              try {
-                const result = await adapty.purchases.validateReceipt('');
-                setResponse({
-                  functionCalled: 'Validate receipt',
-                  response: result,
-                });
-              } catch (error) {
-                setResponse({
-                  functionCalled: 'Validate receipt',
-                  response: error,
-                  isError: true,
-                });
-              }
-            }}
-          />
-        </View>
-
-        <Text style={styles.titleSubText}>Collect paywalls</Text>
-        <View style={styles.exampleElementContainer}>
-          <Text style={styles.text}>
-            You may fetch all available paywalls in order to call one within
-            your application.
-          </Text>
-
-          <Button
-            title="adapty.paywalls.getPaywalls()"
-            onPress={async () => {
-              try {
-                const result = await adapty.paywalls.getPaywalls();
-                setResponse({
-                  functionCalled: 'Collect paywalls',
-                  response: result,
-                });
-              } catch (error) {
-                setResponse({
-                  functionCalled: 'Collect paywalls',
                   response: error,
                   isError: true,
                 });
