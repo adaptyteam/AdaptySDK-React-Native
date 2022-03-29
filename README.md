@@ -1,22 +1,38 @@
-# [Adapty](https://adapty.io/?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native) React Native SDK — in-app purchases start here
-  <a href="http://bit.ly/39cidVJ"><img src="https://img.shields.io/npm/dt/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=yarn" alt="npm:  downloads" /></a>
-  <a href="http://bit.ly/39cidVJ2"><img src="https://img.shields.io/npm/v/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=npm" alt="npm: latest version" /></a>
-  
+<h1 align="center" style="border-bottom: none">
+    <b>
+        <a href="https://adapty.io/?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native">Adapty</a> React Native SDK<br>
+    </b>
+    ⭐️  In-app purchases start here  ⭐️ <br>
+</h1>
+
+<p align="center">
+<a href="https://go.adapty.io/subhub-community-react-rep"><img src="https://img.shields.io/badge/Adapty-discord-purple"></a>
+<a href="http://bit.ly/39cidVJ"><img src="https://img.shields.io/npm/dt/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=yarn" alt="npm:  downloads" /></a>
+<a href="http://bit.ly/39cidVJ2"><img src="https://img.shields.io/npm/v/react-native-adapty?style=flat&labelColor=6322ee&color=7E41FF&logo=npm" alt="npm: latest version" /></a>
+</p>
+
+
+<p align="center">
+    <a href="https://adapty.io/?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native"><b>Website</b></a> •
+    <a href="https://go.adapty.io/subhub-community-react-rep"><b>Discord</b></a> •
+    <a href="https://twitter.com/AdaptyTeam"><b>Twitter</b></a>
+</p>
+
 <img src="https://github.com/adaptyteam/AdaptySDK-iOS/blob/master/adapty-schema.png">
 Adapty SDK is an open-source framework that makes implementing in-app subscriptions for React Native fast and easy. It’s 100% open-source and lightweight.
 
 ## Install SDK to grow subscriptions:
-- [Price testing for paywalls on the fly](https://docs.adapty.io/docs/ab-test?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
+- [Price testing for paywalls on the fly](https://docs.adapty.io/docs/ab-test?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native)
 Test different prices, durations, offers, messages, and designs simultaneously, all without new app releases.
-- [Win back subscribers](https://docs.adapty.io/docs/promo-campaigns?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
+- [Win back subscribers](https://docs.adapty.io/docs/promo-campaigns?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native)
 Return churned subscribers with promotional trigger-based push notifications.
-- [Get your customer's payment history](https://docs.adapty.io/docs/profiles-crm?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
+- [Get your customer's payment history](https://docs.adapty.io/docs/profiles-crm?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native)
 Explore user's payment events from starting the trial to subscription cancellation or billing issues.
-- [Forward in-app purchases events](https://docs.adapty.io/docs/events?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
+- [Forward in-app purchases events](https://docs.adapty.io/docs/events?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native)
 Send subscription events to 3rd party analytics, attribution, and ad services with no coding. Even if a user uninstalled an app.
-- [Implement in-app purchases with no server code](https://docs.adapty.io/docs/react-native-sdk-configuration?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
+- [Implement in-app purchases with no server code](https://docs.adapty.io/docs/react-native-sdk-configuration?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native)
 In-app purchases with server-side receipt validation in minutes. Apple Promotional Offers supported out-of-the-box.
-- [Analytics](https://docs.adapty.io/docs/analytics-charts?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native)
+- [Analytics](https://docs.adapty.io/docs/analytics-charts?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native)
 Start analyzing real-time metrics of your app with advanced filters, such as ad network, ad campaign, country, A/B test, etc.
 - 24/7 support
 
@@ -26,7 +42,7 @@ Start analyzing real-time metrics of your app with advanced filters, such as ad 
 yarn add react-native-adapty
 ```
 
-Read the [documentation](https://docs.adapty.io/docs/react-native-sdk-installation?utm_source=github&utm_medium=content&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
+Read the [documentation](https://docs.adapty.io/docs/react-native-sdk-installation?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
 ## [Join our Discord community](https://go.adapty.io/subhub-community-react-rep)
 
