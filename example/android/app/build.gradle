@@ -11,12 +11,13 @@ project.ext.react = [
     bundleInAlpha: true,
     bundleInBeta: true,
     enableHermes: enableHermes,
+    cliPath: ["node", "-e", "console.log(require('react-native/cli').bin);"].execute([], projectDir).text.trim()
 ]
 
 apply from: "../../../node_modules/react-native/react.gradle"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -26,7 +27,7 @@ android {
     defaultConfig {
         applicationId "com.adapty.rnAdaptySample"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 2
         versionName "1.0"
 
