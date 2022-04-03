@@ -14,18 +14,19 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     return true
   }
   override func startObserving() {
-    hasListeners = true
+      self.hasListeners = true
   }
   override func stopObserving() {
-    hasListeners = false
+      self.hasListeners = false
   }
+
   override func supportedEvents() -> [String]! {
     return ["onPromoReceived", "onInfoUpdate", "onDeferredPurchase"]
   }
 
   //  Events
   func didReceivePromo(_ promo: PromoModel) {
-    if !hasListeners {
+      if !self.hasListeners {
       return
     }
 
@@ -33,7 +34,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     self.sendEvent(withName: "onPromoReceived", body: json)
   }
   func didReceiveUpdatedPurchaserInfo(_ info: PurchaserInfoModel) {
-      if !hasListeners {
+      if !self.hasListeners {
         return
       }
 
@@ -41,7 +42,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
       self.sendEvent(withName: "onInfoUpdate", body: json)
   }
   func paymentQueue(shouldAddStorePaymentFor product: ProductModel, defermentCompletion makeDeferredPurchase: @escaping DeferredPurchaseCompletion) {
-      if !hasListeners {
+      if !self.hasListeners {
         return
       }
 
@@ -89,8 +90,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     default:
       Adapty.logLevel = .none
     }
-
-    hasListeners = true
   }
 
   @objc

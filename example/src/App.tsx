@@ -26,7 +26,13 @@ interface SampleResponse {
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<SampleUser | undefined>();
-  const [response, setResponse] = useState<SampleResponse | undefined>();
+  const [response, _setResponse] = useState<SampleResponse | undefined>();
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+
+  const setResponse = (data: typeof response) => {
+    console.log(data.functionCalled, data.response);
+    _setResponse(data);
+  };
 
   const [idInputValue, setIdInputValue] = useState<string>('');
   const [paywalls, setPaywalls] = useState<AdaptyPaywall[]>([]);
@@ -96,9 +102,39 @@ export const App: React.FC = () => {
         <View style={styles.sessionContainer}>
           <Text>Current userID: </Text>
           <Text style={styles.sessionUserText}>{user?.userId || 'None'}</Text>
+          <Text>Listeners: {subscriptions.length}</Text>
         </View>
 
         {MemoizedResponse}
+
+        <Text style={styles.titleSubText}>Add a listener</Text>
+        <View style={styles.exampleElementContainer}>
+          <Button
+            title="onInfoUpdate"
+            onPress={async () => {
+              const sub = adapty.addEventListener('onInfoUpdate', data =>
+                setResponse({
+                  functionCalled: '[event] onInfoUpdate',
+                  response: data,
+                }),
+              );
+              setSubscriptions([...subscriptions, sub]);
+            }}
+          />
+          <Button
+            title="onPromoReceived"
+            onPress={async () => {
+              const sub = adapty.addEventListener('onPromoReceived', data =>
+                setResponse({
+                  functionCalled: '[event] onPromoReceived',
+                  response: data,
+                }),
+              );
+              setSubscriptions([...subscriptions, sub]);
+            }}
+          />
+        </View>
+
         <Text style={styles.titleSubText}>Identify user</Text>
         <View style={styles.exampleElementContainer}>
           <Text style={styles.text}>
