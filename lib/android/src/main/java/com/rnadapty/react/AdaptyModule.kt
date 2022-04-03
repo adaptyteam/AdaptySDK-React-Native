@@ -83,7 +83,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun setFallbackPaywall(paywalls: String, promise: Promise) {
+    fun setFallbackPaywalls(paywalls: String, promise: Promise) {
         Adapty.setFallbackPaywalls(paywalls) {
             if (it != null) {
                 throwError(promise, it)
