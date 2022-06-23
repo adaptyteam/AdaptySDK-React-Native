@@ -4,7 +4,7 @@
     "strict": true,
     "allowJs": false,
     "skipLibCheck": true,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     "pretty": true,
     "declaration": true,
     "noUnusedLocals": true,
