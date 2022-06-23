@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "1.3.10",
+  "version": "1.3.13",
   "nativePackage": true,
   "description": "Adapty SDK",
   "license": "MIT",
@@ -21,9 +21,15 @@
   "main": "./lib/dist/index.js",
   "types": "./lib/dist/index.d.ts",
   "files": [
-    "/lib/dist",
-    "/lib/ios",
-    "/lib/android",
+    "lib/dist",
+    "lib/ios",
+    "!lib/ios/RNAdapty.xcodeproj/project.xcworkspace",
+    "!lib/ios/RNAdapty.xcodeproj/xcuserdata",
+    "lib/android",
+    "!lib/adnroid/.gradle",
+    "!lib/adnroid/build",
+    "!lib/adnroid/local.properties",
+    "!lib/adnroid/gradlew*",
     "react-native-adapty.podspec",
     "react-native.config.js",
     "scripts"
@@ -47,7 +53,6 @@
     "example-android": "react-native run-android",
     "example-pods": "pod install --project-directory=example/ios",
     "example-xcode": "open example/ios/example.xcworkspace"
-    
   },
   "peerDependencies": {
     "react-native": ">= 0.60.0"
