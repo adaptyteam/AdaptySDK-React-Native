@@ -2,25 +2,19 @@ package com.rnadapty.react
 
 import android.app.Activity
 import android.util.Log
-
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-
+import com.adapty.Adapty
+import com.adapty.errors.AdaptyError
+import com.adapty.listeners.OnPromoReceivedListener
+import com.adapty.listeners.OnPurchaserInfoUpdatedListener
+import com.adapty.models.*
+import com.adapty.models.SubscriptionUpdateParamModel.ProrationMode
+import com.adapty.utils.AdaptyLogLevel
+import com.adapty.utils.ProfileParameterBuilder
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.google.gson.Gson
-
-import com.adapty.Adapty
-import com.adapty.listeners.*
-import com.adapty.models.*
-import com.adapty.models.Date
-import com.adapty.utils.ProfileParameterBuilder
-import com.adapty.utils.AdaptyLogLevel
-import com.adapty.models.SubscriptionUpdateParamModel.ProrationMode
-import com.adapty.errors.AdaptyError
-
 import com.rnadapty.react.models.*
+
 
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
     val gson = Gson()
@@ -40,6 +34,16 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
         reactContext
                 .getJSModule(RCTDeviceEventEmitter::class.java)
                 .emit(eventName, params)
+    }
+
+    @ReactMethod
+    fun addListener(eventName: String?) {
+        // Keep: Required for RN built in Event Emitter Calls.
+    }
+
+    @ReactMethod
+    fun removeListeners(count: Int?) {
+        // Keep: Required for RN built in Event Emitter Calls.
     }
 
     private fun subscribeToEvents() {
