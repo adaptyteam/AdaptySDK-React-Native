@@ -46,21 +46,6 @@ Adapty SDK is an open-source framework that makes implementing in-app subscripti
 - One-time purchases and lifetime subscriptions supported.
 - Sync subscribers' states across iOS, Android, and Web.
 
-
-```swift
-// Your app’s code
-import Adapty
-
-Adapty.activate("YOUR_APP_KEY")
-
-// Make a purchase, Adapty handles the rest
-Adapty.makePurchase(product: <product>, offerId: <offerid>) { (receipt, response, error) in
-    if error == nil {
-       // successful purchase
-    }
-}
-```
-
 ## Price Testing for In-app Purchases on React Native Without App Releases
 
 - Optimize in-app subscriptions with the paywall A/B testing. Conversions, trials, revenue, cancellations, and more — everything is calculated for you: each paywall and each A/B test.
