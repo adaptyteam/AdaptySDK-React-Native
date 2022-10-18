@@ -53,3 +53,5 @@ buck-out/
 
 
 .env
+
+*.tgz
