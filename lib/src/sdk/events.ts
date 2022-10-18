@@ -18,12 +18,12 @@ type Fn = AddListenerFn<'onInfoUpdate', InfoUpdateEventCallback> &
   AddListenerFn<'onDeferredPurchase', DeferredPurchaseEventCallback>;
 
 export class AdaptyEventEmitter {
-  #nativeEmitter;
-  #listeners: EmitterSubscription[];
+  private nativeEmitter;
+  private listeners: EmitterSubscription[];
 
   constructor() {
-    this.#nativeEmitter = new NativeEventEmitter(NativeModules.RNAdapty);
-    this.#listeners = [];
+    this.nativeEmitter = new NativeEventEmitter(NativeModules.RNAdapty);
+    this.listeners = [];
   }
 
   /**
@@ -38,19 +38,19 @@ export class AdaptyEventEmitter {
   ): EmitterSubscription {
     const parseCallback = (...data: string[]) => {
       const args = data.map(arg => JSON.parse(arg));
-      (callback as any)(...args);
+      callback.apply(null, args as any)
     };
 
-    const subscription = this.#nativeEmitter.addListener(event, parseCallback);
+    const subscription = this.nativeEmitter.addListener(event, parseCallback);
 
-    this.#listeners.push(subscription);
+    this.listeners.push(subscription);
     return subscription;
   }
 
   public addEventListener = this.addListener as unknown as Fn;
 
   public removeAllListeners(): void {
-    this.#listeners.forEach(listener => listener.remove());
-    this.#listeners = [];
+    this.listeners.forEach(listener => listener.remove());
+    this.listeners = [];
   }
 }

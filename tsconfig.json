@@ -2,9 +2,8 @@
   "$schema": "http://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "strict": true,
-    "allowJs": false,
     "skipLibCheck": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "pretty": true,
     "declaration": true,
     "noUnusedLocals": true,
@@ -16,18 +15,29 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noEmitOnError": true,
-    "target": "ESNext",
+    "target": "ES5",
     "jsx": "react-native",
     "module": "CommonJS",
-    "noImplicitOverride":true,
+    "moduleResolution": "Node",
+    "noImplicitOverride": true,
     "baseUrl": ".",
-    "lib": ["ES2015"],
+    "lib": [
+      "ES2015"
+    ],
     "outDir": "./lib/dist",
-    "types": ["jest", "react", "react-native"],
+    "types": [
+      "react-native"
+    ],
     "paths": {
-      "react-native-adapty": ["lib/src/"],
-      "react-native-adapty/*": ["lib/src/*"]
+      "react-native-adapty": [
+        "lib/src/"
+      ],
+      "react-native-adapty/*": [
+        "lib/src/*"
+      ]
     }
   },
-  "include": [ "./lib/src/**/*"]
+  "include": [
+    "./lib/src/**/*"
+  ]
 }

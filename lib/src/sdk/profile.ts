@@ -2,9 +2,9 @@ import { attemptToDecodeError, isSdkAuthorized } from './error';
 import { AdaptyContext, AdaptyProfile } from './types';
 
 export class Profile {
-  #ctx: AdaptyContext;
+  private ctx: AdaptyContext;
   constructor(context: AdaptyContext) {
-    this.#ctx = context;
+    this.ctx = context;
   }
 
   /**
@@ -14,10 +14,10 @@ export class Profile {
    * @throws AdaptyError
    */
   public async identify(customerUserId: string): Promise<void> {
-    isSdkAuthorized(this.#ctx.isActivated);
+    isSdkAuthorized(this.ctx.isActivated);
 
     try {
-      const result = await this.#ctx.module.identify(customerUserId);
+      const result = await this.ctx.module.identify(customerUserId);
       return result;
     } catch (error) {
       throw attemptToDecodeError(error);
@@ -30,14 +30,14 @@ export class Profile {
    * @throws AdaptyError
    */
   public async update(updatedFields: Partial<AdaptyProfile>): Promise<void> {
-    isSdkAuthorized(this.#ctx.isActivated);
+    isSdkAuthorized(this.ctx.isActivated);
 
     try {
       if (updatedFields.hasOwnProperty('birthday')) {
         updatedFields.birthday = updatedFields.birthday?.toISOString() as any;
       }
 
-      const result = await this.#ctx.module.updateProfile(updatedFields);
+      const result = await this.ctx.module.updateProfile(updatedFields);
       return result;
     } catch (error) {
       throw attemptToDecodeError(error);
@@ -50,10 +50,10 @@ export class Profile {
    * @throws AdaptyError
    */
   public async logout(): Promise<void> {
-    isSdkAuthorized(this.#ctx.isActivated);
+    isSdkAuthorized(this.ctx.isActivated);
 
     try {
-      const result = await this.#ctx.module.logout();
+      const result = await this.ctx.module.logout();
       return result;
     } catch (error) {
       throw attemptToDecodeError(error);

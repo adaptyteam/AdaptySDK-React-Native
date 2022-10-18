@@ -11,9 +11,9 @@ import {
 } from './types';
 
 export class Purchases {
-  #ctx: AdaptyContext;
+  private ctx: AdaptyContext;
   constructor(context: AdaptyContext) {
-    this.#ctx = context;
+    this.ctx = context;
   }
 
   /**
@@ -23,10 +23,10 @@ export class Purchases {
    * @throws {@link AdaptyError}
    */
   public async restore(): Promise<RestorePurchasesResult> {
-    isSdkAuthorized(this.#ctx.isActivated);
+    isSdkAuthorized(this.ctx.isActivated);
 
     try {
-      const json = await this.#ctx.module.restorePurchases();
+      const json = await this.ctx.module.restorePurchases();
       const result = JSON.parse(json) as RestorePurchasesResult;
       return result;
     } catch (error) {
@@ -43,10 +43,10 @@ export class Purchases {
   public async getInfo(
     options: AdaptyDefaultOptions = {},
   ): Promise<AdaptyPurchaserInfo> {
-    isSdkAuthorized(this.#ctx.isActivated);
+    isSdkAuthorized(this.ctx.isActivated);
 
     try {
-      const json = await this.#ctx.module.getPurchaseInfo(options);
+      const json = await this.ctx.module.getPurchaseInfo(options);
       const result = JSON.parse(json) as AdaptyPurchaserInfo;
       return result;
     } catch (error) {
@@ -61,10 +61,10 @@ export class Purchases {
     product: AdaptyProduct,
     params?: MakePurchaseParams,
   ): Promise<MakePurchaseResult> {
-    isSdkAuthorized(this.#ctx.isActivated);
+    isSdkAuthorized(this.ctx.isActivated);
 
     try {
-      const json = await this.#ctx.module.makePurchase(
+      const json = await this.ctx.module.makePurchase(
         product.vendorProductId,
         product.variationId,
         Platform.select<string | Record<string, any>>({
@@ -89,7 +89,7 @@ export class Purchases {
     transactionId: string,
   ): Promise<void> {
     try {
-      await this.#ctx.module.setVariationID(variationId, transactionId);
+      await this.ctx.module.setVariationID(variationId, transactionId);
     } catch (error) {
       throw attemptToDecodeError(error);
     }
