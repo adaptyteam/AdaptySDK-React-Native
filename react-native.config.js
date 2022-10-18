@@ -6,7 +6,6 @@ module.exports = {
         sourceDir: './lib/android/',
       },
     },
-    assets: [],
   },
   project: {
     ios: {
