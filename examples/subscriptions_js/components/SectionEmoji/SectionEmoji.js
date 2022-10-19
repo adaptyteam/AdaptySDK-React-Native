@@ -1,6 +1,12 @@
 import React from 'react';
 import {Text, StyleSheet, View} from 'react-native';
 
+/*
+ * SectionEmoji component displays a view with a huge emoji and description
+ *
+ * This code does not provide any useful knowledge
+ * about Adapty SDK
+ */
 export const SectionEmoji = ({emoji, children}) => {
   return (
     <View style={styles.emojiContainer}>
@@ -11,16 +17,8 @@ export const SectionEmoji = ({emoji, children}) => {
 };
 
 const styles = StyleSheet.create({
-  emojiContainer: {
-    marginTop: 30,
-    marginBottom: 54,
-    flex: 1,
-    alignItems: 'center',
-  },
-  emoji: {
-    fontSize: 100,
-    textAlign: 'center',
-  },
+  emojiContainer: {marginTop: 8, marginBottom: 40, alignItems: 'center'},
+  emoji: {fontSize: 100, textAlign: 'center'},
   emojiDesc: {
     opacity: 0.3,
     fontSize: 15,

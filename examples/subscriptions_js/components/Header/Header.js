@@ -4,6 +4,12 @@ import {View, Text, StyleSheet, ImageBackground} from 'react-native';
 import {colors} from '../Colors';
 import {H1} from '../Text';
 
+/*
+ * Header component displays a welcome view with a logo
+ *
+ * This code does not provide any useful knowledge
+ * about Adapty SDK
+ */
 export const Header = () => {
   const version =
     global.HermesInternal?.getRuntimeProperties?.()['OSS Release Version'] ??
