@@ -13,6 +13,14 @@ export const ScreenPaywall = ({paywall, onSuccess = () => undefined}) => {
   // and disable UI until purchase is finished
   const [isLoading, setIsLoading] = useState(false);
 
+  // Save log of paywall being shown
+  useEffect(() => {
+    console.info(
+      `[ADAPTY] User opened '${paywall.variationId}' paywall. Log saved`,
+    );
+    adapty.paywalls.logShow(paywall.variationId);
+  }, [paywall.variationId]);
+
   /*
    * I don't think, that handling logic such as purchase
    * should be performed this deep in the component tree in your production app
