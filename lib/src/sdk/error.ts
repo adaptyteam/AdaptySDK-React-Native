@@ -65,7 +65,7 @@ interface NativeError {
   localizedDescription?: string;
 }
 
-export class AdaptyError {
+export class AdaptyError extends Error {
   public adaptyCode: AdaptyErrorCode;
   public code: number;
   public localizedDescription: string;
@@ -79,6 +79,8 @@ export class AdaptyError {
     localizedDescription: string | undefined;
     code: number;
   }) {
+    super(localizedDescription || 'Unknown Adapty Error');
+
     this.adaptyCode = adaptyCode;
     this.localizedDescription = localizedDescription || 'Unknown Adapty Error';
     this.code = code;
