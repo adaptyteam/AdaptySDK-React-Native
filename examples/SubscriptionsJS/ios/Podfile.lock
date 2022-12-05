@@ -1,5 +1,5 @@
 PODS:
-  - Adapty (1.17.7)
+  - Adapty (1.16.8)
   - boost (1.76.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
@@ -303,8 +303,8 @@ PODS:
   - React-jsinspector (0.70.5)
   - React-logger (0.70.5):
     - glog
-  - react-native-adapty (1.4.0):
-    - Adapty (= 1.17.7)
+  - react-native-adapty (1.3.13):
+    - Adapty (= 1.16.8)
     - React
   - React-perflogger (0.70.5)
   - React-RCTActionSheet (0.70.5):
@@ -531,7 +531,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Adapty: 7b0d95d78b86df348dd9c488c6955624f671e53a
+  Adapty: 7bd19095b4e77ebbda17af2faf7268a0fdbc295b
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
@@ -566,7 +566,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 31564fa6912459921568e8b0e49024285a4d584b
   React-jsinspector: badd81696361249893a80477983e697aab3c1a34
   React-logger: fdda34dd285bdb0232e059b19d9606fa0ec3bb9c
-  react-native-adapty: 806a431356d20124ec66ed12fb2f50d4e91aee35
+  react-native-adapty: 5ead7b9a40fd0aa11a107b68185ec1ee3c81d292
   React-perflogger: e68d3795cf5d247a0379735cbac7309adf2fb931
   React-RCTActionSheet: 05452c3b281edb27850253db13ecd4c5a65bc247
   React-RCTAnimation: 578eebac706428e68466118e84aeacf3a282b4da

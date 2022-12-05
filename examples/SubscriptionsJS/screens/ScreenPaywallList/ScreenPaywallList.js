@@ -57,8 +57,11 @@ export const ScreenPaywallList = () => {
   if (error) {
     return (
       <View style={styles.container}>
-        <Section title={`Failed to fetch paywall list (#${error.code})`}>
+        <Section title={`Failed to fetch paywall list (#${error.code}) `}>
           {error.localizedDescription || 'Unknown error'}
+          {error instanceof Error
+            ? '\nAdaptyError is an instance of Error'
+            : '\nAdaptyError is fake'}
         </Section>
         <Button title="Refetch" onPress={fetchPaywalls} />
       </View>
