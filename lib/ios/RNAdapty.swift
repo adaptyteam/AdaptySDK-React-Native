@@ -164,7 +164,9 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
       let (c, json, err) = Utils.unwrapCustomError("Paywall with such variation ID wasn't found")
       return reject(c, json, err)
     }
+      
     Adapty.logShowPaywall(paywall)
+    resolve(nil)
   }
 
   @objc
