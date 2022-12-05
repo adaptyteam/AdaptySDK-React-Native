@@ -9,10 +9,10 @@ module.exports = {
   },
   project: {
     ios: {
-      project: './example/ios/example.xcworkspace',
+      project: './examples/SubscriptionsJS/ios/example.xcworkspace',
     },
     android: {
-      sourceDir: './example/android/',
+      sourceDir: './examples/SubscriptionsJS/android/',
     },
   },
 };

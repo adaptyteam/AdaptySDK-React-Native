@@ -1,5 +1,5 @@
 module.exports = {
-  projectRoot: `${__dirname}/examples/SubscriptionsExpo`,
+  projectRoot: `${__dirname}/examples/SubscriptionsJS`,
   watchFolders: [__dirname],
   resolver: {
     sourceExts: ['ts', 'tsx', 'js'],

@@ -3,8 +3,6 @@
     ".git",
     "node_modules",
     ".vscode",
-    "example",
-    "examples",
     "scripts"
   ]
 }
