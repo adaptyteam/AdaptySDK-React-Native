@@ -110,7 +110,7 @@ class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaM
     @ReactMethod
     fun activate(sdkKey: String, customerUserId: String?, observerMode: Boolean, logLevel: String, promise: Promise) {
         UiThreadUtil.runOnUiThread {
-            Adapty.activate(reactApplicationContext, sdkKey, customerUserId)
+            Adapty.activate(reactApplicationContext, sdkKey, customerUserId, observerMode)
 
             when (logLevel) {
                 "verbose" -> Adapty.setLogLevel(AdaptyLogLevel.VERBOSE)
