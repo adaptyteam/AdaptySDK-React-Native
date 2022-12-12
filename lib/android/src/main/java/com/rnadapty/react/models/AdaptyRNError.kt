@@ -15,7 +15,7 @@ class AdaptyRNError private constructor(
     companion object {
         fun from(error: AdaptyError) = AdaptyRNError(mapErrorCode(error.adaptyErrorCode), error.message.orEmpty(), error.hashCode())
 
-        fun from(message: String) = AdaptyRNError(AdaptyErrorCode.UNKNOWN.value, message, 0)
+        fun from(message: String) = AdaptyRNError(0, message, 0)
 
         private fun mapErrorCode(adaptyErrorCode: AdaptyErrorCode) = when (adaptyErrorCode) {
             AdaptyErrorCode.UNKNOWN -> 0
@@ -43,7 +43,6 @@ class AdaptyRNError private constructor(
             AdaptyErrorCode.SERVER_ERROR -> 2004
             AdaptyErrorCode.REQUEST_FAILED -> 2005
             AdaptyErrorCode.MISSING_PARAMETER -> 2007
-            else -> adaptyErrorCode.value * 10
         }
     }
 }
