@@ -1,4 +1,4 @@
-package com.subscriptionsjs.newarchitecture.modules;
+package com.adaptytest.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.adapty.SubscriptionsExpo"
+      "package": "com.adaptytest"
     },
     "web": {
       "favicon": "./assets/favicon.png"

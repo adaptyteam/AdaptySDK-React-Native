@@ -136,7 +136,8 @@ android {
 
     defaultConfig {
         multiDexEnabled true
-        applicationId "com.subscriptionsjs"
+        applicationId "com.adaptytest"
+        // applicationId "com.subscriptionsjs"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

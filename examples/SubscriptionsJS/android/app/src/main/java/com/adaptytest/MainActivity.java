@@ -1,4 +1,4 @@
-package com.subscriptionsjs;
+package com.adaptytest;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

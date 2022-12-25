@@ -452,7 +452,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = adapty;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adapty.adaptydemoapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SubscriptionsJS.app/SubscriptionsJS";
 			};
@@ -477,7 +477,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = adapty;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adapty.adaptydemoapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SubscriptionsJS.app/SubscriptionsJS";
 			};
@@ -502,7 +502,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = adapty;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adapty.adaptydemoapp;
 				PRODUCT_NAME = SubscriptionsJS;
 				SWIFT_OBJC_BRIDGING_HEADER = "SubscriptionsJS-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -529,7 +529,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = adapty;
+				PRODUCT_BUNDLE_IDENTIFIER = com.adapty.adaptydemoapp;
 				PRODUCT_NAME = SubscriptionsJS;
 				SWIFT_OBJC_BRIDGING_HEADER = "SubscriptionsJS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
