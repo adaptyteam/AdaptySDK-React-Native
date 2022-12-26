@@ -225,7 +225,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     private func handleLogShowOnboarding(_ ctx: AdaptyContext) {
         guard let onboardingString = ctx.args[Const.ONBOARDING_PARAMS] as? String,
               let onboardingData = onboardingString.data(using: .utf8),
-              let onboardingParams = try? Self.jsonDecoder.decode(AdaptyOnboardingScreenParameters.self, from: onboardingData) else {
+              let onboardingParams = try? AdaptyContext.jsonDecoder.decode(AdaptyOnboardingScreenParameters.self, from: onboardingData) else {
             return ctx.argNotFound(name: Const.ONBOARDING_PARAMS)
         }
         
@@ -237,7 +237,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     private func handleLogShowPaywall(_ ctx: AdaptyContext) {
         guard let paywallString = ctx.args[Const.PAYWALL] as? String,
               let paywallData = paywallString.data(using: .utf8),
-              let paywall = try? Self.jsonDecoder.decode(AdaptyPaywall.self, from: paywallData) else {
+              let paywall = try? AdaptyContext.jsonDecoder.decode(AdaptyPaywall.self, from: paywallData) else {
             return ctx.argNotFound(name: Const.PAYWALL)
         }
         
@@ -301,7 +301,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     private func handleUpdateProfile(_ ctx: AdaptyContext) {
         guard let paramsString = ctx.args[Const.PARAMS] as? String,
               let paramsData = paramsString.data(using: .utf8),
-              let params = try? Self.jsonDecoder.decode(AdaptyProfileParameters.self, from: paramsData) else {
+              let params = try? AdaptyContext.jsonDecoder.decode(AdaptyProfileParameters.self, from: paramsData) else {
             return ctx.argNotFound(name: Const.PARAMS)
         }
         
@@ -318,7 +318,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             return ctx.argNotFound(name: Const.PRODUCT)
         }
         
-        Adapty.getPaywallProduct(from: Self.jsonDecoder, data: productData) { skProduct in
+        Adapty.getPaywallProduct(from: AdaptyContext.jsonDecoder, data: productData) { skProduct in
             switch skProduct {
             case let .failure(locate_error):
                 return ctx.err(locate_error)
