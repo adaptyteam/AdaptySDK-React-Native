@@ -113,9 +113,9 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             case .makePurchase: handleMakePurchase(ctx)
             case .presentCodeRedemptionSheet: handlePresentCodeRedemptionSheet(ctx)
             case .restorePurchases: handleRestorePurchases(ctx)
-            
             // Utilities
             case .setLogLevel: handleSetLogLevel(ctx)
+            case .testWrap: handleTestWrap(ctx, resolver: resolver)
             
             default: ctx.notImplemented()
         }
@@ -144,24 +144,19 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         ) { result in
             switch result {
             case .none:
-                Adapty.delegate = self
-                
-                // TODO: Abstract away
-                switch logLevel {
-                case "debug": Adapty.logLevel = .debug
-                case "error": Adapty.logLevel = .error
-                case "verbose": Adapty.logLevel = .verbose
-                case "": Adapty.logLevel = .info
-                case "warn": Adapty.logLevel = .warn
-                default: ()
+                if let logLevel = logLevel,
+                   let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
+                    Adapty.logLevel = level
                 }
-                
+
                 ctx.resolve()
                 
             case let .some(error):
                 ctx.err(error)
             }
         }
+        
+        Adapty.delegate = self
     }
     
     // MARK: - Attribution
@@ -357,13 +352,42 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     
     private func handleSetLogLevel(_ ctx: AdaptyContext) {
         guard let valueStr = ctx.args[Const.VALUE] as? String,
-              let logLevel = AdaptyLogLevel(rawStringValue: valueStr) else {
+              let logLevel = AdaptyLogLevel.fromBridgeValue(valueStr) else {
             return ctx.argNotFound(name: Const.VALUE)
         }
         
         Adapty.logLevel = logLevel
         ctx.resolve()
     }
+    
+    private func handleTestWrap(_ ctx: AdaptyContext,
+                                resolver: @escaping RCTPromiseResolveBlock) {
+        if let shouldReject = ctx.args["error"] as? Bool {
+            if shouldReject {
+                return ctx.reject(dataStr: "Rejected")
+            }
+        }
+        
+        guard let jsonData = try? JSONSerialization.data(
+            withJSONObject: ctx.nsArgs,
+            options: JSONSerialization.WritingOptions.prettyPrinted
+        ) else {
+            return ctx.failedToSerialize()
+        }
+        
+        
+        let json = NSString(
+            data: jsonData,
+            encoding: NSUTF8StringEncoding
+        )! as String
+        
+        
+        Adapty.getProfile() { _ in
+            resolver(json)
+        }
+
+    }
+    
     // MARK: - @Deprecated
     
     //
@@ -408,6 +432,24 @@ extension AdaptyProductsFetchPolicy {
             return .waitForReceiptValidation
         default:
             return .default
+        }
+    }
+}
+
+
+extension AdaptyLogLevel {
+    static func fromBridgeValue(_ value: String) -> AdaptyLogLevel? {
+        switch value {
+        case LogLevelBridge.ERROR:
+            return .error
+        case LogLevelBridge.INFO:
+            return .info
+        case LogLevelBridge.VERBOSE:
+            return .verbose
+        case LogLevelBridge.WARN:
+            return .warn
+        default:
+            return nil
         }
     }
 }

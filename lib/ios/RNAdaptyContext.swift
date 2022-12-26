@@ -19,7 +19,7 @@ struct AdaptyContext {
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         return formatter
     }()
-
+    
     static var jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
@@ -33,19 +33,21 @@ struct AdaptyContext {
         encoder.dataEncodingStrategy = .base64
         return encoder
     }()
-
-    public let args: [String: Any]
     
-    private let resolver: RCTPromiseResolveBlock
-    private let rejecter: RCTPromiseRejectBlock
+    public let args: [String: Any]
+    public let nsArgs: NSDictionary
+    
+    public let resolver: RCTPromiseResolveBlock
+    public let rejecter: RCTPromiseRejectBlock
     
     // MARK: - Constructor
     init(args: NSDictionary,
          resolver: @escaping RCTPromiseResolveBlock,
          rejecter: @escaping RCTPromiseRejectBlock
     ) {
+        self.nsArgs = args
         self.args = args as? [String: Any] ?? [String: Any]()
-
+        
         self.rejecter = rejecter
         self.resolver = resolver
     }
@@ -58,10 +60,11 @@ struct AdaptyContext {
     
     /// Serializes data in JSON, then resolves with a single string result
     public func resolve<T: Encodable>(data: T) {
-        guard let str = try? Self.jsonEncoder.encode(data) else {
+        guard let bytes = try? Self.jsonEncoder.encode(data),
+        let str = String(data: bytes, encoding: .utf8) else {
             return self.failedToSerialize()
         }
-
+            
         self.resolver(str)
     }
     
@@ -73,33 +76,30 @@ struct AdaptyContext {
             self.err(error)
         }
     }
-
-    // MARK: - Errors API
     
-    public func reject(
-        code: Int = errorCodeBridge,
-        desc: String,
-        details: Error? = nil
-    ) {
-        self.rejecter(String(code), desc, details)
+    // MARK: - Errors API
+    public func reject(dataStr: String) {
+        self.rejecter("adapty_native_error", dataStr, nil)
     }
     
     public func err(_ error: AdaptyError) {
-        print(error)
+        guard let errBytes = try? Self.jsonEncoder.encode(error),
+        let errStr = String(data: errBytes, encoding: .utf8) else {
+            return self.failedToSerialize()
+        }
         
-        self.reject(code: error.adaptyErrorCode.rawValue, desc: error.description)
+        self.reject(dataStr: errStr)
     }
     
     public func notImplemented() {
-        self.reject(desc: "method not implemented")
+        self.reject(dataStr: "method not implemented")
     }
     
     public func argNotFound(name: String) {
-        self.reject(desc: "Argument '\(name)' was not passed to a native module.")
+        self.reject(dataStr: "Argument '\(name)' was not passed to a native module.")
     }
     
     public func failedToSerialize() {
-        self.reject(desc: "Failed to serialize data on a client side")
+        self.reject(dataStr: "Failed to serialize data on a client side")
     }
-    
 }

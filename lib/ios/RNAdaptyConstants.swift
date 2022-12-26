@@ -48,14 +48,22 @@ enum MethodName: String {
     case makePurchase = "make_purchase"
     case presentCodeRedemptionSheet = "present_code_redemption_sheet"
     case restorePurchases = "restore_purchases"
-
+    
     case setLogLevel = "set_log_level"
-
+    
     case notImplemented = "not_implemented"
+    case testWrap = "__test__"
 }
 
 enum EventName: String {
     case onDeferredPurchase = "onDeferredPurchase"
     case onInfoUpdate = "onInfoUpdate"
     case onPromoReceived = "onPromoReceived"
+}
+
+struct LogLevelBridge {
+    static let VERBOSE = "VERBOSE"
+    static let ERROR = "ERROR"
+    static let WARN = "WARN"
+    static let INFO = "INFO"
 }
