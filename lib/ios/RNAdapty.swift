@@ -1,18 +1,6 @@
 import Foundation
 import Adapty
-//static func encodeJson<T: Encodable>(from data: T) -> String? {
-//    let encoder = JSONEncoder()
-//    if #available(iOS 10.0, *) {
-//        encoder.dateEncodingStrategy = .iso8601
-//    }
-//
-//    if let json = try? encoder.encode(data) {
-//        if let jsonString = String(data: json, encoding: .utf8) {
-//            return jsonString
-//        }
-//    }
-//    return nil
-//}
+
 @objc(RNAdapty)
 class RNAdapty: RCTEventEmitter, AdaptyDelegate {    
     // MARK: - Delegate
@@ -186,14 +174,14 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
               let source = AdaptyAttributionSource(rawValue: sourceString) else {
             return ctx.argNotFound(name: Const.SOURCE)
         }
-        guard let networkUserId = ctx.args[Const.NETWORK_USER_ID] as? String else {
+        guard let networkUserId = ctx.args[Const.NETWORK_USER_ID] as? String? else {
             return ctx.argNotFound(name: Const.NETWORK_USER_ID)
         }
         
         Adapty.updateAttribution(attribution, source: source, networkUserId: networkUserId) { maybeErr in
             ctx.resolveIfOk(maybeErr)
         }
-    }
+    }   
     
     // MARK: - Paywalls
     
@@ -215,7 +203,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     private func handleGetPaywallProducts(_ ctx: AdaptyContext) {
         guard let paywallString = ctx.args[Const.PAYWALL] as? String,
               let paywallData = paywallString.data(using: .utf8),
-              let paywall = try? Self.jsonDecoder.decode(AdaptyPaywall.self, from: paywallData) else {
+              let paywall = try? AdaptyContext.jsonDecoder.decode(AdaptyPaywall.self, from: paywallData) else {
             return ctx.argNotFound(name: Const.PAYWALL)
         }
 
