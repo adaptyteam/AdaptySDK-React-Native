@@ -4,8 +4,6 @@ import android.app.Activity
 import android.util.Log
 import com.adapty.Adapty
 import com.adapty.errors.AdaptyError
-import com.adapty.listeners.OnPromoReceivedListener
-import com.adapty.listeners.OnPurchaserInfoUpdatedListener
 import com.adapty.models.*
 import com.adapty.models.SubscriptionUpdateParamModel.ProrationMode
 import com.adapty.utils.AdaptyLogLevel
@@ -15,17 +13,11 @@ import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEm
 import com.google.gson.Gson
 import com.rnadapty.react.models.*
 
-
 class AdaptyModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
     val gson = Gson()
-    private val products = HashMap<String, ProductModel>()
-    private val paywalls = ArrayList<PaywallModel>()
-
-    private val promoPaywalls = ArrayList<PaywallModel>()
-    private val promoProducts = HashMap<String, ProductModel>()
 
     override fun getName(): String {
-        return "RNAdapty"
+        return "RNAdapty_old"
     }
 
     private fun sendEvent(reactContext: ReactContext,
