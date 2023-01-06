@@ -204,7 +204,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
 
         guard let fetchPolicyJSON = ctx.args[Const.FETCH_POLICY] as? String,
               let fetchPolicy = AdaptyProductsFetchPolicy.fromJSONValue(fetchPolicyJSON) else {
-            return ctx.argNotFound(name: Const.PAYWALL)
+            return ctx.argNotFound(name: Const.FETCH_POLICY)
         }
 
         Adapty.getPaywallProducts(paywall: paywall, fetchPolicy: fetchPolicy) { result in

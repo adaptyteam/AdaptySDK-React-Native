@@ -62,8 +62,8 @@ enum EventName: String {
 }
 
 struct LogLevelBridge {
-    static let VERBOSE = "VERBOSE"
-    static let ERROR = "ERROR"
-    static let WARN = "WARN"
-    static let INFO = "INFO"
+    static let VERBOSE = "verbose"
+    static let ERROR = "error"
+    static let WARN = "warn"
+    static let INFO = "info"
 }
