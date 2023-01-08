@@ -1,12 +1,15 @@
 import { Platform } from 'react-native';
+
 import { bridgeArg, bridgeCall } from '../internal/bridge';
 import * as Coder from '../internal/coders';
+
 import type * as Model from '../types';
 import * as Input from '../types/inputs';
 
+import { AdaptyEventEmitter } from './eventEmitter';
 import { AdaptyError } from './error';
 
-export class Adapty {
+export class Adapty extends AdaptyEventEmitter {
   private bridge = bridgeCall;
 
   /**
@@ -450,16 +453,19 @@ export class Adapty {
     }
   }
 
-  // 22;
   /**
    *
-   * @param params
-   * @throws
+   * @param {Model.AdaptyProfileParameters} params — an object of parameters to update
+   * @throws {@link AdaptyError}
    */
-  public async updateProfile(params: {}): Promise<void> {
+  public async updateProfile(
+    params: Partial<Model.AdaptyProfileParameters>,
+  ): Promise<void> {
     try {
+      const data = new Coder.AdaptyProfileParametersCoder(params);
+
       await this.bridge('update_profile', {
-        [bridgeArg.PARAMS]: JSON.stringify(params),
+        [bridgeArg.PARAMS]: JSON.stringify(data.encode()),
       });
     } catch (nativeError) {
       throw AdaptyError.tryWrap(nativeError);

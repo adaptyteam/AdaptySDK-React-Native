@@ -3,19 +3,17 @@ import {
   NativeEventEmitter,
   NativeModules,
 } from 'react-native';
-import { DeferredPurchaseEventCallback, InfoUpdateEventCallback, PromoReceievedEventCallback } from './types';
 
-type EventName = 'onInfoUpdate' | 'onPromoReceived' | 'onDeferredPurchase';
-type EventCallback = (data: any) => void | Promise<void>;
+import { AdaptyEvent } from '../types/events';
+import { AdaptyProfile } from '../types';
 
-type AddListenerFn<E extends EventName, C extends EventCallback> = (
+type AddListenerFn<E extends AdaptyEvent, Data> = (
   event: E,
-  callback: C,
+  callback: (data: Data) => void | Promise<void>,
 ) => EmitterSubscription;
 
-type Fn = AddListenerFn<'onInfoUpdate', InfoUpdateEventCallback> &
-  AddListenerFn<'onPromoReceived', PromoReceievedEventCallback> &
-  AddListenerFn<'onDeferredPurchase', DeferredPurchaseEventCallback>;
+type Fn = AddListenerFn<'onLatestProfileLoad', AdaptyProfile> &
+  AddListenerFn<'onDeferredPurchase', AdaptyProfile>;
 
 export class AdaptyEventEmitter {
   private nativeEmitter;
@@ -33,12 +31,12 @@ export class AdaptyEventEmitter {
    * @param callback defines what action would be called, when event fired
    */
   private addListener(
-    event: EventName,
-    callback: EventCallback,
+    event: AdaptyEvent,
+    callback: (data: any) => void | Promise<void>,
   ): EmitterSubscription {
     const parseCallback = (...data: string[]) => {
       const args = data.map(arg => JSON.parse(arg));
-      callback.apply(null, args as any)
+      callback.apply(null, args as any);
     };
 
     const subscription = this.nativeEmitter.addListener(event, parseCallback);

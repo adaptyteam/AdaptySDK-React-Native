@@ -2,6 +2,7 @@ import type { AdaptyProfile } from '../../types';
 import { AdaptyAccessLevelCoder } from './AdaptyAccessLevel';
 import { AdaptyNonSubscriptionCoder } from './AdaptyNonSubscription';
 import { AdaptySubscriptionCoder } from './AdaptySubscription';
+import { AdaptyProfileParametersCoder } from './AdaptyProfileParameters';
 
 import { Coder } from './coder';
 
@@ -22,7 +23,7 @@ export class AdaptyProfileCoder extends Coder<Type> {
       });
     }
 
-    const accessLevelsRaw = data['access_levels'];
+    const accessLevelsRaw = data['paid_access_levels'];
 
     if (accessLevelsRaw && typeof accessLevelsRaw !== 'object') {
       throw this.errType({
@@ -46,17 +47,19 @@ export class AdaptyProfileCoder extends Coder<Type> {
       {} as NonNullable<Type['accessLevels']>,
     );
 
-    const customAttributes = data['custom_attributes'];
-    if (!customAttributes) {
+    const customAttributesRaw = data['custom_attributes'];
+    if (!customAttributesRaw) {
       throw this.errRequired('customAttributes');
     }
-    if (typeof customAttributes !== 'object') {
+    if (typeof customAttributesRaw !== 'object') {
       throw this.errType({
         name: 'customAttributes',
         expected: 'object',
-        current: typeof customAttributes,
+        current: typeof customAttributesRaw,
       });
     }
+    const customAttributes =
+      AdaptyProfileParametersCoder.tryDecode(customAttributesRaw).toObject();
 
     const customerUserId = data['customer_user_id'] as Type['customerUserId'];
     if (customerUserId && typeof customerUserId !== 'string') {

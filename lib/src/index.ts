@@ -1,7 +1,9 @@
-export { activateAdapty } from './activate';
-export { adapty } from './adapty';
+// SDK
+export { adapty } from './sdk';
 export { AdaptyError } from './sdk/error';
 
-export * from './types';
-
-export * from './sdk2';
+// Types
+export * from './types/error';
+export * from './types/index';
+export * from './types/inputs';
+export * from './types/events';

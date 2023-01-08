@@ -1,5 +1,5 @@
 // import SDK type to link to methods in docs.
-import { Adapty } from '../sdk2/adapty';
+import { Adapty } from '../sdk/adapty';
 
 export const VendorStore = Object.freeze({
   AppStore: 'app_store',
@@ -25,6 +25,23 @@ export const CancellationReason = Object.freeze({
 });
 export type CancellationReason =
   typeof CancellationReason[keyof typeof CancellationReason];
+
+export const Gender = Object.freeze({
+  Female: 'f',
+  Male: 'm',
+  Other: 'o',
+});
+export type Gender = typeof Gender[keyof typeof Gender];
+
+export const AppTrackingTransparencyStatus = Object.freeze({
+  NotDetermined: 'not_determined',
+  Restricted: 'restricted',
+  Denied: 'denied',
+  Authorized: 'authorized',
+  Unknown: 'unknown',
+});
+export type AppTrackingTransparencyStatus =
+  typeof AppTrackingTransparencyStatus[keyof typeof AppTrackingTransparencyStatus];
 
 export const ProductPeriod = Object.freeze({
   Day: 'day',
@@ -108,7 +125,7 @@ export interface AdaptyProfile {
    * Previously set user custom attributes with {@link Adapty.updateProfile} method.
    * @readonly
    */
-  readonly customAttributes: Record<string, any>;
+  readonly customAttributes: Partial<AdaptyProfileParameters>;
   /**
    * An identifier of a user in your system.
    * @readonly
@@ -635,4 +652,26 @@ export interface AdaptySubscriptionPeriod {
    * @readonly
    */
   readonly unit: ProductPeriod;
+}
+
+export interface AdaptyProfileParameters {
+  analyticsDisabled?: boolean;
+  codableCustomAttributes?: { [key: string]: any };
+  appTrackingTransparencyStatus?: AppTrackingTransparencyStatus;
+  storeCountry?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: Gender;
+  birthday?: string;
+  email?: string;
+  phoneNumber?: string;
+  facebookAnonymousId?: string;
+  amplitudeUserId?: string;
+  amplitudeDeviceId?: string;
+  mixpanelUserId?: string;
+  appmetricaProfileId?: string;
+  appmetricaDeviceId?: string;
+  oneSignalPlayerId?: string;
+  pushwooshHWID?: string;
+  firebaseAppInstanceId?: string;
 }
