@@ -7,12 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9C10C8B625D19A1400CCD6AD /* RNModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C10C8B525D19A1400CCD6AD /* RNModels.swift */; };
-		9C1D5872269C773D0033E90B /* AdaptyProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C1D5871269C773D0033E90B /* AdaptyProduct.swift */; };
-		9C1D5876269C783B0033E90B /* AdaptyPaywall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C1D5875269C783B0033E90B /* AdaptyPaywall.swift */; };
-		9C3111A626A1A18C00EB48A5 /* AdaptyProductDiscount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3111A526A1A18C00EB48A5 /* AdaptyProductDiscount.swift */; };
-		9C3111D526A1A27D00EB48A5 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3111D426A1A27D00EB48A5 /* Utils.swift */; };
-		9C31120626A1AD1000EB48A5 /* AdaptySubscriptionPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C31120526A1AD1000EB48A5 /* AdaptySubscriptionPeriod.swift */; };
+		8677D25529660E0200743473 /* RNAdaptyConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8677D25329660E0200743473 /* RNAdaptyConstants.swift */; };
+		8677D25629660E0200743473 /* RNAdaptyContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8677D25429660E0200743473 /* RNAdaptyContext.swift */; };
 		9C3BB65625236EED00D08A07 /* RNAdapty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65225236EED00D08A07 /* RNAdapty.swift */; };
 		9C3BB65725236EED00D08A07 /* RNAdapty.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65325236EED00D08A07 /* RNAdapty.m */; };
 /* End PBXBuildFile section */
@@ -30,12 +26,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9C10C8B525D19A1400CCD6AD /* RNModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNModels.swift; sourceTree = "<group>"; };
-		9C1D5871269C773D0033E90B /* AdaptyProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptyProduct.swift; sourceTree = "<group>"; };
-		9C1D5875269C783B0033E90B /* AdaptyPaywall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptyPaywall.swift; sourceTree = "<group>"; };
-		9C3111A526A1A18C00EB48A5 /* AdaptyProductDiscount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptyProductDiscount.swift; sourceTree = "<group>"; };
-		9C3111D426A1A27D00EB48A5 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		9C31120526A1AD1000EB48A5 /* AdaptySubscriptionPeriod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptySubscriptionPeriod.swift; sourceTree = "<group>"; };
+		8677D25329660E0200743473 /* RNAdaptyConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdaptyConstants.swift; sourceTree = "<group>"; };
+		8677D25429660E0200743473 /* RNAdaptyContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdaptyContext.swift; sourceTree = "<group>"; };
 		9C3BB63D25236E6100D08A07 /* libRNAdapty.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNAdapty.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNAdapty-Bridging-Header.h"; sourceTree = "<group>"; };
 		9C3BB65225236EED00D08A07 /* RNAdapty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdapty.swift; sourceTree = "<group>"; };
@@ -53,27 +45,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		9C1D5870269C76EC0033E90B /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				9C10C8B525D19A1400CCD6AD /* RNModels.swift */,
-				9C1D5871269C773D0033E90B /* AdaptyProduct.swift */,
-				9C1D5875269C783B0033E90B /* AdaptyPaywall.swift */,
-				9C3111A526A1A18C00EB48A5 /* AdaptyProductDiscount.swift */,
-				9C31120526A1AD1000EB48A5 /* AdaptySubscriptionPeriod.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		9C3BB63425236E6000D08A07 = {
 			isa = PBXGroup;
 			children = (
-				9C3111D426A1A27D00EB48A5 /* Utils.swift */,
-				9C1D5870269C76EC0033E90B /* Models */,
 				9C3BB63E25236E6100D08A07 /* Products */,
 				9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */,
 				9C3BB65325236EED00D08A07 /* RNAdapty.m */,
 				9C3BB65225236EED00D08A07 /* RNAdapty.swift */,
+				8677D25329660E0200743473 /* RNAdaptyConstants.swift */,
+				8677D25429660E0200743473 /* RNAdaptyContext.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -142,14 +122,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C1D5876269C783B0033E90B /* AdaptyPaywall.swift in Sources */,
+				8677D25629660E0200743473 /* RNAdaptyContext.swift in Sources */,
 				9C3BB65725236EED00D08A07 /* RNAdapty.m in Sources */,
-				9C3111D526A1A27D00EB48A5 /* Utils.swift in Sources */,
-				9C10C8B625D19A1400CCD6AD /* RNModels.swift in Sources */,
-				9C3111A626A1A18C00EB48A5 /* AdaptyProductDiscount.swift in Sources */,
-				9C31120626A1AD1000EB48A5 /* AdaptySubscriptionPeriod.swift in Sources */,
-				9C1D5872269C773D0033E90B /* AdaptyProduct.swift in Sources */,
 				9C3BB65625236EED00D08A07 /* RNAdapty.swift in Sources */,
+				8677D25529660E0200743473 /* RNAdaptyConstants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
