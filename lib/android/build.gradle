@@ -1,6 +1,5 @@
 buildscript {
     ext.kotlin_version = '1.4.20'
-    ext.adapty_version = ''
 
     repositories {
         google()
@@ -78,10 +77,10 @@ repositories {
 }
 
 dependencies {
-    api 'com.github.adaptyteam:AdaptySDK-Android:2.2.1'
+    api 'com.github.adaptyteam:AdaptySDK-Android:2.2.2'
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.ext.kotlin_version}"
     implementation 'com.android.billingclient:billing:4.1.0'
-    implementation 'com.adapty.internal:crossplatform:2.2'
+    implementation 'com.adapty.internal:crossplatform:2.2.1'
 }
