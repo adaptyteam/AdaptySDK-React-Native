@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator} from 'react-native';
 
@@ -9,17 +10,41 @@ import {SectionEmoji} from '../../components/SectionEmoji';
 import {Body, H3} from '../../components/Text';
 
 export const ScreenPaywall = ({paywall, onSuccess = () => undefined}) => {
-  // You should inform user, that purchase is in progress
-  // and disable UI until purchase is finished
   const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState(null);
 
-  // Save log of paywall being shown
   useEffect(() => {
-    console.info(
-      `[ADAPTY] User opened '${paywall.variationId}' paywall. Log saved`,
-    );
-    adapty.paywalls.logShow(paywall.variationId);
-  }, [paywall.variationId]);
+    if (!paywall) {
+      return;
+    }
+
+    console.log(`[ADAPTY] Paywall "${paywall.name}" opened.`);
+    fetchProducts();
+  }, [paywall?.id]);
+
+  async function fetchProducts() {
+    setIsLoading(true);
+    setError(null);
+
+    console.log(`[ADAPTY] Fetching products for paywall "${paywall.name}"`);
+    try {
+      await adapty.logShowPaywall(paywall);
+      console.log('[ADAPTY] Paywall shown logged successfully');
+      const products_ = await adapty.getPaywallProducts(paywall);
+      console.log('[ADAPTY] Paywall products fetched success: ', products_);
+      setProducts(products_);
+    } catch (error_) {
+      console.error(
+        '[ADAPTY] Error fetching paywall products: ',
+        JSON.stringify(error_),
+      );
+      setError(error_);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   /*
    * I don't think, that handling logic such as purchase
@@ -29,62 +54,73 @@ export const ScreenPaywall = ({paywall, onSuccess = () => undefined}) => {
    * And handle it with a listener
    */
   async function purchase(product) {
-    setIsLoading(true);
+    setIsProcessing(true);
 
     try {
-      console.info('[ADAPTY] Purchasing product: ', product);
-      const result = await adapty.purchases.makePurchase(product);
-
-      console.log(
-        '[ADAPTY] Purchase result purchaser info: ',
-        result.purchaserInfo,
-      );
-      console.log('[ADAPTY] Purchase result receipt: ', result.receipt);
-      console.log('[ADAPTY] Purchase result product: ', result.product);
-
+      console.info('[ADAPTY] Purchasing product...', product);
+      const profile = await adapty.makePurchase(product);
       console.log('[ADAPTY] Purchase result: SUCCESS');
-      onSuccess();
-    } catch (error) {
+      onSuccess(profile);
+    } catch (error_) {
+      console.error('[ADAPTY] Error fetching paywall products: ', error_);
+      setError(error_);
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
     }
   }
 
-  if (paywall.products.length === 0) {
+  const renderProducts = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      );
+    }
+
+    if (products.length === 0) {
+      return (
+        <View style={styles.container}>
+          <SectionEmoji emoji="🙊">No products in this paywall</SectionEmoji>
+        </View>
+      );
+    }
+
     return (
-      <View style={styles.container}>
-        <H3>{paywall.name}</H3>
-        <SectionEmoji emoji="🙊">No products in this paywall</SectionEmoji>
-      </View>
+      <>
+        {products.map(product => (
+          <View key={product.vendorProductId} style={styles.productContainer}>
+            <TouchableOpacity
+              activeOpacity={0.2}
+              style={styles.productPressableContainer}
+              disabled={isProcessing}
+              onPress={() => purchase(product)}>
+              <Text style={styles.productNameText}>
+                {product.localizedTitle}
+              </Text>
+              {product.localizedDescription && (
+                <Body>{product.localizedDescription}</Body>
+              )}
+              <Body style={styles.productPriceText}>
+                {product.localizedPrice} / {product.localizedSubscriptionPeriod}
+              </Body>
+            </TouchableOpacity>
+
+            {isLoading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator style={styles.loadingIndicator} />
+              </View>
+            )}
+          </View>
+        ))}
+      </>
     );
-  }
+  };
 
   return (
     <View style={styles.container}>
       <H3>{paywall.name}</H3>
-      {paywall.products.map(product => (
-        <View key={product.vendorProductId} style={styles.productContainer}>
-          <TouchableOpacity
-            activeOpacity={0.2}
-            style={styles.productPressableContainer}
-            disabled={isLoading}
-            onPress={() => purchase(product)}>
-            <Text style={styles.productNameText}>{product.localizedTitle}</Text>
-            {product.localizedDescription && (
-              <Body>{product.localizedDescription}</Body>
-            )}
-            <Body style={styles.productPriceText}>
-              {product.localizedPrice} / {product.localizedSubscriptionPeriod}
-            </Body>
-          </TouchableOpacity>
-
-          {isLoading && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator style={styles.loadingIndicator} />
-            </View>
-          )}
-        </View>
-      ))}
+      {renderProducts()}
     </View>
   );
 };

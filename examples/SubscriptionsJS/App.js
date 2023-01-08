@@ -4,15 +4,19 @@ import {
   ScrollView,
   StatusBar,
   View,
-  ActivityIndicator,
+  Button,
+  Platform,
+  Alert,
 } from 'react-native';
+import {adapty, AdaptyError, LogLevel} from 'react-native-adapty';
 
 import {Header} from './components/Header';
 import {colors} from './components/Colors';
-import {Progress} from './components/Progress';
-import {adapty, activateAdapty} from 'react-native-adapty';
-import {ScreenPaywallList} from './screens/ScreenPaywallList';
-import {ScreenSubscribed} from './screens/ScreenSubscribed';
+import {Modal} from './components/Progress/Modal';
+import {ScreenProfile} from './screens/ScreenProfile';
+import {ScreenPaywall} from './screens/ScreenPaywall/ScreenPaywall';
+
+AdaptyError.prefix = '[ADAPTY]';
 
 const App = () => {
   // This is for demonstation purposes only
@@ -31,6 +35,9 @@ const App = () => {
   // to show user a premium content
   const [isUserSubscribed, setIsUserSubscribed] = useState(null);
 
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [paywall, setPaywall] = useState(null);
+
   useEffect(() => {
     async function init() {
       // Check credentials (only for this example)
@@ -44,29 +51,12 @@ const App = () => {
 
       console.info('[ADAPTY] Activating Adapty SDK...');
       // Async activate Adapty
-      await activateAdapty({sdkKey: token});
+      // await activateAdapty({sdkKey: token});
       setIsAdaptyActivated(true);
-
-      // Set a listener to handle purchases or status updates
-      // such as subscription expiration.
-      // I think it is better to set uo a listener right after initialization
-      adapty.addEventListener('onInfoUpdate', info => {
-        console.info('[ADAPTY] event `onInfoUpdate` event received');
-
-        Object.keys(info.accessLevels).forEach(accessLevelName => {
-          const accessLevel = info.accessLevels[accessLevelName];
-          setIsUserSubscribed(accessLevel.isActive);
-
-          console.info(
-            `[ADAPTY] from received event: new access level '${accessLevelName}' status = `,
-            accessLevel.isActive ? 'ACTIVE' : 'INACTIVE',
-          );
-        });
-      });
 
       // Check if user is subscribed on your app mount
       console.info('[ADAPTY] Checking user subscription status...');
-      const info = await adapty.purchases.getInfo();
+      // const info = await adapty.purchases.getInfo();
       setIsUserAccessFetched(true);
 
       // In your app you will statically know names of your access levels
@@ -77,19 +67,19 @@ const App = () => {
       // This example handles a case when you don't know a name of an access level
       let hasActiveSubscription = false;
 
-      Object.keys(info.accessLevels).forEach(accessLevelName => {
-        const accessLevel = info.accessLevels[accessLevelName];
-        if (accessLevel.isActive) {
-          hasActiveSubscription = true;
-        }
+      // Object.keys(info.accessLevels).forEach(accessLevelName => {
+      //   const accessLevel = info.accessLevels[accessLevelName];
+      //   if (accessLevel.isActive) {
+      //     hasActiveSubscription = true;
+      //   }
 
-        setIsUserSubscribed(accessLevel.isActive);
+      //   setIsUserSubscribed(accessLevel.isActive);
 
-        console.info(
-          `[ADAPTY] User status for access level '${accessLevel.id}':`,
-          accessLevel.isActive ? 'active' : 'inactive',
-        );
-      });
+      //   console.info(
+      //     `[ADAPTY] User status for access level '${accessLevel.id}':`,
+      //     accessLevel.isActive ? 'active' : 'inactive',
+      //   );
+      // });
 
       if (!hasActiveSubscription) {
         console.info('[ADAPTY] User has no access levels');
@@ -106,33 +96,93 @@ const App = () => {
     };
   }, []);
 
-  // Display content for subscribed users
-  const renderPremiumContent = () => {
-    switch (isUserSubscribed) {
-      case null:
-        // Wait until we get user subscription status
-        return <ActivityIndicator margin={48} />;
-      case false:
-        // User is not subscribed, show a paywall
-        return <ScreenPaywallList />;
-      case true:
-        // User is subscribed, show premium content
-        return <ScreenSubscribed />;
-    }
-  };
-
   return (
     <SafeAreaView style={{backgroundColor: colors.primary10}}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.primary10} />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <Header />
         <View style={{backgroundColor: colors.white}}>
-          <Progress
+          <Button
+            title="Activate"
+            onPress={async () => {
+              console.log('[ADAPTY]: Activating...');
+              const token = await readCredentials();
+
+              try {
+                await adapty.activate(token, {logLevel: LogLevel.VERBOSE});
+                console.log('[ADAPTY]: Activate success');
+
+                // Set a listener to handle purchases or status updates
+                // such as subscription expiration.
+                // I think it is better to set uo a listener right after initialization
+                adapty.addEventListener('onLatestProfileLoad', info => {
+                  console.info(
+                    '[ADAPTY] event `onLatestProfileLoad` event received',
+                    typeof info,
+                  );
+                });
+              } catch (error) {
+                console.log('[ADAPTY] Activation Error:', error);
+              }
+            }}
+          />
+          <Button
+            title="Open paywall"
+            onPress={async () => {
+              console.log('[ADAPTY]: Getting a paywall...');
+              if (Platform.OS === 'android') {
+                const paywallRes = await adapty.getPaywall(
+                  'onboarding_paywall',
+                );
+                return setPaywall(paywallRes);
+              }
+
+              Alert.prompt('Enter paywall ID', '', async paywallId => {
+                if (!paywallId) {
+                  return;
+                }
+                console.log('[ADAPTY]: Fetching paywall with ID: ', paywallId);
+
+                try {
+                  const paywallRes = await adapty.getPaywall(paywallId);
+                  console.log(`[ADAPTY]: Paywall '${paywallRes.name}' fetched`);
+                  setPaywall(paywallRes);
+                } catch (error) {
+                  console.error(error.message);
+                }
+              });
+            }}
+          />
+          <Button title="Profile..." onPress={() => setIsProfileOpen(true)} />
+          <Button
+            title="Code Redemption Sheet"
+            onPress={async () => {
+              console.log('[ADPTY]: presenting code redemption sheet');
+              adapty.presentCodeRedemptionSheet();
+            }}
+          />
+          {/* <Progress
             credentials={areCredentialsValid}
             activation={isAdaptyActivated}
             access={isUserAccessFetched}
-          />
-          {renderPremiumContent()}
+          /> */}
+          {/* {renderPremiumContent()} */}
+          <Modal
+            visible={paywall !== null}
+            onRequestClose={() => setPaywall(null)}>
+            <ScreenPaywall
+              paywall={paywall}
+              onSuccess={() => {
+                setPaywall(null);
+                setIsProfileOpen(true);
+              }}
+            />
+          </Modal>
+          <Modal
+            visible={isProfileOpen}
+            onRequestClose={() => setIsProfileOpen(false)}>
+            <ScreenProfile />
+          </Modal>
         </View>
       </ScrollView>
     </SafeAreaView>
