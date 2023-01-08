@@ -13,8 +13,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     override func supportedEvents() -> [String]! {
         return [
             EventName.onDeferredPurchase.rawValue,
-            EventName.onPromoReceived.rawValue,
-            EventName.onInfoUpdate.rawValue,
+            EventName.onLatestProfileLoad.rawValue,
         ]
     }
 
@@ -24,14 +23,17 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             return
         }
         
-        guard let str = try? AdaptyContext.jsonEncoder.encode(profile) else {
+        guard let data = try? AdaptyContext.jsonEncoder.encode(profile),
+              let str = String(data: data, encoding: .utf8)
+        else {
             // should not happen
             return self.sendEvent(
-                withName: EventName.onInfoUpdate.rawValue,
+                withName: EventName.onLatestProfileLoad.rawValue,
                 body: "null")
         }
+        
 
-        self.sendEvent(withName: "onInfoUpdate", body: str)
+        self.sendEvent(withName: EventName.onLatestProfileLoad.rawValue, body: str)
     }
 
     /// TODO: Describe why
@@ -44,32 +46,15 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         self.hasListeners = false
     }
 
-    //    func didReceivePromo(_ promo: PromoModel) {
-    //        if !self.hasListeners {
-    //            return
-    //        }
-    //
-    //        let json = Utils.encodeJson(from: promo)
-    //        self.sendEvent(withName: "onPromoReceived", body: json)
-    //    }
-    //
-    //    func didReceiveUpdatedPurchaserInfo(_ info: PurchaserInfoModel) {
-    //        if !self.hasListeners {
-    //            return
-    //        }
-    //
-    //        let json = Utils.encodeJson(from: info)
-    //        self.sendEvent(withName: "onInfoUpdate", body: json)
-    //    }
-    //
-    //    func paymentQueue(shouldAddStorePaymentFor product: ProductModel, defermentCompletion makeDeferredPurchase: @escaping DeferredPurchaseCompletion) {
-    //        if !self.hasListeners {
-    //            return
-    //        }
-    //
-    //        let json = Utils.encodeJson(from: AdaptyProduct(product, nil))
-    //        self.sendEvent(withName: "onDeferredPurchase", body: json)
-    //    }
+//    func shouldAddStorePayment(for product: AdaptyDeferredProduct,
+//                               defermentCompletion makeDeferredPurchase: @escaping (AdaptyResultCompletion<AdaptyProfile>?) -> Void) -> Bool {
+//        if !self.hasListeners {
+//            return
+//        }
+//
+//        let json = Utils.encodeJson(from: AdaptyProduct(product, nil))
+//        self.sendEvent(withName: "onDeferredPurchase", body: json)
+//    }
 
     // MARK: - Handle router
 

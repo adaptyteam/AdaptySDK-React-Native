@@ -57,8 +57,7 @@ enum MethodName: String {
 
 enum EventName: String {
     case onDeferredPurchase = "onDeferredPurchase"
-    case onInfoUpdate = "onInfoUpdate"
-    case onPromoReceived = "onPromoReceived"
+    case onLatestProfileLoad = "onLatestProfileLoad"
 }
 
 struct LogLevelBridge {
