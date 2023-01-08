@@ -176,8 +176,6 @@ export class Adapty extends AdaptyEventEmitter {
     try {
       const result = await this.bridge('get_profile', {});
 
-      console.log('profile JSON', result);
-
       if (!result) {
         throw AdaptyError.deserializationError(this.getProfile.name);
       }
