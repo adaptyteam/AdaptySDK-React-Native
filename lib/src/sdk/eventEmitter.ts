@@ -6,6 +6,7 @@ import {
 
 import { AdaptyEvent } from '../types/events';
 import { AdaptyProfile } from '../types';
+import { AdaptyProfileCoder } from '../internal/coders';
 
 type AddListenerFn<E extends AdaptyEvent, Data> = (
   event: E,
@@ -35,7 +36,19 @@ export class AdaptyEventEmitter {
     callback: (data: any) => void | Promise<void>,
   ): EmitterSubscription {
     const parseCallback = (...data: string[]) => {
-      const args = data.map(arg => JSON.parse(arg));
+      const args = data.map(arg => {
+        const param = JSON.parse(arg);
+        try {
+          const coder = AdaptyProfileCoder.tryDecode(param);
+          return coder.toObject();
+        } catch (error) {
+          console.error(
+            '[ADAPTY]: Failed to decode profile in event listener',
+            error,
+          );
+          throw error;
+        }
+      });
       callback.apply(null, args as any);
     };
 
