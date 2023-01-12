@@ -25,23 +25,31 @@ export const GroupProfile = ({profile, loading, onRequestUpdate}) => {
         value={lvl.isActive ? '✅' : '❌'}
         bordered
       />
-      <LineParam label="isLifetime" value={String(lvl.isLifetime)} bordered />
+      <LineParam
+        label="isLifetime"
+        value={String(lvl?.isLifetime || 'false')}
+        bordered
+      />
       <LineParam
         label="activatedAt"
-        value={lvl.activatedAt.toGMTString()}
+        value={lvl.activatedAt?.toGMTString() ?? '-'}
         bordered
       />
       <LineParam
         label="renewedAt"
-        value={lvl.renewedAt.toGMTString()}
+        value={lvl.renewedAt?.toGMTString() ?? '—'}
         bordered
       />
       <LineParam
         label="expiresAt"
-        value={lvl.expiresAt.toGMTString()}
+        value={lvl.expiresAt?.toGMTString() ?? '—'}
         bordered
       />
-      <LineParam label="willRenew" value={String(lvl.willRenew)} bordered />
+      <LineParam
+        label="willRenew"
+        value={String(lvl?.willRenew || 'false')}
+        bordered
+      />
       <LineParam
         label="unsubscribedAt"
         value={lvl.unsubscribedAt?.toGMTString() ?? '—'}
