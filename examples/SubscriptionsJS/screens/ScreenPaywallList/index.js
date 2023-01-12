@@ -1,1 +1,0 @@
-export {ScreenPaywallList} from './ScreenPaywallList';
