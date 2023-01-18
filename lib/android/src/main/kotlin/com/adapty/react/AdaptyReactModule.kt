@@ -5,7 +5,7 @@ import com.facebook.react.bridge.*
 
 class AdaptyReactModule(reactContext: ReactApplicationContext):
     ReactContextBaseJavaModule(reactContext) {
-    private val callHandler = AdaptyCallHandler(CrossplatformHelper.create(), currentActivity, reactContext)
+    private val callHandler = AdaptyCallHandler(CrossplatformHelper.create(), reactContext)
 
     override fun getName(): String {
         return "RNAdapty"
@@ -23,6 +23,6 @@ class AdaptyReactModule(reactContext: ReactApplicationContext):
 
     @ReactMethod
     fun handle(methodName: String, args: ReadableMap, promise: Promise) {
-        callHandler.handle(methodName, args, promise)
+        callHandler.handle(methodName, args, promise, currentActivity)
     }
 }

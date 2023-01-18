@@ -14,12 +14,11 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 
 internal class AdaptyCallHandler(
     private val helper: CrossplatformHelper,
-    private val activity: Activity?,
     private val reactApplicationContext: ReactApplicationContext
     ) {
 
-    fun handle(methodName: String, args: ReadableMap, promise: Promise) {
-        val ctx = AdaptyContext(methodName, args, promise, helper)
+    fun handle(methodName: String, args: ReadableMap, promise: Promise, activity: Activity?) {
+        val ctx = AdaptyContext(methodName, args, promise, helper, activity)
 
         when (ctx.method) {
             ACTIVATE -> handleActivate(ctx)
@@ -134,14 +133,13 @@ internal class AdaptyCallHandler(
         val subscriptionUpdateParams =
             ctx.parseJsonArgument<AdaptySubscriptionUpdateParameters>(PARAMS)
 
-        activity?.let { activity ->
+        ctx.activity?.let {
             Adapty.makePurchase(
-                activity,
+                it,
                 product,
                 subscriptionUpdateParams,
             ) { adaptyResult -> ctx.resolve(adaptyResult) }
         }
-
     }
 
     private fun handleRestorePurchases(ctx: AdaptyContext) {

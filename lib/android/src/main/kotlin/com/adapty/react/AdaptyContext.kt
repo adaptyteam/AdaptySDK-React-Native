@@ -1,5 +1,6 @@
 package com.adapty.react
 
+import android.app.Activity
 import com.adapty.errors.AdaptyError
 import com.adapty.internal.crossplatform.CrossplatformHelper
 import com.adapty.utils.AdaptyResult
@@ -11,6 +12,7 @@ class AdaptyContext(
     val args: ReadableMap,
     private val promise: Promise,
     val helper: CrossplatformHelper,
+    val activity: Activity?
 ) {
 
     fun resolve(result: AdaptyResult<*>) {
