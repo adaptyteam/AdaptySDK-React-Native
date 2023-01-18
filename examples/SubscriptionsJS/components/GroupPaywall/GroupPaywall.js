@@ -48,6 +48,7 @@ export const GroupPaywall = ({paywallId, postfix}) => {
 
         {products.map(product => (
           <LineParam
+            rightHeavy
             key={product.vendorProductId}
             label={product.localizedTitle}
             value={product.localizedPrice}

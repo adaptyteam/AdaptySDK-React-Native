@@ -15,7 +15,8 @@ export const Line = ({
       disabled={!onPress}
       onPress={onPress}
       style={({pressed}) => ({
-        backgroundColor: pressed ? PlatformColor('systemGray2') : 'transparent',
+        // backgroundColor: pressed ? PlatformColor('systemGray2') : 'transparent',
+        backgroundColor: pressed ? '#AEAEB2FF' : 'transparent',
         paddingHorizontal: 16,
         paddingVertical: 12,
         ...(topRadius && {
@@ -27,7 +28,8 @@ export const Line = ({
           borderBottomRightRadius: 8,
         }),
         ...(bordered && {
-          borderBottomColor: PlatformColor('systemGray6'),
+          // borderBottomColor: PlatformColor('systemGray6'),
+          borderBottomColor: '#F2F2F7FF',
           borderBottomWidth: 1,
         }),
       })}>

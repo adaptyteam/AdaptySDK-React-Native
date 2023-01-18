@@ -21,7 +21,8 @@ export const LineInput = ({
         editable={editable}
         style={{
           fontSize: 15,
-          ...(!editable && {color: PlatformColor('systemGray')}),
+          // ...(!editable && {color: PlatformColor('systemGray')}),
+          ...(!editable && {color: '#8E8E93FF'}),
         }}
         placeholder={placeholder}
         onChangeText={text => onChange(text)}

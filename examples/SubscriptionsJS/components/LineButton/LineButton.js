@@ -30,9 +30,10 @@ export const LineButton = ({
       loading={isProcessing || loading}>
       <Text
         style={{
-          color: disabled
-            ? PlatformColor('systemGray')
-            : PlatformColor(red ? 'systemRed' : 'systemBlue'),
+          // color: disabled
+          //   ? PlatformColor('systemGray')
+          //   : PlatformColor(red ? 'systemRed' : 'systemBlue'),
+          color: disabled ? '#8E8E93FF' : red ? '#FF3B30FF' : '#007AFFFF',
           fontSize: 15,
         }}>
         {text}

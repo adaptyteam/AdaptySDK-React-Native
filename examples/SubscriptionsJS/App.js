@@ -88,7 +88,8 @@ const App = () => {
 
   return (
     <SafeAreaView
-      style={{backgroundColor: PlatformColor('systemGray5'), height}}>
+      // style={{backgroundColor: PlatformColor('systemGray5'), height}}>
+      style={{backgroundColor: '#E5E5EAFF', height}}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.primary10} />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         {/* <Header /> */}
