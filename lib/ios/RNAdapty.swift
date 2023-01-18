@@ -370,44 +370,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         Adapty.getProfile() { _ in
             resolver(json)
         }
-
     }
-    
-    // MARK: - @Deprecated
-    
-    //
-    //    @objc
-    //    func setExternalAnalyticsEnabled(_ isEnabled: Bool,
-    //                                     resolver resolve: @escaping RCTPromiseResolveBlock,
-    //                                     rejecter reject: @escaping RCTPromiseRejectBlock) {
-    //        Adapty.setExternalAnalyticsEnabled(isEnabled) { (error) in
-    //            if let error = error {
-    //                let (c, json, err) = Utils.unwrapError(error)
-    //                return reject(c, json, err)
-    //            }
-    //            resolve(nil)
-    //        }
-    //    }
-    //
-    //    @objc
-    //    func getAPNSToken(_ resolve: @escaping RCTPromiseResolveBlock,
-    //                      rejecter reject: @escaping RCTPromiseRejectBlock) {
-    //        return resolve(Adapty.apnsTokenString)
-    //    }
-    //
-    //    @objc
-    //    func setAPNSToken(_ apns: String,
-    //                      resolver resolve: @escaping RCTPromiseResolveBlock,
-    //                      rejecter reject: @escaping RCTPromiseRejectBlock) {
-    //        guard let utf8Str = apns.data(using: .utf8) else {
-    //            let (c, json, err) = Utils.unwrapCustomError("Invalid APNS Token passed")
-    //            return reject(c, json, err)
-    //        }
-    //
-    //        let base64Encoded = utf8Str.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
-    //        Adapty.apnsToken = Data(base64Encoded: base64Encoded)
-    //        resolve(nil)
-    //    }
 }
 
 extension AdaptyProductsFetchPolicy {
