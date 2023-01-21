@@ -43,6 +43,14 @@ export class AdaptyError extends Error {
     AdaptyError.middleware = callback;
   }
 
+  public static notInitializedError(): AdaptyError {
+    return new AdaptyError({
+      adaptyCode: 2002,
+      localizedDescription: 'Adapty SDK is not initialized.',
+      logFmt: `#${2002} (${ErrorCode[2002]}): Adapty SDK is not initialized.`,
+    });
+  }
+
   public static tryWrap(error: unknown): AdaptyError {
     const nativeError = new BridgeError(error as any);
 

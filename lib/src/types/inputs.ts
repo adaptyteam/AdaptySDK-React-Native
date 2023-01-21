@@ -1,3 +1,4 @@
+import { Adapty } from '../sdk/adapty';
 /**
  * Log levels for the SDK
  *
@@ -57,7 +58,7 @@ export const FetchPolicy = Object.freeze({
 export type FetchPolicy = typeof FetchPolicy[keyof typeof FetchPolicy];
 
 /**
- * Describes optional parameters for the {@link activate} method.
+ * Describes optional parameters for the {@link Adapty.activate} method.
  */
 export interface ActivateParamsInput {
   /**
@@ -89,6 +90,12 @@ export interface ActivateParamsInput {
    * @defaultValue `VERBOSE`
    */
   logLevel?: LogLevel;
+
+  /**
+   * Locks methods threads until the SDK is ready.
+   * @defaultValue `false`
+   */
+  lockMethodsUntilReady?: boolean;
 }
 
 export interface GetPaywallProductsParamsInput {
