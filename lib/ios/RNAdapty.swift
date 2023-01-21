@@ -2,446 +2,402 @@ import Foundation
 import Adapty
 
 @objc(RNAdapty)
-class RNAdapty: RCTEventEmitter, AdaptyDelegate {
-  private var hasListeners = false
-  private var paywalls = [PaywallModel]()
-  private var products = [ProductModel]()
+class RNAdapty: RCTEventEmitter, AdaptyDelegate {    
+    // MARK: - Delegate
 
-  private var promoPaywalls = [PaywallModel]()
-  private var promoProducts = [ProductModel]()
-
-  override static func requiresMainQueueSetup() -> Bool {
-    return true
-  }
-  override func startObserving() {
-      self.hasListeners = true
-  }
-  override func stopObserving() {
-      self.hasListeners = false
-  }
-
-  override func supportedEvents() -> [String]! {
-    return ["onPromoReceived", "onInfoUpdate", "onDeferredPurchase"]
-  }
-
-  //  Events
-  func didReceivePromo(_ promo: PromoModel) {
-      if !self.hasListeners {
-      return
+    /// TODO: Describe why
+    override static func requiresMainQueueSetup() -> Bool {
+        return true
     }
 
-    let json = Utils.encodeJson(from: promo)
-    self.sendEvent(withName: "onPromoReceived", body: json)
-  }
-  func didReceiveUpdatedPurchaserInfo(_ info: PurchaserInfoModel) {
-      if !self.hasListeners {
-        return
-      }
-
-      let json = Utils.encodeJson(from: info)
-      self.sendEvent(withName: "onInfoUpdate", body: json)
-  }
-  func paymentQueue(shouldAddStorePaymentFor product: ProductModel, defermentCompletion makeDeferredPurchase: @escaping DeferredPurchaseCompletion) {
-      if !self.hasListeners {
-        return
-      }
-
-      let json = Utils.encodeJson(from: AdaptyProduct(product, nil))
-      self.sendEvent(withName: "onDeferredPurchase", body: json)
-  }
-
-  // Private
-  private func cachePaywalls(_ paywalls: [PaywallModel]?) {
-    self.paywalls.removeAll()
-    if let paywalls = paywalls {
-      self.paywalls.append(contentsOf: paywalls)
-    }
-  }
-  private func cacheProducts(_ products: [ProductModel]?) {
-    self.products.removeAll()
-    if let products = products {
-      self.products.append(contentsOf: products)
-    }
-  }
-  private func cachePromoPaywalls(_ paywall: PaywallModel) {
-    self.promoPaywalls.removeAll()
-    self.promoPaywalls.append(paywall)
-  }
-  private func cachePromoProducts(_ products: [ProductModel]?) {
-    self.promoProducts.removeAll()
-    if let products = products {
-      self.promoProducts.append(contentsOf: products)
-    }
-  }
-
-  //  Public
-  @objc
-  func activate(_ sdkKey: String, uId: String?, observerMode: Bool, logLevel: String) {
-    Adapty.activate(sdkKey, observerMode: observerMode, customerUserId: uId)
-    Adapty.delegate = self
-
-    switch logLevel {
-    case "verbose":
-      Adapty.logLevel = .verbose
-    case "errors":
-      Adapty.logLevel = .errors
-    case "all":
-      Adapty.logLevel = .all
-    default:
-      Adapty.logLevel = .none
-    }
-  }
-
-  @objc
-  func updateAttribution(_ dict: NSDictionary,
-                         source: String,
-                         networkUserId: String,
-                         resolver resolve: @escaping RCTPromiseResolveBlock,
-                         rejecter reject: @escaping RCTPromiseRejectBlock) {
-    guard let attribution = dict as? [AnyHashable: Any] else {
-      let (c, json, err) = Utils.unwrapCustomError("Failed to convert object to [AnyHashable: Any]")
-      return reject(c, json, err)
+    override func supportedEvents() -> [String]! {
+        return [
+            EventName.onDeferredPurchase.rawValue,
+            EventName.onLatestProfileLoad.rawValue,
+        ]
     }
 
-    func parseSource(_ str: String) -> AttributionNetwork {
-      switch str {
-      case "Branch":
-        return .branch
-      case "Adjust":
-        return .adjust
-      case "AppsFlyer":
-        return .appsflyer
-      case "AppleSearchAds":
-        return .appleSearchAds
-      default:
-        return .custom
-      }
+    /// Adapty delegate function
+    func didLoadLatestProfile(_ profile: AdaptyProfile) {
+        if !self.hasListeners {
+            return
+        }
+        
+        guard let data = try? AdaptyContext.jsonEncoder.encode(profile),
+              let str = String(data: data, encoding: .utf8)
+        else {
+            // should not happen
+            return self.sendEvent(
+                withName: EventName.onLatestProfileLoad.rawValue,
+                body: "null")
+        }
+        
+
+        self.sendEvent(withName: EventName.onLatestProfileLoad.rawValue, body: str)
     }
 
-    Adapty.updateAttribution(attribution,
-                             source: parseSource(source),
-                             networkUserId: networkUserId) { (error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
+    /// TODO: Describe why
+    private var hasListeners = false
 
-      return resolve(nil)
+    override func startObserving() {
+        self.hasListeners = true
     }
-  }
-
-  @objc
-  func setExternalAnalyticsEnabled(_ isEnabled: Bool,
-                                   resolver resolve: @escaping RCTPromiseResolveBlock,
-                                   rejecter reject: @escaping RCTPromiseRejectBlock) {
-    Adapty.setExternalAnalyticsEnabled(isEnabled) { (error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
-      resolve(nil)
-    }
-  }
-
-  @objc
-  func setFallbackPaywalls(_ paywalls: String,
-                resolver resolve: @escaping RCTPromiseResolveBlock,
-                rejecter reject: @escaping RCTPromiseRejectBlock) {
-    Adapty.setFallbackPaywalls(paywalls) { (error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
-      resolve(nil)
-    }
-  }
-
-  @objc
-  func logShowPaywall(_ variationId: String,
-                      resolver resolve: @escaping RCTPromiseResolveBlock,
-                      rejecter reject: @escaping RCTPromiseRejectBlock) {
-    guard let paywall = paywalls.first(where: { $0.variationId == variationId }) else {
-      let (c, json, err) = Utils.unwrapCustomError("Paywall with such variation ID wasn't found")
-      return reject(c, json, err)
-    }
-      
-    Adapty.logShowPaywall(paywall)
-    resolve(nil)
-  }
-
-  @objc
-  func getAPNSToken(_ resolve: @escaping RCTPromiseResolveBlock,
-                    rejecter reject: @escaping RCTPromiseRejectBlock) {
-    return resolve(Adapty.apnsTokenString)
-   }
-
-  @objc
-  func setAPNSToken(_ apns: String,
-                    resolver resolve: @escaping RCTPromiseResolveBlock,
-                    rejecter reject: @escaping RCTPromiseRejectBlock) {
-    guard let utf8Str = apns.data(using: .utf8) else {
-      let (c, json, err) = Utils.unwrapCustomError("Invalid APNS Token passed")
-      return reject(c, json, err)
-     }
-
-     let base64Encoded = utf8Str.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
-     Adapty.apnsToken = Data(base64Encoded: base64Encoded)
-     resolve(nil)
-   }
-
-  @objc
-  func identify(_ uId: String,
-                resolver resolve: @escaping RCTPromiseResolveBlock,
-                rejecter reject: @escaping RCTPromiseRejectBlock) {
-   Adapty.identify(uId) { (error) in
-    if let error = error {
-      let (c, json, err) = Utils.unwrapError(error)
-      return reject(c, json, err)
+    override func stopObserving() {
+        self.hasListeners = false
     }
 
-    return resolve(nil)
-   }
-  }
+//    func shouldAddStorePayment(for product: AdaptyDeferredProduct,
+//                               defermentCompletion makeDeferredPurchase: @escaping (AdaptyResultCompletion<AdaptyProfile>?) -> Void) -> Bool {
+//        if !self.hasListeners {
+//            return
+//        }
+//
+//        let json = Utils.encodeJson(from: AdaptyProduct(product, nil))
+//        self.sendEvent(withName: "onDeferredPurchase", body: json)
+//    }
 
-  @objc
-  func logout(_ resolve: @escaping RCTPromiseResolveBlock,
-              rejecter reject: @escaping RCTPromiseRejectBlock) {
-    Adapty.logout { (error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
+    // MARK: - Handle router
 
-      return resolve(nil)
+    /// `handle` is the main function, that routes calls to a corresponding function
+    /// and wraps controllers into a `AdaptyContext`
+    ///
+    /// Since currently synchronous bridge calls are not production-ready,
+    /// all functions are considered asynchronous
+    ///
+    /// Definitions are sorted alphabetically
+    @objc public func handle(
+        _ method: NSString,
+        args: NSDictionary,
+        resolver: @escaping RCTPromiseResolveBlock,
+        rejecter: @escaping RCTPromiseRejectBlock
+    ) {
+        let ctx = AdaptyContext(
+            args: args,
+            resolver: resolver,
+            rejecter: rejecter
+        )
+
+        switch MethodName(rawValue: method as String) ?? .notImplemented {
+            // Activation
+            case .activate: handleActivate(ctx)
+            // Attribution
+            case .updateAttribution: handleUpdateAttribution(ctx)
+            // Paywalls
+            case .getPaywall: handleGetPaywall(ctx)
+            case .getPaywallProducts: handleGetPaywallProducts(ctx)
+            case .logShowOnboarding: handleLogShowOnboarding(ctx)
+            case .logShowPaywall: handleLogShowPaywall(ctx)
+            case .setFallbackPaywalls: handleSetFallbackPaywalls(ctx)
+            case .setVariationId: handleSetVariationId(ctx)
+            // Profile
+            case .getProfile: handleGetProfile(ctx)
+            case .identify: handleIdentify(ctx)
+            case .logout: handleLogout(ctx)
+            case .updateProfile: handleUpdateProfile(ctx)
+            // Purchases
+            case .makePurchase: handleMakePurchase(ctx)
+            case .presentCodeRedemptionSheet: handlePresentCodeRedemptionSheet(ctx)
+            case .restorePurchases: handleRestorePurchases(ctx)
+            // Utilities
+            case .setLogLevel: handleSetLogLevel(ctx)
+            case .testWrap: handleTestWrap(ctx, resolver: resolver)
+            
+            default: ctx.notImplemented()
+        }
     }
-  }
+    
+    // MARK: - Activation
+    
+    private func handleActivate(_ ctx: AdaptyContext) {
+        guard let token = ctx.args[Const.SDK_KEY] as? String else {
+            return ctx.argNotFound(name: Const.SDK_KEY)
+        }
+        guard let customerUserId = ctx.args[Const.USER_ID] as? String? else {
+            return ctx.argNotFound(name: Const.USER_ID)
+        }
+        guard let observerMode = ctx.args[Const.OBSERVER_MODE] as? Bool? else {
+            return ctx.argNotFound(name: Const.OBSERVER_MODE)
+        }
+        guard let logLevel = ctx.args[Const.LOG_LEVEL] as? String? else {
+            return ctx.argNotFound(name: Const.LOG_LEVEL)
+        }
+        
+        Adapty.activate(
+            token,
+            observerMode: observerMode ?? false,
+            customerUserId: customerUserId
+        ) { result in
+            switch result {
+            case .none:
+                if let logLevel = logLevel,
+                   let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
+                    Adapty.logLevel = level
+                }
 
-  @objc
-  func updateProfile(_ dict: NSDictionary,
-                     resolver resolve: @escaping RCTPromiseResolveBlock,
-                     rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let params = ProfileParameterBuilder()
-
-    if let email = dict.value(forKey: "email") as? String ?? nil {
-      _ = params.withEmail(email)
+                ctx.resolve()
+                
+            case let .some(error):
+                ctx.err(error)
+            }
+        }
+        
+        Adapty.delegate = self
     }
-    if let phoneNumber = dict.value(forKey: "phoneNumber") as? String ?? nil {
-      _ = params.withPhoneNumber(phoneNumber)
+    
+    // MARK: - Attribution
+    
+    private func handleUpdateAttribution(_ ctx: AdaptyContext) {
+        guard let attribution = ctx.args[Const.ATTRIBUTION] as? [AnyHashable: Any] else {
+            return ctx.argNotFound(name: Const.ATTRIBUTION)
+        }
+        guard let sourceString = ctx.args[Const.SOURCE] as? String,
+              let source = AdaptyAttributionSource(rawValue: sourceString) else {
+            return ctx.argNotFound(name: Const.SOURCE)
+        }
+        guard let networkUserId = ctx.args[Const.NETWORK_USER_ID] as? String? else {
+            return ctx.argNotFound(name: Const.NETWORK_USER_ID)
+        }
+        
+        Adapty.updateAttribution(attribution, source: source, networkUserId: networkUserId) { maybeErr in
+            ctx.resolveIfOk(maybeErr)
+        }
+    }   
+    
+    // MARK: - Paywalls
+    
+    private func handleGetPaywall(_ ctx: AdaptyContext) {
+        guard let id = ctx.args[Const.ID] as? String else {
+            return ctx.argNotFound(name: Const.ID)
+        }
+        
+        Adapty.getPaywall(id) { result in
+            switch result {
+            case let .success(paywall):
+                ctx.resolve(data: paywall)
+            case let .failure(error):
+                ctx.err(error)
+            }
+        }
     }
-    if let facebookUserId = dict.value(forKey: "facebookUserId") as?  String ?? nil {
-      _ = params.withFacebookUserId(facebookUserId)
+    
+    private func handleGetPaywallProducts(_ ctx: AdaptyContext) {
+        guard let paywallString = ctx.args[Const.PAYWALL] as? String,
+              let paywallData = paywallString.data(using: .utf8),
+              let paywall = try? AdaptyContext.jsonDecoder.decode(AdaptyPaywall.self, from: paywallData) else {
+            return ctx.argNotFound(name: Const.PAYWALL)
+        }
+
+        guard let fetchPolicyJSON = ctx.args[Const.FETCH_POLICY] as? String,
+              let fetchPolicy = AdaptyProductsFetchPolicy.fromJSONValue(fetchPolicyJSON) else {
+            return ctx.argNotFound(name: Const.FETCH_POLICY)
+        }
+
+        Adapty.getPaywallProducts(paywall: paywall, fetchPolicy: fetchPolicy) { result in
+            switch result {
+            case let .success(products):
+                ctx.resolve(data: products)
+            case let .failure(error):
+                ctx.err(error)
+            }
+        }
     }
-    if let facebookAnonymousId = dict.value(forKey: "facebookAnonymousId") as? String ?? nil {
-      _ = params.withFacebookAnonymousId(facebookAnonymousId)
+    
+    private func handleLogShowOnboarding(_ ctx: AdaptyContext) {
+        guard let onboardingString = ctx.args[Const.ONBOARDING_PARAMS] as? String,
+              let onboardingData = onboardingString.data(using: .utf8),
+              let onboardingParams = try? AdaptyContext.jsonDecoder.decode(AdaptyOnboardingScreenParameters.self, from: onboardingData) else {
+            return ctx.argNotFound(name: Const.ONBOARDING_PARAMS)
+        }
+        
+        Adapty.logShowOnboarding(onboardingParams) { maybeErr in
+            ctx.resolveIfOk(maybeErr)
+        }
     }
-    if let amplitudeUserId = dict.value(forKey: "amplitudeUserId") as? String ?? nil {
-      _ = params.withAmplitudeUserId(amplitudeUserId)
+    
+    private func handleLogShowPaywall(_ ctx: AdaptyContext) {
+        guard let paywallString = ctx.args[Const.PAYWALL] as? String,
+              let paywallData = paywallString.data(using: .utf8),
+              let paywall = try? AdaptyContext.jsonDecoder.decode(AdaptyPaywall.self, from: paywallData) else {
+            return ctx.argNotFound(name: Const.PAYWALL)
+        }
+        
+        Adapty.logShowPaywall(paywall) { maybeErr in
+            ctx.resolveIfOk(maybeErr)
+        }
     }
-    if let amplitudeDeviceId = dict.value(forKey: "amplitudeDeviceId") as? String ?? nil {
-      _ = params.withAmplitudeDeviceId(amplitudeDeviceId)
+    
+    private func handleSetFallbackPaywalls(_ ctx: AdaptyContext) {
+        guard let paywallsString = ctx.args[Const.PAYWALLS] as? String,
+              let paywallsData = paywallsString.data(using: .utf8) else {
+            return ctx.argNotFound(name: Const.PAYWALLS)
+        }
+        
+        Adapty.setFallbackPaywalls(paywallsData) { maybeErr in
+            ctx.resolveIfOk(maybeErr)
+        }
     }
-    if let mixpanelUserId = dict.value(forKey: "mixpanelUserId") as? String ?? nil {
-      _ = params.withMixpanelUserId(mixpanelUserId)
+    
+    private func handleSetVariationId(_ ctx: AdaptyContext) {
+        guard let variationId = ctx.args[Const.VARIATION_ID] as? String else {
+            return ctx.argNotFound(name: Const.VARIATION_ID)
+        }
+        
+        guard let transactionId = ctx.args[Const.TRANSACTION_ID] as? String else {
+            return ctx.argNotFound(name: Const.TRANSACTION_ID)
+        }
+        
+        Adapty.setVariationId(variationId, forTransactionId: transactionId) { maybeErr in
+            ctx.resolveIfOk(maybeErr)
+        }
     }
-    if let appmetricaProfileId = dict.value(forKey: "appmetricaProfileId") as? String ?? nil {
-      _ = params.withAppmetricaProfileId(appmetricaProfileId)
+    
+    // MARK: - Profile
+    
+    private func handleGetProfile(_ ctx: AdaptyContext) {
+        Adapty.getProfile { result in
+            switch result {
+            case let .success(profile): return ctx.resolve(data: profile)
+            case let .failure(error): return ctx.err(error)
+            }
+        }
     }
-    if let appmetricaDeviceId = dict.value(forKey: "appmetricaDeviceId") as? String ?? nil {
-      _ = params.withAppmetricaDeviceId(appmetricaDeviceId)
+    
+    private func handleIdentify(_ ctx: AdaptyContext) {
+        guard let customerUserId = ctx.args[Const.USER_ID] as? String else {
+            return ctx.argNotFound(name: Const.USER_ID)
+        }
+        
+        Adapty.identify(customerUserId) { maybeErr in
+            ctx.resolveIfOk(maybeErr)
+        }
     }
-    if let firstName = dict.value(forKey: "firstName") as? String ?? nil {
-      _ = params.withFirstName(firstName)
+    
+    private func handleLogout(_ ctx: AdaptyContext) {
+        Adapty.logout { maybeErr in
+            ctx.resolveIfOk(maybeErr)
+        }
     }
-    if let lastName = dict.value(forKey: "lastName") as? String ?? nil {
-      _ = params.withLastName(lastName)
+    
+    private func handleUpdateProfile(_ ctx: AdaptyContext) {
+        guard let paramsString = ctx.args[Const.PARAMS] as? String,
+              let paramsData = paramsString.data(using: .utf8),
+              let params = try? AdaptyContext.jsonDecoder.decode(AdaptyProfileParameters.self, from: paramsData) else {
+            return ctx.argNotFound(name: Const.PARAMS)
+        }
+        
+        Adapty.updateProfile(params: params) { maybeErr in
+            ctx.resolveIfOk(maybeErr)
+        }
     }
-    if let gender = dict.value(forKey: "gender") as? String ?? nil {
-      switch gender {
-      case "male": _ = params.withGender(Gender.male)
-      case "female": _ = params.withGender(Gender.female)
-      default: _ = params.withGender(Gender.other)
-      }
+    
+    // MARK: - Purchases
+    
+    private func handleMakePurchase(_ ctx: AdaptyContext) {
+        guard let productStr = ctx.args[Const.PRODUCT] as? String,
+              let productData = productStr.data(using: .utf8) else {
+            return ctx.argNotFound(name: Const.PRODUCT)
+        }
+        
+        Adapty.getPaywallProduct(from: AdaptyContext.jsonDecoder, data: productData) { skProduct in
+            switch skProduct {
+            case let .failure(locate_error):
+                return ctx.err(locate_error)
+                
+            case let .success(product):
+                Adapty.makePurchase(product: product) { result in
+                    switch result {
+                    case let .failure(error):
+                        return ctx.err(error)
+                        
+                    case let .success(profile):
+                        return ctx.resolve(data: profile)
+                    }
+                }
+            }
+        }
     }
-    if let birthdayStr = dict.value(forKey: "birthday") as? String ?? nil {
-      let dateFormatter = DateFormatter()
-      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-
-      if let birthday = dateFormatter.date(from: birthdayStr) {
-        _ = params.withBirthday(birthday)
-      }
+    
+    private func handlePresentCodeRedemptionSheet(_ ctx: AdaptyContext) {
+        Adapty.presentCodeRedemptionSheet()
+        ctx.resolve()
     }
-
-    if let customObj = dict.value(forKey: "customAttributes") as? NSDictionary ?? nil {
-      var customAttributes: [String: AnyObject] = [:]
-
-      let keys = customObj.allKeys.compactMap { $0 as? String }
-      for key in keys {
-        let keyValue = customObj.value(forKey: key) as AnyObject
-        customAttributes[key] = keyValue
-      }
-
-      _ = params.withCustomAttributes(customAttributes)
+    
+    private func handleRestorePurchases(_ ctx: AdaptyContext) {
+        Adapty.restorePurchases { result in
+            switch result {
+            case let .success(profile):
+                ctx.resolve(data: profile)
+            case let .failure(error):
+                ctx.err(error)
+            }
+        }
     }
-
-    Adapty.updateProfile(params: params) { (error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
-      return resolve(nil)
+    
+    // MARK: - Utilities
+    
+    private func handleSetLogLevel(_ ctx: AdaptyContext) {
+        guard let valueStr = ctx.args[Const.VALUE] as? String,
+              let logLevel = AdaptyLogLevel.fromBridgeValue(valueStr) else {
+            return ctx.argNotFound(name: Const.VALUE)
+        }
+        
+        Adapty.logLevel = logLevel
+        ctx.resolve()
     }
-  }
-
-  @objc
-  func makePurchase(_ productId: String, variationId: String?,
-                    offerId: String?,
-                    resolver resolve: @escaping RCTPromiseResolveBlock,
-                    rejecter reject: @escaping  RCTPromiseRejectBlock) {
-    guard let product = findProduct(productId: productId, variationId: variationId) else {
-      let (c, json, err) = Utils.unwrapCustomError("Product with such ID wasn't found", adaptyCode: .noProductsFound)
-      return reject(c, json, err)
+    
+    private func handleTestWrap(_ ctx: AdaptyContext,
+                                resolver: @escaping RCTPromiseResolveBlock) {
+        if let shouldReject = ctx.args["error"] as? Bool {
+            if shouldReject {
+                return ctx.reject(dataStr: "Rejected")
+            }
+        }
+        
+        guard let jsonData = try? JSONSerialization.data(
+            withJSONObject: ctx.nsArgs,
+            options: JSONSerialization.WritingOptions.prettyPrinted
+        ) else {
+            return ctx.failedToSerialize()
+        }
+        
+        
+        let json = NSString(
+            data: jsonData,
+            encoding: NSUTF8StringEncoding
+        )! as String
+        
+        
+        Adapty.getProfile() { _ in
+            resolver(json)
+        }
     }
+}
 
-    Adapty.makePurchase(product: product, offerId: offerId) {
-      (purchaserInfo, receipt, _, product, error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
-
-      var adaptyProduct: AdaptyProduct?
-      if let product = product {
-        adaptyProduct = AdaptyProduct.init(product, variationId)
-      }
-
-      let result = MakePurchaseResult(purchaserInfo: purchaserInfo,
-                         receipt: receipt,
-                         product: adaptyProduct)
-
-      return resolve(Utils.encodeJson(from: result))
+extension AdaptyProductsFetchPolicy {
+    static func fromJSONValue(_ value: String) -> AdaptyProductsFetchPolicy? {
+        switch value {
+        case "wait_for_receipt_validation":
+            return .waitForReceiptValidation
+        default:
+            return .default
+        }
     }
-  }
+}
 
-  @objc
-  func getPurchaseInfo(_ options: NSDictionary,
-                       resolver resolve: @escaping RCTPromiseResolveBlock,
-                       rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let forceUpdate = options.value(forKey: "forceUpdate") as? Bool ?? false
-    Adapty.getPurchaserInfo(forceUpdate: forceUpdate) { (info, error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
-      return resolve(Utils.encodeJson(from: info))
+
+extension AdaptyLogLevel {
+    static func fromBridgeValue(_ value: String) -> AdaptyLogLevel? {
+        switch value {
+        case LogLevelBridge.ERROR:
+            return .error
+        case LogLevelBridge.INFO:
+            return .info
+        case LogLevelBridge.VERBOSE:
+            return .verbose
+        case LogLevelBridge.WARN:
+            return .warn
+        default:
+            return nil
+        }
     }
-  }
-
-  @objc
-  func restorePurchases(_ resolve: @escaping RCTPromiseResolveBlock,
-                        rejecter reject: @escaping RCTPromiseRejectBlock) {
-    Adapty.restorePurchases { (purchaserInfo, receipt, _, error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
-
-      let result = RestorePurchasesResult(purchaserInfo: purchaserInfo,
-                                          receipt: receipt)
-      return resolve(Utils.encodeJson(from: result))
-    }
-  }
-
-  @objc
-  func getPromo(_ resolve: @escaping RCTPromiseResolveBlock,
-                rejecter reject: @escaping RCTPromiseRejectBlock) {
-    Adapty.getPromo { (promo, error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
-
-      if let paywall = promo?.paywall {
-        self.cachePromoPaywalls(paywall)
-        self.cachePromoProducts(paywall.products)
-      }
-
-      return resolve(Utils.encodeJson(from: promo))
-    }
-  }
-
-  @objc
-  func setVariationID(_ variationId: String,
-                      transactionId: String,
-                      resolver resolve: @escaping RCTPromiseResolveBlock,
-                      rejecter reject: @escaping RCTPromiseRejectBlock
-                      ) {
-    Adapty.setVariationId(variationId, forTransactionId: transactionId) {(error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-            return reject(c, json, err)
-      }
-      resolve(nil)
-    }
-  }
-
-  @objc
-  func presentCodeRedemptionSheet() {
-    Adapty.presentCodeRedemptionSheet()
-  }
-
-  @objc
-  func getPaywalls(_ options: NSDictionary,
-                   resolver resolve: @escaping RCTPromiseResolveBlock,
-                   rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let forceUpdate = options.value(forKey: "forceUpdate") as? Bool ?? false
-
-    Adapty.getPaywalls(forceUpdate: forceUpdate) { (paywalls, products, error) in
-      if let error = error {
-        let (c, json, err) = Utils.unwrapError(error)
-        return reject(c, json, err)
-      }
-
-      self.cachePaywalls(paywalls)
-      self.cacheProducts(products)
-
-      let prods = products?.map { AdaptyProduct.init($0, nil) }
-      let paywallsAdapty = paywalls?.map { AdaptyPaywall.init($0) }
-
-      let result = GetPaywallsResult(paywalls: paywallsAdapty, products: prods)
-      return resolve(Utils.encodeJson(from: result))
-    }
-  }
-
-  private func findProduct(productId: String, variationId: String?) -> ProductModel? {
-    guard let variationId = variationId else {
-      if let anyProduct = products.first(where: { $0.vendorProductId == productId }) {
-        return anyProduct
-      }
-
-      if let anyPromoProduct = promoProducts.first(where: { $0.vendorProductId == productId }) {
-        return anyPromoProduct
-      }
-
-      return nil
-    }
-
-    let product = paywalls.first(where: { $0.variationId == variationId })?.products.first(where: { $0.vendorProductId == productId })
-
-    if product == nil {
-      let promoProduct = promoPaywalls.first(where: { $0.variationId == variationId })?.products.first(where: {$0.vendorProductId == productId })
-
-      if let result = promoProduct {
-        return result
-      }
-
-      if let anyProduct = products.first(where: { $0.vendorProductId == productId }) {
-        return anyProduct
-      }
-      if let anyPromoProduct = promoProducts.first(where: { $0.vendorProductId == productId }) {
-        return anyPromoProduct
-      }
-    }
-
-    return product
- }
 }

@@ -1,12 +1,24 @@
 buildscript {
+    ext.kotlin_version = '1.4.20'
+
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
+        classpath 'com.android.tools.build:gradle:4.1.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+String localMavenPath = project.mkdir("localMaven").absolutePath
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }
+        maven { url "file://$localMavenPath" }
     }
 }
 
@@ -25,6 +37,10 @@ apply plugin: 'maven-publish'
 android {
     compileSdkVersion safeExtGetInt('compileSdkVersion')
     buildToolsVersion safeExtGet('buildToolsVersion')
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 
     defaultConfig {
         minSdkVersion safeExtGetInt('minSdkVersion')
@@ -61,10 +77,10 @@ repositories {
 }
 
 dependencies {
-    api 'com.github.adaptyteam:AdaptySDK-Android:1.12.0'
+    api 'com.github.adaptyteam:AdaptySDK-Android:2.2.2'
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.21"
-    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.ext.kotlin_version}"
     implementation 'com.android.billingclient:billing:4.1.0'
+    implementation 'com.adapty.internal:crossplatform:2.2.1'
 }

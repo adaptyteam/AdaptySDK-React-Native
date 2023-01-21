@@ -1,0 +1,1 @@
+export {GroupProfile} from './GroupProfile';

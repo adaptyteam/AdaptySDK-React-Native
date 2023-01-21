@@ -6,6 +6,8 @@
     "esModuleInterop": true,
     "pretty": true,
     "declaration": true,
+    "declarationMap": true,
+    "stripInternal": true,
     "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
@@ -20,24 +22,25 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "noImplicitOverride": true,
-    "baseUrl": ".",
     "lib": [
       "ES2015"
     ],
-    "outDir": "./lib/dist",
+    "outDir": "lib/dist",
     "types": [
       "react-native"
-    ],
-    "paths": {
-      "react-native-adapty": [
-        "lib/src/"
-      ],
-      "react-native-adapty/*": [
-        "lib/src/*"
-      ]
-    }
+    ]
   },
   "include": [
     "./lib/src/**/*"
-  ]
+  ],
+  "typedocOptions": {
+    "entryPoints": [
+      "lib/src/sdk2/index.ts"
+    ],
+    "out": "docs",
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "includeVersion": true
+  }
 }

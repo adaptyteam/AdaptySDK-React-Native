@@ -1,0 +1,1 @@
+export {GroupPaywall} from './GroupPaywall';

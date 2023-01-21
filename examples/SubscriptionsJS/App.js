@@ -3,100 +3,90 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  View,
-  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Text,
+  Clipboard,
+  Platform,
 } from 'react-native';
+import {adapty, AdaptyError} from 'react-native-adapty';
 
-import {Header} from './components/Header';
 import {colors} from './components/Colors';
-import {Progress} from './components/Progress';
-import {adapty, activateAdapty} from 'react-native-adapty';
-import {ScreenPaywallList} from './screens/ScreenPaywallList';
-import {ScreenSubscribed} from './screens/ScreenSubscribed';
+import {Group} from './components/Group';
+import {Line} from './components/Line';
+import {CustomerUserId} from './components/CustomerUserId/CustomerUserId';
+import {LineButton} from './components/LineButton';
+import {GroupPaywall} from './components/GroupPaywall';
+import {GroupProfile} from './components/GroupProfile';
+import {LineParam} from './components/LineParam';
+import {readCredentials} from './helpers';
+
+let activated = false;
+const height = Dimensions.get('window').height;
 
 const App = () => {
-  // This is for demonstation purposes only
-  // Since your app will have static credentials, validating is redundant in your case,
-  // In this example this flag is used to show debug screen info
-  const [areCredentialsValid, setCredentialsValid] = useState(null);
-  // This is for demonstation purposes only
-  // This check is optional whereas you put Adapty activation in the root component,
-  // In this example this flag is used to show debug screen info
-  const [isAdaptyActivated, setIsAdaptyActivated] = useState(null);
-  // This is for demonstation purposes only
-  // checks, whether user access level is fetched
-  const [isUserAccessFetched, setIsUserAccessFetched] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
-  // This check is what you most probably want to use in your app
-  // to show user a premium content
-  const [isUserSubscribed, setIsUserSubscribed] = useState(null);
+  const fetchProfile = async (shouldAlert = false) => {
+    setIsLoadingProfile(true);
+
+    try {
+      console.info('[ADAPTY] Fetching user profile...');
+      const _profile = await adapty.getProfile();
+      setProfile(_profile);
+    } catch (error) {
+      console.error('[ADAPTY] Error fetching user profile', error.message);
+
+      if (shouldAlert && error instanceof AdaptyError) {
+        Alert.alert(
+          `Error fetching user profile ${error.adaptyCode}`,
+          error.localizedDescription,
+        );
+      }
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
 
   useEffect(() => {
     async function init() {
       // Check credentials (only for this example)
+      // This is for demonstation purposes only
       const token = await readCredentials();
-
       if (!token) {
-        setCredentialsValid(false);
         return;
       }
-      setCredentialsValid(true);
 
-      console.info('[ADAPTY] Activating Adapty SDK...');
-      // Async activate Adapty
-      await activateAdapty({sdkKey: token});
-      setIsAdaptyActivated(true);
+      if (!activated) {
+        activated = true;
 
-      // Set a listener to handle purchases or status updates
-      // such as subscription expiration.
-      // I think it is better to set uo a listener right after initialization
-      adapty.addEventListener('onInfoUpdate', info => {
-        console.info('[ADAPTY] event `onInfoUpdate` event received');
-
-        Object.keys(info.accessLevels).forEach(accessLevelName => {
-          const accessLevel = info.accessLevels[accessLevelName];
-          setIsUserSubscribed(accessLevel.isActive);
-
-          console.info(
-            `[ADAPTY] from received event: new access level '${accessLevelName}' status = `,
-            accessLevel.isActive ? 'ACTIVE' : 'INACTIVE',
-          );
-        });
-      });
-
-      // Check if user is subscribed on your app mount
-      console.info('[ADAPTY] Checking user subscription status...');
-      const info = await adapty.purchases.getInfo();
-      setIsUserAccessFetched(true);
-
-      // In your app you will statically know names of your access levels
-      // it would probably be "premium" (set up in Adapty dashboard)
-      // So you can check user status as `info.accessLevels.premium.isActive`
-      // Most probably you will have only one access level
-      //
-      // This example handles a case when you don't know a name of an access level
-      let hasActiveSubscription = false;
-
-      Object.keys(info.accessLevels).forEach(accessLevelName => {
-        const accessLevel = info.accessLevels[accessLevelName];
-        if (accessLevel.isActive) {
-          hasActiveSubscription = true;
+        try {
+          console.info('[ADAPTY] Activating Adapty SDK...');
+          // Async activate Adapty
+          await adapty.activate(token, {lockMethodsUntilReady: true});
+        } catch (error) {
+          console.error('[ADAPTY] Error activating Adapty SDK', error.message);
         }
-
-        setIsUserSubscribed(accessLevel.isActive);
-
-        console.info(
-          `[ADAPTY] User status for access level '${accessLevel.id}':`,
-          accessLevel.isActive ? 'active' : 'inactive',
-        );
-      });
-
-      if (!hasActiveSubscription) {
-        console.info('[ADAPTY] User has no access levels');
-        setIsUserSubscribed(false);
       }
-    }
 
+      try {
+        // Set fallback paywalls
+        const json = await Platform.select({
+          ios: import('./assets/ios_fallback.json'),
+          android: import('./assets/android_fallback.json'),
+        });
+        const str = JSON.stringify(json); // Webpack converts json string to object, but we need string here
+        await adapty.setFallbackPaywalls(str);
+      } catch {}
+
+      fetchProfile();
+
+      adapty.addEventListener('onLatestProfileLoad', profile_ => {
+        console.info('[ADAPTY] onLatestProfileLoad', profile_);
+        setProfile(profile_);
+      });
+    }
     init();
 
     return () => {
@@ -106,52 +96,234 @@ const App = () => {
     };
   }, []);
 
-  // Display content for subscribed users
-  const renderPremiumContent = () => {
-    switch (isUserSubscribed) {
-      case null:
-        // Wait until we get user subscription status
-        return <ActivityIndicator margin={48} />;
-      case false:
-        // User is not subscribed, show a paywall
-        return <ScreenPaywallList />;
-      case true:
-        // User is subscribed, show premium content
-        return <ScreenSubscribed />;
-    }
-  };
-
   return (
-    <SafeAreaView style={{backgroundColor: colors.primary10}}>
+    <SafeAreaView style={{backgroundColor: '#E5E5EAFF', height}}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.primary10} />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <Header />
-        <View style={{backgroundColor: colors.white}}>
-          <Progress
-            credentials={areCredentialsValid}
-            activation={isAdaptyActivated}
-            access={isUserAccessFetched}
+        {/* <Header /> */}
+
+        <Group title="Adapty Profile ID" postfix="👆 Tap to copy">
+          <Line
+            loading={isLoadingProfile}
+            topRadius
+            bottomRadius
+            onPress={() => {
+              Clipboard.setString(profile?.profileId);
+            }}>
+            <Text style={{fontSize: 15, flexShrink: 1}}>
+              {profile?.profileId || ' '}
+            </Text>
+          </Line>
+        </Group>
+
+        <CustomerUserId
+          profile={profile}
+          loading={isLoadingProfile}
+          onRequestIdentify={id => {
+            try {
+              console.log('[ADAPTY] Identifying user...', id);
+              adapty.identify(id);
+            } catch (error) {
+              console.log('[ADAPTY] Identify Error:', error.message);
+
+              if (error instanceof AdaptyError) {
+                Alert.alert(
+                  `Error identifying profile ${error.adaptyCode}`,
+                  error.localizedDescription,
+                );
+              }
+            }
+          }}
+        />
+
+        <GroupProfile
+          profile={profile}
+          onRequestUpdate={() => fetchProfile(true)}
+        />
+
+        <GroupPaywall
+          paywallId="example_ab_test"
+          postfix="This is an example `example_ab_test` paywall and its content"
+        />
+        <GroupPaywall />
+
+        <Group title="Other Actions">
+          <LineButton
+            text="Restore purchases"
+            bordered
+            topRadius
+            onPress={async () => {
+              try {
+                console.log('[ADPTY]: Restoring purchases...');
+                await adapty.restorePurchases();
+                // 'onLatestProfileLoad' event should be triggered to update profile
+              } catch (error) {
+                console.log('[ADPTY]: Failed to restore: ', error.message);
+
+                if (error instanceof AdaptyError) {
+                  Alert.alert(
+                    `Error restoring products #${error.adaptyCode}`,
+                    error.localizedDescription,
+                  );
+                }
+              }
+            }}
           />
-          {renderPremiumContent()}
-        </View>
+          <LineButton
+            text="Update profile"
+            bordered
+            onPress={async () => {
+              try {
+                console.log('[ADPTY]: Updating profile...');
+                await adapty.updateProfile({
+                  firstName: 'John',
+                  lastName: 'Doe',
+                  email: 'john_doe@example.com',
+                  phone: '+1234567890',
+                });
+              } catch (error) {
+                console.log(
+                  '[ADPTY]: Failed to update profile: ',
+                  error.message,
+                );
+                if (error instanceof AdaptyError) {
+                  Alert.alert(
+                    `Error updating profile #${error.adaptyCode}`,
+                    error.localizedDescription,
+                  );
+                }
+              }
+            }}
+          />
+          {/* <LineButton
+            text="Update attribution"
+            bordered
+            onPress={async () => {
+              try {
+                console.log('[ADPTY]: Restoring purchases...');
+                await adapty.restorePurchases();
+                // 'onLatestProfileLoad' event should be triggered to update profile
+              } catch (error) {
+                console.log('[ADPTY]: Failed to restore: ', error.message);
+
+                if (error instanceof AdaptyError) {
+                  Alert.alert(
+                    `Error restoring products #${error.adaptyCode}`,
+                    error.localizedDescription,
+                  );
+                }
+              }
+            }}
+          /> */}
+          <LineButton
+            text="Send onboarding order 1"
+            bordered
+            onPress={async () => {
+              try {
+                console.log('[ADPTY]: logging onboarding...');
+                await adapty.logShowOnboarding(1, 'rn_example', 'rn_1');
+              } catch (error) {
+                console.log(
+                  '[ADPTY]: Failed to log onboarding: ',
+                  error.message,
+                );
+
+                if (error instanceof AdaptyError) {
+                  Alert.alert(
+                    `Error logging onboarding #${error.adaptyCode}`,
+                    error.localizedDescription,
+                  );
+                }
+              }
+            }}
+          />
+          <LineButton
+            text="Send onboarding order 2"
+            bordered
+            onPress={async () => {
+              try {
+                console.log('[ADPTY]: logging onboarding...');
+                await adapty.logShowOnboarding(2, 'rn_example', 'rn_2');
+              } catch (error) {
+                console.log(
+                  '[ADPTY]: Failed to log onboarding: ',
+                  error.message,
+                );
+
+                if (error instanceof AdaptyError) {
+                  Alert.alert(
+                    `Error logging onboarding #${error.adaptyCode}`,
+                    error.localizedDescription,
+                  );
+                }
+              }
+            }}
+          />
+          <LineButton
+            text="Send onboarding order 3"
+            bordered
+            onPress={async () => {
+              try {
+                console.log('[ADPTY]: logging onboarding...');
+                await adapty.logShowOnboarding(3, 'rn_example', 'rn_3');
+              } catch (error) {
+                console.log(
+                  '[ADPTY]: Failed to log onboarding: ',
+                  error.message,
+                );
+
+                if (error instanceof AdaptyError) {
+                  Alert.alert(
+                    `Error logging onboarding #${error.adaptyCode}`,
+                    error.localizedDescription,
+                  );
+                }
+              }
+            }}
+          />
+          {Platform.OS === 'ios' && (
+            <LineButton
+              text="Present code redemption sheet"
+              bottomRadius
+              onPress={async () => {
+                console.log('[ADPTY]: presenting code redemption sheet');
+                adapty.presentCodeRedemptionSheet();
+              }}
+            />
+          )}
+        </Group>
+
+        <Group>
+          <LineButton
+            red
+            text="Logout"
+            topRadius
+            bottomRadius
+            onPress={async () => {
+              try {
+                console.log('[ADPTY]: Logging out...');
+                await adapty.logout();
+                await fetchProfile(true);
+              } catch (error) {
+                console.log('[ADPTY]: Failed to logout: ', error.message);
+
+                if (error instanceof AdaptyError) {
+                  Alert.alert(
+                    `Error logging out #${error.adaptyCode}`,
+                    error.localizedDescription,
+                  );
+                }
+              }
+            }}
+          />
+        </Group>
+
+        <Group>
+          <LineParam label="SDK Version" value="RN-2.2.0-rc" />
+        </Group>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 export default App;
-
-// readCredentials handles generated credentials
-// This function is only for this example
-async function readCredentials() {
-  try {
-    const credentials = await import('./.adapty-credentials.json');
-    return credentials.token;
-  } catch (error) {
-    console.error(
-      "[ADAPTY] Failed to read Adapty credentials. Please, follow the instructions in the example's README.md file to proceed.",
-    );
-
-    console.error(error);
-  }
-}

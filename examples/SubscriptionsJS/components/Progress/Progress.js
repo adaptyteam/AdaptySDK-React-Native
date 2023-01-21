@@ -73,7 +73,7 @@ export const Progress = React.memo(props => {
       </View>
 
       <View
-        borderBottomColor="#888"
+        borderBottomColor="#888888"
         style={{borderBottomWidth: StyleSheet.hairlineWidth}}
       />
 

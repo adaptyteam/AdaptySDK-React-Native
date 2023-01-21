@@ -5,10 +5,11 @@ node_modules
 *.log
 .yarn
 
-
 .env
 
-/example
+/scripts
+/examples
+/__tests__
 
 /lib/src
 
