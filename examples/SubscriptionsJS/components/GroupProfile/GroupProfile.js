@@ -12,7 +12,13 @@ export const GroupProfile = ({profile, loading, onRequestUpdate}) => {
     return (
       <Group title="Profile">
         <Line loading={loading}>
-          <Text>No purchases</Text>
+          <LineParam label="No subscriptions" value="" bordered />
+          <LineButton
+            text="Refresh"
+            onPress={onRequestUpdate}
+            loading={loading}
+            bottomRadius
+          />
         </Line>
       </Group>
     );

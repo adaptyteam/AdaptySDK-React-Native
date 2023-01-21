@@ -5,9 +5,9 @@ import {
   StatusBar,
   Alert,
   Dimensions,
-  PlatformColor,
   Text,
   Clipboard,
+  Platform,
 } from 'react-native';
 import {adapty, AdaptyError} from 'react-native-adapty';
 
@@ -64,11 +64,21 @@ const App = () => {
         try {
           console.info('[ADAPTY] Activating Adapty SDK...');
           // Async activate Adapty
-          await adapty.activate(token);
+          await adapty.activate(token, {lockMethodsUntilReady: true});
         } catch (error) {
           console.error('[ADAPTY] Error activating Adapty SDK', error.message);
         }
       }
+
+      try {
+        // Set fallback paywalls
+        const json = await Platform.select({
+          ios: import('./assets/ios_fallback.json'),
+          android: import('./assets/android_fallback.json'),
+        });
+        const str = JSON.stringify(json); // Webpack converts json string to object, but we need string here
+        await adapty.setFallbackPaywalls(str);
+      } catch {}
 
       fetchProfile();
 
@@ -87,9 +97,7 @@ const App = () => {
   }, []);
 
   return (
-    <SafeAreaView
-      // style={{backgroundColor: PlatformColor('systemGray5'), height}}>
-      style={{backgroundColor: '#E5E5EAFF', height}}>
+    <SafeAreaView style={{backgroundColor: '#E5E5EAFF', height}}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.primary10} />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         {/* <Header /> */}
@@ -273,14 +281,16 @@ const App = () => {
               }
             }}
           />
-          <LineButton
-            text="Present code redemption sheet"
-            bottomRadius
-            onPress={async () => {
-              console.log('[ADPTY]: presenting code redemption sheet');
-              adapty.presentCodeRedemptionSheet();
-            }}
-          />
+          {Platform.OS === 'ios' && (
+            <LineButton
+              text="Present code redemption sheet"
+              bottomRadius
+              onPress={async () => {
+                console.log('[ADPTY]: presenting code redemption sheet');
+                adapty.presentCodeRedemptionSheet();
+              }}
+            />
+          )}
         </Group>
 
         <Group>
