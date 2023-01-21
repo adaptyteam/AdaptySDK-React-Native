@@ -11,6 +11,35 @@ import { AdaptyError } from './error';
 
 export class Adapty extends AdaptyEventEmitter {
   private bridge = bridgeCall;
+  private shouldWaitUntilReady = false;
+  private activationPromise: Promise<void> | null = null;
+
+  /**
+   * Blocks the current thread until the SDK is initialized.
+   *
+   * @remarks
+   * Applied automatically to all methods
+   * if `lockMethodsUntilReady` is set to `true` in {@link activate}.
+   *
+   * @returns {Promise<void>} A promise that resolves when the SDK is initialized.
+   * @throws {@link AdaptyError} same error as activation or error if SDK is not activated
+   */
+  public async waitUntilActive(): Promise<void> {
+    if (!this.activationPromise) {
+      return Promise.reject(AdaptyError.notInitializedError());
+    }
+    return this.activationPromise;
+  }
+  /**
+   * Locks the current thread until the SDK is initialized, if needed.
+   * @internal
+   */
+  private async waitUntilReady(): Promise<void> {
+    if (!this.shouldWaitUntilReady) {
+      return Promise.resolve();
+    }
+    await this.waitUntilActive();
+  }
 
   /**
    * Initializes the Adapty SDK.
@@ -53,13 +82,20 @@ export class Adapty extends AdaptyEventEmitter {
     const customerUserId = params.customerUserId;
     const logLevel = params.logLevel;
 
+    this.shouldWaitUntilReady = params.lockMethodsUntilReady ?? false;
+
     try {
-      await this.bridge('activate', {
+      const promise = this.bridge('activate', {
         [bridgeArg.SDK_KEY]: apiKey,
         [bridgeArg.OBSERVER_MODE]: observerMode,
         [bridgeArg.USER_ID]: customerUserId,
         [bridgeArg.LOG_LEVEL]: logLevel,
       });
+
+      if (!this.activationPromise) {
+        this.activationPromise = promise as Promise<any>;
+      }
+      await promise;
     } catch (nativeError) {
       throw AdaptyError.tryWrap(nativeError);
     }
@@ -86,6 +122,8 @@ export class Adapty extends AdaptyEventEmitter {
    * 2. if your bundle ID does not match with your Adapty Dashboard setup
    */
   public async getPaywall(id: string): Promise<Model.AdaptyPaywall> {
+    this.waitUntilReady();
+
     try {
       const result = await this.bridge('get_paywall', {
         [bridgeArg.ID]: id,
@@ -122,6 +160,8 @@ export class Adapty extends AdaptyEventEmitter {
     paywall: Model.AdaptyPaywall,
     params: Input.GetPaywallProductsParamsInput = {},
   ): Promise<Model.AdaptyProduct[]> {
+    this.waitUntilReady();
+
     const fetchPolicy = params.ios?.fetchPolicy || 'default';
 
     try {
@@ -173,6 +213,8 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError}
    */
   public async getProfile(): Promise<Model.AdaptyProfile> {
+    this.waitUntilReady();
+
     try {
       const result = await this.bridge('get_profile', {});
 
@@ -198,6 +240,8 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError}
    */
   public async identify(customerUserId: string): Promise<void> {
+    this.waitUntilReady();
+
     try {
       await this.bridge('identify', {
         [bridgeArg.USER_ID]: customerUserId,
@@ -228,6 +272,8 @@ export class Adapty extends AdaptyEventEmitter {
    * @returns {Promise<void>} resolves when the event is logged
    */
   public async logShowPaywall(paywall: Model.AdaptyPaywall): Promise<void> {
+    this.waitUntilReady();
+
     try {
       const data = new Coder.AdaptyPaywallCoder(paywall);
 
@@ -267,6 +313,8 @@ export class Adapty extends AdaptyEventEmitter {
     onboardingName?: string,
     screenName?: string,
   ): Promise<void> {
+    this.waitUntilReady();
+
     try {
       await this.bridge('log_show_onboarding', {
         [bridgeArg.ONBOARDING_PARAMS]: JSON.stringify({
@@ -287,6 +335,8 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError}
    */
   public async logout(): Promise<void> {
+    this.waitUntilReady();
+
     try {
       await this.bridge('logout', {});
     } catch (nativeError) {
@@ -300,6 +350,8 @@ export class Adapty extends AdaptyEventEmitter {
   public async makePurchase(
     product: Model.AdaptyProduct,
   ): Promise<Model.AdaptyProfile> {
+    this.waitUntilReady();
+
     try {
       const data = new Coder.AdaptyProductCoder(product);
 
@@ -323,6 +375,8 @@ export class Adapty extends AdaptyEventEmitter {
    * iOS 14+ only.
    */
   public async presentCodeRedemptionSheet(): Promise<void> {
+    this.waitUntilReady();
+
     await this.bridge('present_code_redemption_sheet', {});
   }
 
@@ -333,6 +387,8 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError}
    */
   public async restorePurchases(): Promise<Model.AdaptyProfile> {
+    this.waitUntilReady();
+
     try {
       const result = await this.bridge('restore_purchases', {});
       if (!result) {
@@ -353,6 +409,8 @@ export class Adapty extends AdaptyEventEmitter {
    * @returns {Promise<void>} resolves when fallback paywalls are saved
    */
   public async setFallbackPaywalls(paywalls: string): Promise<void> {
+    this.waitUntilReady();
+
     try {
       await this.bridge('set_fallback_paywalls', {
         [bridgeArg.PAYWALLS]: paywalls,
@@ -379,6 +437,8 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError} if the log level is invalid
    */
   public async setLogLevel(logLevel: Input.LogLevel): Promise<void> {
+    this.waitUntilReady();
+
     try {
       await this.bridge('set_log_level', {
         [bridgeArg.VALUE]: logLevel,
@@ -402,6 +462,8 @@ export class Adapty extends AdaptyEventEmitter {
     variationId: string,
     transactionId: string,
   ): Promise<void> {
+    this.waitUntilReady();
+
     try {
       await this.bridge('set_variation_id', {
         [bridgeArg.VARIATION_ID]: variationId,
@@ -440,6 +502,8 @@ export class Adapty extends AdaptyEventEmitter {
     source: Input.AttributionSource,
     networkUserId?: string,
   ): Promise<void> {
+    this.waitUntilReady();
+
     try {
       await this.bridge('update_attribution', {
         [bridgeArg.ATTRIBUTION]: attribution,
@@ -459,6 +523,8 @@ export class Adapty extends AdaptyEventEmitter {
   public async updateProfile(
     params: Partial<Model.AdaptyProfileParameters>,
   ): Promise<void> {
+    this.waitUntilReady();
+
     try {
       const data = new Coder.AdaptyProfileParametersCoder(params);
 
