@@ -8,12 +8,12 @@ import { AdaptyEvent } from '../types/events';
 import { AdaptyProfile } from '../types';
 import { AdaptyProfileCoder } from '../internal/coders';
 
-type AddListenerFn<E extends AdaptyEvent, Data> = (
+export type AddListenerFn<E extends AdaptyEvent, Data> = (
   event: E,
   callback: (data: Data) => void | Promise<void>,
 ) => EmitterSubscription;
 
-type Fn = AddListenerFn<'onLatestProfileLoad', AdaptyProfile> &
+export type Fn = AddListenerFn<'onLatestProfileLoad', AdaptyProfile> &
   AddListenerFn<'onDeferredPurchase', AdaptyProfile>;
 
 export class AdaptyEventEmitter {

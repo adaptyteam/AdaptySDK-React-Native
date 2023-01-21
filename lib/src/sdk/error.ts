@@ -1,7 +1,7 @@
 import { BridgeError } from '../internal/bridgeError';
 import { ErrorCode } from '../types/error';
 
-interface ErrorInput {
+export interface ErrorInput {
   adaptyCode: keyof typeof ErrorCode;
   logFmt?: string;
   localizedDescription: string | undefined;

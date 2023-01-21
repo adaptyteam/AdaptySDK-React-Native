@@ -9,6 +9,11 @@ import * as Input from '../types/inputs';
 import { AdaptyEventEmitter } from './eventEmitter';
 import { AdaptyError } from './error';
 
+/**
+ * Entry point for the Adapty SDK.
+ * All Adapty methods are available through this class.
+ * @public
+ */
 export class Adapty extends AdaptyEventEmitter {
   private bridge = bridgeCall;
   private shouldWaitUntilReady = false;
@@ -110,11 +115,11 @@ export class Adapty extends AdaptyEventEmitter {
    * This way you don’t have to hardcode the products
    * and can dynamically change offers or run A/B tests without app releases.
    *
-   * @param id {string} The identifier of the desired paywall.
+   * @param {string} id - The identifier of the desired paywall.
    * This is the value you specified when you created the paywall
    * in the Adapty Dashboard.
    * @returns {Promise<Model.AdaptyPaywall>}
-   * A promise that resolves with a requested {@link Model.AdaptyPaywall}
+   * A promise that resolves with a requested paywall.
    *
    * @throws {@link AdaptyError}
    * Throws an error:
