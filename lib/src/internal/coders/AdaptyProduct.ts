@@ -22,52 +22,6 @@ export class AdaptyProductCoder extends Coder<Type> {
     const result = AdaptyProductCoder.backendCache.get(d.vendorProductId);
 
     return result!;
-    // const result = {
-    //   currency_code: d.currencyCode,
-    //   currency_symbol: d.currencySymbol,
-    //   introductory_discount: d.introductoryDiscount
-    //     ? new AdaptyProductDiscountCoder(d.introductoryDiscount).encode()
-    //     : null,
-    //   introductory_offer_eligibility: d.introductoryOfferEligibility,
-    //   localized_description: d.localizedDescription,
-    //   localized_price: d.localizedPrice,
-    //   localized_subscription_period: d.localizedSubscriptionPeriod,
-    //   localized_title: d.localizedTitle,
-    //   paywall_ab_test_name: d.paywallABTestName,
-    //   paywall_name: d.paywallName,
-    //   price: d.price,
-    //   subscription_period: d.subscriptionPeriod
-    //     ? new AdaptySubscriptionPeriodCoder(d.subscriptionPeriod).encode()
-    //     : null,
-    //   variation_id: d.variationId,
-    //   vendor_product_id: d.vendorProductId,
-
-    //   free_trial_period: d.android?.freeTrialPeriod
-    //     ? new AdaptySubscriptionPeriodCoder(d.android.freeTrialPeriod).encode()
-    //     : null,
-    //   localized_free_trial_period: d.android?.localizedFreeTrialPeriod,
-
-    //   discounts: d.ios?.discounts
-    //     ? d.ios.discounts.map(discount =>
-    //         new AdaptyProductDiscountCoder(discount).encode(),
-    //       )
-    //     : null,
-    //   is_family_shareable: d.ios?.isFamilyShareable,
-    //   promotional_offer_eligibility: d.ios?.promotionalOfferEligibility,
-    //   promotional_offer_id: d.ios?.promotionalOfferId,
-    //   region_code: d.ios?.regionCode,
-    //   subscription_group_identifier: d.ios?.subscriptionGroupIdentifier,
-    // };
-
-    // // drop empty fields
-    // Object.keys(result).forEach(keyStr => {
-    //   const key = keyStr as keyof typeof result;
-    //   if (result[key] == null || result[key] === undefined) {
-    //     delete result[key];
-    //   }
-    // });
-
-    // return result;
   }
 
   static override tryDecode(json_obj: unknown): AdaptyProductCoder {
@@ -99,7 +53,7 @@ export class AdaptyProductCoder extends Coder<Type> {
     }
 
     const introductoryDiscountRaw = data['introductory_discount'];
-    let introductoryDiscount: Type['introductoryDiscount'] | undefined;
+    let introductoryDiscount: Type['introductoryDiscount'];
     if (introductoryDiscountRaw) {
       introductoryDiscount = AdaptyProductDiscountCoder.tryDecode(
         introductoryDiscountRaw,
@@ -193,12 +147,12 @@ export class AdaptyProductCoder extends Coder<Type> {
     }
 
     const subscriptionPeriodRaw = data['subscription_period'];
-    if (!subscriptionPeriodRaw) {
-      throw this.errRequired('subscriptionPeriod');
+    let subscriptionPeriod: Type['subscriptionPeriod'];
+    if (subscriptionPeriodRaw) {
+      subscriptionPeriod = AdaptySubscriptionPeriodCoder.tryDecode(
+        subscriptionPeriodRaw,
+      ).toObject();
     }
-    const subscriptionPeriod = AdaptySubscriptionPeriodCoder.tryDecode(
-      subscriptionPeriodRaw,
-    ).toObject();
 
     const variationId = data['variation_id'] as Type['variationId'];
     if (typeof variationId !== 'string') {
@@ -235,7 +189,7 @@ export class AdaptyProductCoder extends Coder<Type> {
       paywallABTestName: paywallABTestName,
       paywallName: paywallName,
       price: price,
-      subscriptionPeriod: subscriptionPeriod,
+      subscriptionPeriod: subscriptionPeriod!,
       variationId: variationId,
       vendorProductId: vendorProductId,
       ios: ios!,

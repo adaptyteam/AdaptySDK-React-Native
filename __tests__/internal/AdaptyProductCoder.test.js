@@ -65,7 +65,6 @@ describe('AdaptyProductCoder', () => {
     },
     {
       vendor_product_id: 'yearly.premium.6999',
-      subscription_period: { number_of_units: 1, unit: 'year' },
       region_code: 'US',
       is_family_shareable: false,
       localized_subscription_period: '1 year',
@@ -230,10 +229,6 @@ describe('AdaptyProductCoder', () => {
       paywallABTestName: 'Onboarding paywall',
       paywallName: 'Onboarding paywall',
       price: 69.99,
-      subscriptionPeriod: {
-        numberOfUnits: 1,
-        unit: 'year',
-      },
       variationId: '7de7f227-9a0e-4c95-8c60-ab6768cd3caf',
       vendorProductId: 'yearly.premium.6999',
     },
@@ -247,12 +242,12 @@ describe('AdaptyProductCoder', () => {
 
   it('should decode-encode', () => {
     products.forEach((product, index) => {
-      const coder = AdaptyProductCoder.tryDecode(products[2]);
+      const coder = AdaptyProductCoder.tryDecode(product);
       // products[2]
       // console.log('aa', JSON.stringify(coder.tryDecode(), null, 2));
 
-      expect(coder.toObject()).toStrictEqual(expected[2]);
-      expect(coder.encode()).toStrictEqual(products[2]);
+      expect(coder.toObject()).toStrictEqual(expected[index]);
+      expect(coder.encode()).toStrictEqual(product);
     });
   });
   it('should not decode (missing required)', () => {

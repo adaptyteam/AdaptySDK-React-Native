@@ -513,7 +513,7 @@ export interface AdaptyProduct {
    * Will be `null` for iOS version below 11.2 and macOS version below 10.14.4.
    * @readonly
    */
-  readonly subscriptionPeriod: AdaptySubscriptionPeriod;
+  readonly subscriptionPeriod?: AdaptySubscriptionPeriod;
   /**
    * Same as `variationId` property of the parent {@link AdaptyPaywall}.
    * @readonly
