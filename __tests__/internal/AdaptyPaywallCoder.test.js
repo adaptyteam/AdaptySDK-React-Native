@@ -7,7 +7,10 @@ describe('AdaptyPaywallCoder', () => {
     ab_test_name: 'ab_test_name',
     developer_id: 'id',
     paywall_name: 'name',
-    locale: 'en',
+    remote_config: {
+      lang: 'en',
+      data: '{"foo":"bar"}',
+    },
     products: [
       {
         // introductory_offer_eligibility: 'unknown',
@@ -35,7 +38,9 @@ describe('AdaptyPaywallCoder', () => {
   const paywall2 = {
     ab_test_name: 'ab_test_name',
     paywall_name: 'name',
-    locale: 'en',
+    remote_config: {
+      lang: 'en',
+    },
     revision: 3,
     variation_id: 'variation_id',
   };
@@ -43,7 +48,9 @@ describe('AdaptyPaywallCoder', () => {
   const paywall3 = {
     ab_test_name: 'ab_test_name',
     developer_id: 123,
-    locale: 'en',
+    remote_config: {
+      lang: 'en',
+    },
     paywall_name: 'name',
     paywall_updated_at: 1626172581464,
     products: [
@@ -79,6 +86,10 @@ describe('AdaptyPaywallCoder', () => {
       locale: 'en',
       name: 'name',
       revision: 3,
+      remoteConfig: {
+        foo: 'bar',
+      },
+      remoteConfigString: '{"foo":"bar"}',
       variationId: 'variation_id',
       vendorProductIds: [
         'monthly.premium.999',
