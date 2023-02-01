@@ -80,7 +80,7 @@ Ask questions, participate in discussions about Adapty-related topics, become a 
 yarn add react-native-adapty
 ```
 
-Read the [documentation](https://docs.adapty.io/docs/react-native-sdk-installation?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
+Read the [documentation](https://docs.adapty.io/docs/react-native-installation?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
 ## Contributing
 
