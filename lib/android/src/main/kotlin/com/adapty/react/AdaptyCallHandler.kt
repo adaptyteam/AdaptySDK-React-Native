@@ -72,8 +72,12 @@ internal class AdaptyCallHandler(
         val id = ctx.args.getString(ID) ?: kotlin.run {
                return ctx.argNotFound(ID)
         }
+        var locale: String? = null
+        if (ctx.args.hasKey(LOCALE)) {
+            locale = ctx.args.getString(LOCALE)
+        }
 
-        Adapty.getPaywall(id) { adaptyResult -> ctx.resolve(adaptyResult) }
+        Adapty.getPaywall(id, locale) { adaptyResult -> ctx.resolve(adaptyResult) }
     }
 
     private fun handleGetPaywallProducts(ctx: AdaptyContext) {

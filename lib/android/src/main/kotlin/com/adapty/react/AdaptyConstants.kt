@@ -40,6 +40,7 @@ const val TRANSACTION_ID = "transaction_id"
 const val USER_ID = "user_id"
 const val VARIATION_ID = "variation_id"
 const val VALUE = "value"
+const val LOCALE = "locale"
 
 // Error handling
 const val ADAPTY_ERROR_CODE = "adapty_react_android"
