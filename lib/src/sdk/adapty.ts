@@ -18,6 +18,7 @@ export class Adapty extends AdaptyEventEmitter {
   private bridge = bridgeCall;
   private shouldWaitUntilReady = false;
   private activationPromise: Promise<void> | null = null;
+  private memoArgs: Input.ActivateParamsInput | null = null;
 
   /**
    * Blocks the current thread until the SDK is initialized.
@@ -83,6 +84,15 @@ export class Adapty extends AdaptyEventEmitter {
     apiKey: string,
     params: Input.ActivateParamsInput = {},
   ): Promise<void> {
+    if (!this.memoArgs) {
+      this.memoArgs = params;
+    } else {
+      if (JSON.stringify(this.memoArgs) === JSON.stringify(params)) {
+        // console.log('memo activate');
+        return;
+      }
+    }
+
     const observerMode = params.observerMode ?? false;
     const customerUserId = params.customerUserId;
     const logLevel = params.logLevel;
