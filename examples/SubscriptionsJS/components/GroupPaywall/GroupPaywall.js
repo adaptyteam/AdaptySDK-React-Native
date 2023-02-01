@@ -7,7 +7,6 @@ import {LineParam} from '../LineParam';
 import {AdaptyError, adapty} from 'react-native-adapty';
 import {LineButton} from '../LineButton';
 import {Alert} from 'react-native';
-import {readCredentials} from '../../helpers';
 
 export const GroupPaywall = ({paywallId, postfix}) => {
   const [paywall, setPaywall] = useState(null);
@@ -16,18 +15,17 @@ export const GroupPaywall = ({paywallId, postfix}) => {
 
   const fetchPaywall = async () => {
     try {
-      // Just to wait for the SDK to be initialized
-      const token = await readCredentials();
-      await adapty.activate(token);
-    } catch {}
+      console.log('[ADAPTY]: Fetching paywall:', id);
+      const paywall_ = await adapty.getPaywall(id);
+      setPaywall(paywall_);
 
-    const paywall_ = await adapty.getPaywall(id);
-    setPaywall(paywall_);
+      await adapty.logShowPaywall(paywall_);
 
-    await adapty.logShowPaywall(paywall_);
-
-    const products_ = await adapty.getPaywallProducts(paywall_);
-    setProducts(products_);
+      const products_ = await adapty.getPaywallProducts(paywall_);
+      setProducts(products_);
+    } catch (error) {
+      console.log('[ADAPTY] Error getting paywall:', error.message);
+    }
   };
 
   useEffect(() => {

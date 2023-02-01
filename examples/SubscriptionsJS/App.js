@@ -21,8 +21,25 @@ import {GroupProfile} from './components/GroupProfile';
 import {LineParam} from './components/LineParam';
 import {readCredentials} from './helpers';
 
-let activated = false;
 const height = Dimensions.get('window').height;
+
+async function init() {
+  // Check credentials (only for this example)
+  // This is for demonstation purposes only
+  const token = await readCredentials();
+  if (!token) {
+    return;
+  }
+
+  try {
+    console.info('[ADAPTY] Activating Adapty SDK...');
+    // Async activate Adapty
+    await adapty.activate(token, {lockMethodsUntilReady: true});
+  } catch (error) {
+    console.error('[ADAPTY] Error activating Adapty SDK', error.message);
+  }
+}
+init();
 
 const App = () => {
   const [profile, setProfile] = useState(null);
@@ -50,7 +67,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    async function init() {
+    async function fetch() {
       // Check credentials (only for this example)
       // This is for demonstation purposes only
       const token = await readCredentials();
@@ -58,16 +75,12 @@ const App = () => {
         return;
       }
 
-      if (!activated) {
-        activated = true;
-
-        try {
-          console.info('[ADAPTY] Activating Adapty SDK...');
-          // Async activate Adapty
-          await adapty.activate(token, {lockMethodsUntilReady: true});
-        } catch (error) {
-          console.error('[ADAPTY] Error activating Adapty SDK', error.message);
-        }
+      try {
+        console.info('[ADAPTY] Activating Adapty SDK...');
+        // Async activate Adapty
+        await adapty.activate(token, {lockMethodsUntilReady: true});
+      } catch (error) {
+        console.error('[ADAPTY] Error activating Adapty SDK', error.message);
       }
 
       try {
@@ -87,7 +100,7 @@ const App = () => {
         setProfile(profile_);
       });
     }
-    init();
+    fetch();
 
     return () => {
       // Unsubscribe from adapty events
