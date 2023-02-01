@@ -63,7 +63,27 @@ export class AdaptyPaywallCoder extends Coder<Type> {
       });
     }
 
-    const locale = data['locale'] as Type['locale'];
+    const name = data['paywall_name'] as Type['name'];
+    if (name && typeof name !== 'string') {
+      throw this.errType({
+        name: 'name',
+        expected: 'string',
+        current: typeof name,
+      });
+    }
+
+    const payload = data['remote_config'] as { lang: string; data?: string };
+    if (!payload) {
+      throw this.errRequired('payload');
+    }
+    if (typeof payload !== 'object' || payload === null) {
+      throw this.errType({
+        name: 'payload',
+        expected: 'object',
+        current: typeof payload,
+      });
+    }
+    const locale = payload['lang'] as Type['locale'];
     if (!locale) {
       throw this.errRequired('locale');
     }
@@ -74,19 +94,7 @@ export class AdaptyPaywallCoder extends Coder<Type> {
         current: typeof locale,
       });
     }
-
-    const name = data['paywall_name'] as Type['name'];
-    if (name && typeof name !== 'string') {
-      throw this.errType({
-        name: 'name',
-        expected: 'string',
-        current: typeof name,
-      });
-    }
-
-    const remoteConfigString = data[
-      'custom_payload'
-    ] as Type['remoteConfigString'];
+    const remoteConfigString = payload['data'] as Type['remoteConfigString'];
     if (remoteConfigString && typeof remoteConfigString !== 'string') {
       throw this.errType({
         name: 'remoteConfigString',
@@ -137,7 +145,7 @@ export class AdaptyPaywallCoder extends Coder<Type> {
     const result: Required<Type> = {
       abTestName: abTestName,
       id: id,
-      locale: locale,
+      locale: locale!,
       name: name!,
       remoteConfig: remoteConfig!,
       remoteConfigString: remoteConfigString!,
