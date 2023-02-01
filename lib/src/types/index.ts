@@ -76,6 +76,11 @@ export interface AdaptyPaywall {
    */
   readonly id: string;
   /**
+   * Identifier of a paywall locale.
+   * @readonly
+   */
+  readonly locale: string;
+  /**
    * A paywall name.
    * @readonly
    */

@@ -7,6 +7,7 @@ describe('AdaptyPaywallCoder', () => {
     ab_test_name: 'ab_test_name',
     developer_id: 'id',
     paywall_name: 'name',
+    locale: 'en',
     products: [
       {
         // introductory_offer_eligibility: 'unknown',
@@ -34,6 +35,7 @@ describe('AdaptyPaywallCoder', () => {
   const paywall2 = {
     ab_test_name: 'ab_test_name',
     paywall_name: 'name',
+    locale: 'en',
     revision: 3,
     variation_id: 'variation_id',
   };
@@ -41,6 +43,7 @@ describe('AdaptyPaywallCoder', () => {
   const paywall3 = {
     ab_test_name: 'ab_test_name',
     developer_id: 123,
+    locale: 'en',
     paywall_name: 'name',
     paywall_updated_at: 1626172581464,
     products: [
@@ -73,6 +76,7 @@ describe('AdaptyPaywallCoder', () => {
     const expected = {
       abTestName: 'ab_test_name',
       id: 'id',
+      locale: 'en',
       name: 'name',
       revision: 3,
       variationId: 'variation_id',

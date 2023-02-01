@@ -50,6 +50,7 @@ type BridgeMethodName =
 export const bridgeArg = Object.freeze({
   ATTRIBUTION: 'attribution',
   FETCH_POLICY: 'fetch_policy',
+  LOCALE: 'locale',
   ID: 'id',
   LOG_LEVEL: 'log_level',
   NETWORK_USER_ID: 'network_user_id',

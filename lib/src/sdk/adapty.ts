@@ -118,6 +118,7 @@ export class Adapty extends AdaptyEventEmitter {
    * @param {string} id - The identifier of the desired paywall.
    * This is the value you specified when you created the paywall
    * in the Adapty Dashboard.
+   * @param {string | undefined} [locale] - The locale of the desired paywall.
    * @returns {Promise<Model.AdaptyPaywall>}
    * A promise that resolves with a requested paywall.
    *
@@ -126,12 +127,16 @@ export class Adapty extends AdaptyEventEmitter {
    * 1. if the paywall with the specified ID is not found
    * 2. if your bundle ID does not match with your Adapty Dashboard setup
    */
-  public async getPaywall(id: string): Promise<Model.AdaptyPaywall> {
+  public async getPaywall(
+    id: string,
+    locale?: string,
+  ): Promise<Model.AdaptyPaywall> {
     this.waitUntilReady();
 
     try {
       const result = await this.bridge('get_paywall', {
         [bridgeArg.ID]: id,
+        ...(locale ? { [bridgeArg.LOCALE]: locale } : {}),
       });
 
       if (!result) {

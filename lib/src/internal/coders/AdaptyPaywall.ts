@@ -63,6 +63,18 @@ export class AdaptyPaywallCoder extends Coder<Type> {
       });
     }
 
+    const locale = data['locale'] as Type['locale'];
+    if (!locale) {
+      throw this.errRequired('locale');
+    }
+    if (typeof locale !== 'string') {
+      throw this.errType({
+        name: 'locale',
+        expected: 'string',
+        current: typeof locale,
+      });
+    }
+
     const name = data['paywall_name'] as Type['name'];
     if (name && typeof name !== 'string') {
       throw this.errType({
@@ -125,6 +137,7 @@ export class AdaptyPaywallCoder extends Coder<Type> {
     const result: Required<Type> = {
       abTestName: abTestName,
       id: id,
+      locale: locale,
       name: name!,
       remoteConfig: remoteConfig!,
       remoteConfigString: remoteConfigString!,
