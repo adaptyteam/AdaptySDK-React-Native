@@ -25,6 +25,7 @@ struct Const {
     static let USER_ID = "user_id"
     static let VARIATION_ID = "variation_id"
     static let VALUE = "value"
+    static let LOCALE = "locale"
 }
 
 enum MethodName: String {

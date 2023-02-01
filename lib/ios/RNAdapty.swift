@@ -169,8 +169,11 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         guard let id = ctx.args[Const.ID] as? String else {
             return ctx.argNotFound(name: Const.ID)
         }
+        guard let locale = ctx.args[Const.LOCALE] as? String? else {
+            return ctx.argNotFound(name: Const.LOCALE)
+        }
         
-        Adapty.getPaywall(id) { result in
+        Adapty.getPaywall(id, locale: locale) { result in
             switch result {
             case let .success(paywall):
                 ctx.resolve(data: paywall)
