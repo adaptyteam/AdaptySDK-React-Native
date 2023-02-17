@@ -524,10 +524,16 @@ export class Adapty extends AdaptyEventEmitter {
   ): Promise<void> {
     this.waitUntilReady();
 
+    let bridgeSource = source;
+    if ((Input.AttributionSource as object).hasOwnProperty(source)) {
+      bridgeSource =
+        Input.AttributionSource[source as keyof typeof Input.AttributionSource];
+    }
+
     try {
       await this.bridge('update_attribution', {
         [bridgeArg.ATTRIBUTION]: attribution,
-        [bridgeArg.SOURCE]: source,
+        [bridgeArg.SOURCE]: bridgeSource,
         [bridgeArg.NETWORK_USER_ID]: networkUserId,
       });
     } catch (nativeError) {

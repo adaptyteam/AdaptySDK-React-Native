@@ -32,11 +32,11 @@ export const LogLevel = Object.freeze({
 export type LogLevel = typeof LogLevel[keyof typeof LogLevel];
 
 export const AttributionSource = Object.freeze({
-  Adjust: 'Adjust',
-  AppsFlyer: 'AppsFlyer',
-  AppleSearchAds: 'AppleSearchAds',
-  Branch: 'Branch',
-  Custom: 'Custom',
+  Adjust: 'adjust',
+  AppsFlyer: 'appsflyer',
+  AppleSearchAds: 'apple_search_ads',
+  Branch: 'branch',
+  Custom: 'custom',
 });
 
 export type AttributionSource =
