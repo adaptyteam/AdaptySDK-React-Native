@@ -10,8 +10,8 @@ export class BridgeError extends Error {
     if (!adaptyError) {
       super('Unknown error');
       this.adaptyCode = 0;
-      this.description = 'Unknown error';
-      this.detail = JSON.stringify(data);
+      this.description = `Unknown error. JSON: ${JSON.stringify(data)}`;
+      this.detail = '';
       return;
     }
 
