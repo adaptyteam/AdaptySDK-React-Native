@@ -6,7 +6,16 @@ export class BridgeError extends Error {
   public detail: string;
 
   constructor(data: Record<string, any>) {
-    const errNative = JSON.parse(data['message']);
+    const adaptyError = (data ?? {})['message'];
+    if (!adaptyError) {
+      super('Unknown error');
+      this.adaptyCode = 0;
+      this.description = 'Unknown error';
+      this.detail = JSON.stringify(data);
+      return;
+    }
+
+    const errNative = JSON.parse(adaptyError);
     const adaptyCode = errNative['adapty_code'];
     const detail = errNative['detail'];
     const message = errNative['message'];
