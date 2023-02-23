@@ -34,16 +34,16 @@ class AdaptyContext(
     }
 
     fun err(error: AdaptyError) {
-        promise.reject(error)
+        promise.reject("adapty", helper.toJson(error))
     }
     fun notImplemented() {
-        promise.reject("", "method not implemented")
+        promise.reject("adapty", "{\"adapty_code\":0,\"message\":\"method not implemented\"}")
     }
     fun argNotFound(name: String) {
-        promise.reject("Argument $name was not passed to a native module.", "")
+        promise.reject("adapty", "{\"adapty_code\":2003,\"message\":\"Argument $name was not passed to a native module\"}")
     }
     fun failedToSerialize() {
-        promise.reject("Failed to serialize data on a client side", "")
+        promise.reject("adapty", "{\"adapty_code\":23,\"message\":\"Failed to serialize data on a native side\"}")
     }
 
     inline fun <reified T: Any> parseJsonArgument(paramKey: String): T? {
