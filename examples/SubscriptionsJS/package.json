@@ -16,7 +16,7 @@
     "date-fns": "^2.29.3",
     "react": "18.1.0",
     "react-native": "0.70.5",
-    "react-native-adapty": "^1.3.13"
+    "react-native-adapty": "^2.3.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

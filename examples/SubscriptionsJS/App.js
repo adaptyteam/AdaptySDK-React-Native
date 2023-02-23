@@ -23,24 +23,6 @@ import {readCredentials} from './helpers';
 
 const height = Dimensions.get('window').height;
 
-async function init() {
-  // Check credentials (only for this example)
-  // This is for demonstation purposes only
-  const token = await readCredentials();
-  if (!token) {
-    return;
-  }
-
-  try {
-    console.info('[ADAPTY] Activating Adapty SDK...');
-    // Async activate Adapty
-    await adapty.activate(token, {lockMethodsUntilReady: true});
-  } catch (error) {
-    console.error('[ADAPTY] Error activating Adapty SDK', error.message);
-  }
-}
-init();
-
 const App = () => {
   const [profile, setProfile] = useState(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
@@ -67,7 +49,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    async function fetch() {
+    async function init() {
       // Check credentials (only for this example)
       // This is for demonstation purposes only
       const token = await readCredentials();
@@ -82,8 +64,11 @@ const App = () => {
       } catch (error) {
         console.error('[ADAPTY] Error activating Adapty SDK', error.message);
       }
+    }
 
+    async function fetch() {
       try {
+        await init();
         // Set fallback paywalls
         const json = await Platform.select({
           ios: import('./assets/ios_fallback.json'),
