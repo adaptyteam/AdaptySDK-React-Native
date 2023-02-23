@@ -34,7 +34,7 @@ struct AdaptyContext {
         return encoder
     }()
     
-    public let args: [String: Any]
+    public let args: [String: AnyHashable]
     public let nsArgs: NSDictionary
     
     public let resolver: RCTPromiseResolveBlock
@@ -46,7 +46,7 @@ struct AdaptyContext {
          rejecter: @escaping RCTPromiseRejectBlock
     ) {
         self.nsArgs = args
-        self.args = args as? [String: Any] ?? [String: Any]()
+        self.args = args as? [String: AnyHashable] ?? [String: AnyHashable]()
         
         self.rejecter = rejecter
         self.resolver = resolver
@@ -103,3 +103,4 @@ struct AdaptyContext {
         self.reject(dataStr: "Failed to serialize data on a client side")
     }
 }
+

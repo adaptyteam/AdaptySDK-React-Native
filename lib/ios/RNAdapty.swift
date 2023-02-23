@@ -1,8 +1,13 @@
 import Foundation
 import Adapty
 
+public var MEMO_ACTIVATION_ARGS: [String: AnyHashable] = [:]
+public func ==<K, L: Hashable, R: Hashable>(lhs: [K: L], rhs: [K: R] ) -> Bool {
+   (lhs as NSDictionary).isEqual(to: rhs)
+}
+
 @objc(RNAdapty)
-class RNAdapty: RCTEventEmitter, AdaptyDelegate {    
+class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     // MARK: - Delegate
 
     /// TODO: Describe why
@@ -109,6 +114,12 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     // MARK: - Activation
     
     private func handleActivate(_ ctx: AdaptyContext) {
+        if ctx.args == MEMO_ACTIVATION_ARGS {
+            return ctx.resolve()
+        } else {
+            MEMO_ACTIVATION_ARGS = ctx.args
+        }
+
         guard let token = ctx.args[Const.SDK_KEY] as? String else {
             return ctx.argNotFound(name: Const.SDK_KEY)
         }
@@ -121,6 +132,11 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         guard let logLevel = ctx.args[Const.LOG_LEVEL] as? String? else {
             return ctx.argNotFound(name: Const.LOG_LEVEL)
         }
+        
+  
+        
+        MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = token
+        MEMO_ACTIVATION_ARGS[Const.USER_ID] = customerUserId
         
         Adapty.activate(
             token,

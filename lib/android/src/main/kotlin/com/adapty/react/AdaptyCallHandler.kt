@@ -12,6 +12,8 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.UiThreadUtil
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
+var MEMO_ACTIVATE_ARGS = false
+
 internal class AdaptyCallHandler(
     private val helper: CrossplatformHelper,
     private val reactApplicationContext: ReactApplicationContext
@@ -41,6 +43,12 @@ internal class AdaptyCallHandler(
     }
 
     private fun handleActivate(ctx: AdaptyContext) {
+        if (MEMO_ACTIVATE_ARGS) {
+            return ctx.success(null);
+        }
+
+        MEMO_ACTIVATE_ARGS = true
+
         val sdkKey = ctx.args.getString(SDK_KEY) ?: kotlin.run {
             return ctx.argNotFound(SDK_KEY)
         }
