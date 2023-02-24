@@ -537,9 +537,15 @@ export class Adapty extends AdaptyEventEmitter {
         Input.AttributionSource[source as keyof typeof Input.AttributionSource];
     }
 
+    let attributionData: any = attribution;
+    if (Platform.OS === 'android') {
+      // Android bridge handles objects poorly
+      attributionData = JSON.stringify(attribution);
+    }
+
     try {
       await this.bridge('update_attribution', {
-        [bridgeArg.ATTRIBUTION]: attribution,
+        [bridgeArg.ATTRIBUTION]: attributionData,
         [bridgeArg.SOURCE]: bridgeSource,
         [bridgeArg.NETWORK_USER_ID]: networkUserId,
       });
