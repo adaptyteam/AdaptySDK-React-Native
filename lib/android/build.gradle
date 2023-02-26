@@ -12,16 +12,13 @@ buildscript {
     }
 }
 
-String localMavenPath = project.mkdir("localMaven").absolutePath
 rootProject.allprojects {
     repositories {
-        google()
-        jcenter()
-        maven { url 'https://jitpack.io' }
-        maven { url "file://$localMavenPath" }
+        maven {
+            url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven"
+        }
     }
 }
-
 def safeExtGet(name) {
     return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['adapty_' + name]
 }
@@ -73,6 +70,9 @@ repositories {
     google()
     maven {
         url "$rootDir/../node_modules/react-native/android"
+    }
+    maven {
+        url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven"
     }
 }
 
