@@ -1,3 +1,4 @@
+import { Log } from '../../sdk/logger';
 import type { AdaptyNonSubscription, VendorStore } from '../../types';
 
 import { Coder } from './coder';
@@ -10,12 +11,32 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
   }
 
   override encode(): Record<string, any> {
-    return {};
-  }
+    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
+      args: this.data,
+    });
 
+    const result = {};
+    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
+      args: this.data,
+      result,
+    });
+
+    return result;
+  }
   static override tryDecode(json_obj: unknown): AdaptyNonSubscriptionCoder {
+    Log.verbose(
+      `${this.prototype.constructor.name}.tryDecode`,
+      `Trying to decode...`,
+      { args: json_obj },
+    );
+
     const data = json_obj as Record<string, any>;
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== 'object' || !Boolean(data)) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: data is not an object`,
+      );
+
       throw this.errType({
         name: 'data',
         expected: 'object',
@@ -63,14 +84,15 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
     if (!purchasedAtStr) {
       throw this.errRequired('purchased_at');
     }
-    const purchasedAt = new Date(purchasedAtStr);
-    if (isNaN(purchasedAt.getTime())) {
+    const purchasedAtTs = Date.parse(purchasedAtStr);
+    if (isNaN(purchasedAtTs)) {
       throw this.errType({
         name: 'purchasedAt',
         expected: 'Date',
         current: purchasedAtStr,
       });
     }
+    const purchasedAt = new Date(purchasedAtTs);
 
     const store = data['store'] as VendorStore | undefined;
     if (typeof store !== 'string') {

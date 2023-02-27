@@ -97,3 +97,13 @@ export abstract class Coder<T> {
 //   };
 
 export type Json = Record<string, any>;
+
+// getTime is invalid???
+// export function isValidDate(date: Date): boolean {
+//   try {
+//     date.toISOString();
+//     return true;
+//   } catch {
+//     return false;
+//   }
+// }

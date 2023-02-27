@@ -5,6 +5,7 @@ import { AdaptySubscriptionCoder } from './AdaptySubscription';
 import { AdaptyProfileParametersCoder } from './AdaptyProfileParameters';
 
 import { Coder } from './coder';
+import { Log } from '../../sdk/logger';
 
 type Type = AdaptyProfile;
 
@@ -14,8 +15,20 @@ export class AdaptyProfileCoder extends Coder<Type> {
   }
 
   static override tryDecode(json_obj: unknown): AdaptyProfileCoder {
+    Log.verbose(
+      `${this.prototype.constructor.name}.tryDecode`,
+      `Trying to decode...`,
+      { args: json_obj },
+    );
+
     const data = json_obj as Record<string, any>;
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== 'object' || !Boolean(data)) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: data is not an object`,
+        { args: json_obj },
+      );
+
       throw this.errType({
         name: 'data',
         expected: 'object',
@@ -26,6 +39,12 @@ export class AdaptyProfileCoder extends Coder<Type> {
     const accessLevelsRaw = data['paid_access_levels'];
 
     if (accessLevelsRaw && typeof accessLevelsRaw !== 'object') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "accessLevelsRaw" is not an object`,
+        { args: json_obj },
+      );
+
       throw this.errType({
         name: 'accessLevels',
         expected: 'object',
@@ -49,9 +68,21 @@ export class AdaptyProfileCoder extends Coder<Type> {
 
     const customAttributesRaw = data['custom_attributes'];
     if (!customAttributesRaw) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "custom_attributes" is required`,
+        { args: json_obj },
+      );
+
       throw this.errRequired('customAttributes');
     }
     if (typeof customAttributesRaw !== 'object') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "custom_attributes" is not an object`,
+        { args: json_obj },
+      );
+
       throw this.errType({
         name: 'customAttributes',
         expected: 'object',
@@ -63,6 +94,12 @@ export class AdaptyProfileCoder extends Coder<Type> {
 
     const customerUserId = data['customer_user_id'] as Type['customerUserId'];
     if (customerUserId && typeof customerUserId !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "customer_user_id" is not a string`,
+        { args: json_obj },
+      );
+
       throw this.errType({
         name: 'customerUserId',
         expected: 'string',
@@ -72,6 +109,12 @@ export class AdaptyProfileCoder extends Coder<Type> {
 
     const nonSubscriptionsRaw = data['non_subscriptions'];
     if (nonSubscriptionsRaw && typeof nonSubscriptionsRaw !== 'object') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "non_subscriptions" is not an object`,
+        { args: json_obj },
+      );
+
       throw this.errType({
         name: 'nonSubscriptions',
         expected: 'object',
@@ -85,6 +128,12 @@ export class AdaptyProfileCoder extends Coder<Type> {
           return acc;
         }
         if (!Array.isArray(nonSubList)) {
+          Log.error(
+            `${this.prototype.constructor.name}.tryDecode`,
+            `Failed to decode: "nonSubList" is not an array`,
+            { args: json_obj },
+          );
+
           throw this.errType({
             name: 'nonSubscriptions',
             expected: 'array',
@@ -109,9 +158,21 @@ export class AdaptyProfileCoder extends Coder<Type> {
 
     const profileId = data['profile_id'] as Type['profileId'];
     if (!profileId) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "profile_id" is required`,
+        { args: json_obj },
+      );
+
       throw this.errRequired('profileId');
     }
     if (typeof profileId !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "profile_id" is not a string`,
+        { args: json_obj },
+      );
+
       throw this.errType({
         name: 'profileId',
         expected: 'string',
@@ -121,6 +182,12 @@ export class AdaptyProfileCoder extends Coder<Type> {
 
     const subscriptionsRaw = data['subscriptions'];
     if (subscriptionsRaw && typeof subscriptionsRaw !== 'object') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "subscriptions" is not an object`,
+        { args: json_obj },
+      );
+
       throw this.errType({
         name: 'subscriptions',
         expected: 'object',
@@ -159,10 +226,26 @@ export class AdaptyProfileCoder extends Coder<Type> {
       }
     });
 
+    Log.verbose(
+      `${this.prototype.constructor.name}.tryDecode`,
+      `Decode: SUCCESS`,
+      { data, result },
+    );
+
     return new AdaptyProfileCoder(result);
   }
 
   public override encode(): Record<string, any> {
-    return {};
+    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
+      args: this.data,
+    });
+
+    const result = {};
+    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
+      args: this.data,
+      result,
+    });
+
+    return result;
   }
 }

@@ -3,6 +3,7 @@ import type { AdaptyProduct } from '../../types';
 import { Coder } from './coder';
 import { AdaptySubscriptionPeriodCoder } from './AdaptySubscriptionPeriod';
 import { AdaptyProductDiscountCoder } from './AdaptyProductDiscount';
+import { Log } from '../../sdk/logger';
 
 type Type = AdaptyProduct;
 type Ios = Type['ios'];
@@ -19,14 +20,35 @@ export class AdaptyProductCoder extends Coder<Type> {
 
   public encode(): Record<string, any> {
     const d = this.data;
+
+    Log.verbose(`${this.constructor.name}.encode`, `Encoding from cache...`, {
+      args: d.vendorProductId,
+      cache: AdaptyProductCoder.backendCache,
+    });
+
     const result = AdaptyProductCoder.backendCache.get(d.vendorProductId);
+    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
+      args: this.data,
+      result,
+    });
 
     return result!;
   }
 
   static override tryDecode(json_obj: unknown): AdaptyProductCoder {
+    Log.verbose(
+      `${this.prototype.constructor.name}.tryDecode`,
+      `Trying to decode...`,
+      { args: json_obj },
+    );
+
     const data = json_obj as Record<string, any>;
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== 'object' || !Boolean(data)) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: data is not an object`,
+      );
+
       throw this.errType({
         name: 'data',
         expected: 'object',
@@ -217,7 +239,7 @@ class AdaptyProductIosCoder extends Coder<Ios> {
 
   static override tryDecode(json_obj: unknown): AdaptyProductIosCoder {
     const data = json_obj as Record<string, any>;
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== 'object' || !Boolean(data)) {
       throw this.errType({
         name: 'data',
         expected: 'object',
@@ -336,7 +358,7 @@ class AdaptyProductAndroidCoder extends Coder<Android> {
 
   static override tryDecode(json_obj: unknown): AdaptyProductAndroidCoder {
     const data = json_obj as Record<string, any>;
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== 'object' || !Boolean(data)) {
       throw this.errType({
         name: 'data',
         expected: 'object',

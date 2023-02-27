@@ -1,3 +1,4 @@
+import { Log } from '../../sdk/logger';
 import type { AdaptyProfileParameters } from '../../types';
 
 import { Coder } from './coder';
@@ -10,8 +11,19 @@ export class AdaptyProfileParametersCoder extends Coder<Type> {
   }
 
   static override tryDecode(json_obj: unknown): AdaptyProfileParametersCoder {
+    Log.verbose(
+      `${this.prototype.constructor.name}.tryDecode`,
+      `Trying to decode...`,
+      { args: json_obj },
+    );
+
     const data = json_obj as Record<string, any>;
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== 'object' || !Boolean(data)) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: data is not an object`,
+      );
+
       throw this.errType({
         name: 'data',
         expected: 'object',
@@ -254,6 +266,9 @@ export class AdaptyProfileParametersCoder extends Coder<Type> {
 
   public encode(): Record<string, any> {
     const d = this.data;
+    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
+      args: this.data,
+    });
 
     const result = {
       first_name: d.firstName,
@@ -283,6 +298,11 @@ export class AdaptyProfileParametersCoder extends Coder<Type> {
       if (result[key] == null || result[key] === undefined) {
         delete result[key];
       }
+    });
+
+    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
+      args: this.data,
+      result,
     });
 
     return result;

@@ -1,3 +1,4 @@
+import { Log } from '../../sdk/logger';
 import type { AdaptySubscription } from '../../types';
 
 import { Coder } from './coder';
@@ -10,12 +11,33 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
   }
 
   public override encode(): Record<string, any> {
-    return {};
+    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
+      args: this.data,
+    });
+
+    const result = {};
+    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
+      args: this.data,
+      result,
+    });
+
+    return result;
   }
 
   static override tryDecode(json_obj: unknown): AdaptySubscriptionCoder {
+    Log.verbose(
+      `${this.prototype.constructor.name}.tryDecode`,
+      `Trying to decode...`,
+      { args: json_obj },
+    );
+
     const data = json_obj as Record<string, any>;
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== 'object' || !Boolean(data)) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: data is not an object`,
+      );
+
       throw this.errType({
         name: 'data',
         expected: 'object',
@@ -27,14 +49,15 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     if (!activatedAtStr) {
       throw this.errRequired('activated_at');
     }
-    const activatedAt = new Date(activatedAtStr);
-    if (isNaN(activatedAt.getTime())) {
+    const activatedAtTs = Date.parse(activatedAtStr);
+    if (isNaN(activatedAtTs)) {
       throw this.errType({
         name: 'activatedAt',
         expected: 'Date',
         current: activatedAtStr,
       });
     }
+    const activatedAt = new Date(activatedAtTs);
 
     const activeIntroductoryOfferType = data[
       'active_introductory_offer_type'
@@ -76,15 +99,20 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     }
 
     const billingIssueDetectedAtStr = data['billing_issue_detected_at'];
-    const billingIssueDetectedAt = billingIssueDetectedAtStr
-      ? new Date(billingIssueDetectedAtStr)
+    const billingIssueDetectedAtTs = billingIssueDetectedAtStr
+      ? Date.parse(billingIssueDetectedAtStr)
       : undefined;
-    if (billingIssueDetectedAt && isNaN(billingIssueDetectedAt.getTime())) {
-      throw this.errType({
-        name: 'billingIssueDetectedAt',
-        expected: 'Date',
-        current: billingIssueDetectedAtStr,
-      });
+    let billingIssueDetectedAt: Date | undefined;
+    if (billingIssueDetectedAtTs) {
+      if (isNaN(billingIssueDetectedAtTs)) {
+        throw this.errType({
+          name: 'billingIssueDetectedAt',
+          expected: 'Date',
+          current: billingIssueDetectedAtStr,
+        });
+      }
+
+      billingIssueDetectedAt = new Date(billingIssueDetectedAtTs);
     }
 
     const cancellationReason = data[
@@ -101,13 +129,18 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     }
 
     const expiresAtStr = data['expires_at'];
-    const expiresAt = expiresAtStr ? new Date(expiresAtStr) : undefined;
-    if (expiresAt && isNaN(expiresAt.getTime())) {
-      throw this.errType({
-        name: 'expiresAt',
-        expected: 'Date',
-        current: expiresAtStr,
-      });
+    const expiresAtTs = expiresAtStr ? Date.parse(expiresAtStr) : undefined;
+    let expiresAt: Date | undefined;
+    if (expiresAtTs) {
+      if (isNaN(expiresAtTs)) {
+        throw this.errType({
+          name: 'expiresAt',
+          expected: 'Date',
+          current: expiresAtStr,
+        });
+      }
+
+      expiresAt = new Date(expiresAtTs);
     }
 
     const isActive = data['is_active'] as Type['isActive'];
@@ -158,23 +191,32 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     }
 
     const renewedAtStr = data['renewed_at'];
-    const renewedAt = renewedAtStr ? new Date(renewedAtStr) : undefined;
-    if (renewedAt && isNaN(renewedAt.getTime())) {
-      throw this.errType({
-        name: 'renewedAt',
-        expected: 'Date',
-        current: renewedAtStr,
-      });
+    const renewedAtTs = renewedAtStr ? Date.parse(renewedAtStr) : undefined;
+    let renewedAt: Date | undefined;
+    if (renewedAtTs) {
+      if (isNaN(renewedAtTs)) {
+        throw this.errType({
+          name: 'renewedAt',
+          expected: 'Date',
+          current: renewedAtStr,
+        });
+      }
+      renewedAt = new Date(renewedAtTs);
     }
 
     const startsAtStr = data['starts_at'];
-    const startsAt = startsAtStr ? new Date(startsAtStr) : undefined;
-    if (startsAt && isNaN(startsAt.getTime())) {
-      throw this.errType({
-        name: 'startsAt',
-        expected: 'Date',
-        current: startsAtStr,
-      });
+    const startsAtTs = startsAtStr ? Date.parse(startsAtStr) : undefined;
+    let startsAt: Date | undefined;
+    if (startsAtTs) {
+      if (isNaN(startsAtTs)) {
+        throw this.errType({
+          name: 'startsAt',
+          expected: 'Date',
+          current: startsAtStr,
+        });
+      }
+
+      startsAt = new Date(startsAtTs);
     }
 
     const store = data['store'] as Type['store'];
@@ -190,15 +232,19 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     }
 
     const unsubscribedAtStr = data['unsubscribed_at'];
-    const unsubscribedAt = unsubscribedAtStr
-      ? new Date(unsubscribedAtStr)
+    const unsubscribedAtTs = unsubscribedAtStr
+      ? Date.parse(unsubscribedAtStr)
       : undefined;
-    if (unsubscribedAt && isNaN(unsubscribedAt.getTime())) {
-      throw this.errType({
-        name: 'unsubscribedAt',
-        expected: 'Date',
-        current: unsubscribedAtStr,
-      });
+    let unsubscribedAt: Date | undefined;
+    if (unsubscribedAtTs) {
+      if (isNaN(unsubscribedAtTs)) {
+        throw this.errType({
+          name: 'unsubscribedAt',
+          expected: 'Date',
+          current: unsubscribedAtStr,
+        });
+      }
+      unsubscribedAt = new Date(unsubscribedAtTs);
     }
 
     const vendorOriginalTransactionId = data[

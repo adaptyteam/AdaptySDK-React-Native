@@ -1,3 +1,4 @@
+import { Log } from '../../sdk/logger';
 import type { AdaptyPaywall } from '../../types';
 
 import { Coder } from './coder';
@@ -13,25 +14,33 @@ export class AdaptyPaywallCoder extends Coder<Type> {
 
   override encode(): Record<string, any> {
     const d = this.data;
+    Log.verbose(`${this.constructor.name}.encode`, `Encoding from cache...`, {
+      args: this.data.id,
+      cache: AdaptyPaywallCoder.backendCache,
+    });
 
-    // const result = {
-    //   ab_test_name: d.abTestName,
-    //   developer_id: d.id,
-    //   paywall_name: d.name,
-    //   custom_payload: d.remoteConfigString,
-    //   revision: d.revision,
-    //   variation_id: d.variationId,
-    //   products: products,
-    //   // products: d.vendorProductIds?.map(vendorProductId => ({
-    //   //   vendor_product_id: vendorProductId,
-    //   // })),
-    // };
-    return AdaptyPaywallCoder.backendCache.get(d.id)!;
+    const result = AdaptyPaywallCoder.backendCache.get(d.id)!;
+    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
+      args: this.data,
+      result,
+    });
+
+    return result;
   }
 
   static override tryDecode(json_obj: unknown): AdaptyPaywallCoder {
+    Log.verbose(
+      `${this.prototype.constructor.name}.tryDecode`,
+      `Trying to decode...`,
+      { args: json_obj },
+    );
     const data = json_obj as Record<string, any>;
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== 'object' || !Boolean(data)) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: data is not an object`,
+      );
+
       throw this.errType({
         name: 'data',
         expected: 'object',
