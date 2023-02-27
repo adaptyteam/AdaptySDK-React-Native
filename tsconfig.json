@@ -27,7 +27,8 @@
     ],
     "outDir": "lib/dist",
     "types": [
-      "react-native"
+      "react-native",
+      "node"
     ]
   },
   "include": [

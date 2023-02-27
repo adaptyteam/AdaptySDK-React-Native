@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "2.3.7-beta",
+  "version": "2.3.8",
   "nativePackage": true,
   "description": "Adapty SDK",
   "license": "MIT",
@@ -55,6 +55,7 @@
     "@babel/plugin-proposal-export-default-from": "7.10.4",
     "@babel/plugin-proposal-export-namespace-from": "7.10.4",
     "@types/jest": "^29.2.4",
+    "@types/node": "^18.14.2",
     "@types/react": "^16.13.1",
     "@types/react-native": "^0.63.0",
     "@typescript-eslint/eslint-plugin": "5.40.1",
