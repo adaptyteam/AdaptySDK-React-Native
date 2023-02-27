@@ -60,7 +60,6 @@ export class AdaptyError extends Error {
       logFmt: `#${nativeError.adaptyCode} (${
         ErrorCode[nativeError.adaptyCode]
       }): ${nativeError.description}`,
-      // code: 0,
     });
   }
 

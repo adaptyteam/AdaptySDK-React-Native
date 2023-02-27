@@ -7,6 +7,7 @@ import {
 import { AdaptyEvent } from '../types/events';
 import { AdaptyProfile } from '../types';
 import { AdaptyProfileCoder } from '../internal/coders';
+import { Log } from './logger';
 
 export type AddListenerFn<E extends AdaptyEvent, Data> = (
   event: E,
@@ -35,20 +36,40 @@ export class AdaptyEventEmitter {
     event: AdaptyEvent,
     callback: (data: any) => void | Promise<void>,
   ): EmitterSubscription {
+    Log.verbose(
+      `${this.constructor.name}.addListener`,
+      `Registering new listener`,
+      { event },
+    );
+
     const parseCallback = (...data: string[]) => {
-      const args = data.map(arg => {
-        const param = JSON.parse(arg);
+      const args = data.map((arg, index) => {
         try {
-          const coder = AdaptyProfileCoder.tryDecode(param);
-          return coder.toObject();
+          const param = JSON.parse(arg);
+
+          try {
+            const coder = AdaptyProfileCoder.tryDecode(param);
+            return coder.toObject();
+          } catch (error) {
+            Log.error(
+              `${this.constructor.name}.addListener`,
+              `Failed to decode profile in event listener`,
+              { event },
+            );
+
+            throw error;
+          }
         } catch (error) {
-          console.error(
-            '[ADAPTY]: Failed to decode profile in event listener',
-            error,
+          Log.error(
+            `${this.constructor.name}.addListener`,
+            `Failed to decode profile in event listener`,
+            { event, data, arg_index: index },
           );
-          throw error;
+
+          return arg;
         }
       });
+
       callback.apply(null, args as any);
     };
 
@@ -61,6 +82,12 @@ export class AdaptyEventEmitter {
   public addEventListener = this.addListener as unknown as Fn;
 
   public removeAllListeners(): void {
+    Log.verbose(
+      `${this.constructor.name}.addListener`,
+      `Removing all listeners`,
+      { listeners_length: this.listeners.length },
+    );
+
     this.listeners.forEach(listener => listener.remove());
     this.listeners = [];
   }

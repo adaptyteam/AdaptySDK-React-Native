@@ -8,6 +8,7 @@ import * as Input from '../types/inputs';
 
 import { AdaptyEventEmitter } from './eventEmitter';
 import { AdaptyError } from './error';
+import { Log, MSG } from './logger';
 
 /**
  * Entry point for the Adapty SDK.
@@ -15,10 +16,19 @@ import { AdaptyError } from './error';
  * @public
  */
 export class Adapty extends AdaptyEventEmitter {
-  private bridge = bridgeCall;
+  private static callNative = bridgeCall;
+
   private shouldWaitUntilReady = false;
   private activationPromise: Promise<void> | null = null;
-  // private memoArgs: Input.ActivateParamsInput | null = null;
+
+  constructor() {
+    super();
+
+    Log.verbose('Adapty.constructor', 'Registered new Adapty instance', {
+      platform: Platform.OS,
+      version: Platform.Version,
+    });
+  }
 
   /**
    * Blocks the current thread until the SDK is initialized.
@@ -44,6 +54,7 @@ export class Adapty extends AdaptyEventEmitter {
     if (!this.shouldWaitUntilReady) {
       return Promise.resolve();
     }
+
     await this.waitUntilActive();
   }
 
@@ -84,30 +95,15 @@ export class Adapty extends AdaptyEventEmitter {
     apiKey: string,
     params: Input.ActivateParamsInput = {},
   ): Promise<void> {
-    // if (!this.memoArgs) {
-    //   this.memoArgs = params;
-    // } else {
-    //   const memoArgs = this.memoArgs as object;
-    //   if (
-    //     Object.keys(this.memoArgs).length === Object.keys(params).length &&
-    //     Object.keys(memoArgs).every(maybeKey => {
-    //       const key = maybeKey as keyof typeof params;
-    //       return params[key] === (this.memoArgs || {})[key];
-    //     })
-    //   ) {
-    //     console.log('memo activate');
-    //     return;
-    //   }
-    // }
-
     const observerMode = params.observerMode ?? false;
     const customerUserId = params.customerUserId;
     const logLevel = params.logLevel;
 
+    Log.logLevel = logLevel || null;
     this.shouldWaitUntilReady = params.lockMethodsUntilReady ?? false;
 
     try {
-      const promise = this.bridge('activate', {
+      const promise = Adapty.callNative('activate', {
         [bridgeArg.SDK_KEY]: apiKey,
         [bridgeArg.OBSERVER_MODE]: observerMode,
         [bridgeArg.USER_ID]: customerUserId,
@@ -119,7 +115,13 @@ export class Adapty extends AdaptyEventEmitter {
       }
       await promise;
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error('activate', `SDK handled native error`, {
+        error: error.message,
+      });
+
+      throw error;
     }
   }
 
@@ -148,23 +150,44 @@ export class Adapty extends AdaptyEventEmitter {
     id: string,
     locale?: string,
   ): Promise<Model.AdaptyPaywall> {
+    const FN_NAME = this.getPaywall.name;
+    Log.verbose(FN_NAME, MSG.NEW_CALL, { id, locale });
+
     this.waitUntilReady();
 
     try {
-      const result = await this.bridge('get_paywall', {
+      const args = {
         [bridgeArg.ID]: id,
         ...(locale ? { [bridgeArg.LOCALE]: locale } : {}),
+      };
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, {
+        args,
       });
 
-      if (!result) {
+      const response = await Adapty.callNative('get_paywall', args);
+      Log.verbose(FN_NAME, MSG.NATIVE_SDK_REPLIED, { response });
+
+      if (!response) {
         throw AdaptyError.deserializationError(this.getPaywall.name);
       }
-      const maybeObj = JSON.parse(result);
+      const maybeObj = JSON.parse(response);
 
       const decoded = Coder.AdaptyPaywallCoder.tryDecode(maybeObj);
-      return decoded.toObject();
+      const result = decoded.toObject();
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS, {
+        result,
+      });
+
+      return result;
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+      });
+
+      throw error;
     }
   }
 
@@ -187,19 +210,26 @@ export class Adapty extends AdaptyEventEmitter {
     paywall: Model.AdaptyPaywall,
     params: Input.GetPaywallProductsParamsInput = {},
   ): Promise<Model.AdaptyProduct[]> {
+    const FN_NAME = this.getPaywallProducts.name;
+    Log.verbose(FN_NAME, MSG.NEW_CALL, { paywall, params });
     this.waitUntilReady();
 
-    const fetchPolicy = params.ios?.fetchPolicy || 'default';
-
     try {
+      const fetchPolicy = params.ios?.fetchPolicy || 'default';
       const data = new Coder.AdaptyPaywallCoder(paywall);
-
-      const result = await this.bridge('get_paywall_products', {
+      const args = {
         [bridgeArg.PAYWALL]: JSON.stringify(data.encode()),
         ...(Platform.OS === 'ios' && {
           [bridgeArg.FETCH_POLICY]: fetchPolicy,
         }),
+      };
+
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, {
+        args,
       });
+
+      const result = await Adapty.callNative('get_paywall_products', args);
+      Log.verbose(FN_NAME, MSG.NATIVE_SDK_REPLIED, { result });
 
       if (!result) {
         throw AdaptyError.deserializationError(this.getPaywallProducts.name);
@@ -214,9 +244,19 @@ export class Adapty extends AdaptyEventEmitter {
         return decoder.toObject();
       });
 
+      Log.info(FN_NAME, MSG.CALL_SUCCESS, {
+        args,
+      });
       return products;
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -240,20 +280,34 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError}
    */
   public async getProfile(): Promise<Model.AdaptyProfile> {
+    const FN_NAME = this.getProfile.name;
+    Log.verbose(FN_NAME, MSG.NEW_CALL);
     this.waitUntilReady();
 
     try {
-      const result = await this.bridge('get_profile', {});
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL);
+      const response = await Adapty.callNative('get_profile', {});
+      Log.verbose(FN_NAME, MSG.NATIVE_SDK_REPLIED, { response });
 
-      if (!result) {
+      if (!response) {
         throw AdaptyError.deserializationError(this.getProfile.name);
       }
-      const maybeObj = JSON.parse(result);
+      const maybeObj = JSON.parse(response);
       const decoder = Coder.AdaptyProfileCoder.tryDecode(maybeObj);
 
-      return decoder.toObject();
+      const result = decoder.toObject();
+      Log.info(FN_NAME, MSG.CALL_SUCCESS, { result });
+
+      return result;
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -267,14 +321,28 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError}
    */
   public async identify(customerUserId: string): Promise<void> {
+    const FN_NAME = this.identify.name;
+    Log.verbose(FN_NAME, MSG.NEW_CALL, { customerUserId });
     this.waitUntilReady();
 
     try {
-      await this.bridge('identify', {
+      const args = {
         [bridgeArg.USER_ID]: customerUserId,
-      });
+      };
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, { args });
+
+      await Adapty.callNative('identify', args);
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -299,16 +367,30 @@ export class Adapty extends AdaptyEventEmitter {
    * @returns {Promise<void>} resolves when the event is logged
    */
   public async logShowPaywall(paywall: Model.AdaptyPaywall): Promise<void> {
+    const FN_NAME = this.logShowPaywall.name;
+
+    Log.verbose(FN_NAME, MSG.NEW_CALL, { paywall });
     this.waitUntilReady();
 
     try {
       const data = new Coder.AdaptyPaywallCoder(paywall);
-
-      await this.bridge('log_show_paywall', {
+      const args = {
         [bridgeArg.PAYWALL]: JSON.stringify(data.encode()),
-      });
+      };
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, { args });
+
+      await Adapty.callNative('log_show_paywall', args);
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.info(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -340,18 +422,39 @@ export class Adapty extends AdaptyEventEmitter {
     onboardingName?: string,
     screenName?: string,
   ): Promise<void> {
+    const FN_NAME = this.logShowOnboarding.name;
+
+    Log.verbose(FN_NAME, MSG.NEW_CALL, {
+      screenOrder,
+      onboardingName,
+      screenName,
+    });
+
     this.waitUntilReady();
 
+    const args = {
+      [bridgeArg.ONBOARDING_PARAMS]: JSON.stringify({
+        onboarding_screen_order: screenOrder,
+        onboarding_name: onboardingName,
+        onboarding_screen_name: screenName,
+      }),
+    };
+
     try {
-      await this.bridge('log_show_onboarding', {
-        [bridgeArg.ONBOARDING_PARAMS]: JSON.stringify({
-          onboarding_screen_order: screenOrder,
-          onboarding_name: onboardingName,
-          onboarding_screen_name: screenName,
-        }),
-      });
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, { args });
+
+      await Adapty.callNative('log_show_onboarding', args);
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -362,12 +465,25 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError}
    */
   public async logout(): Promise<void> {
+    const FN_NAME = this.logout.name;
+    Log.verbose(FN_NAME, MSG.NEW_CALL);
     this.waitUntilReady();
 
     try {
-      await this.bridge('logout', {});
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL);
+
+      await Adapty.callNative('logout', {});
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -377,23 +493,39 @@ export class Adapty extends AdaptyEventEmitter {
   public async makePurchase(
     product: Model.AdaptyProduct,
   ): Promise<Model.AdaptyProfile> {
+    const FN_NAME = this.makePurchase.name;
+
+    Log.verbose(FN_NAME, MSG.NEW_CALL, { product });
     this.waitUntilReady();
 
-    try {
-      const data = new Coder.AdaptyProductCoder(product);
+    const data = new Coder.AdaptyProductCoder(product);
+    const args = { [bridgeArg.PRODUCT]: JSON.stringify(data.encode()) };
 
-      const result = await this.bridge('make_purchase', {
-        [bridgeArg.PRODUCT]: JSON.stringify(data.encode()),
-      });
-      if (!result) {
+    try {
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, { args });
+      const response = await Adapty.callNative('make_purchase', args);
+      Log.verbose(FN_NAME, MSG.NATIVE_SDK_REPLIED, { response });
+
+      if (!response) {
         throw AdaptyError.deserializationError(this.makePurchase.name);
       }
-      const maybeObj = JSON.parse(result);
+
+      const maybeObj = JSON.parse(response);
       const decoder = Coder.AdaptyProfileCoder.tryDecode(maybeObj);
 
-      return decoder.toObject();
+      const result = decoder.toObject();
+      Log.info(FN_NAME, MSG.CALL_SUCCESS, { result });
+
+      return result;
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -402,9 +534,17 @@ export class Adapty extends AdaptyEventEmitter {
    * iOS 14+ only.
    */
   public async presentCodeRedemptionSheet(): Promise<void> {
+    const FN_NAME = this.presentCodeRedemptionSheet.name;
+
+    Log.verbose(FN_NAME, MSG.NEW_CALL);
     this.waitUntilReady();
 
-    await this.bridge('present_code_redemption_sheet', {});
+    Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL);
+
+    await Adapty.callNative('present_code_redemption_sheet', {});
+    // does not throw
+
+    Log.info(FN_NAME, MSG.CALL_SUCCESS);
   }
 
   /**
@@ -414,20 +554,37 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError}
    */
   public async restorePurchases(): Promise<Model.AdaptyProfile> {
+    const FN_NAME = this.restorePurchases.name;
+
+    Log.verbose(FN_NAME, MSG.NEW_CALL);
     this.waitUntilReady();
 
     try {
-      const result = await this.bridge('restore_purchases', {});
-      if (!result) {
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL);
+
+      const response = await Adapty.callNative('restore_purchases', {});
+      Log.verbose(FN_NAME, MSG.NATIVE_SDK_REPLIED, { response });
+
+      if (!response) {
         throw AdaptyError.deserializationError(this.restorePurchases.name);
       }
 
-      const maybeObj = JSON.parse(result);
+      const maybeObj = JSON.parse(response);
       const decoder = Coder.AdaptyProfileCoder.tryDecode(maybeObj);
 
-      return decoder.toObject();
+      const result = decoder.toObject();
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS, { result });
+      return result;
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.verbose(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -436,14 +593,32 @@ export class Adapty extends AdaptyEventEmitter {
    * @returns {Promise<void>} resolves when fallback paywalls are saved
    */
   public async setFallbackPaywalls(paywalls: string): Promise<void> {
+    const FN_NAME = this.setFallbackPaywalls.name;
+    Log.verbose(FN_NAME, MSG.NEW_CALL, { paywalls });
+
     this.waitUntilReady();
 
+    const args = {
+      [bridgeArg.PAYWALLS]: paywalls,
+    };
+
     try {
-      await this.bridge('set_fallback_paywalls', {
-        [bridgeArg.PAYWALLS]: paywalls,
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, {
+        args,
       });
-    } catch (error) {
-      throw AdaptyError.tryWrap(error);
+
+      await Adapty.callNative('set_fallback_paywalls', args);
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
+    } catch (nativeError) {
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+        nativeError,
+      });
+
+      throw error;
     }
   }
 
@@ -464,14 +639,28 @@ export class Adapty extends AdaptyEventEmitter {
    * @throws {@link AdaptyError} if the log level is invalid
    */
   public async setLogLevel(logLevel: Input.LogLevel): Promise<void> {
+    const FN_NAME = this.setLogLevel.name;
+    Log.verbose(FN_NAME, MSG.NEW_CALL);
+
     this.waitUntilReady();
+    Log.logLevel = logLevel || null;
+
+    const args = { [bridgeArg.VALUE]: logLevel };
 
     try {
-      await this.bridge('set_log_level', {
-        [bridgeArg.VALUE]: logLevel,
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, { args });
+
+      await Adapty.callNative('set_log_level', args);
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
+    } catch (nativeError) {
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
       });
-    } catch (error) {
-      throw AdaptyError.tryWrap(error);
+
+      throw error;
     }
   }
 
@@ -489,15 +678,29 @@ export class Adapty extends AdaptyEventEmitter {
     variationId: string,
     transactionId: string,
   ): Promise<void> {
+    const FN_NAME = this.setVariationId.name;
+    Log.verbose(FN_NAME, MSG.NEW_CALL);
     this.waitUntilReady();
 
+    const args = {
+      [bridgeArg.VARIATION_ID]: variationId,
+      [bridgeArg.TRANSACTION_ID]: transactionId,
+    };
+
     try {
-      await this.bridge('set_variation_id', {
-        [bridgeArg.VARIATION_ID]: variationId,
-        [bridgeArg.TRANSACTION_ID]: transactionId,
-      });
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, { args });
+
+      await Adapty.callNative('set_variation_id', args);
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+      });
+
+      throw error;
     }
   }
 
@@ -529,6 +732,14 @@ export class Adapty extends AdaptyEventEmitter {
     source: Input.AttributionSource,
     networkUserId?: string,
   ): Promise<void> {
+    const FN_NAME = this.updateProfile.name;
+
+    Log.verbose(FN_NAME, MSG.NEW_CALL, {
+      attribution,
+      source,
+      networkUserId,
+    });
+
     this.waitUntilReady();
 
     let bridgeSource = source;
@@ -543,14 +754,27 @@ export class Adapty extends AdaptyEventEmitter {
       attributionData = JSON.stringify(attribution);
     }
 
+    const args = {
+      [bridgeArg.ATTRIBUTION]: attributionData,
+      [bridgeArg.SOURCE]: bridgeSource,
+      [bridgeArg.NETWORK_USER_ID]: networkUserId,
+    };
+
     try {
-      await this.bridge('update_attribution', {
-        [bridgeArg.ATTRIBUTION]: attributionData,
-        [bridgeArg.SOURCE]: bridgeSource,
-        [bridgeArg.NETWORK_USER_ID]: networkUserId,
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, {
+        args,
       });
+      await Adapty.callNative('update_attribution', args);
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.info(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        error: error.message,
+      });
+
+      throw error;
     }
   }
 
@@ -562,16 +786,30 @@ export class Adapty extends AdaptyEventEmitter {
   public async updateProfile(
     params: Partial<Model.AdaptyProfileParameters>,
   ): Promise<void> {
+    const FN_NAME = this.updateProfile.name;
+
+    Log.verbose(FN_NAME, MSG.NEW_CALL, { params });
     this.waitUntilReady();
 
     try {
       const data = new Coder.AdaptyProfileParametersCoder(params);
-
-      await this.bridge('update_profile', {
+      const args = {
         [bridgeArg.PARAMS]: JSON.stringify(data.encode()),
-      });
+      };
+      Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL, { args });
+
+      await Adapty.callNative('update_profile', args);
+
+      Log.info(FN_NAME, MSG.CALL_SUCCESS);
     } catch (nativeError) {
-      throw AdaptyError.tryWrap(nativeError);
+      const error = AdaptyError.tryWrap(nativeError);
+
+      Log.info(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+        nativeError: nativeError,
+        error: error.message,
+      });
+
+      throw error;
     }
   }
 }
