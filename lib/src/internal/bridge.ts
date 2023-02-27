@@ -1,9 +1,15 @@
 import { NativeModules } from 'react-native';
+import { Log } from '../sdk/logger';
 
 // Module name in native code
 const MODULE_NAME = 'RNAdapty';
 // Routing function name in native code
 const HANDLER_NAME = 'handle';
+
+const caller = NativeModules[MODULE_NAME][HANDLER_NAME] as (
+  methodName: BridgeMethodName,
+  args: Map,
+) => Promise<string | null>;
 
 /**
  * Calls native methods of the Adapty SDK.
@@ -17,10 +23,33 @@ const HANDLER_NAME = 'handle';
  *
  * @internal
  */
-export const bridgeCall = NativeModules[MODULE_NAME][HANDLER_NAME] as (
+export async function bridgeCall(
   methodName: BridgeMethodName,
   args: Map,
-) => Promise<string | null>;
+): Promise<string | null> {
+  Log.verbose('bridgeCall', `Calling native method.`, {
+    methodName,
+    args,
+  });
+
+  try {
+    const nativeResp = await caller(methodName, args);
+    Log.verbose('bridgeCall', `Calling native method. SUCCESS`, {
+      methodName,
+      args,
+    });
+
+    return nativeResp;
+  } catch (error) {
+    Log.verbose('bridgeCall', `Native method returned an error.`, {
+      methodName,
+      args,
+      error,
+    });
+
+    throw error;
+  }
+}
 
 type Map = Record<string | number, any>;
 
