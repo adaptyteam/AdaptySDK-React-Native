@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import { Log } from '../../sdk/logger';
 import type {
   AdaptyAccessLevel,
@@ -60,8 +62,8 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
 
       throw this.errRequired('activated_at');
     }
-    const activatedAtTs = Date.parse(activatedAtStr);
-    if (isNaN(activatedAtTs)) {
+    const activatedAt = dayjs(activatedAtStr).toDate();
+    if (isNaN(activatedAt.getTime())) {
       Log.verbose(
         `${this.prototype.constructor.name}.tryDecode`,
         `Failed to decode: "activated_at" is not a valid Date"`,
@@ -74,7 +76,6 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
         current: activatedAtStr,
       });
     }
-    const activatedAt = new Date(activatedAtTs);
 
     const activeIntroductoryOfferType = data[
       'active_introductory_offer_type'
@@ -130,12 +131,11 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
     }
 
     const billingIssueDetectedAtStr = data['billing_issue_detected_at'];
-    const billingIssueDetectedAtTs = billingIssueDetectedAtStr
-      ? Date.parse(billingIssueDetectedAtStr)
+    const billingIssueDetectedAt = billingIssueDetectedAtStr
+      ? dayjs(billingIssueDetectedAtStr).toDate()
       : undefined;
-    let billingIssueDetectedAt: Date | undefined;
-    if (billingIssueDetectedAtTs) {
-      if (isNaN(billingIssueDetectedAtTs)) {
+    if (billingIssueDetectedAt) {
+      if (isNaN(billingIssueDetectedAt.getTime())) {
         Log.verbose(
           `${this.prototype.constructor.name}.tryDecode`,
           `Failed to decode: "billing_issue_detected_at" is not a valid Date"`,
@@ -148,8 +148,6 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
           current: billingIssueDetectedAtStr,
         });
       }
-
-      billingIssueDetectedAt = new Date(billingIssueDetectedAtTs);
     }
 
     const cancellationReason = data['cancellation_reason'] as
@@ -172,10 +170,10 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
     }
 
     const expiresAtStr = data['expires_at'];
-    const expiresAtTs = expiresAtStr ? Date.parse(expiresAtStr) : undefined;
-    let expiresAt: Date | undefined;
-    if (expiresAtTs) {
-      if (isNaN(expiresAtTs)) {
+
+    const expiresAt = expiresAtStr ? dayjs(expiresAtStr).toDate() : undefined;
+    if (expiresAt) {
+      if (isNaN(expiresAt.getTime())) {
         Log.verbose(
           `${this.prototype.constructor.name}.tryDecode`,
           `Failed to decode: "expires_at" is not a valid Date"`,
@@ -188,8 +186,6 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
           current: expiresAtStr,
         });
       }
-
-      expiresAt = new Date(expiresAtTs);
     }
 
     const id = data['id'];
@@ -277,10 +273,9 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
     }
 
     const renewedAtStr = data['renewed_at'];
-    const renewedAtTs = renewedAtStr ? Date.parse(renewedAtStr) : undefined;
-    let renewedAt: Date | undefined;
-    if (renewedAtTs) {
-      if (isNaN(renewedAtTs)) {
+    const renewedAt = renewedAtStr ? dayjs(renewedAtStr).toDate() : undefined;
+    if (renewedAt) {
+      if (isNaN(renewedAt.getTime())) {
         Log.verbose(
           `${this.prototype.constructor.name}.tryDecode`,
           `Failed to decode: "renewed_at" is not a valid Date"`,
@@ -293,15 +288,12 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
           current: renewedAtStr,
         });
       }
-
-      renewedAt = new Date(renewedAtTs);
     }
 
     const startsAtStr = data['starts_at'];
-    const startsAtTs = startsAtStr ? Date.parse(startsAtStr) : undefined;
-    let startsAt: Date | undefined;
-    if (startsAtTs) {
-      if (isNaN(startsAtTs)) {
+    const startsAt = startsAtStr ? dayjs(startsAtStr).toDate() : undefined;
+    if (startsAt) {
+      if (isNaN(startsAt.getTime())) {
         Log.verbose(
           `${this.prototype.constructor.name}.tryDecode`,
           `Failed to decode: "starts_at" is not a valid Date"`,
@@ -314,8 +306,6 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
           current: startsAtStr,
         });
       }
-
-      startsAt = new Date(startsAtTs);
     }
 
     const store = data['store'] as VendorStore | undefined;
@@ -343,12 +333,11 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
     }
 
     const unsubscribedAtStr = data['unsubscribed_at'];
-    const unsubscribedAtTs = unsubscribedAtStr
-      ? Date.parse(unsubscribedAtStr)
+    const unsubscribedAt = unsubscribedAtStr
+      ? dayjs(unsubscribedAtStr).toDate()
       : undefined;
-    let unsubscribedAt: Date | undefined;
-    if (unsubscribedAtTs) {
-      if (isNaN(unsubscribedAtTs)) {
+    if (unsubscribedAt) {
+      if (isNaN(unsubscribedAt.getTime())) {
         Log.verbose(
           `${this.prototype.constructor.name}.tryDecode`,
           `Failed to decode: "unsubscribed_at" is not a valid Date"`,
@@ -361,8 +350,6 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
           current: unsubscribedAtStr,
         });
       }
-
-      unsubscribedAt = new Date(unsubscribedAtTs);
     }
 
     const vendorProductId = data['vendor_product_id'];

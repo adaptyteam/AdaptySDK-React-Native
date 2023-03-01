@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import { Log } from '../../sdk/logger';
 import type { AdaptySubscription } from '../../types';
 
@@ -49,15 +51,14 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     if (!activatedAtStr) {
       throw this.errRequired('activated_at');
     }
-    const activatedAtTs = Date.parse(activatedAtStr);
-    if (isNaN(activatedAtTs)) {
+    const activatedAt = dayjs(activatedAtStr).toDate();
+    if (isNaN(activatedAt.getTime())) {
       throw this.errType({
         name: 'activatedAt',
         expected: 'Date',
         current: activatedAtStr,
       });
     }
-    const activatedAt = new Date(activatedAtTs);
 
     const activeIntroductoryOfferType = data[
       'active_introductory_offer_type'
@@ -99,20 +100,17 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     }
 
     const billingIssueDetectedAtStr = data['billing_issue_detected_at'];
-    const billingIssueDetectedAtTs = billingIssueDetectedAtStr
-      ? Date.parse(billingIssueDetectedAtStr)
+    const billingIssueDetectedAt = billingIssueDetectedAtStr
+      ? dayjs(billingIssueDetectedAtStr).toDate()
       : undefined;
-    let billingIssueDetectedAt: Date | undefined;
-    if (billingIssueDetectedAtTs) {
-      if (isNaN(billingIssueDetectedAtTs)) {
+    if (billingIssueDetectedAt) {
+      if (isNaN(billingIssueDetectedAt.getTime())) {
         throw this.errType({
           name: 'billingIssueDetectedAt',
           expected: 'Date',
           current: billingIssueDetectedAtStr,
         });
       }
-
-      billingIssueDetectedAt = new Date(billingIssueDetectedAtTs);
     }
 
     const cancellationReason = data[
@@ -129,18 +127,15 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     }
 
     const expiresAtStr = data['expires_at'];
-    const expiresAtTs = expiresAtStr ? Date.parse(expiresAtStr) : undefined;
-    let expiresAt: Date | undefined;
-    if (expiresAtTs) {
-      if (isNaN(expiresAtTs)) {
+    const expiresAt = expiresAtStr ? dayjs(expiresAtStr).toDate() : undefined;
+    if (expiresAt) {
+      if (isNaN(expiresAt.getTime())) {
         throw this.errType({
           name: 'expiresAt',
           expected: 'Date',
           current: expiresAtStr,
         });
       }
-
-      expiresAt = new Date(expiresAtTs);
     }
 
     const isActive = data['is_active'] as Type['isActive'];
@@ -191,32 +186,27 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     }
 
     const renewedAtStr = data['renewed_at'];
-    const renewedAtTs = renewedAtStr ? Date.parse(renewedAtStr) : undefined;
-    let renewedAt: Date | undefined;
-    if (renewedAtTs) {
-      if (isNaN(renewedAtTs)) {
+    const renewedAt = renewedAtStr ? dayjs(renewedAtStr).toDate() : undefined;
+    if (renewedAt) {
+      if (isNaN(renewedAt.getTime())) {
         throw this.errType({
           name: 'renewedAt',
           expected: 'Date',
           current: renewedAtStr,
         });
       }
-      renewedAt = new Date(renewedAtTs);
     }
 
     const startsAtStr = data['starts_at'];
-    const startsAtTs = startsAtStr ? Date.parse(startsAtStr) : undefined;
-    let startsAt: Date | undefined;
-    if (startsAtTs) {
-      if (isNaN(startsAtTs)) {
+    const startsAt = startsAtStr ? dayjs(startsAtStr).toDate() : undefined;
+    if (startsAt) {
+      if (isNaN(startsAt.getTime())) {
         throw this.errType({
           name: 'startsAt',
           expected: 'Date',
           current: startsAtStr,
         });
       }
-
-      startsAt = new Date(startsAtTs);
     }
 
     const store = data['store'] as Type['store'];
@@ -232,19 +222,17 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     }
 
     const unsubscribedAtStr = data['unsubscribed_at'];
-    const unsubscribedAtTs = unsubscribedAtStr
-      ? Date.parse(unsubscribedAtStr)
+    const unsubscribedAt = unsubscribedAtStr
+      ? dayjs(unsubscribedAtStr).toDate()
       : undefined;
-    let unsubscribedAt: Date | undefined;
-    if (unsubscribedAtTs) {
-      if (isNaN(unsubscribedAtTs)) {
+    if (unsubscribedAt) {
+      if (isNaN(unsubscribedAt.getTime())) {
         throw this.errType({
           name: 'unsubscribedAt',
           expected: 'Date',
           current: unsubscribedAtStr,
         });
       }
-      unsubscribedAt = new Date(unsubscribedAtTs);
     }
 
     const vendorOriginalTransactionId = data[

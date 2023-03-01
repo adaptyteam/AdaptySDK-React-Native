@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import { Log } from '../../sdk/logger';
 import type { AdaptyNonSubscription, VendorStore } from '../../types';
 
@@ -84,15 +86,14 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
     if (!purchasedAtStr) {
       throw this.errRequired('purchased_at');
     }
-    const purchasedAtTs = Date.parse(purchasedAtStr);
-    if (isNaN(purchasedAtTs)) {
+    const purchasedAt = dayjs(purchasedAtStr).toDate();
+    if (isNaN(purchasedAt.getTime())) {
       throw this.errType({
         name: 'purchasedAt',
         expected: 'Date',
         current: purchasedAtStr,
       });
     }
-    const purchasedAt = new Date(purchasedAtTs);
 
     const store = data['store'] as VendorStore | undefined;
     if (typeof store !== 'string') {
