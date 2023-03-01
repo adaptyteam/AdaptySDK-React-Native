@@ -2,7 +2,6 @@ import type { AdaptyProfile } from '../../types';
 import { AdaptyAccessLevelCoder } from './AdaptyAccessLevel';
 import { AdaptyNonSubscriptionCoder } from './AdaptyNonSubscription';
 import { AdaptySubscriptionCoder } from './AdaptySubscription';
-import { AdaptyProfileParametersCoder } from './AdaptyProfileParameters';
 
 import { Coder } from './coder';
 import { Log } from '../../sdk/logger';
@@ -89,8 +88,7 @@ export class AdaptyProfileCoder extends Coder<Type> {
         current: typeof customAttributesRaw,
       });
     }
-    const customAttributes =
-      AdaptyProfileParametersCoder.tryDecode(customAttributesRaw).toObject();
+    const customAttributes = customAttributesRaw;
 
     const customerUserId = data['customer_user_id'] as Type['customerUserId'];
     if (customerUserId && typeof customerUserId !== 'string') {

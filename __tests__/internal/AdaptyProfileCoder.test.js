@@ -20,7 +20,10 @@ describe('AdaptyProfileCoder', () => {
         store: 'app_store',
       },
     },
-    custom_attributes: {},
+    custom_attributes: {
+      foo: 23,
+      bar: 'hello',
+    },
     subscriptions: {
       'weekly.premium.599': {
         is_lifetime: false,
@@ -60,7 +63,7 @@ describe('AdaptyProfileCoder', () => {
           willRenew: true,
         },
       },
-      customAttributes: {},
+      customAttributes: { foo: 23, bar: 'hello' },
       customerUserId: 'divan_2',
       nonSubscriptions: {},
       profileId: 'ff7c28c7-013c-41c4-8dcb-99496f27ae3e',
@@ -94,5 +97,9 @@ describe('AdaptyProfileCoder', () => {
   });
   // it('should not decode (missing required)', () => {
   //   expect(() => AdaptyPaywallCoder.tryDecode(paywall2)).toThrow('Required');
+  // });
+  // it('should not decode (missing required)', () => {
+  //   const coder = AdaptyProfileCoder.tryDecode(profileXX);
+  //   console.log(coder.toObject());
   // });
 });

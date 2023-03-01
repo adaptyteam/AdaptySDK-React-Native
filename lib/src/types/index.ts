@@ -130,7 +130,7 @@ export interface AdaptyProfile {
    * Previously set user custom attributes with {@link Adapty.updateProfile} method.
    * @readonly
    */
-  readonly customAttributes: Partial<AdaptyProfileParameters>;
+  readonly customAttributes: Record<string, any>;
   /**
    * An identifier of a user in your system.
    * @readonly

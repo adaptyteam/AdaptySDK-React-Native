@@ -31,226 +31,296 @@ export class AdaptyProfileParametersCoder extends Coder<Type> {
       });
     }
 
-    // const firstName = data['first_name'] as Type['firstName'];
-    // if (firstName && typeof firstName !== 'string') {
-    //   throw this.errType({
-    //     name: 'firstName',
-    //     expected: 'string',
-    //     current: typeof firstName,
-    //   });
-    // }
+    const firstName = data['first_name'] as Type['firstName'];
+    if (firstName && typeof firstName !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "first_name" is not a string`,
+      );
 
-    // const lastName = data['last_name'] as Type['lastName'];
-    // if (lastName && typeof lastName !== 'string') {
-    //   throw this.errType({
-    //     name: 'lastName',
-    //     expected: 'string',
-    //     current: typeof lastName,
-    //   });
-    // }
+      throw this.errType({
+        name: 'firstName',
+        expected: 'string',
+        current: typeof firstName,
+      });
+    }
 
-    // const gender = data['gender'] as Type['gender'];
-    // if (gender && typeof gender !== 'string') {
-    //   throw this.errType({
-    //     name: 'gender',
-    //     expected: 'string',
-    //     current: typeof gender,
-    //   });
-    // }
+    const lastName = data['last_name'] as Type['lastName'];
+    if (lastName && typeof lastName !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "last_name" is not a string`,
+      );
 
-    // const birthday = data['birthday'] as Type['birthday'];
-    // if (birthday && typeof birthday !== 'string') {
-    //   throw this.errType({
-    //     name: 'birthday',
-    //     expected: 'string',
-    //     current: typeof birthday,
-    //   });
-    // }
+      throw this.errType({
+        name: 'lastName',
+        expected: 'string',
+        current: typeof lastName,
+      });
+    }
 
-    // const email = data['email'] as Type['email'];
-    // if (email && typeof email !== 'string') {
-    //   throw this.errType({
-    //     name: 'email',
-    //     expected: 'string',
-    //     current: typeof email,
-    //   });
-    // }
+    const gender = data['gender'] as Type['gender'];
+    if (gender && typeof gender !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "gender" is not a string`,
+      );
 
-    // const phoneNumber = data['phone_number'] as Type['phoneNumber'];
-    // if (phoneNumber && typeof phoneNumber !== 'string') {
-    //   throw this.errType({
-    //     name: 'phoneNumber',
-    //     expected: 'string',
-    //     current: typeof phoneNumber,
-    //   });
-    // }
+      throw this.errType({
+        name: 'gender',
+        expected: 'string',
+        current: typeof gender,
+      });
+    }
 
-    // const facebookAnonymousId = data[
-    //   'facebook_anonymous_id'
-    // ] as Type['facebookAnonymousId'];
-    // if (facebookAnonymousId && typeof facebookAnonymousId !== 'string') {
-    //   throw this.errType({
-    //     name: 'facebookAnonymousId',
-    //     expected: 'string',
-    //     current: typeof facebookAnonymousId,
-    //   });
-    // }
+    const birthday = data['birthday'] as Type['birthday'];
+    if (birthday && typeof birthday !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "birthday" is not a string`,
+      );
 
-    // const amplitudeUserId = data[
-    //   'amplitude_user_id'
-    // ] as Type['amplitudeUserId'];
-    // if (amplitudeUserId && typeof amplitudeUserId !== 'string') {
-    //   throw this.errType({
-    //     name: 'amplitudeUserId',
-    //     expected: 'string',
-    //     current: typeof amplitudeUserId,
-    //   });
-    // }
+      throw this.errType({
+        name: 'birthday',
+        expected: 'string',
+        current: typeof birthday,
+      });
+    }
 
-    // const amplitudeDeviceId = data[
-    //   'amplitude_device_id'
-    // ] as Type['amplitudeDeviceId'];
-    // if (amplitudeDeviceId && typeof amplitudeDeviceId !== 'string') {
-    //   throw this.errType({
-    //     name: 'amplitudeDeviceId',
-    //     expected: 'string',
-    //     current: typeof amplitudeDeviceId,
-    //   });
-    // }
+    const email = data['email'] as Type['email'];
+    if (email && typeof email !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "email" is not a string`,
+      );
 
-    // const mixpanelUserId = data['mixpanel_user_id'] as Type['mixpanelUserId'];
-    // if (mixpanelUserId && typeof mixpanelUserId !== 'string') {
-    //   throw this.errType({
-    //     name: 'mixpanelUserId',
-    //     expected: 'string',
-    //     current: typeof mixpanelUserId,
-    //   });
-    // }
+      throw this.errType({
+        name: 'email',
+        expected: 'string',
+        current: typeof email,
+      });
+    }
 
-    // const appmetricaProfileId = data[
-    //   'appmetrica_profile_id'
-    // ] as Type['appmetricaProfileId'];
-    // if (appmetricaProfileId && typeof appmetricaProfileId !== 'string') {
-    //   throw this.errType({
-    //     name: 'appmetricaProfileId',
-    //     expected: 'string',
-    //     current: typeof appmetricaProfileId,
-    //   });
-    // }
+    const phoneNumber = data['phone_number'] as Type['phoneNumber'];
+    if (phoneNumber && typeof phoneNumber !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "phone_number" is not a string`,
+      );
 
-    // const appmetricaDeviceId = data[
-    //   'appmetrica_device_id'
-    // ] as Type['appmetricaDeviceId'];
-    // if (appmetricaDeviceId && typeof appmetricaDeviceId !== 'string') {
-    //   throw this.errType({
-    //     name: 'appmetricaDeviceId',
-    //     expected: 'string',
-    //     current: typeof appmetricaDeviceId,
-    //   });
-    // }
+      throw this.errType({
+        name: 'phoneNumber',
+        expected: 'string',
+        current: typeof phoneNumber,
+      });
+    }
 
-    // const storeCountry = data['store_country'] as Type['storeCountry'];
-    // if (storeCountry && typeof storeCountry !== 'string') {
-    //   throw this.errType({
-    //     name: 'storeCountry',
-    //     expected: 'string',
-    //     current: typeof storeCountry,
-    //   });
-    // }
+    const facebookAnonymousId = data[
+      'facebook_anonymous_id'
+    ] as Type['facebookAnonymousId'];
+    if (facebookAnonymousId && typeof facebookAnonymousId !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "facebook_anonymous_id" is not a string`,
+      );
 
-    // const appTrackingTransparencyStatus = data[
-    //   'att_status'
-    // ] as Type['appTrackingTransparencyStatus'];
-    // if (
-    //   appTrackingTransparencyStatus &&
-    //   typeof appTrackingTransparencyStatus !== 'string'
-    // ) {
-    //   throw this.errType({
-    //     name: 'appTrackingTransparencyStatus',
-    //     expected: 'string',
-    //     current: typeof appTrackingTransparencyStatus,
-    //   });
-    // }
+      throw this.errType({
+        name: 'facebookAnonymousId',
+        expected: 'string',
+        current: typeof facebookAnonymousId,
+      });
+    }
 
-    // const codableCustomAttributes = data[
-    //   'custom_attributes'
-    // ] as Type['codableCustomAttributes'];
-    // if (
-    //   codableCustomAttributes &&
-    //   typeof codableCustomAttributes !== 'object'
-    // ) {
-    //   throw this.errType({
-    //     name: 'codableCustomAttributes',
-    //     expected: 'object',
-    //     current: typeof codableCustomAttributes,
-    //   });
-    // }
+    const amplitudeUserId = data[
+      'amplitude_user_id'
+    ] as Type['amplitudeUserId'];
+    if (amplitudeUserId && typeof amplitudeUserId !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "amplitude_user_id" is not a string`,
+      );
 
-    // const analyticsDisabled = data[
-    //   'analytics_disabled'
-    // ] as Type['analyticsDisabled'];
-    // if (
-    //   (analyticsDisabled !== undefined || analyticsDisabled !== null) &&
-    //   typeof analyticsDisabled !== 'boolean'
-    // ) {
-    //   throw this.errType({
-    //     name: 'analyticsDisabled',
-    //     expected: 'boolean',
-    //     current: typeof analyticsDisabled,
-    //   });
-    // }
+      throw this.errType({
+        name: 'amplitudeUserId',
+        expected: 'string',
+        current: typeof amplitudeUserId,
+      });
+    }
 
-    // const oneSignalPlayerId = data[
-    //   'onesignal_player_id'
-    // ] as Type['oneSignalPlayerId'];
-    // if (oneSignalPlayerId && typeof oneSignalPlayerId !== 'string') {
-    //   throw this.errType({
-    //     name: 'oneSignalPlayerId',
-    //     expected: 'string',
-    //     current: typeof oneSignalPlayerId,
-    //   });
-    // }
+    const amplitudeDeviceId = data[
+      'amplitude_device_id'
+    ] as Type['amplitudeDeviceId'];
+    if (amplitudeDeviceId && typeof amplitudeDeviceId !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "amplitude_device_id" is not a string`,
+      );
 
-    // const pushwooshHWID = data['pushwoosh_hwid'] as Type['pushwooshHWID'];
-    // if (pushwooshHWID && typeof pushwooshHWID !== 'string') {
-    //   throw this.errType({
-    //     name: 'pushwooshHWID',
-    //     expected: 'string',
-    //     current: typeof pushwooshHWID,
-    //   });
-    // }
+      throw this.errType({
+        name: 'amplitudeDeviceId',
+        expected: 'string',
+        current: typeof amplitudeDeviceId,
+      });
+    }
 
-    // const firebaseAppInstanceId = data[
-    //   'firebase_app_instance_id'
-    // ] as Type['firebaseAppInstanceId'];
-    // if (firebaseAppInstanceId && typeof firebaseAppInstanceId !== 'string') {
-    //   throw this.errType({
-    //     name: 'firebaseAppInstanceId',
-    //     expected: 'string',
-    //     current: typeof firebaseAppInstanceId,
-    //   });
-    // }
+    const mixpanelUserId = data['mixpanel_user_id'] as Type['mixpanelUserId'];
+    if (mixpanelUserId && typeof mixpanelUserId !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "mixpanel_user_id" is not a string`,
+      );
+
+      throw this.errType({
+        name: 'mixpanelUserId',
+        expected: 'string',
+        current: typeof mixpanelUserId,
+      });
+    }
+
+    const appmetricaProfileId = data[
+      'appmetrica_profile_id'
+    ] as Type['appmetricaProfileId'];
+    if (appmetricaProfileId && typeof appmetricaProfileId !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "appmetrica_profile_id" is not a string`,
+      );
+
+      throw this.errType({
+        name: 'appmetricaProfileId',
+        expected: 'string',
+        current: typeof appmetricaProfileId,
+      });
+    }
+
+    const appmetricaDeviceId = data[
+      'appmetrica_device_id'
+    ] as Type['appmetricaDeviceId'];
+    if (appmetricaDeviceId && typeof appmetricaDeviceId !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "appmetrica_device_id" is not a string`,
+      );
+
+      throw this.errType({
+        name: 'appmetricaDeviceId',
+        expected: 'string',
+        current: typeof appmetricaDeviceId,
+      });
+    }
+
+    const storeCountry = data['store_country'] as Type['storeCountry'];
+    if (storeCountry && typeof storeCountry !== 'string') {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "store_country" is not a string`,
+      );
+
+      throw this.errType({
+        name: 'storeCountry',
+        expected: 'string',
+        current: typeof storeCountry,
+      });
+    }
+
+    const appTrackingTransparencyStatus = data[
+      'att_status'
+    ] as Type['appTrackingTransparencyStatus'];
+    if (
+      appTrackingTransparencyStatus &&
+      typeof appTrackingTransparencyStatus !== 'string'
+    ) {
+      Log.error(
+        `${this.prototype.constructor.name}.tryDecode`,
+        `Failed to decode: "att_status" is not a string`,
+      );
+
+      throw this.errType({
+        name: 'appTrackingTransparencyStatus',
+        expected: 'string',
+        current: typeof appTrackingTransparencyStatus,
+      });
+    }
+
+    const codableCustomAttributes = data[
+      'custom_attributes'
+    ] as Type['codableCustomAttributes'];
+    if (
+      codableCustomAttributes &&
+      typeof codableCustomAttributes !== 'object'
+    ) {
+      throw this.errType({
+        name: 'codableCustomAttributes',
+        expected: 'object',
+        current: typeof codableCustomAttributes,
+      });
+    }
+
+    const analyticsDisabled = data[
+      'analytics_disabled'
+    ] as Type['analyticsDisabled'];
+    if (
+      (analyticsDisabled !== undefined || analyticsDisabled !== null) &&
+      typeof analyticsDisabled !== 'boolean'
+    ) {
+      throw this.errType({
+        name: 'analyticsDisabled',
+        expected: 'boolean',
+        current: typeof analyticsDisabled,
+      });
+    }
+
+    const oneSignalPlayerId = data[
+      'onesignal_player_id'
+    ] as Type['oneSignalPlayerId'];
+    if (oneSignalPlayerId && typeof oneSignalPlayerId !== 'string') {
+      throw this.errType({
+        name: 'oneSignalPlayerId',
+        expected: 'string',
+        current: typeof oneSignalPlayerId,
+      });
+    }
+
+    const pushwooshHWID = data['pushwoosh_hwid'] as Type['pushwooshHWID'];
+    if (pushwooshHWID && typeof pushwooshHWID !== 'string') {
+      throw this.errType({
+        name: 'pushwooshHWID',
+        expected: 'string',
+        current: typeof pushwooshHWID,
+      });
+    }
+
+    const firebaseAppInstanceId = data[
+      'firebase_app_instance_id'
+    ] as Type['firebaseAppInstanceId'];
+    if (firebaseAppInstanceId && typeof firebaseAppInstanceId !== 'string') {
+      throw this.errType({
+        name: 'firebaseAppInstanceId',
+        expected: 'string',
+        current: typeof firebaseAppInstanceId,
+      });
+    }
 
     const result: Required<Type> = {
-      // firstName: firstName!,
-      // lastName: lastName!,
-      // gender: gender!,
-      // birthday: birthday!,
-      // email: email!,
-      // phoneNumber: phoneNumber!,
-      // facebookAnonymousId: facebookAnonymousId!,
-      // amplitudeUserId: amplitudeUserId!,
-      // amplitudeDeviceId: amplitudeDeviceId!,
-      // mixpanelUserId: mixpanelUserId!,
-      // appmetricaProfileId: appmetricaProfileId!,
-      // appmetricaDeviceId: appmetricaDeviceId!,
-      // storeCountry: storeCountry!,
-      // appTrackingTransparencyStatus: appTrackingTransparencyStatus!,
-      // codableCustomAttributes: codableCustomAttributes!,
-      // analyticsDisabled: analyticsDisabled!,
-      // oneSignalPlayerId: oneSignalPlayerId!,
-      // pushwooshHWID: pushwooshHWID!,
-      // firebaseAppInstanceId: firebaseAppInstanceId!,
+      firstName: firstName!,
+      lastName: lastName!,
+      gender: gender!,
+      birthday: birthday!,
+      email: email!,
+      phoneNumber: phoneNumber!,
+      facebookAnonymousId: facebookAnonymousId!,
+      amplitudeUserId: amplitudeUserId!,
+      amplitudeDeviceId: amplitudeDeviceId!,
+      mixpanelUserId: mixpanelUserId!,
+      appmetricaProfileId: appmetricaProfileId!,
+      appmetricaDeviceId: appmetricaDeviceId!,
+      storeCountry: storeCountry!,
+      appTrackingTransparencyStatus: appTrackingTransparencyStatus!,
+      codableCustomAttributes: codableCustomAttributes!,
+      analyticsDisabled: analyticsDisabled!,
+      oneSignalPlayerId: oneSignalPlayerId!,
+      pushwooshHWID: pushwooshHWID!,
+      firebaseAppInstanceId: firebaseAppInstanceId!,
     } as any;
 
     // drop empty fields
