@@ -1,69 +1,78 @@
 import { Log } from '../sdk/logger';
 import { ErrorCode } from '../types/error';
 
+const RN_ERROR_KEY = 'message';
+const ERROR_CODE_KEY = 'adapty_code';
+const ERROR_DETAIL_KEY = 'detail';
+const ERROR_MESSAGE_KEY = 'message';
+
 export class BridgeError extends Error {
-  public adaptyCode: keyof typeof ErrorCode;
+  public adaptyCode: ErrorCode;
   public description: string;
   public detail: string;
 
-  constructor(data: Record<string, any>) {
-    Log.verbose('BridgeError', `Creating new BridgeError.`, { args: data });
+  static nativeErr(data: Record<string, any>): BridgeError {
+    Log.verbose(
+      'BridgeError.nativeErr',
+      `Creating new BridgeError from native error...`,
+      { args: data },
+    );
 
-    const adaptyError = (data ?? {})['message'];
+    /**
+     * Native errors are typically serialized as objects
+     * with one meaningful key — `message`
+     *
+     * Inside it there is a serialized object with
+     * `adapty_code`, `message` and `detail` keys.
+     */
+    const adaptyError = (data ?? {})[RN_ERROR_KEY];
     if (!adaptyError) {
       Log.warn(
-        'BridgeError',
+        'BridgeError.decodeNativeError',
         `Failed to construct a valid BridgeError. Data does not contain a message.`,
         { args: data },
       );
 
-      super('Unknown error');
-      this.adaptyCode = 0;
-      this.description = `Unknown error. JSON: ${JSON.stringify(data)}`;
-      this.detail = '';
-      return;
+      return new BridgeError(
+        'unknown',
+        `Unknown error. JSON: ${JSON.stringify(data)}`,
+      );
     }
 
     try {
       const errNative = JSON.parse(adaptyError);
-      const adaptyCode = errNative['adapty_code'];
-      const detail = errNative['detail'];
-      const message = errNative['message'];
+      const errCode = errNative[ERROR_CODE_KEY];
+      const message = errNative[ERROR_MESSAGE_KEY];
+      const detail = errNative[ERROR_DETAIL_KEY];
 
-      super(message || detail || adaptyCode);
-
-      this.adaptyCode = adaptyCode;
-      this.description = message;
-      this.detail = detail;
-    } catch (serializationError) {
+      return new BridgeError(errCode, message, detail);
+    } catch {
       // Failed to parse the error message. Should not occur.
-
       Log.error(
-        'BridgeError',
-        `Failed to construct a valid BridgeError. Message.`,
-        { args: data, error: serializationError },
+        'BridgeError.nativeErr',
+        'Failed to deserialize a native error message',
+        { args: data },
       );
 
-      const adaptyCode = 0;
-      const detail = '';
-      const message = `Unknown error. Failed to parse native error message. JSON: ${JSON.stringify(
-        data,
-      )}. Serialization error: ${JSON.stringify(serializationError)}`;
-
-      super(message || detail);
-
-      this.adaptyCode = adaptyCode;
-      this.description = message;
-      this.detail = detail;
+      return new BridgeError(
+        'unknown',
+        'Failed to deserialize a native error message',
+        'Check the logs for more details',
+      );
     }
   }
 
-  static decodeFailed(message: string): BridgeError {
-    return new BridgeError({
-      message: JSON.stringify({
-        adapty_code: ErrorCode[2006],
-        message,
-      }),
+  constructor(errCode: ErrorCode, message: string, detail = '') {
+    Log.verbose('BridgeError', `Raised new BridgeError`, {
+      adapty_code: errCode,
+      message,
+      detail,
     });
+
+    super(message || detail || errCode);
+
+    this.adaptyCode = errCode;
+    this.description = message;
+    this.detail = detail;
   }
 }

@@ -1,7 +1,6 @@
-import dayjs from 'dayjs';
-
 import { Log } from '../../sdk/logger';
 import type { AdaptySubscription } from '../../types';
+import { DateParser } from '../parsers/date';
 
 import { Coder } from './coder';
 
@@ -27,6 +26,8 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
   }
 
   static override tryDecode(json_obj: unknown): AdaptySubscriptionCoder {
+    const dateParser = new DateParser('AdaptyNonSubscription');
+
     Log.verbose(
       `${this.prototype.constructor.name}.tryDecode`,
       `Trying to decode...`,
@@ -47,18 +48,10 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
       });
     }
 
-    const activatedAtStr = data['activated_at'];
-    if (!activatedAtStr) {
-      throw this.errRequired('activated_at');
-    }
-    const activatedAt = dayjs(activatedAtStr).toDate();
-    if (isNaN(activatedAt.getTime())) {
-      throw this.errType({
-        name: 'activatedAt',
-        expected: 'Date',
-        current: activatedAtStr,
-      });
-    }
+    const ACTIVATED_AT = 'activated_at';
+    const activatedAt = dateParser.parse(data[ACTIVATED_AT], {
+      keyName: ACTIVATED_AT,
+    });
 
     const activeIntroductoryOfferType = data[
       'active_introductory_offer_type'
@@ -99,19 +92,11 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
       }
     }
 
-    const billingIssueDetectedAtStr = data['billing_issue_detected_at'];
-    const billingIssueDetectedAt = billingIssueDetectedAtStr
-      ? dayjs(billingIssueDetectedAtStr).toDate()
-      : undefined;
-    if (billingIssueDetectedAt) {
-      if (isNaN(billingIssueDetectedAt.getTime())) {
-        throw this.errType({
-          name: 'billingIssueDetectedAt',
-          expected: 'Date',
-          current: billingIssueDetectedAtStr,
-        });
-      }
-    }
+    const BILLING_ISSUE_DETECTED_AT = 'billing_issue_detected_at';
+    const billingIssueDetectedAt = dateParser.parseMaybe(
+      data[BILLING_ISSUE_DETECTED_AT],
+      { keyName: BILLING_ISSUE_DETECTED_AT },
+    );
 
     const cancellationReason = data[
       'cancellation_reason'
@@ -126,17 +111,10 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
       }
     }
 
-    const expiresAtStr = data['expires_at'];
-    const expiresAt = expiresAtStr ? dayjs(expiresAtStr).toDate() : undefined;
-    if (expiresAt) {
-      if (isNaN(expiresAt.getTime())) {
-        throw this.errType({
-          name: 'expiresAt',
-          expected: 'Date',
-          current: expiresAtStr,
-        });
-      }
-    }
+    const EXPIRES_AT = 'expires_at';
+    const expiresAt = dateParser.parseMaybe(data[EXPIRES_AT], {
+      keyName: EXPIRES_AT,
+    });
 
     const isActive = data['is_active'] as Type['isActive'];
     if (typeof isActive !== 'boolean') {
@@ -185,29 +163,15 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
       });
     }
 
-    const renewedAtStr = data['renewed_at'];
-    const renewedAt = renewedAtStr ? dayjs(renewedAtStr).toDate() : undefined;
-    if (renewedAt) {
-      if (isNaN(renewedAt.getTime())) {
-        throw this.errType({
-          name: 'renewedAt',
-          expected: 'Date',
-          current: renewedAtStr,
-        });
-      }
-    }
+    const RENEWED_AT = 'renewed_at';
+    const renewedAt = dateParser.parseMaybe(data[RENEWED_AT], {
+      keyName: RENEWED_AT,
+    });
 
-    const startsAtStr = data['starts_at'];
-    const startsAt = startsAtStr ? dayjs(startsAtStr).toDate() : undefined;
-    if (startsAt) {
-      if (isNaN(startsAt.getTime())) {
-        throw this.errType({
-          name: 'startsAt',
-          expected: 'Date',
-          current: startsAtStr,
-        });
-      }
-    }
+    const STARTS_AT = 'starts_at';
+    const startsAt = dateParser.parseMaybe(data[STARTS_AT], {
+      keyName: STARTS_AT,
+    });
 
     const store = data['store'] as Type['store'];
     if (!store) {
@@ -221,19 +185,10 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
       });
     }
 
-    const unsubscribedAtStr = data['unsubscribed_at'];
-    const unsubscribedAt = unsubscribedAtStr
-      ? dayjs(unsubscribedAtStr).toDate()
-      : undefined;
-    if (unsubscribedAt) {
-      if (isNaN(unsubscribedAt.getTime())) {
-        throw this.errType({
-          name: 'unsubscribedAt',
-          expected: 'Date',
-          current: unsubscribedAtStr,
-        });
-      }
-    }
+    const UNSUBSCRIBED_AT = 'unsubscribed_at';
+    const unsubscribedAt = dateParser.parseMaybe(data[UNSUBSCRIBED_AT], {
+      keyName: UNSUBSCRIBED_AT,
+    });
 
     const vendorOriginalTransactionId = data[
       'vendor_original_transaction_id'

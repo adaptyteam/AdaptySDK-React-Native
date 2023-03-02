@@ -1,8 +1,6 @@
-import dayjs from 'dayjs';
-
 import { Log } from '../../sdk/logger';
 import type { AdaptyNonSubscription, VendorStore } from '../../types';
-
+import { DateParser } from '../parsers/date';
 import { Coder } from './coder';
 
 type Type = AdaptyNonSubscription;
@@ -25,7 +23,10 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
 
     return result;
   }
+
   static override tryDecode(json_obj: unknown): AdaptyNonSubscriptionCoder {
+    const dateParser = new DateParser('AdaptyNonSubscription');
+
     Log.verbose(
       `${this.prototype.constructor.name}.tryDecode`,
       `Trying to decode...`,
@@ -82,18 +83,10 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
       });
     }
 
-    const purchasedAtStr = data['purchased_at'];
-    if (!purchasedAtStr) {
-      throw this.errRequired('purchased_at');
-    }
-    const purchasedAt = dayjs(purchasedAtStr).toDate();
-    if (isNaN(purchasedAt.getTime())) {
-      throw this.errType({
-        name: 'purchasedAt',
-        expected: 'Date',
-        current: purchasedAtStr,
-      });
-    }
+    const PURCHASED_AT = 'purchased_at';
+    const purchasedAt = dateParser.parse(data[PURCHASED_AT], {
+      keyName: PURCHASED_AT,
+    });
 
     const store = data['store'] as VendorStore | undefined;
     if (typeof store !== 'string') {

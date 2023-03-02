@@ -2,7 +2,7 @@ import { BridgeError } from '../internal/bridgeError';
 import { ErrorCode } from '../types/error';
 
 export interface ErrorInput {
-  adaptyCode: keyof typeof ErrorCode;
+  adaptyCode: ErrorCode;
   logFmt?: string;
   localizedDescription: string | undefined;
 }
@@ -19,7 +19,7 @@ export class AdaptyError extends Error {
    */
   public static prefix = '';
 
-  public adaptyCode: keyof typeof ErrorCode;
+  public adaptyCode: ErrorCode;
   public localizedDescription: string;
 
   static middleware?: (error: AdaptyError) => void;
@@ -45,27 +45,30 @@ export class AdaptyError extends Error {
 
   public static notInitializedError(): AdaptyError {
     return new AdaptyError({
-      adaptyCode: 2002,
+      adaptyCode: 'notActivated',
       localizedDescription: 'Adapty SDK is not initialized.',
       logFmt: `#${2002} (${ErrorCode[2002]}): Adapty SDK is not initialized.`,
     });
   }
 
   public static tryWrap(error: unknown): AdaptyError {
-    const nativeError = new BridgeError(error as any);
+    const nativeErr = BridgeError.nativeErr(error as any);
+
+    const code = Object.keys(ErrorCode).find(keyStr => {
+      const key = Number(keyStr) as keyof typeof ErrorCode;
+      return nativeErr.adaptyCode === ErrorCode[key];
+    });
 
     return new AdaptyError({
-      adaptyCode: nativeError.adaptyCode,
-      localizedDescription: nativeError.description,
-      logFmt: `#${nativeError.adaptyCode} (${
-        ErrorCode[nativeError.adaptyCode]
-      }): ${nativeError.description}`,
+      adaptyCode: nativeErr.adaptyCode,
+      localizedDescription: nativeErr.description,
+      logFmt: `#${code} (${nativeErr.adaptyCode}): ${nativeErr.description}`,
     });
   }
 
   public static deserializationError(methodName: string): AdaptyError {
     return new AdaptyError({
-      adaptyCode: 2006,
+      adaptyCode: 'decodingFailed',
       localizedDescription: `Failed to run '${methodName}' method.`,
     });
   }
