@@ -28,9 +28,20 @@ export class DateParser extends Parser<Date> {
       // solution is:
       // 1. Replace "+0000" with "Z"
       // 2. Replace microsecs with 0 millisecs
-      if (value.endsWith('.000000+0000')) {
-        pureValue = value.replace('+0000', 'Z').replace('.000000', '.000');
-      }
+
+      // with the timezone offset removed
+      const dateParts = value.split(/[-T:.Z]/);
+      const date = new Date(
+        Date.UTC(
+          parseInt(dateParts[0], 10),
+          parseInt(dateParts[1], 10) - 1,
+          parseInt(dateParts[2], 10),
+          parseInt(dateParts[3], 10),
+          parseInt(dateParts[4], 10),
+          parseInt(dateParts[5], 10),
+        ),
+      );
+      pureValue = date.toISOString();
     }
 
     const parsedValue = dayjs(pureValue);
