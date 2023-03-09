@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-
 import { Parser, ParserOptions } from './parser';
 
 export class DateParser extends Parser<Date> {
@@ -44,14 +42,14 @@ export class DateParser extends Parser<Date> {
       pureValue = date.toISOString();
     }
 
-    const parsedValue = dayjs(pureValue);
-    if (!parsedValue.isValid()) {
+    const parsedValue = Date.parse(pureValue);
+    if (isNaN(parsedValue)) {
       throw this.errCustom(
         options.keyName,
         `Failed to parse date: ${pureValue}`,
       );
     }
 
-    return parsedValue.toDate();
+    return new Date(parsedValue);
   }
 }
