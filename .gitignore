@@ -1,9 +1,11 @@
 .vscode
+.fleet
 
-*.log
 .DS_Store
 
-dist
+*.lockb
+*.log
+
 node_modules
 package-lock.json
 yarn.lock
