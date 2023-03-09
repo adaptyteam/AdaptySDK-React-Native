@@ -1,44 +1,43 @@
 {
   "name": "react-native-adapty",
   "version": "2.3.13",
-  "nativePackage": true,
-  "description": "Adapty SDK",
+  "description": "Adapty React Native SDK",
+  "keywords": [
+    "react-native",
+    "adapty",
+    "purchases",
+    "in-apps",
+    "subscriptions"
+  ],
+  "homepage": "https://github.com/adaptyteam/AdaptySDK-React-Native#readme",
+  "bugs": {
+    "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
+  },
   "license": "MIT",
-  "private": false,
   "author": {
     "name": "Ivan Dorofeyev",
     "email": "DivanDoesApps@gmail.com",
     "url": "https://github.com/Betra"
   },
+  "files": [
+    "lib/dist/",
+    "lib/ios/",
+    "!lib/ios/RNAdapty.xcodeproj/project.xcworkspace",
+    "!lib/ios/RNAdapty.xcodeproj/xcuserdata",
+    "lib/android/",
+    "!lib/android/.gradle",
+    "!lib/android/gradle/",
+    "!lib/android/build",
+    "!lib/android/gradlew*",
+    "!lib/android/local.properties",
+    "react-native-adapty.podspec",
+    "react-native.config.js"
+  ],
+  "main": "./lib/dist/index.js",
   "repository": {
     "url": "https://github.com/adaptyteam/AdaptySDK-React-Native",
     "type": "git"
   },
-  "homepage": "https://github.com/adaptyteam/AdaptySDK-React-Native#readme",
-  "bugs": {
-    "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
-  },
-  "main": "./lib/dist/index.js",
-  "types": "./lib/dist/index.d.ts",
-  "files": [
-    "lib/dist",
-    "lib/ios",
-    "!lib/ios/RNAdapty.xcodeproj/project.xcworkspace",
-    "!lib/ios/RNAdapty.xcodeproj/xcuserdata",
-    "lib/android",
-    "!lib/adnroid/.gradle",
-    "!lib/adnroid/build",
-    "!lib/adnroid/local.properties",
-    "!lib/adnroid/gradlew*",
-    "react-native-adapty.podspec",
-    "react-native.config.js",
-    "scripts"
-  ],
-  "keywords": [
-    "react-native",
-    "adapty",
-    "purchases"
-  ],
   "scripts": {
     "prepublish": "npm run build",
     "build": "rm -rf lib/dist && tsc --project tsconfig.build.json",
@@ -48,8 +47,7 @@
     "clean": "./scripts/clean.sh",
     "husky": "husky install scripts"
   },
-  "peerDependencies": {
-    "react-native": ">= 0.60.0"
+  "dependencies": {
   },
   "devDependencies": {
     "@babel/plugin-proposal-export-default-from": "7.10.4",
@@ -74,7 +72,10 @@
     "typedoc": "^0.23.23",
     "typescript": "4.8.4"
   },
-  "dependencies": {
-    "dayjs": "^1.11.7"
+  "peerDependencies": {
+    "react-native": ">= 0.60.0"
+  },
+  "peerDependenciesMeta": {
+
   }
 }
