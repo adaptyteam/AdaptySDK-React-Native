@@ -291,6 +291,85 @@ const App = () => {
           )}
         </Group>
 
+        <Group title="Attribution">
+          <LineButton
+            text="Adjust"
+            topRadius
+            onPress={async () => {
+              try {
+                console.log('[ADAPTY] Updating Adjust attribution...');
+                await adapty.updateAttribution(
+                  JSON.stringify({
+                    data: {
+                      af_message: 'organic install',
+                      af_status: 'Organic',
+                      is_first_launch: 'true',
+                    },
+                    status: 'success',
+                    type: 'onInstallConversionDataLoaded',
+                  }),
+                  'adjust',
+                  'divan',
+                );
+                console.log('[ADAPTY] Adjust Attribution updated successfully');
+              } catch (error) {
+                console.log('[ADAPTY] Error:', error.message);
+              }
+            }}
+          />
+          <LineButton
+            text="AppsFlyer"
+            onPress={async () => {
+              try {
+                console.log('[ADAPTY] Updating AppsFlyer attribution...');
+                await adapty.updateAttribution(
+                  JSON.stringify({
+                    data: {
+                      af_message: 'organic install',
+                      af_status: 'Organic',
+                      is_first_launch: 'true',
+                    },
+                    status: 'success',
+                    type: 'onInstallConversionDataLoaded',
+                  }),
+                  'appsflyer',
+                  'divan',
+                );
+                console.log(
+                  '[ADAPTY] AppsFlyer Attribution updated successfully',
+                );
+              } catch (error) {
+                console.log('[ADAPTY] Error:', error.message);
+              }
+            }}
+          />
+          <LineButton
+            text="Branch"
+            bottomRadius
+            onPress={async () => {
+              try {
+                console.log('[ADAPTY] Updating Branch attribution...');
+                await adapty.updateAttribution(
+                  JSON.stringify({
+                    data: {
+                      af_message: 'organic install',
+                      af_status: 'Organic',
+                      is_first_launch: 'true',
+                    },
+                    status: 'success',
+                    type: 'onInstallConversionDataLoaded',
+                  }),
+                  'branch',
+                  'divan',
+                );
+                console.log('[ADAPTY] Branch Attribution updated successfully');
+              } catch (error) {
+                console.log('[ADAPTY] Error:', error.message);
+              }
+            }}
+          />
+        </Group>
+
         <Group>
           <LineButton
             red
