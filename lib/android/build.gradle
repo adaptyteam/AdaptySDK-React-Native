@@ -87,5 +87,5 @@ dependencies {
     implementation 'com.facebook.react:react-native:+'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.billingclient:billing:4.1.0'
-    implementation 'com.adapty.internal:crossplatform:2.3'
+    implementation 'com.adapty.internal:crossplatform:2.4'
 }
