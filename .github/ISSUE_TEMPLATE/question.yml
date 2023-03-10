@@ -24,4 +24,4 @@ body:
     label: System info
     description: |
       Run `npx react-native` info in your terminal, copy and paste the results here.
-    render: shell
+    render: yml
