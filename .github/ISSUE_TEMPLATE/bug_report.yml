@@ -30,16 +30,16 @@ body:
   attributes:
     label: What platforms are you seeing the problem on?
     multiple: true
-    validations:
-      required: true
     options:
       - iOS
       - Android
+  validations:
+    required: true
 - type: textarea
   id: logs
   attributes:
     label: System info
     description: Please copy and paste response of `npx react-native info`.
     render: shell
-    validations:
-      required: true
+  validations:
+    required: true
