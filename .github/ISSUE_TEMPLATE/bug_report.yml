@@ -7,12 +7,13 @@ body:
 - type: markdown
   attributes:
     value: |
-      Thanks for taking the time to fill out this bug report!
+      Please provide all the requested information. It will help us to resolve this issue faster
 - type: textarea
   id: what-happened
   attributes:
-    label: What happened?
-    description: Also tell us, what did you expect to happen?
+    label: Description
+    description: |
+      Please provide a clear and concise description of what the bug is. Include screenshots and logs if needed
     placeholder: Tell us what you see!
     value: "A bug happened!"
   validations:
@@ -39,7 +40,8 @@ body:
   id: logs
   attributes:
     label: System info
-    description: Please copy and paste response of `npx react-native info`.
+    description: |
+      Run `npx react-native` info in your terminal, copy and paste the results here.
     render: shell
   validations:
     required: true
