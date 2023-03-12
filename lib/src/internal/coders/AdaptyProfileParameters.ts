@@ -301,6 +301,15 @@ export class AdaptyProfileParametersCoder extends Coder<Type> {
       });
     }
 
+    const airbridgeDeviceId = data['airbridge_device_id'] as Type['airbridgeDeviceId'];
+    if (airbridgeDeviceId && typeof airbridgeDeviceId !== 'string') {
+      throw this.errType({
+        name: 'airbridgeDeviceId',
+        expected: 'string',
+        current: typeof airbridgeDeviceId,
+      });
+    }
+    
     const result: Required<Type> = {
       firstName: firstName!,
       lastName: lastName!,
@@ -321,6 +330,7 @@ export class AdaptyProfileParametersCoder extends Coder<Type> {
       oneSignalPlayerId: oneSignalPlayerId!,
       pushwooshHWID: pushwooshHWID!,
       firebaseAppInstanceId: firebaseAppInstanceId!,
+      airbridgeDeviceId: airbridgeDeviceId!,
     } as any;
 
     // drop empty fields
@@ -360,6 +370,7 @@ export class AdaptyProfileParametersCoder extends Coder<Type> {
       one_signal_player_id: d.oneSignalPlayerId,
       pushwoosh_hwid: d.pushwooshHWID,
       firebase_app_instance_id: d.firebaseAppInstanceId,
+      airbridge_device_id: d.airbridgeDeviceId
     };
 
     // drop empty fields

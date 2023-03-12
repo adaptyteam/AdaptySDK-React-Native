@@ -679,4 +679,5 @@ export interface AdaptyProfileParameters {
   oneSignalPlayerId?: string;
   pushwooshHWID?: string;
   firebaseAppInstanceId?: string;
+  airbridgeDeviceId?: string;
 }
