@@ -1,0 +1,27 @@
+name: 🤔 Question
+description: Ask a question about anything that is unclear about Adapty
+labels: ["question"]
+assignees:
+  - divanc
+body:
+- type: markdown
+  attributes:
+    value: |
+      Have we missed something? Does documentation lacks something? 
+- type: textarea
+  id: what-happened
+  attributes:
+    label: Description
+    description: |
+      Write down your question. Include screenshots and logs if needed
+    placeholder: Provide your question
+    value: "How high the moon?"
+  validations:
+    required: true
+- type: textarea
+  id: logs
+  attributes:
+    label: System info
+    description: |
+      Run `npx react-native` info in your terminal, copy and paste the results here.
+    render: yml

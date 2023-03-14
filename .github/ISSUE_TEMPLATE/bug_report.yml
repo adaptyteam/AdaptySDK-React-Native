@@ -1,0 +1,47 @@
+name: 🐛 Bug Report
+description: Report a reproducible bug or regression in Adapty SDK.
+labels: ["bug"]
+assignees:
+  - divanc
+body:
+- type: markdown
+  attributes:
+    value: |
+      Please provide all the requested information. It will help us to resolve this issue faster
+- type: textarea
+  id: what-happened
+  attributes:
+    label: Description
+    description: |
+      Please provide a clear and concise description of what the bug is. Include screenshots and logs if needed
+    placeholder: Tell us what you see!
+    value: "A bug happened!"
+  validations:
+    required: true
+- type: input
+  id: version
+  attributes:
+    label: Version
+    description: What version of `react-native-adapty` are you running?
+    placeholder: v2.3.11
+  validations:
+    required: true
+- type: dropdown
+  id: browsers
+  attributes:
+    label: What platforms are you seeing the problem on?
+    multiple: true
+    options:
+      - iOS
+      - Android
+  validations:
+    required: true
+- type: textarea
+  id: logs
+  attributes:
+    label: System info
+    description: |
+      Run `npx react-native` info in your terminal, copy and paste the results here.
+    render: yml
+  validations:
+    required: true
