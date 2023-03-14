@@ -178,6 +178,7 @@ const App = () => {
                   lastName: 'Doe',
                   email: 'john_doe@example.com',
                   phone: '+1234567890',
+                  airbridgeDeviceId: 'ae4d63c3-2938-48af-a6c8-c3de87b6620a',
                 });
               } catch (error) {
                 console.log(
@@ -396,7 +397,7 @@ const App = () => {
         </Group>
 
         <Group>
-          <LineParam label="SDK Version" value="RN-2.2.0-rc" />
+          <LineParam label="SDK Version" value="RN-2.4.0" />
         </Group>
       </ScrollView>
     </SafeAreaView>
