@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.bun.json",
+  "compilerOptions": {
+    "paths": {
+      "lib/*": [
+        "../lib/*"
+      ]
+    },
+    "rootDirs": [
+      "../"
+    ]
+  }
+}
