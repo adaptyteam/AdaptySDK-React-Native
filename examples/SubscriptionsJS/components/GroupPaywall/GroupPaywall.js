@@ -10,13 +10,14 @@ import {Alert} from 'react-native';
 
 export const GroupPaywall = ({paywallId, postfix}) => {
   const [paywall, setPaywall] = useState(null);
+  const [locale, setLocale] = useState('');
   const [products, setProducts] = useState([]);
   const [id, setId] = useState(paywallId || '');
 
   const fetchPaywall = async () => {
     try {
       console.log('[ADAPTY]: Fetching paywall:', id);
-      const paywall_ = await adapty.getPaywall(id);
+      const paywall_ = await adapty.getPaywall(id, locale || undefined);
       setPaywall(paywall_);
 
       await adapty.logShowPaywall(paywall_);
@@ -80,6 +81,12 @@ export const GroupPaywall = ({paywallId, postfix}) => {
         value={id}
         onChange={setId}
         editable={!paywallId}
+        bordered
+      />
+      <LineInput
+        placeholder="Locale"
+        value={locale}
+        onChange={setLocale}
         bordered
       />
       {renderPaywall()}
