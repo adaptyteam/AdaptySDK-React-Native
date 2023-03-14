@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "2.3.13",
+  "version": "2.4.0",
   "description": "Adapty React Native SDK",
   "keywords": [
     "react-native",
@@ -47,8 +47,7 @@
     "clean": "./scripts/clean.sh",
     "husky": "husky install scripts"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/plugin-proposal-export-default-from": "7.10.4",
     "@babel/plugin-proposal-export-namespace-from": "7.10.4",
@@ -58,6 +57,7 @@
     "@types/react-native": "^0.63.0",
     "@typescript-eslint/eslint-plugin": "5.40.1",
     "@typescript-eslint/parser": "5.40.1",
+    "bun-types": "^0.5.7",
     "eslint": "8.25.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
@@ -75,7 +75,5 @@
   "peerDependencies": {
     "react-native": ">= 0.60.0"
   },
-  "peerDependenciesMeta": {
-
-  }
+  "peerDependenciesMeta": {}
 }
