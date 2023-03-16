@@ -18,15 +18,24 @@ export class AdaptyProductCoder extends Coder<Type> {
     super(data);
   }
 
+  private static serializeKey(productId: string, variationId: string): string {
+    return `${productId}+${variationId}`;
+  }
+
   public encode(): Record<string, any> {
     const d = this.data;
 
     Log.verbose(`${this.constructor.name}.encode`, `Encoding from cache...`, {
-      args: d.vendorProductId,
+      args: { productId: d.vendorProductId, variationId: d.variationId },
       cache: AdaptyProductCoder.backendCache,
     });
 
-    const result = AdaptyProductCoder.backendCache.get(d.vendorProductId);
+    const cacheKey = AdaptyProductCoder.serializeKey(
+      d.vendorProductId,
+      d.variationId,
+    );
+
+    const result = AdaptyProductCoder.backendCache.get(cacheKey);
     Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
       args: this.data,
       result,
@@ -226,7 +235,12 @@ export class AdaptyProductCoder extends Coder<Type> {
       }
     });
 
-    this.backendCache.set(vendorProductId, data);
+    const cacheKey = AdaptyProductCoder.serializeKey(
+      vendorProductId,
+      variationId,
+    );
+
+    this.backendCache.set(cacheKey, data);
     return new AdaptyProductCoder(result);
   }
 }
