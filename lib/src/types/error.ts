@@ -109,4 +109,29 @@ export const ErrorCode = Object.freeze({
   3100: 'persistingDataError',
   9000: 'operationInterrupted',
 });
-export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
+export type ErrorCode = keyof typeof ErrorCode;
+
+export function getErrorCode(
+  error: typeof ErrorCode[ErrorCode],
+): ErrorCode | undefined {
+  const errorCode = Object.keys(ErrorCode).find(keyStr => {
+    const key = Number(keyStr) as ErrorCode;
+    return ErrorCode[key] === error;
+  });
+
+  if (!errorCode) {
+    return undefined;
+  }
+
+  return Number(errorCode) as ErrorCode;
+}
+
+export function getErrorPrompt(code: ErrorCode): typeof ErrorCode[ErrorCode] {
+  const prompt = ErrorCode[code];
+
+  if (!prompt) {
+    return `Unknown code: ${code}` as typeof ErrorCode[ErrorCode];
+  }
+
+  return prompt;
+}

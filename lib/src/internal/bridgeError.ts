@@ -1,5 +1,5 @@
 import { Log } from '../sdk/logger';
-import { ErrorCode } from '../types/error';
+import { ErrorCode, getErrorCode, getErrorPrompt } from '../types/error';
 
 const RN_ERROR_KEY = 'message';
 const ERROR_CODE_KEY = 'adapty_code';
@@ -33,10 +33,7 @@ export class BridgeError extends Error {
         { args: data },
       );
 
-      return new BridgeError(
-        'unknown',
-        `Unknown error. JSON: ${JSON.stringify(data)}`,
-      );
+      return new BridgeError(0, `Unknown error. JSON: ${JSON.stringify(data)}`);
     }
 
     try {
@@ -55,7 +52,7 @@ export class BridgeError extends Error {
       );
 
       return new BridgeError(
-        'unknown',
+        getErrorCode('unknown') ?? 0,
         'Failed to deserialize a native error message',
         'Check the logs for more details',
       );
@@ -69,7 +66,7 @@ export class BridgeError extends Error {
       detail,
     });
 
-    super(message || detail || errCode);
+    super(message || detail || getErrorPrompt(errCode));
 
     this.adaptyCode = errCode;
     this.description = message;

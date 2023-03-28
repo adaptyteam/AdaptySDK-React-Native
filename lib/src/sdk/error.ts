@@ -1,8 +1,9 @@
 import { BridgeError } from '../internal/bridgeError';
-import { ErrorCode } from '../types/error';
+import { ErrorCode, getErrorCode, getErrorPrompt } from '../types/error';
 
 export interface ErrorInput {
   adaptyCode: ErrorCode;
+  adaptyCodeStr: typeof ErrorCode[ErrorCode];
   logFmt?: string;
   localizedDescription: string | undefined;
 }
@@ -44,8 +45,14 @@ export class AdaptyError extends Error {
   }
 
   public static notInitializedError(): AdaptyError {
+    const code = getErrorCode('notActivated');
+    if (!code) {
+      throw new Error('Failed to get error code for "notActivated"');
+    }
+
     return new AdaptyError({
-      adaptyCode: 'notActivated',
+      adaptyCode: code,
+      adaptyCodeStr: getErrorPrompt(code) ?? 'notActivated',
       localizedDescription: 'Adapty SDK is not initialized.',
       logFmt: `#${2002} (${ErrorCode[2002]}): Adapty SDK is not initialized.`,
     });
@@ -54,21 +61,25 @@ export class AdaptyError extends Error {
   public static tryWrap(error: unknown): AdaptyError {
     const nativeErr = BridgeError.nativeErr(error as any);
 
-    const code = Object.keys(ErrorCode).find(keyStr => {
-      const key = Number(keyStr) as keyof typeof ErrorCode;
-      return nativeErr.adaptyCode === ErrorCode[key];
-    });
+    const prompt = getErrorPrompt(nativeErr.adaptyCode);
 
     return new AdaptyError({
       adaptyCode: nativeErr.adaptyCode,
+      adaptyCodeStr: prompt,
       localizedDescription: nativeErr.description,
-      logFmt: `#${code} (${nativeErr.adaptyCode}): ${nativeErr.description}`,
+      logFmt: `#${nativeErr.adaptyCode} (${prompt}): ${nativeErr.description}`,
     });
   }
 
   public static deserializationError(methodName: string): AdaptyError {
+    const code = getErrorCode('decodingFailed');
+    if (!code) {
+      throw new Error('Failed to get error code for "decodingFailed"');
+    }
+
     return new AdaptyError({
-      adaptyCode: 'decodingFailed',
+      adaptyCode: code,
+      adaptyCodeStr: getErrorPrompt(code) ?? 'decodingFailed',
       localizedDescription: `Failed to run '${methodName}' method.`,
     });
   }

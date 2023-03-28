@@ -1,3 +1,4 @@
+import { getErrorCode } from '../../docs';
 import { BridgeError } from '../bridgeError';
 
 export interface ParserOptions {
@@ -47,13 +48,23 @@ export abstract class Parser<T> {
   protected errRequiredFieldMissing(keyName: string): BridgeError {
     const msg = `Failed to deserialize "${this.interfaceName}" interface. Required field "${keyName}" is nullable.`;
 
-    return new BridgeError('decodingFailed', msg);
+    const code = getErrorCode('decodingFailed');
+    if (!code) {
+      throw new Error('Failed to get error code for "decodingFailed"');
+    }
+
+    return new BridgeError(code, msg);
   }
 
   protected errRequiredResultIsFalsy(keyName: string): BridgeError {
     const msg = `Failed to deserialize "${this.interfaceName}" interface. Required field "${keyName}" resulted in a nullable value.`;
 
-    return new BridgeError('decodingFailed', msg);
+    const code = getErrorCode('decodingFailed');
+    if (!code) {
+      throw new Error('Failed to get error code for "decodingFailed"');
+    }
+
+    return new BridgeError(code, msg);
   }
 
   protected errParsedTypeMismatch(params: {
@@ -63,12 +74,22 @@ export abstract class Parser<T> {
   }): BridgeError {
     const msg = `Failed to deserialize "${this.interfaceName}" interface. Field "${params.keyName}" resulted in type "${params.realType}", but expected type: "${params.realType}".`;
 
-    return new BridgeError('decodingFailed', msg);
+    const code = getErrorCode('decodingFailed');
+    if (!code) {
+      throw new Error('Failed to get error code for "decodingFailed"');
+    }
+
+    return new BridgeError(code, msg);
   }
 
   protected errCustom(keyName: string, msg: string): BridgeError {
+    const code = getErrorCode('decodingFailed');
+    if (!code) {
+      throw new Error('Failed to get error code for "decodingFailed"');
+    }
+
     return new BridgeError(
-      'decodingFailed',
+      code,
       `Failed to deserialize "${this.interfaceName}" interface with field "${keyName}". ${msg}`,
     );
   }
