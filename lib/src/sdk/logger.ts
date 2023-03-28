@@ -10,7 +10,6 @@ export const MSG = {
 
 export class Log {
   public static logLevel: LogLevel | null = null;
-  public static VERSION = process?.env?.npm_package_version ?? 'UNKNOWN';
 
   /**
    * Formats a message for logging.
@@ -21,7 +20,7 @@ export class Log {
     message: string,
     funcName: string,
   ): string {
-    return `[Adapty JS v${this.VERSION}] — ${logLevel}: ${funcName}: ${message}`;
+    return `[Adapty JS] — ${logLevel}: ${funcName}: ${message}`;
   }
 
   /**
