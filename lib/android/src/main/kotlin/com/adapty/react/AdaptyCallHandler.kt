@@ -5,11 +5,7 @@ import com.adapty.Adapty
 import com.adapty.internal.crossplatform.CrossplatformHelper
 import com.adapty.models.*
 import com.adapty.utils.AdaptyLogLevel
-import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContext
-import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.UiThreadUtil
+import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
 var MEMO_ACTIVATE_ARGS = false

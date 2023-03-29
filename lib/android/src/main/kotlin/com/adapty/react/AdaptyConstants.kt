@@ -21,6 +21,7 @@ const val NOT_IMPLEMENTED = "not_implemented"
 const val TEST_WRAP = "__test__"
 // Too?
 const val DID_UPDATE_PROFILE = "did_update_profile"
+const val ON_LATEST_PROFILE_LOAD = "onLatestProfileLoad"
 
 // PARAM
 const val ATTRIBUTION = "attribution"
