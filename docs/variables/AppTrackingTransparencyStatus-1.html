@@ -1,250 +1,4 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>AppTrackingTransparencyStatus | react-native-adapty - v2.2.0</title><meta name="description" content="Documentation for react-native-adapty - v2.2.0"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><style>
-        body {
-          font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-        }
-        pre {
-          border: initial !important;
-          border-radius: 8px !important;
-        }
-        code {
-          border-radius: 3px !important;
-        }
-        .tsd-typography h1 {
-          display: none;
-        }
-        .tsd-typography p {
-          margin: 0.5em 0;
-        }
-        .tsd-typography blockquote {
-          color: var(--color-text-aside);
-        }
-        .tsd-navigation.primary a {
-          padding: 0.4375rem 0.5rem;
-        }
-        .tsd-theme-toggle {
-          padding-bottom: 12px;
-        }
-        .tsd-kind-module {
-          position: relative;
-        }
-        .tsd-navigation.primary * {
-          border-left: none !important;
-        }
-        span.module-dot {
-          top: 12.25px;
-          position: absolute;
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 6px;
-          background-color: var(--color-accent);
-        }
-        .current span.module-dot {
-          background-color: var(--color-link);
-        }
-        .tsd-navigation.primary ul li a:hover span.module-dot, .tsd-navigation.primary li.selected a span.module-dot {
-          border: 4px solid #9494ff;
-        }
-        .menu-sticky-wrap {
-          position: initial;
-          overflow: initial;
-        }
-        .container-main {
-          display: grid;
-          grid-template-columns: 3fr 1fr;
-        }
-        .col-4, .col-8 {
-          min-width: 0px;
-          max-width: 100%;
-        }
-        .col-8 {
-          min-width: 100%;
-        }
-
-        .tsd-typography a {
-          text-decoration: underline;
-          font-weight:500;
-        }
-        .tsd-typography strong {
-          font-weight:600;
-        }
-        .tsd-typography ol &gt; li {
-          position: relative;
-          padding-left:1.75em;
-        }
-        .tsd-typography ol &gt; li:before {
-          position: absolute;
-          font-weight: 400;
-          left:0;
-        }
-        .tsd-typography ul &gt; li {
-          position: relative;
-          padding-left:1.75em;
-        }
-        .tsd-typography ul &gt; li:before {
-          content: &quot;&quot;;
-          position: absolute;
-          border-radius: 50%;
-          width: .375em;
-          height: .375em;
-          top: calc(.875em - .1875em);
-          left:.25em;
-        }
-        .tsd-typography hr {
-          border-top-width: 1px;
-          margin-top: 3em;
-          margin-bottom: 3em;
-        }
-        .tsd-typography blockquote {
-          font-weight: 500;
-          font-style: italic;
-          border-left-width: .25rem;
-          margin-top: 1.6em;
-          margin-bottom: 1.6em;
-          padding-left:1em;
-        }
-        .tsd-typography h1 {
-          font-weight: 800;
-          font-size: 2.25em;
-          margin-top: 0;
-          margin-bottom: .8888889em;
-          line-height:1.1111111;
-        }
-        .tsd-typography h2 {
-          font-weight: 700;
-          font-size: 1.5em;
-          margin-top: 2em;
-          margin-bottom: 1em;
-          line-height:1.3333333;
-        }
-        .tsd-typography h3 {
-          font-size: 1.25em;
-          margin-top: 1.6em;
-          margin-bottom: .6em;
-          line-height:1.6;
-        }
-        .tsd-typography h3,.tsd-typography h4 {
-          font-weight:600;
-        }
-        .tsd-typography h4 {
-          margin-top: 1.5em;
-          margin-bottom: .5em;
-          line-height:1.5;
-        }
-        .tsd-typography figure figcaption {
-          font-size: .875em;
-          line-height: 1.4285714;
-          margin-top:.8571429em;
-        }
-        .tsd-typography code {
-          font-weight: 600;
-          font-size:.875em;
-        }
-        .tsd-typography pre {
-          overflow-x: auto;
-          font-size: .875em;
-          line-height: 1.7142857;
-          margin-top: 1.7142857em;
-          margin-bottom: 1.7142857em;
-          border-radius: .375rem;
-          padding:.8571429em 1.1428571em;
-          white-space: pre;
-          scrollbar-width: none;
-        }
-        .tsd-typography pre::-webkit-scrollbar {
-          display: none;
-        }
-        .tsd-typography pre code {
-          border-width: 0;
-          border-radius: 0;
-          padding: 0;
-          font-weight: 400;
-          font-size: inherit;
-          font-family: inherit;
-          line-height:inherit;
-        }
-        .tsd-typography pre code:after,.tsd-typography pre code:before {
-          content:none;
-        }
-        .tsd-typography table {
-          width: 100%;
-          table-layout: auto;
-          text-align: left;
-          margin-top: 2em;
-          margin-bottom: 2em;
-          font-size: .875em;
-          line-height:1.7142857;
-        }
-        .tsd-typography thead {
-          font-weight: 600;
-          border-bottom-width: 1px;
-        }
-        .tsd-typography thead th {
-          vertical-align: bottom;
-          padding-right: .5714286em;
-          padding-bottom: .5714286em;
-          padding-left:.5714286em;
-        }
-        .tsd-typography tbody tr {
-          border-bottom-width: 1px;
-        }
-        .tsd-typography tbody tr:last-child {
-          border-bottom-width:0;
-        }
-        .tsd-typography tbody td {
-          vertical-align: top;
-          padding:.5714286em;
-        }
-        .tsd-typography {
-          font-size: 1rem;
-          line-height:1.5;
-        }
-        .tsd-typography p {
-          margin-top: 1.25em;
-          margin-bottom:1.25em;
-        }
-        .tsd-typography figure,.tsd-typography img,.tsd-typography video {
-          margin-top: 2em;
-          margin-bottom:2em;
-        }
-        .tsd-typography figure &gt; * {
-          margin-top: 0;
-          margin-bottom:0;
-        }
-        .tsd-typography h2 code {
-          font-size:.875em;
-        }
-        .tsd-typography h3 code {
-          font-size:.9em;
-        }
-        .tsd-typography thead th:first-child {
-          padding-left:0;
-        }
-        .tsd-typography thead th:last-child {
-          padding-right:0;
-        }
-        .tsd-typography tbody td:first-child {
-          padding-left:0;
-        }
-        .tsd-typography tbody td:last-child {
-          padding-right:0;
-        }
-        .tsd-typography &gt; :first-child {
-          margin-top:0;
-        }
-        .tsd-typography &gt; :last-child {
-          margin-bottom:0;
-        }
-        .tsd-typography address {
-          font-style:inherit;
-        }
-        .tsd-typography a {
-          font-weight:inherit;
-        }
-        .tsd-typography blockquote {
-          quotes:none;
-        }
-      </style><link rel="stylesheet" href="../assets/custom.css"/></head><body><script>console.log(`Loaded ${location.href}`)</script><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>AppTrackingTransparencyStatus | react-native-adapty - v2.4.3</title><meta name="description" content="Documentation for react-native-adapty - v2.4.3"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
 <div class="tsd-toolbar-contents container">
 <div class="table-cell" id="tsd-search" data-base="..">
 <div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
@@ -252,19 +6,19 @@
 <div id="tsd-toolbar-links"></div></div>
 <ul class="results">
 <li class="state loading">Preparing search index...</li>
-<li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">react-native-adapty - v2.2.0</a></div>
+<li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">react-native-adapty - v2.4.3</a></div>
 <div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
 <div class="container container-main">
 <div class="col-8 col-content">
 <div class="tsd-page-title">
 <ul class="tsd-breadcrumb">
-<li><a href="../modules.html">react-native-adapty - v2.2.0</a></li>
+<li><a href="../modules.html">react-native-adapty - v2.4.3</a></li>
 <li><a href="AppTrackingTransparencyStatus-1.html">AppTrackingTransparencyStatus</a></li></ul>
 <h1>Variable AppTrackingTransparencyStatus<code class="tsd-tag ts-flagConst">Const</code> </h1></div>
 <div class="tsd-signature">App<wbr/>Tracking<wbr/>Transparency<wbr/>Status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>Authorized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;authorized&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>Denied<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;denied&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>NotDetermined<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;not_determined&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>Restricted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;restricted&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>Unknown<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;unknown&quot;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/adaptyteam/AdaptySDK-React-Native/blob/53945e6/lib/src/types/index.ts#L36">lib/src/types/index.ts:36</a></li>
-<li>Defined in <a href="https://github.com/adaptyteam/AdaptySDK-React-Native/blob/53945e6/lib/src/types/index.ts#L43">lib/src/types/index.ts:43</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/adaptyteam/AdaptySDK-React-Native/blob/1b956cd/lib/src/types/index.ts#L36">lib/src/types/index.ts:36</a></li>
+<li>Defined in <a href="https://github.com/adaptyteam/AdaptySDK-React-Native/blob/1b956cd/lib/src/types/index.ts#L43">lib/src/types/index.ts:43</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -282,7 +36,7 @@
 <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
 <div class="tsd-accordion-details">
 <ul>
-<li><a href="../modules.html">react-<wbr/>native-<wbr/>adapty -<wbr/> v2.2.0</a>
+<li><a href="../modules.html">react-<wbr/>native-<wbr/>adapty -<wbr/> v2.4.3</a>
 <ul></ul></li></ul></div></details></nav>
 <nav class="tsd-navigation secondary menu-sticky">
 <ul>
@@ -326,7 +80,9 @@
 <li class="tsd-kind-variable"><a href="OfferEligibility-1.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-32-path"></use><use href="#icon-32-text"></use></svg>Offer<wbr/>Eligibility</a></li>
 <li class="tsd-kind-variable"><a href="OfferType-1.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-32-path"></use><use href="#icon-32-text"></use></svg>Offer<wbr/>Type</a></li>
 <li class="tsd-kind-variable"><a href="ProductPeriod-1.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-32-path"></use><use href="#icon-32-text"></use></svg>Product<wbr/>Period</a></li>
-<li class="tsd-kind-variable"><a href="VendorStore-1.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-32-path"></use><use href="#icon-32-text"></use></svg>Vendor<wbr/>Store</a></li></ul></nav></div></div>
+<li class="tsd-kind-variable"><a href="VendorStore-1.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-32-path"></use><use href="#icon-32-text"></use></svg>Vendor<wbr/>Store</a></li>
+<li class="tsd-kind-function"><a href="../functions/getErrorCode.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-function)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-64-path"></rect><path d="M9.39 16V7.24H14.55V8.224H10.446V11.128H14.238V12.112H10.47V16H9.39Z" fill="var(--color-text)" id="icon-64-text"></path></svg>get<wbr/>Error<wbr/>Code</a></li>
+<li class="tsd-kind-function"><a href="../functions/getErrorPrompt.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>get<wbr/>Error<wbr/>Prompt</a></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
-<div class="overlay"></div><script src="../assets/main.js"></script><script src="../assets/custom.js"></script></body></html>
+<div class="overlay"></div><script src="../assets/main.js"></script></body></html>
