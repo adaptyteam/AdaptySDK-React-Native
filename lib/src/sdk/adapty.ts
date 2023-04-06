@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { bridgeArg, bridgeCall } from '../internal/bridge';
 import * as Coder from '../internal/coders';
 
-import type * as Model from '../types';
+import * as Model from '../types';
 import * as Input from '../types/inputs';
 
 import { AdaptyEventEmitter } from './eventEmitter';
@@ -46,6 +46,7 @@ export class Adapty extends AdaptyEventEmitter {
     }
     return this.activationPromise;
   }
+
   /**
    * Locks the current thread until the SDK is initialized, if needed.
    * @internal
@@ -64,23 +65,19 @@ export class Adapty extends AdaptyEventEmitter {
    * @remarks
    * This method must be called in order for the SDK to work.
    * It is preffered to call it as early as possible in the app lifecycle,
-   * so background activities can be performed and cache can be updated
+   * so background activities can be performed and cache can be updated.
    *
    * @example
    * ## Basic usage in your app's entry point
    * ```ts
-   * useEffect(() => {
    *  adapty.activate('YOUR_API_KEY'); // <-- pass your API key here (required)
-   * }, []);
    * ```
    *
    * ## Usage with your user identifier from your system
    * ```ts
-   * useEffect(() => {
-   *   adapty.activate('YOUR_API_KEY', { // <-- pass your API key here (required)
-   *     customerUserId: 'YOUR_USER_ID'  // <-- pass your user identifier here (optional)
-   *   });
-   * }, []);
+   * adapty.activate('YOUR_API_KEY', { // <-- pass your API key here (required)
+   *   customerUserId: 'YOUR_USER_ID'  // <-- pass your user identifier here (optional)
+   * });
    * ```
    *
    * @param {string} apiKey - You can find it in your app settings
@@ -200,7 +197,7 @@ export class Adapty extends AdaptyEventEmitter {
    * const products = await adapty.getPaywallProducts(paywall);
    * ```
    *
-   * @param {Model.AdaptyPaywall} paywall - a paywall to fetch products for.
+   * @param {Model.AdaptyPaywall} paywall - a paywall to fetch products for. You can get it using {@link Adapty.getPaywall} method.
    * @param {Input.GetPaywallProductsParamsInput} [params] - Optional parameters of type {@link GetPaywallProductsParamsInput}.
    * @returns {Promise<Model.AdaptyProduct[]>} A promise that resolves with a list
    * of {@link Model.AdaptyProduct} associated with a provided paywall.
@@ -262,6 +259,7 @@ export class Adapty extends AdaptyEventEmitter {
 
   /**
    * Fetches a user profile.
+   *
    * Allows you to define the level of access,
    * as well as other parameters.
    *
@@ -312,6 +310,8 @@ export class Adapty extends AdaptyEventEmitter {
   }
 
   /**
+   * Logs in a user with a provided customerUserId.
+   *
    * If you don't have a user id on SDK initialization,
    * you can set it later at any time with this method.
    * The most common cases are after registration/authorization
@@ -347,6 +347,8 @@ export class Adapty extends AdaptyEventEmitter {
   }
 
   /**
+   * Logs a paywall view event.
+   *
    * Adapty helps you to measure the performance of the paywalls.
    * We automatically collect all the metrics related to purchases except for paywall views.
    * This is because only you know when the paywall was shown to a customer.
@@ -395,6 +397,8 @@ export class Adapty extends AdaptyEventEmitter {
   }
 
   /**
+   * Logs an onboarding screen view event.
+   *
    * In order for you to be able to analyze user behavior
    * at this critical stage without leaving Adapty,
    * we have implemented the ability to send dedicated events
@@ -488,7 +492,37 @@ export class Adapty extends AdaptyEventEmitter {
   }
 
   /**
+   * Performs a purchase of the specified product.
    *
+   * All the available promotions will be applied automatically.
+   *
+   * @remarks
+   * Successful purchase will also result in a call to `'onLatestProfileLoad'` listener.
+   * You can use {@link Adapty.addEventListener} to subscribe to this event and handle
+   * the purchase result outside of this thread.
+   *
+   * @param {Model.AdaptyProduct} product - The product to e purchased.
+   * You can get the product using {@link Adapty.getPaywallProducts} method.
+   * @returns {Promise<Model.AdaptyProfile>} A Promise that resolves to an {@link Model.AdaptyProfile} object
+   * containing the user's profile information after the purchase is made.
+   * @throws {AdaptyError} If an error occurs during the purchase process
+   * or while decoding the response from the native SDK.
+   * Some of the possible errors are:
+   * * #1006 — User has cancelled
+   *
+   * @example
+   * ```ts
+   * try {
+   *   const paywall = await adapty.getPaywall('onboarding');
+   *   const products = await adapty.getPaywallProducts(paywall);
+   *   const product = products[0];
+   *
+   *   const profile = await adapty.makePurchase(product);
+   *   // successfull purchase
+   * } catch (error) {
+   *   // handle error
+   * }
+   * ```
    */
   public async makePurchase(
     product: Model.AdaptyProduct,
@@ -520,7 +554,7 @@ export class Adapty extends AdaptyEventEmitter {
     } catch (nativeError) {
       const error = AdaptyError.tryWrap(nativeError);
 
-      Log.error(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
+      Log.warn(FN_NAME, MSG.NATIVE_SDK_REPLIED_WITH_ERROR, {
         error: error.message,
         nativeError,
       });
@@ -531,6 +565,8 @@ export class Adapty extends AdaptyEventEmitter {
 
   /**
    * Opens a native modal screen to redeem Apple Offer Codes.
+   *
+   * @remarks
    * iOS 14+ only.
    */
   public async presentCodeRedemptionSheet(): Promise<void> {
@@ -551,7 +587,7 @@ export class Adapty extends AdaptyEventEmitter {
    * Restores user purchases and updates the profile.
    *
    * @returns {Promise<Model.AdaptyProfile>} resolves with the updated profile
-   * @throws {@link AdaptyError}
+   * @throws {@link AdaptyError} if an error occurs during the restore proccess or while decoding the response
    */
   public async restorePurchases(): Promise<Model.AdaptyProfile> {
     const FN_NAME = this.restorePurchases.name;
@@ -589,6 +625,12 @@ export class Adapty extends AdaptyEventEmitter {
   }
 
   /**
+   * Sets the fallback paywalls.
+   *
+   * Fallback paywalls will be used if the SDK fails
+   * to fetch the paywalls from the dashboard.
+   * It is not designed to be used for the offline flow,
+   * as products are not cached in Adapty.
    *
    * @returns {Promise<void>} resolves when fallback paywalls are saved
    */
@@ -623,16 +665,16 @@ export class Adapty extends AdaptyEventEmitter {
   }
 
   /**
-   * Logs errors and other important information
-   * to help you understand what is going on.
+   * Sets the preferred log level.
+   *
+   * By default, the log level is set to `error`.
    *
    * @remarks
    * There are four levels available:
-   *
-   * error: only errors will be logged
-   * warn: messages from the SDK that do not cause critical errors, but are worth paying attention to
-   * info: various information messages, such as those that log the lifecycle of various modules
-   * verbose: any additional information that may be useful during debugging, such as function calls, API queries, etc.
+   * `error`: only errors will be logged
+   * `warn`: messages from the SDK that do not cause critical errors, but are worth paying attention to
+   * `info`: various information messages, such as those that log the lifecycle of various modules
+   * `verbose`: any additional information that may be useful during debugging, such as function calls, API queries, etc.
    *
    * @param {Input.LogLevel} logLevel - new preferred log level
    * @returns {Promise<void>} resolves when the log level is set
@@ -665,6 +707,8 @@ export class Adapty extends AdaptyEventEmitter {
   }
 
   /**
+   * Sets the variation ID of the purchase.
+   *
    * In Observer mode, Adapty SDK doesn't know, where the purchase was made from.
    * If you display products using our Paywalls or A/B Tests,
    * you can manually assign variation to the purchase.
@@ -724,8 +768,7 @@ export class Adapty extends AdaptyEventEmitter {
    * @param {string} [networkUserId] - The network user ID.
    * @returns {Promise<void>} A promise that resolves when the attribution data is updated.
    *
-   * @throws {@link AdaptyError}
-   * Throws if parameters are invalid or not provided.
+   * @throws {@link AdaptyError} Throws if parameters are invalid or not provided.
    */
   public async updateAttribution(
     attribution: Record<string, any>,
@@ -779,9 +822,20 @@ export class Adapty extends AdaptyEventEmitter {
   }
 
   /**
+   * Updates a profile for the current user.
    *
    * @param {Model.AdaptyProfileParameters} params — an object of parameters to update
-   * @throws {@link AdaptyError}
+   * @throws {@link AdaptyError} If parameters are invalid or there is a network error.
+   *
+   * @example
+   * ```ts
+   * const profile = {
+   *  email: 'foo@example.com',
+   * phone: '+1234567890',
+   * };
+   *
+   * await adapty.updateProfile(profile);
+   * ```
    */
   public async updateProfile(
     params: Partial<Model.AdaptyProfileParameters>,
