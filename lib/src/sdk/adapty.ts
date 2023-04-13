@@ -150,7 +150,8 @@ export class Adapty extends AdaptyEventEmitter {
     const FN_NAME = this.getPaywall.name;
     Log.verbose(FN_NAME, MSG.NEW_CALL, { id, locale });
 
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     try {
       const args = {
@@ -207,9 +208,8 @@ export class Adapty extends AdaptyEventEmitter {
     paywall: Model.AdaptyPaywall,
     params: Input.GetPaywallProductsParamsInput = {},
   ): Promise<Model.AdaptyProduct[]> {
-    const FN_NAME = this.getPaywallProducts.name;
-    Log.verbose(FN_NAME, MSG.NEW_CALL, { paywall, params });
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     try {
       const fetchPolicy = params.ios?.fetchPolicy || 'default';
@@ -280,7 +280,8 @@ export class Adapty extends AdaptyEventEmitter {
   public async getProfile(): Promise<Model.AdaptyProfile> {
     const FN_NAME = this.getProfile.name;
     Log.verbose(FN_NAME, MSG.NEW_CALL);
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     try {
       Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL);
@@ -323,7 +324,8 @@ export class Adapty extends AdaptyEventEmitter {
   public async identify(customerUserId: string): Promise<void> {
     const FN_NAME = this.identify.name;
     Log.verbose(FN_NAME, MSG.NEW_CALL, { customerUserId });
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     try {
       const args = {
@@ -372,7 +374,8 @@ export class Adapty extends AdaptyEventEmitter {
     const FN_NAME = this.logShowPaywall.name;
 
     Log.verbose(FN_NAME, MSG.NEW_CALL, { paywall });
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     try {
       const data = new Coder.AdaptyPaywallCoder(paywall);
@@ -434,7 +437,7 @@ export class Adapty extends AdaptyEventEmitter {
       screenName,
     });
 
-    this.waitUntilReady();
+    await this.waitUntilReady();
 
     const args = {
       [bridgeArg.ONBOARDING_PARAMS]: JSON.stringify({
@@ -471,7 +474,8 @@ export class Adapty extends AdaptyEventEmitter {
   public async logout(): Promise<void> {
     const FN_NAME = this.logout.name;
     Log.verbose(FN_NAME, MSG.NEW_CALL);
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     try {
       Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL);
@@ -530,7 +534,8 @@ export class Adapty extends AdaptyEventEmitter {
     const FN_NAME = this.makePurchase.name;
 
     Log.verbose(FN_NAME, MSG.NEW_CALL, { product });
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     const data = new Coder.AdaptyProductCoder(product);
     const args = { [bridgeArg.PRODUCT]: JSON.stringify(data.encode()) };
@@ -573,7 +578,8 @@ export class Adapty extends AdaptyEventEmitter {
     const FN_NAME = this.presentCodeRedemptionSheet.name;
 
     Log.verbose(FN_NAME, MSG.NEW_CALL);
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL);
 
@@ -593,7 +599,8 @@ export class Adapty extends AdaptyEventEmitter {
     const FN_NAME = this.restorePurchases.name;
 
     Log.verbose(FN_NAME, MSG.NEW_CALL);
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     try {
       Log.info(FN_NAME, MSG.BEFORE_NATIVE_CALL);
@@ -638,7 +645,7 @@ export class Adapty extends AdaptyEventEmitter {
     const FN_NAME = this.setFallbackPaywalls.name;
     Log.verbose(FN_NAME, MSG.NEW_CALL, { paywalls });
 
-    this.waitUntilReady();
+    await this.waitUntilReady();
 
     const args = {
       [bridgeArg.PAYWALLS]: paywalls,
@@ -684,7 +691,8 @@ export class Adapty extends AdaptyEventEmitter {
     const FN_NAME = this.setLogLevel.name;
     Log.verbose(FN_NAME, MSG.NEW_CALL);
 
-    this.waitUntilReady();
+    await this.waitUntilReady();
+
     Log.logLevel = logLevel || null;
 
     const args = { [bridgeArg.VALUE]: logLevel };
@@ -724,7 +732,8 @@ export class Adapty extends AdaptyEventEmitter {
   ): Promise<void> {
     const FN_NAME = this.setVariationId.name;
     Log.verbose(FN_NAME, MSG.NEW_CALL);
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     const args = {
       [bridgeArg.VARIATION_ID]: variationId,
@@ -783,7 +792,7 @@ export class Adapty extends AdaptyEventEmitter {
       networkUserId,
     });
 
-    this.waitUntilReady();
+    await this.waitUntilReady();
 
     let bridgeSource = source;
     if ((Input.AttributionSource as object).hasOwnProperty(source)) {
@@ -843,7 +852,8 @@ export class Adapty extends AdaptyEventEmitter {
     const FN_NAME = this.updateProfile.name;
 
     Log.verbose(FN_NAME, MSG.NEW_CALL, { params });
-    this.waitUntilReady();
+
+    await this.waitUntilReady();
 
     try {
       const data = new Coder.AdaptyProfileParametersCoder(params);
