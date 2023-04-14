@@ -1,16 +1,21 @@
 package com.adapty.react
 
 import com.adapty.Adapty
+
 import com.adapty.internal.crossplatform.CrossplatformHelper
+import com.adapty.internal.crossplatform.CrossplatformName
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.adapty.internal.crossplatform.MetaInfo
+import com.adapty.react.BuildConfig
 
 class AdaptyReactModule(reactContext: ReactApplicationContext):
     ReactContextBaseJavaModule(reactContext) {
-    val helper = CrossplatformHelper.create()
-    val ctx = reactContext
-    private val callHandler = AdaptyCallHandler(helper, reactContext)
     private var listenerCount = 0
+
+    val ctx = reactContext
+    val helper = CrossplatformHelper.create(MetaInfo.from(CrossplatformName.REACT_NATIVE, BuildConfig.VERSION_NAME))
+    private val callHandler = AdaptyCallHandler(helper, reactContext)
 
     override fun getName(): String {
         return "RNAdapty"
