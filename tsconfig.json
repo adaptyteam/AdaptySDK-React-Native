@@ -36,7 +36,7 @@
   ],
   "typedocOptions": {
     "entryPoints": [
-      "lib/src/sdk2/index.ts"
+      "lib/src/docs.ts"
     ],
     "out": "docs",
     "excludeInternal": true,
