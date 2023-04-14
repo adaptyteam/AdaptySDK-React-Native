@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { Log } from '../sdk/logger';
+import { LogContext } from '../logger/logContext';
 
 // Module name in native code
 const MODULE_NAME = 'RNAdapty';
@@ -26,27 +26,18 @@ const caller = NativeModules[MODULE_NAME][HANDLER_NAME] as (
 export async function bridgeCall(
   methodName: BridgeMethodName,
   args: Map,
+  ctx?: LogContext,
 ): Promise<string | null> {
-  Log.verbose('bridgeCall', `Calling native method.`, {
-    methodName,
-    args,
-  });
+  const log = ctx?.bridge({ methodName: 'bridgeCall' });
+  log?.start({ methodName, args });
 
   try {
-    const nativeResp = await caller(methodName, args);
-    Log.verbose('bridgeCall', `Calling native method. SUCCESS`, {
-      methodName,
-      args,
-    });
+    const response = await caller(methodName, args);
 
-    return nativeResp;
+    log?.success({ response });
+    return response;
   } catch (error) {
-    Log.verbose('bridgeCall', `Native method returned an error.`, {
-      methodName,
-      args,
-      error,
-    });
-
+    log?.success({ error });
     throw error;
   }
 }

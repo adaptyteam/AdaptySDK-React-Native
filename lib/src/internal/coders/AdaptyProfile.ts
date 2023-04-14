@@ -4,7 +4,7 @@ import { AdaptyNonSubscriptionCoder } from './AdaptyNonSubscription';
 import { AdaptySubscriptionCoder } from './AdaptySubscription';
 
 import { Coder } from './coder';
-import { Log } from '../../sdk/logger';
+import { LogContext } from '../../logger';
 
 type Type = AdaptyProfile;
 
@@ -13,42 +13,36 @@ export class AdaptyProfileCoder extends Coder<Type> {
     super(data);
   }
 
-  static override tryDecode(json_obj: unknown): AdaptyProfileCoder {
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Trying to decode...`,
-      { args: json_obj },
-    );
+  static override tryDecode(
+    json_obj: unknown,
+    ctx?: LogContext,
+  ): AdaptyProfileCoder {
+    const log = ctx?.decode({ methodName: this.prototype.constructor.name });
+    log?.start({ json: json_obj });
 
     const data = json_obj as Record<string, any>;
     if (typeof data !== 'object' || !Boolean(data)) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: data is not an object`,
-        { args: json_obj },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'data',
         expected: 'object',
         current: typeof data,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const accessLevelsRaw = data['paid_access_levels'];
 
     if (accessLevelsRaw && typeof accessLevelsRaw !== 'object') {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "accessLevelsRaw" is not an object`,
-        { args: json_obj },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'accessLevels',
         expected: 'object',
         current: typeof accessLevelsRaw,
       });
+
+      log?.failed(error);
+      throw error;
     }
     const accessLevels = Object.keys(accessLevelsRaw ?? {}).reduce(
       (acc, levelKey) => {
@@ -57,8 +51,10 @@ export class AdaptyProfileCoder extends Coder<Type> {
           return acc;
         }
 
-        acc[levelKey] =
-          AdaptyAccessLevelCoder.tryDecode(accessLevelRaw).toObject();
+        acc[levelKey] = AdaptyAccessLevelCoder.tryDecode(
+          accessLevelRaw,
+          ctx,
+        ).toObject();
 
         return acc;
       },
@@ -67,57 +63,45 @@ export class AdaptyProfileCoder extends Coder<Type> {
 
     const customAttributesRaw = data['custom_attributes'];
     if (!customAttributesRaw) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "custom_attributes" is required`,
-        { args: json_obj },
-      );
+      const error = this.errRequired('customAttributes');
 
-      throw this.errRequired('customAttributes');
+      log?.failed(error);
+      throw error;
     }
     if (typeof customAttributesRaw !== 'object') {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "custom_attributes" is not an object`,
-        { args: json_obj },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'customAttributes',
         expected: 'object',
         current: typeof customAttributesRaw,
       });
+
+      log?.failed(error);
+      throw error;
     }
     const customAttributes = customAttributesRaw;
 
     const customerUserId = data['customer_user_id'] as Type['customerUserId'];
     if (customerUserId && typeof customerUserId !== 'string') {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "customer_user_id" is not a string`,
-        { args: json_obj },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'customerUserId',
         expected: 'string',
         current: typeof customerUserId,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const nonSubscriptionsRaw = data['non_subscriptions'];
     if (nonSubscriptionsRaw && typeof nonSubscriptionsRaw !== 'object') {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "non_subscriptions" is not an object`,
-        { args: json_obj },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'nonSubscriptions',
         expected: 'object',
         current: typeof nonSubscriptionsRaw,
       });
+
+      log?.failed(error);
+      throw error;
     }
     const nonSubscriptions = Object.keys(nonSubscriptionsRaw ?? {}).reduce(
       (acc, productId) => {
@@ -126,17 +110,14 @@ export class AdaptyProfileCoder extends Coder<Type> {
           return acc;
         }
         if (!Array.isArray(nonSubList)) {
-          Log.error(
-            `${this.prototype.constructor.name}.tryDecode`,
-            `Failed to decode: "nonSubList" is not an array`,
-            { args: json_obj },
-          );
-
-          throw this.errType({
+          const error = this.errType({
             name: 'nonSubscriptions',
             expected: 'array',
             current: typeof nonSubList,
           });
+
+          log?.failed(error);
+          throw error;
         }
 
         if (!acc[productId]) {
@@ -145,7 +126,7 @@ export class AdaptyProfileCoder extends Coder<Type> {
 
         nonSubList.forEach(value => {
           acc[productId].push(
-            AdaptyNonSubscriptionCoder.tryDecode(value).toObject(),
+            AdaptyNonSubscriptionCoder.tryDecode(value, ctx).toObject(),
           );
         });
 
@@ -156,41 +137,32 @@ export class AdaptyProfileCoder extends Coder<Type> {
 
     const profileId = data['profile_id'] as Type['profileId'];
     if (!profileId) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "profile_id" is required`,
-        { args: json_obj },
-      );
+      const error = this.errRequired('profileId');
 
-      throw this.errRequired('profileId');
+      log?.failed(error);
+      throw error;
     }
     if (typeof profileId !== 'string') {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "profile_id" is not a string`,
-        { args: json_obj },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'profileId',
         expected: 'string',
         current: typeof profileId,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const subscriptionsRaw = data['subscriptions'];
     if (subscriptionsRaw && typeof subscriptionsRaw !== 'object') {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "subscriptions" is not an object`,
-        { args: json_obj },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'subscriptions',
         expected: 'object',
         current: typeof subscriptionsRaw,
       });
+
+      log?.failed(error);
+      throw error;
     }
     const subscriptions = Object.keys(subscriptionsRaw ?? {}).reduce(
       (acc, productId) => {
@@ -199,8 +171,10 @@ export class AdaptyProfileCoder extends Coder<Type> {
           return acc;
         }
 
-        acc[productId] =
-          AdaptySubscriptionCoder.tryDecode(subscriptionRaw).toObject();
+        acc[productId] = AdaptySubscriptionCoder.tryDecode(
+          subscriptionRaw,
+          ctx,
+        ).toObject();
 
         return acc;
       },
@@ -224,25 +198,17 @@ export class AdaptyProfileCoder extends Coder<Type> {
       }
     });
 
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Decode: SUCCESS`,
-      { data, result },
-    );
-
+    log?.success(result);
     return new AdaptyProfileCoder(result);
   }
 
-  public override encode(): Record<string, any> {
-    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
-      args: this.data,
-    });
+  public override encode(ctx?: LogContext): Record<string, any> {
+    const log = ctx?.encode({ methodName: this.constructor.name });
+    log?.start({ args: this.data });
 
     const result = {};
-    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
-      args: this.data,
-      result,
-    });
+
+    log?.failed({ error: 'Unused method "encode"' });
 
     return result;
   }

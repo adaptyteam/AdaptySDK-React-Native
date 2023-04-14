@@ -1,4 +1,4 @@
-import { Log } from '../../sdk/logger';
+import { LogContext } from '../../logger';
 import type {
   AdaptyAccessLevel,
   CancellationReason,
@@ -16,41 +16,36 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
     super(data);
   }
 
-  override encode(): Record<string, any> {
-    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
-      args: this.data,
-    });
+  override encode(ctx?: LogContext): Record<string, any> {
+    const log = ctx?.encode({ methodName: this.constructor.name });
+    log?.start({});
 
+    // don't need to encode anything currently
     const result = {};
-    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
-      args: this.data,
-      result,
-    });
 
+    log?.failed({ error: 'Unused method' });
     return result;
   }
 
-  static override tryDecode(json_obj: unknown): AdaptyAccessLevelCoder {
-    const dateParser = new DateParser('AdaptyAccessLevel');
+  static override tryDecode(
+    json_obj: unknown,
+    ctx?: LogContext,
+  ): AdaptyAccessLevelCoder {
+    const log = ctx?.decode({ methodName: this.prototype.constructor.name });
+    log?.start({ json: json_obj });
 
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Trying to decode...`,
-      { args: json_obj },
-    );
+    const dateParser = new DateParser('AdaptyAccessLevel');
 
     const data = json_obj as Record<string, any>;
     if (typeof data !== 'object' || !Boolean(data)) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: data is not an object`,
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'data',
         expected: 'object',
         current: typeof data,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const ACTIVATED_AT = 'activated_at';
@@ -63,51 +58,42 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
     ] as OfferType | undefined;
     if (activeIntroductoryOfferType) {
       if (typeof activeIntroductoryOfferType !== 'string') {
-        Log.verbose(
-          `${this.prototype.constructor.name}.tryDecode`,
-          `Failed to decode: "active_introductory_offer_type" is not a string"`,
-          { data },
-        );
-
-        throw this.errType({
+        const error = this.errType({
           name: 'activeIntroductoryOfferType',
           expected: 'string',
           current: activeIntroductoryOfferType,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
     const activePromotionalOfferId = data['active_promotional_offer_id'];
     if (activePromotionalOfferId) {
       if (typeof activePromotionalOfferId !== 'string') {
-        Log.verbose(
-          `${this.prototype.constructor.name}.tryDecode`,
-          `Failed to decode: "active_promotional_offer_id" is not a string"`,
-          { data },
-        );
-
-        throw this.errType({
+        const error = this.errType({
           name: 'activePromotionalOfferId',
           expected: 'string',
           current: activePromotionalOfferId,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
     const activePromotionalOfferType = data['active_promotional_offer_type'];
     if (activePromotionalOfferType) {
       if (typeof activePromotionalOfferType !== 'string') {
-        Log.verbose(
-          `${this.prototype.constructor.name}.tryDecode`,
-          `Failed to decode: "active_promotional_offer_type" is not a string"`,
-          { data },
-        );
-
-        throw this.errType({
+        const error = this.errType({
           name: 'activePromotionalOfferType',
           expected: 'string',
           current: activePromotionalOfferType,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
@@ -122,17 +108,14 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
       | undefined;
     if (cancellationReason) {
       if (typeof cancellationReason !== 'string') {
-        Log.verbose(
-          `${this.prototype.constructor.name}.tryDecode`,
-          `Failed to decode: "cancellation_reason" is not a string"`,
-          { data },
-        );
-
-        throw this.errType({
+        const error = this.errType({
           name: 'cancellationReason',
           expected: 'string',
           current: cancellationReason,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
@@ -143,86 +126,68 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
 
     const id = data['id'];
     if (!id) {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "id" is required"`,
-        { data },
-      );
+      const error = this.errRequired('id');
 
-      throw this.errRequired('id');
+      log?.failed(error);
+      throw error;
     }
     if (typeof id !== 'string') {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "id" is not a string"`,
-        { data },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'id',
         expected: 'string',
         current: id,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isActive = data['is_active'];
     if (typeof isActive !== 'boolean') {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "is_active" is not a boolean"`,
-        { data },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'isActive',
         expected: 'boolean',
         current: isActive,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isInGracePeriod = data['is_in_grace_period'];
     if (typeof isInGracePeriod !== 'boolean') {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "is_in_grace_period" is not a boolean"`,
-        { data },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'isInGracePeriod',
         expected: 'boolean',
         current: isInGracePeriod,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isLifetime = data['is_lifetime'];
     if (typeof isLifetime !== 'boolean') {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "is_lifetime" is not a boolean"`,
-        { data },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'isLifetime',
         expected: 'boolean',
         current: isLifetime,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isRefund = data['is_refund'];
     if (typeof isRefund !== 'boolean') {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "is_refund" is not a boolean"`,
-        { data },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'isRefund',
         expected: 'boolean',
         current: isRefund,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const RENEWED_AT = 'renewed_at';
@@ -237,26 +202,20 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
 
     const store = data['store'] as VendorStore | undefined;
     if (!store) {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "store" is required"`,
-        { data },
-      );
+      const error = this.errRequired('store');
 
-      throw this.errRequired('store');
+      log?.failed(error);
+      throw error;
     }
     if (typeof store !== 'string') {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "store" is not a string"`,
-        { data },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'store',
         expected: 'string',
         current: store,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const UNSUBSCRIBED_AT = 'unsubscribed_at';
@@ -266,41 +225,32 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
 
     const vendorProductId = data['vendor_product_id'];
     if (!vendorProductId) {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "vendor_product_id" is required"`,
-        { data },
-      );
+      const error = this.errRequired('vendorProductId');
 
-      throw this.errRequired('vendorProductId');
+      log?.failed(error);
+      throw error;
     }
     if (typeof vendorProductId !== 'string') {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "vendor_product_id" is not a string"`,
-        { data },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'vendorProductId',
         expected: 'string',
         current: vendorProductId,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const willRenew = data['will_renew'];
     if (typeof willRenew !== 'boolean') {
-      Log.verbose(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: "will_renew" is not a boolean"`,
-        { data },
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'willRenew',
         expected: 'boolean',
         current: willRenew,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const result: Required<Type> = {
@@ -332,12 +282,7 @@ export class AdaptyAccessLevelCoder extends Coder<Type> {
       }
     });
 
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Decode: SUCCESS`,
-      { data, result },
-    );
-
+    log?.success(result);
     return new AdaptyAccessLevelCoder(result);
   }
 }

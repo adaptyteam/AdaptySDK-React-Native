@@ -1,4 +1,4 @@
-import { Log } from '../sdk/logger';
+import { Log } from '../logger';
 import { ErrorCode, getErrorCode, getErrorPrompt } from '../types/error';
 
 const RN_ERROR_KEY = 'message';

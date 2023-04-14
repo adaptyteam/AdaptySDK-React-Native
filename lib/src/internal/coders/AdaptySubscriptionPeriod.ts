@@ -1,4 +1,4 @@
-import { Log } from '../../sdk/logger';
+import { LogContext } from '../../logger';
 import type { AdaptySubscriptionPeriod } from '../../types';
 
 import { Coder } from './coder';
@@ -10,49 +10,59 @@ export class AdaptySubscriptionPeriodCoder extends Coder<Type> {
     super(data);
   }
 
-  static override tryDecode(json_obj: unknown): AdaptySubscriptionPeriodCoder {
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Trying to decode...`,
-      { args: json_obj },
-    );
+  static override tryDecode(
+    json_obj: unknown,
+    ctx?: LogContext,
+  ): AdaptySubscriptionPeriodCoder {
+    const log = ctx?.decode({ methodName: this.prototype.constructor.name });
+    log?.start({ json: json_obj });
 
     const data = json_obj as Record<string, any>;
     if (typeof data !== 'object' || !Boolean(data)) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: data is not an object`,
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'data',
         expected: 'object',
         current: typeof data,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const numberOfUnits = data['number_of_units'];
     if (!numberOfUnits) {
-      throw this.errRequired('numberOfUnits');
+      const error = this.errRequired('numberOfUnits');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof numberOfUnits !== 'number') {
-      throw this.errType({
+      const error = this.errType({
         name: 'numberOfUnits',
         expected: 'number',
         current: typeof numberOfUnits,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const unit = data['unit'] as Type['unit'];
     if (!unit) {
-      throw this.errRequired('unit');
+      const error = this.errRequired('unit');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof unit !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'unit',
         expected: 'string',
         current: typeof unit,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const result: AdaptySubscriptionPeriod = {
@@ -60,14 +70,14 @@ export class AdaptySubscriptionPeriodCoder extends Coder<Type> {
       unit: unit,
     };
 
+    log?.success(result);
     return new AdaptySubscriptionPeriodCoder(result);
   }
 
-  public encode(): Record<string, any> {
+  public encode(ctx?: LogContext): Record<string, any> {
+    const log = ctx?.encode({ methodName: this.constructor.name });
     const d = this.data;
-    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
-      args: this.data,
-    });
+    log?.start(d);
 
     const result = {
       number_of_units: d.numberOfUnits,
@@ -82,11 +92,7 @@ export class AdaptySubscriptionPeriodCoder extends Coder<Type> {
       }
     });
 
-    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
-      args: this.data,
-      result,
-    });
-
+    log?.success({ json: result });
     return result;
   }
 }

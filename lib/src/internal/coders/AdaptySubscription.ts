@@ -1,4 +1,4 @@
-import { Log } from '../../sdk/logger';
+import { LogContext } from '../../logger';
 import type { AdaptySubscription } from '../../types';
 import { DateParser } from '../parsers/date';
 
@@ -11,41 +11,35 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     super(data);
   }
 
-  public override encode(): Record<string, any> {
-    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
-      args: this.data,
-    });
+  public override encode(ctx?: LogContext): Record<string, any> {
+    const log = ctx?.encode({ methodName: this.constructor.name });
+    log?.start(this.data);
 
     const result = {};
-    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
-      args: this.data,
-      result,
-    });
 
+    log?.failed({ error: 'Unused method "encode"' });
     return result;
   }
 
-  static override tryDecode(json_obj: unknown): AdaptySubscriptionCoder {
-    const dateParser = new DateParser('AdaptyNonSubscription');
+  static override tryDecode(
+    json_obj: unknown,
+    ctx?: LogContext,
+  ): AdaptySubscriptionCoder {
+    const log = ctx?.decode({ methodName: this.prototype.constructor.name });
+    log?.start({ json: json_obj });
 
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Trying to decode...`,
-      { args: json_obj },
-    );
+    const dateParser = new DateParser('AdaptyNonSubscription');
 
     const data = json_obj as Record<string, any>;
     if (typeof data !== 'object' || !Boolean(data)) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: data is not an object`,
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'data',
         expected: 'object',
         current: typeof data,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const ACTIVATED_AT = 'activated_at';
@@ -58,11 +52,14 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     ] as Type['activeIntroductoryOfferType'];
     if (activeIntroductoryOfferType) {
       if (typeof activeIntroductoryOfferType !== 'string') {
-        throw this.errType({
+        const error = this.errType({
           name: 'activeIntroductoryOfferType',
           expected: 'string',
           current: activeIntroductoryOfferType,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
@@ -71,11 +68,14 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     ] as Type['activePromotionalOfferId'];
     if (activePromotionalOfferId) {
       if (typeof activePromotionalOfferId !== 'string') {
-        throw this.errType({
+        const error = this.errType({
           name: 'activePromotionalOfferId',
           expected: 'string',
           current: activePromotionalOfferId,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
@@ -84,11 +84,14 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     ] as Type['activePromotionalOfferType'];
     if (activePromotionalOfferType) {
       if (typeof activePromotionalOfferType !== 'string') {
-        throw this.errType({
+        const error = this.errType({
           name: 'activePromotionalOfferType',
           expected: 'string',
           current: activePromotionalOfferType,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
@@ -103,11 +106,14 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
     ] as Type['cancellationReason'];
     if (cancellationReason) {
       if (typeof cancellationReason !== 'string') {
-        throw this.errType({
+        const error = this.errType({
           name: 'cancellationReason',
           expected: 'string',
           current: cancellationReason,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
@@ -118,49 +124,64 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
 
     const isActive = data['is_active'] as Type['isActive'];
     if (typeof isActive !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'isActive',
         expected: 'boolean',
         current: isActive,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isInGracePeriod = data[
       'is_in_grace_period'
     ] as Type['isInGracePeriod'];
     if (typeof isInGracePeriod !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'isInGracePeriod',
         expected: 'boolean',
         current: isInGracePeriod,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isLifetime = data['is_lifetime'] as Type['isLifetime'];
     if (typeof isLifetime !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'isLifetime',
         expected: 'boolean',
         current: isLifetime,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isRefund = data['is_refund'] as Type['isRefund'];
     if (typeof isRefund !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'isRefund',
         expected: 'boolean',
         current: isRefund,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isSandbox = data['is_sandbox'] as Type['isSandbox'];
     if (typeof isSandbox !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'isSandbox',
         expected: 'boolean',
         current: isSandbox,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const RENEWED_AT = 'renewed_at';
@@ -175,14 +196,20 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
 
     const store = data['store'] as Type['store'];
     if (!store) {
-      throw this.errRequired('activated_at');
+      const error = this.errRequired('activated_at');
+
+      log?.failed(error);
+      throw error;
     }
     if (typeof store !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'store',
         expected: 'string',
         current: store,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const UNSUBSCRIBED_AT = 'unsubscribed_at';
@@ -194,51 +221,72 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
       'vendor_original_transaction_id'
     ] as Type['vendorOriginalTransactionId'];
     if (!vendorOriginalTransactionId) {
-      throw this.errRequired('vendorOriginalTransactionId');
+      const error = this.errRequired('vendorOriginalTransactionId');
+
+      log?.failed(error);
+      throw error;
     }
     if (typeof vendorOriginalTransactionId !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'vendorOriginalTransactionId',
         expected: 'string',
         current: vendorOriginalTransactionId,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const vendorProductId = data[
       'vendor_product_id'
     ] as Type['vendorProductId'];
     if (!vendorProductId) {
-      throw this.errRequired('vendorProductId');
+      const error = this.errRequired('vendorProductId');
+
+      log?.failed(error);
+      throw error;
     }
     if (typeof vendorProductId !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'vendorProductId',
         expected: 'string',
         current: vendorProductId,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const vendorTransactionId = data[
       'vendor_transaction_id'
     ] as Type['vendorTransactionId'];
     if (!vendorTransactionId) {
-      throw this.errRequired('vendorTransactionId');
+      const error = this.errRequired('vendorTransactionId');
+
+      log?.failed(error);
+      throw error;
     }
     if (typeof vendorTransactionId !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'vendorTransactionId',
         expected: 'string',
         current: vendorTransactionId,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const willRenew = data['will_renew'] as Type['willRenew'];
     if (typeof willRenew !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'willRenew',
         expected: 'boolean',
         current: willRenew,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const result: Required<Type> = {
@@ -264,6 +312,7 @@ export class AdaptySubscriptionCoder extends Coder<Type> {
       willRenew: willRenew,
     };
 
+    log?.success(result);
     return new AdaptySubscriptionCoder(result);
   }
 }

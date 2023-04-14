@@ -1,4 +1,5 @@
 import { getErrorCode } from '../../docs';
+import { LogContext } from '../../logger';
 import { BridgeError } from '../bridgeError';
 
 /**
@@ -19,7 +20,7 @@ export abstract class Coder<T> {
   public static tryDecode(data: unknown): Coder<any> {
     return data as any;
   }
-  abstract encode(): Record<string, any>;
+  abstract encode(ctx?: LogContext): Record<string, any>;
 
   public static errType(args: {
     name: string;

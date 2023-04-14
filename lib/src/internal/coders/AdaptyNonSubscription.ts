@@ -1,4 +1,4 @@
-import { Log } from '../../sdk/logger';
+import { LogContext } from '../../logger';
 import type { AdaptyNonSubscription, VendorStore } from '../../types';
 import { DateParser } from '../parsers/date';
 import { Coder } from './coder';
@@ -10,77 +10,85 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
     super(data);
   }
 
-  override encode(): Record<string, any> {
-    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, {
-      args: this.data,
-    });
+  override encode(ctx?: LogContext): Record<string, any> {
+    const log = ctx?.encode({ methodName: this.constructor.name });
 
+    log?.start({});
+
+    // don't need to encode anything currently
     const result = {};
-    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
-      args: this.data,
-      result,
-    });
 
+    log?.success({});
     return result;
   }
 
-  static override tryDecode(json_obj: unknown): AdaptyNonSubscriptionCoder {
-    const dateParser = new DateParser('AdaptyNonSubscription');
+  static override tryDecode(
+    json_obj: unknown,
+    ctx?: LogContext,
+  ): AdaptyNonSubscriptionCoder {
+    const log = ctx?.decode({ methodName: this.prototype.constructor.name });
+    log?.start({ json: json_obj });
 
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Trying to decode...`,
-      { args: json_obj },
-    );
+    const dateParser = new DateParser('AdaptyNonSubscription');
 
     const data = json_obj as Record<string, any>;
     if (typeof data !== 'object' || !Boolean(data)) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: data is not an object`,
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'data',
         expected: 'object',
         current: typeof data,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isOneTime = data['is_one_time'];
     if (typeof isOneTime !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'isOneTime',
         expected: 'boolean',
         current: isOneTime,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isRefund = data['is_refund'];
     if (typeof isRefund !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'isRefund',
         expected: 'boolean',
         current: isRefund,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const isSandbox = data['is_sandbox'];
     if (typeof isSandbox !== 'boolean') {
-      throw this.errType({
+      const error = this.errType({
         name: 'isSandbox',
         expected: 'boolean',
         current: isSandbox,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const purchaseId = data['purchase_id'];
     if (typeof purchaseId !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'purchaseId',
         expected: 'string',
         current: purchaseId,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const PURCHASED_AT = 'purchased_at';
@@ -90,30 +98,39 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
 
     const store = data['store'] as VendorStore | undefined;
     if (typeof store !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'store',
         expected: 'string',
         current: typeof store,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const vendorProductId = data['vendor_product_id'];
     if (typeof vendorProductId !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'vendorProductId',
         expected: 'string',
         current: vendorProductId,
       });
+
+      log?.failed(error);
+      throw error;
     }
 
     const vendorTransactionId = data['vendor_transaction_id'];
     if (vendorTransactionId) {
       if (typeof vendorTransactionId !== 'string') {
-        throw this.errType({
+        const error = this.errType({
           name: 'vendorTransactionId',
           expected: 'string',
           current: vendorTransactionId,
         });
+
+        log?.failed(error);
+        throw error;
       }
     }
 
@@ -136,6 +153,7 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
       }
     });
 
+    log?.success(result);
     return new AdaptyNonSubscriptionCoder(result);
   }
 }

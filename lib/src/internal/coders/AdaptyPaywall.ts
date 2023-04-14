@@ -1,4 +1,4 @@
-import { Log } from '../../sdk/logger';
+import { LogContext } from '../../logger';
 import type { AdaptyPaywall } from '../../types';
 
 import { Coder } from './coder';
@@ -12,104 +12,135 @@ export class AdaptyPaywallCoder extends Coder<Type> {
     super(data);
   }
 
-  override encode(): Record<string, any> {
+  override encode(ctx?: LogContext): Record<string, any> {
+    const log = ctx?.encode({ methodName: this.constructor.name });
+
     const d = this.data;
-    Log.verbose(`${this.constructor.name}.encode`, `Encoding from cache...`, {
-      args: this.data.id,
-      cache: AdaptyPaywallCoder.backendCache,
-    });
 
-    const result = AdaptyPaywallCoder.backendCache.get(d.id)!;
-    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
-      args: this.data,
-      result,
-    });
+    try {
+      log?.start(d);
 
-    return result;
+      const result = AdaptyPaywallCoder.backendCache.get(d.id)!;
+
+      log?.success(result);
+      return result;
+    } catch (error) {
+      log?.failed(error);
+      throw error;
+    }
   }
 
-  static override tryDecode(json_obj: unknown): AdaptyPaywallCoder {
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Trying to decode...`,
-      { args: json_obj },
-    );
+  static override tryDecode(
+    json_obj: unknown,
+    ctx?: LogContext,
+  ): AdaptyPaywallCoder {
+    const log = ctx?.decode({ methodName: this.prototype.constructor.name });
+    log?.start({ json: json_obj });
+
     const data = json_obj as Record<string, any>;
     if (typeof data !== 'object' || !Boolean(data)) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: data is not an object`,
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'data',
         expected: 'object',
         current: typeof data,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const abTestName = data['ab_test_name'] as Type['abTestName'];
     if (!abTestName) {
-      throw this.errRequired('abTestName');
+      const error = this.errRequired('abTestName');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof abTestName !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'abTestName',
         expected: 'string',
         current: typeof abTestName,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const id = data['developer_id'] as Type['id'];
     if (!id) {
-      throw this.errRequired('id');
+      const error = this.errRequired('id');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof id !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'id',
         expected: 'string',
         current: typeof id,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const name = data['paywall_name'] as Type['name'];
     if (name && typeof name !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'name',
         expected: 'string',
         current: typeof name,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const payload = data['remote_config'] as { lang: string; data?: string };
     if (!payload) {
-      throw this.errRequired('payload');
+      const error = this.errRequired('payload');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof payload !== 'object' || payload === null) {
-      throw this.errType({
+      const error = this.errType({
         name: 'payload',
         expected: 'object',
         current: typeof payload,
       });
+
+      log?.failed({ error });
+      throw error;
     }
     const locale = payload['lang'] as Type['locale'];
     if (!locale) {
-      throw this.errRequired('locale');
+      const error = this.errRequired('locale');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof locale !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'locale',
         expected: 'string',
         current: typeof locale,
       });
+
+      log?.failed({ error });
+      throw error;
     }
     const remoteConfigString = payload['data'] as Type['remoteConfigString'];
     if (remoteConfigString && typeof remoteConfigString !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'remoteConfigString',
         expected: 'string',
         current: typeof remoteConfigString,
       });
+
+      log?.failed({ error });
+      throw error;
     }
     const remoteConfig = (
       remoteConfigString ? JSON.parse(remoteConfigString) : undefined
@@ -117,35 +148,50 @@ export class AdaptyPaywallCoder extends Coder<Type> {
 
     const revision = data['revision'] as Type['revision'];
     if (!revision) {
-      throw this.errRequired('revision');
+      const error = this.errRequired('revision');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof revision !== 'number') {
-      throw this.errType({
+      const error = this.errType({
         name: 'revision',
         expected: 'number',
         current: typeof revision,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const variationId = data['variation_id'] as Type['variationId'];
     if (!variationId) {
-      throw this.errRequired('variationId');
+      const error = this.errRequired('variationId');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof variationId !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'variationId',
         expected: 'string',
         current: typeof variationId,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const vendorProducts = data['products'];
     if (!Array.isArray(vendorProducts)) {
-      throw this.errType({
+      const error = this.errType({
         name: 'vendorProductIds',
         expected: 'array',
         current: typeof vendorProducts,
       });
+
+      log?.failed({ error });
+      throw error;
     }
     const vendorProductIds = vendorProducts?.map(
       product => product['vendor_product_id'],
@@ -172,6 +218,8 @@ export class AdaptyPaywallCoder extends Coder<Type> {
     });
 
     this.backendCache.set(id, data);
+
+    log?.success(result);
     return new AdaptyPaywallCoder(result);
   }
 }

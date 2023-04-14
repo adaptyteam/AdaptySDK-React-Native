@@ -59,16 +59,24 @@ export class AdaptyError extends Error {
   }
 
   public static tryWrap(error: unknown): AdaptyError {
-    const nativeErr = BridgeError.nativeErr(error as any);
+    try {
+      const nativeErr = BridgeError.nativeErr(error as any);
 
-    const prompt = getErrorPrompt(nativeErr.adaptyCode);
-
-    return new AdaptyError({
-      adaptyCode: nativeErr.adaptyCode,
-      adaptyCodeStr: prompt,
-      localizedDescription: nativeErr.description,
-      logFmt: `#${nativeErr.adaptyCode} (${prompt}): ${nativeErr.description}`,
-    });
+      try {
+        const prompt = getErrorPrompt(nativeErr.adaptyCode);
+        const resultErr = new AdaptyError({
+          adaptyCode: nativeErr.adaptyCode,
+          adaptyCodeStr: prompt,
+          localizedDescription: nativeErr.description,
+          logFmt: `#${nativeErr.adaptyCode} (${prompt}): ${nativeErr.description}`,
+        });
+        return resultErr;
+      } catch (error) {
+        return AdaptyError.deserializationError('tryWrap');
+      }
+    } catch (error) {
+      return AdaptyError.deserializationError('tryWrap');
+    }
   }
 
   public static deserializationError(methodName: string): AdaptyError {

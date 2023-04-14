@@ -1,4 +1,4 @@
-import { Log } from '../../sdk/logger';
+import { LogContext } from '../../logger';
 import type { AdaptyProductDiscount } from '../../types';
 import { AdaptySubscriptionPeriodCoder } from './AdaptySubscriptionPeriod';
 
@@ -13,10 +13,11 @@ export class AdaptyProductDiscountCoder extends Coder<Type> {
     super(data);
   }
 
-  public override encode(): Record<string, any> {
-    const d = this.data;
+  public override encode(ctx?: LogContext): Record<string, any> {
+    const log = ctx?.encode({ methodName: this.constructor.name });
 
-    Log.verbose(`${this.constructor.name}.encode`, `Encoding...`, { args: d });
+    const d = this.data;
+    log?.start(d);
 
     const result = {
       localized_number_of_periods: d.localizedNumberOfPeriods,
@@ -26,7 +27,7 @@ export class AdaptyProductDiscountCoder extends Coder<Type> {
       price: d.price,
       subscription_period: new AdaptySubscriptionPeriodCoder(
         d.subscriptionPeriod,
-      ).encode(),
+      ).encode(ctx),
       payment_mode: d.ios?.paymentMode,
       identifier: d.ios?.identifier,
     };
@@ -39,33 +40,27 @@ export class AdaptyProductDiscountCoder extends Coder<Type> {
       }
     });
 
-    Log.verbose(`${this.constructor.name}.encode`, `Encode: SUCCESS`, {
-      args: this.data,
-      result,
-    });
-
+    log?.success({ json: result });
     return result;
   }
 
-  static override tryDecode(json_obj: unknown): AdaptyProductDiscountCoder {
-    Log.verbose(
-      `${this.prototype.constructor.name}.tryDecode`,
-      `Trying to decode...`,
-      { args: json_obj },
-    );
+  static override tryDecode(
+    json_obj: unknown,
+    ctx?: LogContext,
+  ): AdaptyProductDiscountCoder {
+    const log = ctx?.decode({ methodName: this.prototype.constructor.name });
+    log?.start({ json: json_obj });
 
     const data = json_obj as Record<string, any>;
     if (typeof data !== 'object' || !Boolean(data)) {
-      Log.error(
-        `${this.prototype.constructor.name}.tryDecode`,
-        `Failed to decode: data is not an object`,
-      );
-
-      throw this.errType({
+      const error = this.errType({
         name: 'data',
         expected: 'object',
         current: typeof data,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const localizedNumberOfPeriods = data[
@@ -75,20 +70,26 @@ export class AdaptyProductDiscountCoder extends Coder<Type> {
       localizedNumberOfPeriods &&
       typeof localizedNumberOfPeriods !== 'string'
     ) {
-      throw this.errType({
+      const error = this.errType({
         name: 'localizedNumberOfPeriods',
         expected: 'string',
         current: typeof localizedNumberOfPeriods,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const localizedPrice = data['localized_price'] as Type['localizedPrice'];
     if (localizedPrice && typeof localizedPrice !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'localizedPrice',
         expected: 'string',
         current: typeof localizedPrice,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const localizedSubscriptionPeriod = data[
@@ -98,52 +99,74 @@ export class AdaptyProductDiscountCoder extends Coder<Type> {
       localizedSubscriptionPeriod &&
       typeof localizedSubscriptionPeriod !== 'string'
     ) {
-      throw this.errType({
+      const error = this.errType({
         name: 'localizedSubscriptionPeriod',
         expected: 'string',
         current: typeof localizedSubscriptionPeriod,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const numberOfPeriods = data[
       'number_of_periods'
     ] as Type['numberOfPeriods'];
     if (!numberOfPeriods) {
-      throw this.errRequired('numberOfPeriods');
+      const error = this.errRequired('numberOfPeriods');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof numberOfPeriods !== 'number') {
-      throw this.errType({
+      const error = this.errType({
         name: 'numberOfPeriods',
         expected: 'number',
         current: typeof numberOfPeriods,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const price = data['price'] as Type['price'];
     if (price === undefined || price === null) {
-      throw this.errRequired('price');
+      const error = this.errRequired('price');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof price !== 'number') {
-      throw this.errType({
+      const error = this.errType({
         name: 'price',
         expected: 'number',
         current: typeof price,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const subscriptionPeriodRaw = data['subscription_period'];
     if (!subscriptionPeriodRaw) {
-      throw this.errRequired('subscriptionPeriod');
+      const error = this.errRequired('subscriptionPeriod');
+
+      log?.failed({ error });
+      throw error;
     }
     if (typeof subscriptionPeriodRaw !== 'object') {
-      throw this.errType({
+      const error = this.errType({
         name: 'subscriptionPeriod',
         expected: 'object',
         current: typeof subscriptionPeriodRaw,
       });
+
+      log?.failed({ error });
+      throw error;
     }
     const subscriptionPeriod = AdaptySubscriptionPeriodCoder.tryDecode(
       subscriptionPeriodRaw,
+      ctx,
     ).toObject();
 
     const ios = AdaptyProductDiscountIosCoder.tryDecode(data).toObject();
@@ -166,6 +189,7 @@ export class AdaptyProductDiscountCoder extends Coder<Type> {
       }
     });
 
+    log?.success(result);
     return new AdaptyProductDiscountCoder(result);
   }
 }
@@ -176,36 +200,54 @@ class AdaptyProductDiscountIosCoder extends Coder<Ios> {
     super(data);
   }
 
-  public override encode(): Record<string, any> {
+  public override encode(ctx?: LogContext): Record<string, any> {
+    const log = ctx?.encode({ methodName: this.constructor.name });
+
+    log?.failed({ error: 'Unused method "encode"' });
     return {};
   }
 
-  static override tryDecode(json_obj: unknown): AdaptyProductDiscountIosCoder {
+  static override tryDecode(
+    json_obj: unknown,
+    ctx?: LogContext,
+  ): AdaptyProductDiscountIosCoder {
+    const log = ctx?.decode({ methodName: this.prototype.constructor.name });
+    log?.start({ json: json_obj });
+
     const data = json_obj as Record<string, any>;
     if (typeof data !== 'object' || !Boolean(data)) {
-      throw this.errType({
+      const error = this.errType({
         name: 'data',
         expected: 'object',
         current: typeof data,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const paymentMode = data['payment_mode'] as MustIos['paymentMode'];
     if (paymentMode && typeof paymentMode !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'paymentMode',
         expected: 'string',
         current: typeof paymentMode,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const identifier = data['identifier'] as MustIos['identifier'];
     if (identifier && typeof identifier !== 'string') {
-      throw this.errType({
+      const error = this.errType({
         name: 'identifier',
         expected: 'string',
         current: typeof identifier,
       });
+
+      log?.failed({ error });
+      throw error;
     }
 
     const result: Required<Ios> = {
@@ -221,6 +263,7 @@ class AdaptyProductDiscountIosCoder extends Coder<Ios> {
       }
     });
 
+    log?.success(result);
     return new AdaptyProductDiscountIosCoder(
       Object.keys(result).length === 0 ? undefined : result,
     );
