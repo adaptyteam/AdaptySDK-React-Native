@@ -1,33 +1,21 @@
 import { LogLevel } from '../types/inputs';
-
-export const MSG = {
-  NEW_CALL: 'Preparing to call native SDK',
-  BEFORE_NATIVE_CALL: '--> Calling native SDK',
-  NATIVE_SDK_REPLIED: '<-- Native SDK replied',
-  NATIVE_SDK_REPLIED_WITH_ERROR: '<-- Native SDK replied with error',
-  CALL_SUCCESS: '<-- SUCCESS',
-};
+import { GET_VERSION } from '../version';
 
 export class Log {
   public static logLevel: LogLevel | null = null;
 
-  /**
-   * Formats a message for logging.
-   * @internal
-   */
-  private static fmtMessage(
-    logLevel: LogLevel,
-    message: string,
-    funcName: string,
-  ): string {
-    return `[Adapty JS] — ${logLevel}: ${funcName}: ${message}`;
+  // Formats a message for logging
+  private static formatMessage(message: string, funcName: string): string {
+    const now = new Date().toISOString();
+    const version = GET_VERSION();
+
+    return `[${now}] [adapty@${version}] "${funcName}": ${message}`;
   }
 
-  /**
-   * Gets the appropriate logger for a log level.
-   * @internal
-   */
-  private static getLogger(logLevel: LogLevel): (message: string) => void {
+  // Gets the appropriate logger for a log level
+  private static getLogger(
+    logLevel: LogLevel,
+  ): (message: string, ...optionalParams: any[]) => void {
     switch (logLevel) {
       case LogLevel.ERROR:
         return console.error;
@@ -77,20 +65,10 @@ export class Log {
     const messageLevel = Log.getLogLevelInt(logLevel);
 
     if (messageLevel <= currentLevel) {
-      let output = Log.fmtMessage(logLevel, message, funcName);
+      let output = Log.formatMessage(message, funcName);
       const logger = Log.getLogger(logLevel) || console.log;
 
-      if (params) {
-        Object.keys(params).forEach(key => {
-          let value = params[key];
-          if (typeof value === 'object' && Boolean(value)) {
-            value = JSON.stringify(value, null, 2);
-          }
-          output += `\n\t${key}=${JSON.stringify(value)}`;
-        });
-      }
-
-      logger(output);
+      logger(output, params);
     }
   }
 
