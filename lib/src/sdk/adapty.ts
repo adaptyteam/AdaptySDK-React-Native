@@ -87,16 +87,18 @@ export class Adapty extends AdaptyEventEmitter {
     apiKey: string,
     params: Input.ActivateParamsInput = {},
   ): Promise<void> {
-    const ctx = new LogContext();
-
-    const log = ctx.call({ methodName: this.activate.name });
-    log.start({ apiKey, params });
-
     const observerMode = params.observerMode ?? false;
     const customerUserId = params.customerUserId;
     const logLevel = params.logLevel;
 
+    // call before log ctx calls, so no logs are lost
     Log.logLevel = logLevel || null;
+
+    const ctx = new LogContext();
+    console.log('this name', this.activate.name);
+    const log = ctx.call({ methodName: 'activate' });
+    log.start({ apiKey, params });
+
     this.shouldWaitUntilReady = params.lockMethodsUntilReady ?? false;
 
     try {
