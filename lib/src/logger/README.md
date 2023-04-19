@@ -1,6 +1,6 @@
 # Logging in `react-native-adapty`
 
-Adapty React Native SDK have a fixed similar flow for all the public methods. This allows to have identical logging scopes, that would allow to easily trace problems in developer's flow or within SDK.
+Adapty React Native SDK has a fixed similar flow for all the public methods. This allows to have identical logging scopes, that would allow to easily trace problems in developer's flow or within SDK.
 
 While this library provides extended logging capabilities, there is currently no way to output native logs to the console.
 
