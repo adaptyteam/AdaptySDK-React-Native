@@ -138,7 +138,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = token
         MEMO_ACTIVATION_ARGS[Const.USER_ID] = customerUserId
         
-        guard let path = Bundle.main.path(forResource: "PackageVersion", ofType: "plist"),
+        guard let path = Bundle.main.path(forResource: "CrossplatformVersion", ofType: "plist"),
                  let dict = NSDictionary(contentsOfFile: path),
                  let version = dict["version"] as? String else {
             return ctx.argNotFound(name: "sdk_version")

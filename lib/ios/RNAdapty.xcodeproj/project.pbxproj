@@ -26,9 +26,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		86670EF529EFEA370018CBE2 /* CrossplatformVersion.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CrossplatformVersion.plist; sourceTree = "<group>"; };
 		8677D25329660E0200743473 /* RNAdaptyConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdaptyConstants.swift; sourceTree = "<group>"; };
 		8677D25429660E0200743473 /* RNAdaptyContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdaptyContext.swift; sourceTree = "<group>"; };
-		869F352C29E984350046C866 /* CrossplatformVersion.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CrossplatformVersion.plist; sourceTree = "<group>"; };
 		9C3BB63D25236E6100D08A07 /* libRNAdapty.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNAdapty.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNAdapty-Bridging-Header.h"; sourceTree = "<group>"; };
 		9C3BB65225236EED00D08A07 /* RNAdapty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdapty.swift; sourceTree = "<group>"; };
@@ -49,7 +49,7 @@
 		9C3BB63425236E6000D08A07 = {
 			isa = PBXGroup;
 			children = (
-				869F352C29E984350046C866 /* CrossplatformVersion.plist */,
+				86670EF529EFEA370018CBE2 /* CrossplatformVersion.plist */,
 				9C3BB63E25236E6100D08A07 /* Products */,
 				9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */,
 				9C3BB65325236EED00D08A07 /* RNAdapty.m */,
