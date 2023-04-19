@@ -132,7 +132,9 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         guard let logLevel = ctx.args[Const.LOG_LEVEL] as? String? else {
             return ctx.argNotFound(name: Const.LOG_LEVEL)
         }
-        
+        guard let enableUsageLogs = ctx.args[Const.ENABLE_USAGE_LOGS] as? Bool? else {
+            return ctx.argNotFound(name: Const.ENABLE_USAGE_LOGS)
+        }
   
         
         MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = token
@@ -149,7 +151,8 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         Adapty.activate(
             token,
             observerMode: observerMode ?? false,
-            customerUserId: customerUserId
+            customerUserId: customerUserId,
+            enableUsageLogs: enableUsageLogs ?? false
         ) { result in
             switch result {
             case .none:

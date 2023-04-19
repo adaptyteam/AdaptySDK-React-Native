@@ -26,6 +26,7 @@ struct Const {
     static let VARIATION_ID = "variation_id"
     static let VALUE = "value"
     static let LOCALE = "locale"
+    static let ENABLE_USAGE_LOGS = "enable_usage_logs"
 }
 
 enum MethodName: String {
