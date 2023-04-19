@@ -276,11 +276,10 @@ export interface AdaptyAccessLevel {
  */
 export interface AdaptyNonSubscription {
   /**
-   * `true` if the product should only be processed once
-   * (e.g. consumable purchase)
+   * `true` if the product is consumable.
    * @readonly
    */
-  readonly isOneTime: boolean;
+  readonly isConsumable: boolean;
   /**
    * true if the purchase was refunded.
    */

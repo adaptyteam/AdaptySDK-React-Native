@@ -43,12 +43,12 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
       throw error;
     }
 
-    const isOneTime = data['is_one_time'];
-    if (typeof isOneTime !== 'boolean') {
+    const isConsumable = data['is_consumable'];
+    if (typeof isConsumable !== 'boolean') {
       const error = this.errType({
-        name: 'isOneTime',
+        name: 'isConsumable',
         expected: 'boolean',
-        current: isOneTime,
+        current: isConsumable,
       });
 
       log?.failed(error);
@@ -135,7 +135,7 @@ export class AdaptyNonSubscriptionCoder extends Coder<Type> {
     }
 
     const result: Required<Type> = {
-      isOneTime: isOneTime,
+      isConsumable: isConsumable,
       isRefund: isRefund,
       isSandbox: isSandbox,
       purchaseId: purchaseId,
