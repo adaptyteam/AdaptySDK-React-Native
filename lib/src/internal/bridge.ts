@@ -86,4 +86,5 @@ export const bridgeArg = Object.freeze({
   USER_ID: 'user_id',
   VARIATION_ID: 'variation_id',
   VALUE: 'value',
+  ENABLE_USAGE_LOGS: 'enable_usage_logs',
 });

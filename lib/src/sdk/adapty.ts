@@ -90,6 +90,7 @@ export class Adapty extends AdaptyEventEmitter {
     const observerMode = params.observerMode ?? false;
     const customerUserId = params.customerUserId;
     const logLevel = params.logLevel;
+    const enableUsageLogs = params.enableUsageLogs;
 
     // call before log ctx calls, so no logs are lost
     Log.logLevel = logLevel || null;
@@ -109,6 +110,7 @@ export class Adapty extends AdaptyEventEmitter {
           [bridgeArg.OBSERVER_MODE]: observerMode,
           [bridgeArg.USER_ID]: customerUserId,
           [bridgeArg.LOG_LEVEL]: logLevel,
+          [bridgeArg.ENABLE_USAGE_LOGS]: enableUsageLogs,
         },
         ctx,
       );

@@ -96,6 +96,10 @@ export interface ActivateParamsInput {
    * @defaultValue `false`
    */
   lockMethodsUntilReady?: boolean;
+  /**
+   * @defaultValue `false`
+   */
+  enableUsageLogs?: boolean;
 }
 
 export interface GetPaywallProductsParamsInput {
