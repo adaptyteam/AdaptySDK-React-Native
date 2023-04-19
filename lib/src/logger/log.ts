@@ -1,5 +1,5 @@
 import { LogLevel } from '../types/inputs';
-import { GET_VERSION } from '../version';
+import VERSION from '../version';
 
 export class Log {
   public static logLevel: LogLevel | null = null;
@@ -7,7 +7,7 @@ export class Log {
   // Formats a message for logging
   private static formatMessage(message: string, funcName: string): string {
     const now = new Date().toISOString();
-    const version = GET_VERSION();
+    const version = VERSION;
 
     return `[${now}] [adapty@${version}] "${funcName}": ${message}`;
   }
