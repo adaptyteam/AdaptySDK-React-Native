@@ -1,6 +1,6 @@
 {
   "name": "react-native-adapty",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "description": "Adapty React Native SDK",
   "keywords": [
     "react-native",
@@ -39,13 +39,11 @@
     "type": "git"
   },
   "scripts": {
-    "prepublish": "npm run build",
     "build": "rm -rf lib/dist && tsc --project tsconfig.build.json",
-    "watch": "tsc --watch",
-    "xcode": "xed -b lib/ios",
-    "studio": "open -a /Applications/'Android Studio.app' lib/android",
     "clean": "./scripts/clean.sh",
-    "husky": "husky install scripts"
+    "update-versions": "./scripts/update_versions.sh",
+    "prepack": "npm run update-versions && npm run build",
+    "prepublishOnly": "npm run prepack"
   },
   "dependencies": {},
   "devDependencies": {
