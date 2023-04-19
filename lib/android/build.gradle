@@ -61,6 +61,14 @@ android {
     }
 }
 
+rootProject.allprojects {
+    repositories {
+        maven {
+            url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven"
+        }
+    }
+}
+
 repositories {
     mavenCentral()
     google()
@@ -78,7 +86,7 @@ def getExtOrDefault(name) {
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
-    api 'com.github.adaptyteam:AdaptySDK-Android:2.4.1'
+    api 'com.github.adaptyteam:AdaptySDK-Android:2.4.2'
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
