@@ -8,6 +8,10 @@
 
 lib/dist
 
+# Version files
+lib/src/version.ts
+lib/ios/CrossplatformVersion.plist
+
 node_modules
 package-lock.json
 yarn.lock
