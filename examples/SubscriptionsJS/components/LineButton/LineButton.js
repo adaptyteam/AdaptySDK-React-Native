@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {PlatformColor, Text} from 'react-native';
+import {Text} from 'react-native';
 
 import {Line} from '../Line';
 

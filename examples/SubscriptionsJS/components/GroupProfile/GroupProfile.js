@@ -1,9 +1,10 @@
 import React from 'react';
-import {Text} from 'react-native';
 import {Group} from '../Group';
 import {LineParam} from '../LineParam';
 import {Line} from '../Line';
 import {LineButton} from '../LineButton';
+import {Bool} from '../Bool';
+import {dateFormat} from '../../helpers';
 
 export const GroupProfile = ({profile, loading, onRequestUpdate}) => {
   const lvl = profile?.accessLevels?.premium;
@@ -27,38 +28,30 @@ export const GroupProfile = ({profile, loading, onRequestUpdate}) => {
   return (
     <Group title="Profile">
       <LineParam
-        label="Premium active"
-        value={lvl.isActive ? '✅' : '❌'}
+        label="Premium"
+        value={<Bool value={lvl.isActive} />}
         bordered
       />
       <LineParam
         label="isLifetime"
-        value={String(lvl?.isLifetime || 'false')}
+        value={<Bool value={lvl?.isLifetime} />}
         bordered
       />
       <LineParam
         label="activatedAt"
-        value={lvl.activatedAt?.toGMTString() ?? '-'}
+        value={dateFormat(lvl.activatedAt)}
         bordered
       />
-      <LineParam
-        label="renewedAt"
-        value={lvl.renewedAt?.toGMTString() ?? '—'}
-        bordered
-      />
-      <LineParam
-        label="expiresAt"
-        value={lvl.expiresAt?.toGMTString() ?? '—'}
-        bordered
-      />
+      <LineParam label="renewedAt" value={dateFormat(lvl.renewedAt)} bordered />
+      <LineParam label="expiresAt" value={dateFormat(lvl.expiresAt)} bordered />
       <LineParam
         label="willRenew"
-        value={String(lvl?.willRenew || 'false')}
+        value={<Bool value={lvl?.willRenew} />}
         bordered
       />
       <LineParam
         label="unsubscribedAt"
-        value={lvl.unsubscribedAt?.toGMTString() ?? '—'}
+        value={dateFormat(lvl.unsubscribedAt)}
         bordered
       />
       <LineParam

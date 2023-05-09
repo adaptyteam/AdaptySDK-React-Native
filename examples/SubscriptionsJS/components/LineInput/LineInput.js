@@ -1,5 +1,5 @@
 import React from 'react';
-import {ActivityIndicator, PlatformColor, View, TextInput} from 'react-native';
+import {ActivityIndicator, View, TextInput} from 'react-native';
 
 import {Line} from '../Line';
 
@@ -21,13 +21,11 @@ export const LineInput = ({
         editable={editable}
         style={{
           fontSize: 15,
-          // ...(!editable && {color: PlatformColor('systemGray')}),
           ...(!editable && {color: '#8E8E93FF'}),
         }}
         placeholder={placeholder}
         onChangeText={text => onChange(text)}
       />
-
       {loading && (
         <View
           style={{

@@ -1,11 +1,11 @@
 import React from 'react';
-import {PlatformColor, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 
-export const Group = ({title, postfix, children}) => {
+export const Group = ({title, postfix, children, style}) => {
   return (
     <View style={styles.container}>
       {title && <Text style={styles.titleText}>{title.toUpperCase()}</Text>}
-      <View style={styles.wrapper}>{children}</View>
+      <View style={[styles.wrapper, style]}>{children}</View>
       {postfix && <Text style={styles.postfixText}>{postfix}</Text>}
     </View>
   );

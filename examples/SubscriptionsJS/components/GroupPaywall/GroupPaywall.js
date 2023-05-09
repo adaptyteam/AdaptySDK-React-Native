@@ -26,6 +26,13 @@ export const GroupPaywall = ({paywallId, postfix}) => {
       setProducts(products_);
     } catch (error) {
       console.log('[ADAPTY] Error getting paywall:', error.message);
+
+      if (error instanceof AdaptyError) {
+        Alert.alert(
+          `Error fetching paywall #${error.adaptyCode}`,
+          error.localizedDescription,
+        );
+      }
     }
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {ActivityIndicator, PlatformColor, View, Pressable} from 'react-native';
+import {ActivityIndicator, View, Pressable} from 'react-native';
 
 export const Line = ({
   children,
@@ -7,6 +7,7 @@ export const Line = ({
   bordered = false,
   topRadius = false,
   bottomRadius = false,
+  dark = false,
   onPress,
 }) => {
   return (
@@ -14,25 +15,25 @@ export const Line = ({
       activeOpacity={0.5}
       disabled={!onPress}
       onPress={onPress}
-      style={({pressed}) => ({
-        // backgroundColor: pressed ? PlatformColor('systemGray2') : 'transparent',
-        backgroundColor: pressed ? '#AEAEB2FF' : 'transparent',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        ...(topRadius && {
-          borderTopLeftRadius: 8,
-          borderTopRightRadius: 8,
-        }),
-        ...(bottomRadius && {
-          borderBottomLeftRadius: 8,
-          borderBottomRightRadius: 8,
-        }),
-        ...(bordered && {
-          // borderBottomColor: PlatformColor('systemGray6'),
-          borderBottomColor: '#F2F2F7FF',
-          borderBottomWidth: 1,
-        }),
-      })}>
+      style={({pressed}) => [
+        {
+          backgroundColor: pressed ? '#AEAEB2FF' : 'transparent',
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          ...(topRadius && {
+            borderTopLeftRadius: 8,
+            borderTopRightRadius: 8,
+          }),
+          ...(bottomRadius && {
+            borderBottomLeftRadius: 8,
+            borderBottomRightRadius: 8,
+          }),
+          ...(bordered && {
+            borderBottomColor: dark ? '#2F363F' : '#F2F2F7FF',
+            borderBottomWidth: 1,
+          }),
+        },
+      ]}>
       {children}
       {loading && (
         <View

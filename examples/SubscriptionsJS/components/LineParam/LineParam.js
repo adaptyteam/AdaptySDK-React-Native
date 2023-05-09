@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  PlatformColor,
-  View,
-  Text,
-  TextInput,
-  Pressable,
-} from 'react-native';
+import {View, Text} from 'react-native';
 
 import {Line} from '../Line';
 
@@ -32,16 +25,20 @@ export const LineParam = ({
           }}>
           {label}
         </Text>
-        <Text
-          style={{
-            fontSize: 15,
-            // color: PlatformColor('systemGray'),
-            color: '#8E8E93FF',
-            flexShrink: rightHeavy ? 0 : 1,
-            textAlign: 'right',
-          }}>
-          {value}
-        </Text>
+        {typeof value !== 'object' ? (
+          <Text
+            style={{
+              fontSize: 15,
+              // color: PlatformColor('systemGray'),
+              color: '#8E8E93FF',
+              flexShrink: rightHeavy ? 0 : 1,
+              textAlign: 'right',
+            }}>
+            {value}
+          </Text>
+        ) : (
+          value
+        )}
       </View>
     </Line>
   );
