@@ -1,6 +1,9 @@
 module.exports = {
   root: true,
-  extends: ['prettier', 'prettier/@typescript-eslint', 'prettier/react'],
+  extends: ['prettier'],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
+  rules: {
+    'no-console': 'error',
+  },
 };
