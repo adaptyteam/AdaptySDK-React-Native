@@ -17,6 +17,7 @@ export class Log {
     logLevel: LogLevel,
   ): (message: string, ...optionalParams: any[]) => void {
     switch (logLevel) {
+      /* eslint-disable no-console */
       case LogLevel.ERROR:
         return console.error;
       case LogLevel.WARN:
@@ -27,6 +28,7 @@ export class Log {
         return console.info;
       default:
         return console.log;
+      /* eslint-enable no-console */
     }
   }
 
@@ -66,7 +68,7 @@ export class Log {
 
     if (messageLevel <= currentLevel) {
       let output = Log.formatMessage(message, funcName);
-      const logger = Log.getLogger(logLevel) || console.log;
+      const logger = Log.getLogger(logLevel);
 
       logger(output, params);
     }
