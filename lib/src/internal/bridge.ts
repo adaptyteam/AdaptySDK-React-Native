@@ -87,4 +87,6 @@ export const bridgeArg = Object.freeze({
   VARIATION_ID: 'variation_id',
   VALUE: 'value',
   ENABLE_USAGE_LOGS: 'enable_usage_logs',
+  OLD_SUB_VENDOR_PRODUCT_ID: 'old_sub_vendor_product_id',
+  PRORATION_MODE: 'proration_mode',
 });

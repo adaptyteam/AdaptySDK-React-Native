@@ -476,6 +476,7 @@ export class Adapty extends AdaptyEventEmitter {
    *
    * @param {Model.AdaptyProduct} product - The product to e purchased.
    * You can get the product using {@link Adapty.getPaywallProducts} method.
+   * @param {Input.MakePurchaseParams} [params] - Additional parameters for the purchase.
    * @returns {Promise<Model.AdaptyProfile>} A Promise that resolves to an {@link Model.AdaptyProfile} object
    * containing the user's profile information after the purchase is made.
    * @throws {AdaptyError} If an error occurs during the purchase process
@@ -499,6 +500,7 @@ export class Adapty extends AdaptyEventEmitter {
    */
   public async makePurchase(
     product: Model.AdaptyProduct,
+    params: Input.MakePurchaseParamsInput = {},
   ): Promise<Model.AdaptyProfile> {
     const ctx = new LogContext();
 
@@ -508,7 +510,17 @@ export class Adapty extends AdaptyEventEmitter {
     await this.waitUntilReady();
 
     const data = new Coder.AdaptyProductCoder(product);
-    const args = { [bridgeArg.PRODUCT]: JSON.stringify(data.encode(ctx)) };
+    const args = {
+      [bridgeArg.PRODUCT]: JSON.stringify(data.encode(ctx)),
+      ...(Platform.OS === 'android' &&
+        params.android && {
+          [bridgeArg.PARAMS]: {
+            [bridgeArg.PRORATION_MODE]: params.android.prorationMode,
+            [bridgeArg.OLD_SUB_VENDOR_PRODUCT_ID]:
+              params.android.oldSubVendorProductId,
+          },
+        }),
+    };
 
     try {
       const response = await Adapty.callNative('make_purchase', args, ctx);
