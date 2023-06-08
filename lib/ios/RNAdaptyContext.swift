@@ -11,8 +11,11 @@ import Adapty
 let errorCodeBridge = -1
 
 /// `AdaptyContext` provides an API for Adapty handlers
-struct AdaptyContext {
-    static var dateFormatter: DateFormatter = {
+public struct AdaptyContext {
+    // Other string serialized types might not work
+    // on all devices, causing deserialization errors
+    // JS `Date.parse` function has shown to have inconsistent results
+    public static var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .iso8601)
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -21,14 +24,14 @@ struct AdaptyContext {
         return formatter
     }()
     
-    static var jsonDecoder: JSONDecoder = {
+    public static var jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
         decoder.dataDecodingStrategy = .base64
         return decoder
     }()
     
-    static var jsonEncoder: JSONEncoder = {
+    public static var jsonEncoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .formatted(dateFormatter)
         encoder.dataEncodingStrategy = .base64
@@ -42,7 +45,7 @@ struct AdaptyContext {
     public let rejecter: RCTPromiseRejectBlock
     
     // MARK: - Constructor
-    init(args: NSDictionary,
+    public init(args: NSDictionary,
          resolver: @escaping RCTPromiseResolveBlock,
          rejecter: @escaping RCTPromiseRejectBlock
     ) {
@@ -62,10 +65,10 @@ struct AdaptyContext {
     /// Serializes data in JSON, then resolves with a single string result
     public func resolve<T: Encodable>(data: T) {
         guard let bytes = try? Self.jsonEncoder.encode(data),
-        let str = String(data: bytes, encoding: .utf8) else {
+              let str = String(data: bytes, encoding: .utf8) else {
             return self.failedToSerialize()
         }
-            
+        
         self.resolver(str)
     }
     
@@ -85,7 +88,7 @@ struct AdaptyContext {
     
     public func err(_ error: AdaptyError) {
         guard let errBytes = try? Self.jsonEncoder.encode(error),
-        let errStr = String(data: errBytes, encoding: .utf8) else {
+              let errStr = String(data: errBytes, encoding: .utf8) else {
             return self.failedToSerialize()
         }
         
