@@ -29,7 +29,7 @@ export const LogLevel = Object.freeze({
   INFO: 'info',
 });
 
-export type LogLevel = typeof LogLevel[keyof typeof LogLevel];
+export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel];
 
 export const AttributionSource = Object.freeze({
   Adjust: 'adjust',
@@ -40,7 +40,7 @@ export const AttributionSource = Object.freeze({
 });
 
 export type AttributionSource =
-  typeof AttributionSource[keyof typeof AttributionSource];
+  (typeof AttributionSource)[keyof typeof AttributionSource];
 
 export const FetchPolicy = Object.freeze({
   /**
@@ -55,7 +55,7 @@ export const FetchPolicy = Object.freeze({
    */
   WAIT_FOR_RECEIPT_VALIDATION: 'wait_for_receipt_validation',
 });
-export type FetchPolicy = typeof FetchPolicy[keyof typeof FetchPolicy];
+export type FetchPolicy = (typeof FetchPolicy)[keyof typeof FetchPolicy];
 
 /**
  * Describes optional parameters for the {@link Adapty.activate} method.
@@ -116,7 +116,7 @@ export const AndroidSubscriptionUpdateProrationMode = Object.freeze({
   ImmediateWithTimeProration: 'immediate_with_time_proration',
 });
 export type AndroidSubscriptionUpdateProrationMode =
-  typeof AndroidSubscriptionUpdateProrationMode[keyof typeof AndroidSubscriptionUpdateProrationMode];
+  (typeof AndroidSubscriptionUpdateProrationMode)[keyof typeof AndroidSubscriptionUpdateProrationMode];
 
 export interface AdaptyAndroidSubscriptionUpdateParameters {
   oldSubVendorProductId: string;
