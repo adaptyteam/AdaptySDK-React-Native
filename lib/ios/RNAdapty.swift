@@ -107,9 +107,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             // Utilities
         case .setLogLevel: handleSetLogLevel(ctx)
         case .testWrap: handleTestWrap(ctx, resolver: resolver)
-            // UI
-        case .present: handlePresentView(ctx)
-            
+
         default: ctx.notImplemented()
         }
     }
