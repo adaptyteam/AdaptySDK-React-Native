@@ -1,10 +1,3 @@
-//
-//  RNAdaptyConstants.swift
-//  react-native-adapty
-//
-//  Created by Ivan Dorofeyev on 12/25/22.
-//
-
 import Foundation
 
 struct Const {
