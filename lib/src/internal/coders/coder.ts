@@ -2,10 +2,6 @@ import { getErrorCode } from '../../docs';
 import { LogContext } from '../../logger';
 import { BridgeError } from '../bridgeError';
 
-/**
- * Type-safe JSON coder.
- * @internal
- */
 export abstract class Coder<T> {
   data: T;
 
