@@ -96,7 +96,6 @@ export class Adapty extends AdaptyEventEmitter {
     Log.logLevel = logLevel || null;
 
     const ctx = new LogContext();
-    console.log('this name', this.activate.name);
     const log = ctx.call({ methodName: 'activate' });
     log.start({ apiKey, params });
 
