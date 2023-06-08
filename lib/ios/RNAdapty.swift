@@ -3,25 +3,26 @@ import Adapty
 
 public var MEMO_ACTIVATION_ARGS: [String: AnyHashable] = [:]
 public func ==<K, L: Hashable, R: Hashable>(lhs: [K: L], rhs: [K: R] ) -> Bool {
-   (lhs as NSDictionary).isEqual(to: rhs)
+    (lhs as NSDictionary).isEqual(to: rhs)
 }
 
 @objc(RNAdapty)
 class RNAdapty: RCTEventEmitter, AdaptyDelegate {
+    
     // MARK: - Delegate
-
+    
     /// TODO: Describe why
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
-
+    
     override func supportedEvents() -> [String]! {
         return [
             EventName.onDeferredPurchase.rawValue,
             EventName.onLatestProfileLoad.rawValue,
         ]
     }
-
+    
     /// Adapty delegate function
     func didLoadLatestProfile(_ profile: AdaptyProfile) {
         if !self.hasListeners {
@@ -37,32 +38,32 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
                 body: "null")
         }
         
-
+        
         self.sendEvent(withName: EventName.onLatestProfileLoad.rawValue, body: str)
     }
-
+    
     /// TODO: Describe why
     private var hasListeners = false
-
+    
     override func startObserving() {
         self.hasListeners = true
     }
     override func stopObserving() {
         self.hasListeners = false
     }
-
-//    func shouldAddStorePayment(for product: AdaptyDeferredProduct,
-//                               defermentCompletion makeDeferredPurchase: @escaping (AdaptyResultCompletion<AdaptyProfile>?) -> Void) -> Bool {
-//        if !self.hasListeners {
-//            return
-//        }
-//
-//        let json = Utils.encodeJson(from: AdaptyProduct(product, nil))
-//        self.sendEvent(withName: "onDeferredPurchase", body: json)
-//    }
-
+    
+    //    func shouldAddStorePayment(for product: AdaptyDeferredProduct,
+    //                               defermentCompletion makeDeferredPurchase: @escaping (AdaptyResultCompletion<AdaptyProfile>?) -> Void) -> Bool {
+    //        if !self.hasListeners {
+    //            return
+    //        }
+    //
+    //        let json = Utils.encodeJson(from: AdaptyProduct(product, nil))
+    //        self.sendEvent(withName: "onDeferredPurchase", body: json)
+    //    }
+    
     // MARK: - Handle router
-
+    
     /// `handle` is the main function, that routes calls to a corresponding function
     /// and wraps controllers into a `AdaptyContext`
     ///
@@ -81,33 +82,35 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             resolver: resolver,
             rejecter: rejecter
         )
-
+        
         switch MethodName(rawValue: method as String) ?? .notImplemented {
             // Activation
-            case .activate: handleActivate(ctx)
+        case .activate: handleActivate(ctx)
             // Attribution
-            case .updateAttribution: handleUpdateAttribution(ctx)
+        case .updateAttribution: handleUpdateAttribution(ctx)
             // Paywalls
-            case .getPaywall: handleGetPaywall(ctx)
-            case .getPaywallProducts: handleGetPaywallProducts(ctx)
-            case .logShowOnboarding: handleLogShowOnboarding(ctx)
-            case .logShowPaywall: handleLogShowPaywall(ctx)
-            case .setFallbackPaywalls: handleSetFallbackPaywalls(ctx)
-            case .setVariationId: handleSetVariationId(ctx)
+        case .getPaywall: handleGetPaywall(ctx)
+        case .getPaywallProducts: handleGetPaywallProducts(ctx)
+        case .logShowOnboarding: handleLogShowOnboarding(ctx)
+        case .logShowPaywall: handleLogShowPaywall(ctx)
+        case .setFallbackPaywalls: handleSetFallbackPaywalls(ctx)
+        case .setVariationId: handleSetVariationId(ctx)
             // Profile
-            case .getProfile: handleGetProfile(ctx)
-            case .identify: handleIdentify(ctx)
-            case .logout: handleLogout(ctx)
-            case .updateProfile: handleUpdateProfile(ctx)
+        case .getProfile: handleGetProfile(ctx)
+        case .identify: handleIdentify(ctx)
+        case .logout: handleLogout(ctx)
+        case .updateProfile: handleUpdateProfile(ctx)
             // Purchases
-            case .makePurchase: handleMakePurchase(ctx)
-            case .presentCodeRedemptionSheet: handlePresentCodeRedemptionSheet(ctx)
-            case .restorePurchases: handleRestorePurchases(ctx)
+        case .makePurchase: handleMakePurchase(ctx)
+        case .presentCodeRedemptionSheet: handlePresentCodeRedemptionSheet(ctx)
+        case .restorePurchases: handleRestorePurchases(ctx)
             // Utilities
-            case .setLogLevel: handleSetLogLevel(ctx)
-            case .testWrap: handleTestWrap(ctx, resolver: resolver)
+        case .setLogLevel: handleSetLogLevel(ctx)
+        case .testWrap: handleTestWrap(ctx, resolver: resolver)
+            // UI
+        case .present: handlePresentView(ctx)
             
-            default: ctx.notImplemented()
+        default: ctx.notImplemented()
         }
     }
     
@@ -119,7 +122,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         } else {
             MEMO_ACTIVATION_ARGS = ctx.args
         }
-
+        
         guard let token = ctx.args[Const.SDK_KEY] as? String else {
             return ctx.argNotFound(name: Const.SDK_KEY)
         }
@@ -135,16 +138,16 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         guard let enableUsageLogs = ctx.args[Const.ENABLE_USAGE_LOGS] as? Bool? else {
             return ctx.argNotFound(name: Const.ENABLE_USAGE_LOGS)
         }
-  
+        
         
         MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = token
         MEMO_ACTIVATION_ARGS[Const.USER_ID] = customerUserId
         
         guard let path = Bundle.main.path(forResource: "CrossplatformVersion", ofType: "plist"),
-                 let dict = NSDictionary(contentsOfFile: path),
-                 let version = dict["version"] as? String else {
+              let dict = NSDictionary(contentsOfFile: path),
+              let version = dict["version"] as? String else {
             return ctx.argNotFound(name: "sdk_version")
-           }
+        }
         
         Adapty.setCrossPlatformSDK(version: version, name: "react-native")
         
@@ -160,7 +163,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
                    let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
                     Adapty.logLevel = level
                 }
-
+                
                 ctx.resolve()
                 
             case let .some(error):
@@ -188,7 +191,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         Adapty.updateAttribution(attribution, source: source, networkUserId: networkUserId) { maybeErr in
             ctx.resolveIfOk(maybeErr)
         }
-    }   
+    }
     
     // MARK: - Paywalls
     
@@ -216,12 +219,12 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
               let paywall = try? AdaptyContext.jsonDecoder.decode(AdaptyPaywall.self, from: paywallData) else {
             return ctx.argNotFound(name: Const.PAYWALL)
         }
-
+        
         guard let fetchPolicyJSON = ctx.args[Const.FETCH_POLICY] as? String,
               let fetchPolicy = AdaptyProductsFetchPolicy.fromJSONValue(fetchPolicyJSON) else {
             return ctx.argNotFound(name: Const.FETCH_POLICY)
         }
-
+        
         Adapty.getPaywallProducts(paywall: paywall, fetchPolicy: fetchPolicy) { result in
             switch result {
             case let .success(products):
@@ -357,6 +360,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             switch result {
             case let .success(profile):
                 ctx.resolve(data: profile)
+                
             case let .failure(error):
                 ctx.err(error)
             }
@@ -390,12 +394,10 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             return ctx.failedToSerialize()
         }
         
-        
         let json = NSString(
             data: jsonData,
             encoding: NSUTF8StringEncoding
         )! as String
-        
         
         Adapty.getProfile() { _ in
             resolver(json)
@@ -413,7 +415,6 @@ extension AdaptyProductsFetchPolicy {
         }
     }
 }
-
 
 extension AdaptyLogLevel {
     static func fromBridgeValue(_ value: String) -> AdaptyLogLevel? {
