@@ -504,7 +504,7 @@ export class Adapty extends AdaptyEventEmitter {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: this.makePurchase.name });
-    log.start({ product });
+    log.start({ product, params });
 
     await this.waitUntilReady();
 
