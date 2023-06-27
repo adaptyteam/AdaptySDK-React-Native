@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import { bridgeArg, bridgeCall } from '../internal/bridge';
+import { ArgMap, bridgeArg, bridgeCall } from '../internal/bridge';
 import * as Coder from '../internal/coders';
 
 import * as Model from '../types';
@@ -504,20 +504,20 @@ export class Adapty extends AdaptyEventEmitter {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: this.makePurchase.name });
-    log.start({ product });
+    log.start({ product, params });
 
     await this.waitUntilReady();
 
     const data = new Coder.AdaptyProductCoder(product);
-    const args = {
+    const args: ArgMap = {
       [bridgeArg.PRODUCT]: JSON.stringify(data.encode(ctx)),
       ...(Platform.OS === 'android' &&
         params.android && {
-          [bridgeArg.PARAMS]: {
+          [bridgeArg.PARAMS]: JSON.stringify({
             [bridgeArg.PRORATION_MODE]: params.android.prorationMode,
             [bridgeArg.OLD_SUB_VENDOR_PRODUCT_ID]:
               params.android.oldSubVendorProductId,
-          },
+          }),
         }),
     };
 

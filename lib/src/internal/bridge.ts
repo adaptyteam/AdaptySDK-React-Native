@@ -1,6 +1,11 @@
 import { NativeModules } from 'react-native';
 import { LogContext } from '../logger/logContext';
 
+// Collection of valid arguments and values to pass to a native layer
+export type ArgMap = Partial<
+  Record<(typeof bridgeArg)[keyof typeof bridgeArg], string | number | boolean>
+>;
+
 // Module name in native code
 const MODULE_NAME = 'RNAdapty';
 // Routing function name in native code
@@ -8,7 +13,7 @@ const HANDLER_NAME = 'handle';
 
 const caller = NativeModules[MODULE_NAME][HANDLER_NAME] as (
   methodName: BridgeMethodName,
-  args: Map,
+  args: ArgMap,
 ) => Promise<string | null>;
 
 /**
@@ -25,7 +30,7 @@ const caller = NativeModules[MODULE_NAME][HANDLER_NAME] as (
  */
 export async function bridgeCall(
   methodName: BridgeMethodName,
-  args: Map,
+  args: ArgMap,
   ctx?: LogContext,
 ): Promise<string | null> {
   const log = ctx?.bridge({ methodName: 'bridgeCall' });
@@ -41,8 +46,6 @@ export async function bridgeCall(
     throw error;
   }
 }
-
-type Map = Record<string | number, any>;
 
 type BridgeMethodName =
   // Activate
