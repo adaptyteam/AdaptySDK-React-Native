@@ -116,15 +116,15 @@ public struct AdaptyContext {
     
     public func bridgeError(_ error: Error) {
         guard let  bridgeError = error as? BridgeError else {
-            self.reject(dataStr: "Unknown error: \(error.localizedDescription)")
+            self.reject(dataStr: "Unexpected error: \(error.localizedDescription)")
         }
         
         switch bridgeError {
         case .missingRequiredArgument(let name):
-            self.reject(dataStr: "Missing required argument: \(name)")
+            self.reject(dataStr: "Missing required argument: \(name.rawValue)")
             
         case .typeMismatch(let name, let type):
-            self.reject(dataStr: "Type mismatch for argument \(name). Expected type \(type)")
+            self.reject(dataStr: "Type mismatch for argument \(name.rawValue). Expected type \(type)")
         }
     }
 }
