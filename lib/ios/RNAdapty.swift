@@ -8,14 +8,12 @@ public func ==<K, L: Hashable, R: Hashable>(lhs: [K: L], rhs: [K: R] ) -> Bool {
 
 @objc(RNAdapty)
 class RNAdapty: RCTEventEmitter, AdaptyDelegate {
-    
-    // MARK: - Delegate
-    
-    /// TODO: Describe why
+    // UI Thread is required to properly work with StoreKit SDK
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
     
+    // A list of emittable events to JavaScript
     override func supportedEvents() -> [String]! {
         return [
             EventName.onDeferredPurchase.rawValue,
@@ -23,7 +21,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         ]
     }
     
-    /// Adapty delegate function
     func didLoadLatestProfile(_ profile: AdaptyProfile) {
         if !self.hasListeners {
             return
@@ -42,7 +39,9 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         self.sendEvent(withName: EventName.onLatestProfileLoad.rawValue, body: str)
     }
     
-    /// TODO: Describe why
+    // RN doesn't like when events fire
+    // while nobody is listening
+    // Omit warnings with this
     private var hasListeners = false
     
     override func startObserving() {
