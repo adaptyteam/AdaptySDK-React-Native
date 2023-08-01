@@ -15,7 +15,7 @@ export const LogLevel = Object.freeze({
   /**
    * Logs only errors
    */
-  ERROR: 'ERROR',
+  ERROR: 'error',
   /**
    * Logs messages from the SDK
    * that do not cause critical errors,
