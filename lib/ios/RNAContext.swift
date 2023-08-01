@@ -31,23 +31,20 @@ public struct AdaptyContext {
         return encoder
     }()
     
-    public let args: [String: AnyHashable]
-    public let nsArgs: NSDictionary
+    let args:  [String: AnyHashable]
+    let params: ParamMap
     
-    public let params: ParamMap
-    
-    public let resolver: RCTPromiseResolveBlock
-    public let rejecter: RCTPromiseRejectBlock
+    private let resolver: RCTPromiseResolveBlock
+    private let rejecter: RCTPromiseRejectBlock
     
     // MARK: - Constructor
     public init(args: NSDictionary,
                 resolver: @escaping RCTPromiseResolveBlock,
                 rejecter: @escaping RCTPromiseRejectBlock
     ) {
-        self.nsArgs = args
-        let agrsMap = args as? [String: AnyHashable] ?? [String: AnyHashable]()
-        self.args = argsMap
+        let argsMap = args as? [String: AnyHashable] ?? [String: AnyHashable]()
         
+        self.args = argsMap
         self.params = ParamMap(dict: argsMap)
         
         self.rejecter = rejecter
@@ -74,6 +71,7 @@ public struct AdaptyContext {
         switch maybeErr {
         case .none:
             self.resolve()
+            
         case let .some(error):
             self.err(error)
         }
