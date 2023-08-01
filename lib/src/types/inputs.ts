@@ -100,6 +100,21 @@ export interface ActivateParamsInput {
    * @defaultValue `false`
    */
   enableUsageLogs?: boolean;
+
+  ios?: {
+    /**
+     * Controls what APIs from StoreKit 2 would be used
+     *
+     * Read more: {@link https://docs.adapty.io/docs/displaying-products#adapty-sdk-version-250-and-higher}
+     * @default 'disabled'
+     */
+    storeKit2Usage?: IosStorekit2Usage;
+    /**
+     * Disables IDFA collection
+     * @default false
+     */
+    idfaCollectionDisabled?: boolean;
+  };
 }
 
 export interface GetPaywallProductsParamsInput {
@@ -126,3 +141,22 @@ export interface AdaptyAndroidSubscriptionUpdateParameters {
 export interface MakePurchaseParamsInput {
   android?: AdaptyAndroidSubscriptionUpdateParameters;
 }
+export const IosStorekit2Usage = Object.freeze({
+  /**
+   * Adapty will use the legacy logic, based on receipt analysis and validation.
+   * However, in rare situations (and in Sandbox mode - always)
+   * the reecipt is not present on the device at the first startup,
+   * therefore this option will return an error.
+   */
+  Disabled: 'disabled',
+  /**
+   * Adapty will utilise StoreKit 2 logic to determine introductory offer eligibility.
+   * @requires iOS 15.0+
+   * @remarks
+   * StoreKit 2 is available since iOS 15.0. Adapty will implement the legacy logic for older versions.
+   */
+  EnabledForIntroductoryOfferEligibility:
+    'enabled_for_introductory_offer_eligibility',
+});
+export type IosStorekit2Usage =
+  (typeof IosStorekit2Usage)[keyof typeof IosStorekit2Usage];

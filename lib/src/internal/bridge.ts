@@ -92,4 +92,6 @@ export const bridgeArg = Object.freeze({
   ENABLE_USAGE_LOGS: 'enable_usage_logs',
   OLD_SUB_VENDOR_PRODUCT_ID: 'old_sub_vendor_product_id',
   PRORATION_MODE: 'proration_mode',
+  IDFA_DISABLED: 'idfa_collection_disabled',
+  STOREKIT2_USAGE: 'storekit2_usage',
 });

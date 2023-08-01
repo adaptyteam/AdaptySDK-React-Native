@@ -20,6 +20,8 @@ struct Const {
     static let VALUE = "value"
     static let LOCALE = "locale"
     static let ENABLE_USAGE_LOGS = "enable_usage_logs"
+    static let IDFA_DISABLED = "idfa_collection_disabled"
+    static let STOREKIT2_USAGE = "storekit2_usage"
 }
 
 enum MethodName: String {

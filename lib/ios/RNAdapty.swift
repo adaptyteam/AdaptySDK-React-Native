@@ -121,26 +121,30 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             MEMO_ACTIVATION_ARGS = ctx.args
         }
         
-        guard let token = ctx.args[Const.SDK_KEY] as? String else {
+        guard let apiKey = ctx.args[Const.SDK_KEY] as? String else {
             return ctx.argNotFound(name: Const.SDK_KEY)
         }
-        guard let customerUserId = ctx.args[Const.USER_ID] as? String? else {
-            return ctx.argNotFound(name: Const.USER_ID)
-        }
-        guard let observerMode = ctx.args[Const.OBSERVER_MODE] as? Bool? else {
-            return ctx.argNotFound(name: Const.OBSERVER_MODE)
-        }
-        guard let logLevel = ctx.args[Const.LOG_LEVEL] as? String? else {
-            return ctx.argNotFound(name: Const.LOG_LEVEL)
-        }
-        guard let enableUsageLogs = ctx.args[Const.ENABLE_USAGE_LOGS] as? Bool? else {
-            return ctx.argNotFound(name: Const.ENABLE_USAGE_LOGS)
+        
+        let customerUserId = ctx.args[Const.USER_ID] as? String? ?? nil
+        let logLevel = ctx.args[Const.LOG_LEVEL] as? String? ?? "error"
+        let observerMode = ctx.args[Const.OBSERVER_MODE] as? Bool ?? false
+        let enableUsageLogs = ctx.args[Const.ENABLE_USAGE_LOGS] as? Bool ?? false
+        let idfaCollectionDisabled = ctx.args[Const.IDFA_DISABLED] as? Bool ?? false
+        let storeKit2UsageString = ctx.args[Const.STOREKIT2_USAGE] as? String ?? "disabled"
+        
+        let storeKit2Usage: StoreKit2Usage
+        switch storeKit2UsageString {
+        case "enabled_for_introductory_offer_eligibility":
+            storeKit2Usage = .forIntroEligibilityCheck
+        default:
+            storeKit2Usage = .disabled
         }
         
-        
-        MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = token
+        // Memoize activation args
+        MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = apiKey
         MEMO_ACTIVATION_ARGS[Const.USER_ID] = customerUserId
         
+        // Extract version of RN library, codegened into a plist
         guard let path = Bundle.main.path(forResource: "CrossplatformVersion", ofType: "plist"),
               let dict = NSDictionary(contentsOfFile: path),
               let version = dict["version"] as? String else {
@@ -148,12 +152,14 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         }
         
         Adapty.setCrossPlatformSDK(version: version, name: "react-native")
+        Adapty.idfaCollectionDisabled = idfaCollectionDisabled
         
         Adapty.activate(
-            token,
-            observerMode: observerMode ?? false,
+            apiKey,
+            observerMode: observerMode,
             customerUserId: customerUserId,
-            enableUsageLogs: enableUsageLogs ?? false
+            enableUsageLogs: enableUsageLogs,
+            storeKit2Usage: storeKit2Usage
         ) { result in
             switch result {
             case .none:

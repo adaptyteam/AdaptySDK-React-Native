@@ -77,7 +77,7 @@ export class Adapty extends AdaptyEventEmitter {
    *
    * @param {string} apiKey - You can find it in your app settings
    * in {@link https://app.adapty.io/ | Adapty Dashboard} App settings > General.
-   * @param {Input.ActivateParamsInput} options - Optional parameters of type {@link ActivateParamsInput}.
+   * @param {Input.ActivateParamsInput} params - Optional parameters of type {@link ActivateParamsInput}.
    * @returns {Promise<void>} A promise that resolves when the SDK is initialized.
    *
    * @throws {@link AdaptyError}
@@ -101,18 +101,21 @@ export class Adapty extends AdaptyEventEmitter {
 
     this.shouldWaitUntilReady = params.lockMethodsUntilReady ?? false;
 
+    const args: ArgMap = {
+      [bridgeArg.SDK_KEY]: apiKey,
+      [bridgeArg.OBSERVER_MODE]: observerMode,
+      [bridgeArg.USER_ID]: customerUserId,
+      [bridgeArg.LOG_LEVEL]: logLevel,
+      [bridgeArg.ENABLE_USAGE_LOGS]: enableUsageLogs,
+    };
+
+    if (params.ios && Platform.OS === 'ios') {
+      args[bridgeArg.STOREKIT2_USAGE] = params.ios.storeKit2Usage as string;
+      args[bridgeArg.IDFA_DISABLED] = params.ios.idfaCollectionDisabled;
+    }
+
     try {
-      const promise = Adapty.callNative(
-        'activate',
-        {
-          [bridgeArg.SDK_KEY]: apiKey,
-          [bridgeArg.OBSERVER_MODE]: observerMode,
-          [bridgeArg.USER_ID]: customerUserId,
-          [bridgeArg.LOG_LEVEL]: logLevel,
-          [bridgeArg.ENABLE_USAGE_LOGS]: enableUsageLogs,
-        },
-        ctx,
-      );
+      const promise = Adapty.callNative('activate', args, ctx);
 
       if (!this.activationPromise) {
         this.activationPromise = promise as Promise<any>;
