@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		865D438E2A7948EC0013D8BE /* RNAParamMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865D438D2A7948EC0013D8BE /* RNAParamMap.swift */; };
-		865D43902A794BE90013D8BE /* RNABridgeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865D438F2A794BE90013D8BE /* RNABridgeError.swift */; };
-		8677D25529660E0200743473 /* RNAdaptyConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8677D25329660E0200743473 /* RNAdaptyConstants.swift */; };
-		8677D25629660E0200743473 /* RNAContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8677D25429660E0200743473 /* RNAContext.swift */; };
+		8673C4642A7953A5004CC1F7 /* RNAContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673C4632A7953A5004CC1F7 /* RNAContext.swift */; };
+		8673C4662A7953C6004CC1F7 /* RNAParamMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673C4652A7953C6004CC1F7 /* RNAParamMap.swift */; };
+		8673C4682A7953E9004CC1F7 /* RNABridgeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673C4672A7953E9004CC1F7 /* RNABridgeError.swift */; };
+		8673C46A2A795432004CC1F7 /* RNAConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673C4692A795432004CC1F7 /* RNAConstants.swift */; };
 		9C3BB65625236EED00D08A07 /* RNAdapty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65225236EED00D08A07 /* RNAdapty.swift */; };
 		9C3BB65725236EED00D08A07 /* RNAdapty.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65325236EED00D08A07 /* RNAdapty.m */; };
 /* End PBXBuildFile section */
@@ -28,11 +28,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		865D438D2A7948EC0013D8BE /* RNAParamMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNAParamMap.swift; sourceTree = "<group>"; };
-		865D438F2A794BE90013D8BE /* RNABridgeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNABridgeError.swift; sourceTree = "<group>"; };
 		86670EF529EFEA370018CBE2 /* CrossplatformVersion.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CrossplatformVersion.plist; sourceTree = "<group>"; };
-		8677D25329660E0200743473 /* RNAdaptyConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdaptyConstants.swift; sourceTree = "<group>"; };
-		8677D25429660E0200743473 /* RNAContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAContext.swift; sourceTree = "<group>"; };
+		8673C4632A7953A5004CC1F7 /* RNAContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAContext.swift; sourceTree = "<group>"; };
+		8673C4652A7953C6004CC1F7 /* RNAParamMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAParamMap.swift; sourceTree = "<group>"; };
+		8673C4672A7953E9004CC1F7 /* RNABridgeError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNABridgeError.swift; sourceTree = "<group>"; };
+		8673C4692A795432004CC1F7 /* RNAConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAConstants.swift; sourceTree = "<group>"; };
 		9C3BB63D25236E6100D08A07 /* libRNAdapty.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNAdapty.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNAdapty-Bridging-Header.h"; sourceTree = "<group>"; };
 		9C3BB65225236EED00D08A07 /* RNAdapty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdapty.swift; sourceTree = "<group>"; };
@@ -57,11 +57,11 @@
 				9C3BB63E25236E6100D08A07 /* Products */,
 				9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */,
 				9C3BB65325236EED00D08A07 /* RNAdapty.m */,
+				8673C4652A7953C6004CC1F7 /* RNAParamMap.swift */,
+				8673C4632A7953A5004CC1F7 /* RNAContext.swift */,
 				9C3BB65225236EED00D08A07 /* RNAdapty.swift */,
-				865D438D2A7948EC0013D8BE /* RNAParamMap.swift */,
-				865D438F2A794BE90013D8BE /* RNABridgeError.swift */,
-				8677D25329660E0200743473 /* RNAdaptyConstants.swift */,
-				8677D25429660E0200743473 /* RNAContext.swift */,
+				8673C4672A7953E9004CC1F7 /* RNABridgeError.swift */,
+				8673C4692A795432004CC1F7 /* RNAConstants.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -130,12 +130,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				865D438E2A7948EC0013D8BE /* RNAParamMap.swift in Sources */,
-				8677D25629660E0200743473 /* RNAContext.swift in Sources */,
+				8673C4642A7953A5004CC1F7 /* RNAContext.swift in Sources */,
 				9C3BB65725236EED00D08A07 /* RNAdapty.m in Sources */,
-				865D43902A794BE90013D8BE /* RNABridgeError.swift in Sources */,
+				8673C4662A7953C6004CC1F7 /* RNAParamMap.swift in Sources */,
+				8673C46A2A795432004CC1F7 /* RNAConstants.swift in Sources */,
+				8673C4682A7953E9004CC1F7 /* RNABridgeError.swift in Sources */,
 				9C3BB65625236EED00D08A07 /* RNAdapty.swift in Sources */,
-				8677D25529660E0200743473 /* RNAdaptyConstants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
