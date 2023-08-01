@@ -7,8 +7,8 @@ class ParamMap {
         self.dict = dict
     }
     
-    func getRequiredValue<T>(for key: String) throws -> T {
-        guard let value = dict[key] else {
+    func getRequiredValue<T>(for key: ParamKey) throws -> T {
+        guard let value = dict[key.rawValue] else {
             throw BridgeError.missingRequiredArgument(name: key)
         }
         
@@ -19,8 +19,10 @@ class ParamMap {
         return castedValue
     }
     
-    func getOptionalValue<T>(for key: String) -> T? {
-        guard let value = dict[key] else {
+    func getOptionalValue<T>(for key: ParamKey) -> T? {
+        let keyStr = key.rawValue;
+        
+        guard let value = dict[keyStr] else {
             return nil
         }
         
