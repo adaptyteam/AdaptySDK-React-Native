@@ -169,19 +169,23 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     // MARK: - Attribution
     
     private func handleUpdateAttribution(_ ctx: AdaptyContext) {
-        guard let attribution = ctx.args[Const.ATTRIBUTION] as? [AnyHashable: Any] else {
-            return ctx.argNotFound(name: Const.ATTRIBUTION)
-        }
-        guard let sourceString = ctx.args[Const.SOURCE] as? String,
-              let source = AdaptyAttributionSource(rawValue: sourceString) else {
-            return ctx.argNotFound(name: Const.SOURCE)
-        }
-        guard let networkUserId = ctx.args[Const.NETWORK_USER_ID] as? String? else {
-            return ctx.argNotFound(name: Const.NETWORK_USER_ID)
-        }
-        
-        Adapty.updateAttribution(attribution, source: source, networkUserId: networkUserId) { maybeErr in
-            ctx.resolveIfOk(maybeErr)
+        do {
+            let attribution: [AnyHashable: Any] = try ctx.params.getRequiredValue(for: .attribution)
+            let source: AdaptyAttributionSource = try ctx.params.getDecodedValue(
+                for: .source,
+                jsonDecoder: AdaptyContext.jsonDecoder
+            )
+            let networkUserId: String? = ctx.params.getOptionalValue(for: .networkUserId)
+            
+            
+            
+            Adapty.updateAttribution(
+                attribution,
+                source: source,
+                networkUserId: networkUserId
+            ) { maybeErr in ctx.resolveIfOk(maybeErr) }
+        } catch {
+            ctx.bridgeError(error)
         }
     }
     
