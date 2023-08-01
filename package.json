@@ -1,10 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "react-native-adapty",
-  "version": "2.4.7",
+  "version": "2.6.0-canary.1",
   "description": "Adapty React Native SDK",
   "license": "MIT",
   "author": "Vanya Dorofeyev <DivanDoesApps@gmail.com> (https://github.com/divanc)",
+  "packageManager": "yarn@1.22.19",
   "keywords": [
     "react-native",
     "adapty",
