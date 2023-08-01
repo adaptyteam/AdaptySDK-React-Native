@@ -1,7 +1,7 @@
 import Foundation
 import Adapty
 
-public var MEMO_ACTIVATION_ARGS: [String: AnyHashable] = [:]
+private var MEMO_ACTIVATION_ARGS: [String: AnyHashable] = [:]
 public func ==<K, L: Hashable, R: Hashable>(lhs: [K: L], rhs: [K: R] ) -> Bool {
     (lhs as NSDictionary).isEqual(to: rhs)
 }
@@ -122,14 +122,13 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         }
         
         do {
-            let apiKey: String = try ctx.params.getRequiredValue(for: Const.SDK_KEY)
-            
-            let customerUserId: String? = ctx.params.getOptionalValue(for: Const.USER_ID)
-            let logLevel: String = ctx.params.getOptionalValue(for: Const.LOG_LEVEL) ?? "error"
-            let observerMode: Bool = ctx.params.getOptionalValue(for: Const.OBSERVER_MODE) ?? false
-            let enableUsageLogs: Bool = ctx.params.getOptionalValue(for: Const.ENABLE_USAGE_LOGS) ?? false
-            let idfaCollectionDisabled: Bool = ctx.params.getOptionalValue(for: Const.IDFA_DISABLED) ?? false
-            let storeKit2UsageString: String = ctx.params.getOptionalValue(for: Const.STOREKIT2_USAGE) ?? "disabled"
+            let apiKey: String = try ctx.params.getRequiredValue(for: .sdkKey)
+            let customerUserId: String? = ctx.params.getOptionalValue(for: .userId)
+            let logLevel: String? = ctx.params.getOptionalValue(for: .logLevel)
+            let observerMode: Bool? = ctx.params.getOptionalValue(for: .observerMode)
+            let enableUsageLogs: Bool? = ctx.params.getOptionalValue(for: .enableUsageLogs)
+            let idfaCollectionDisabled: Bool? = ctx.params.getOptionalValue(for: .idfaDisabled)
+            let storeKit2UsageString: String? = ctx.params.getOptionalValue(for: .storekit2Usage)
             
             let storeKit2Usage: StoreKit2Usage
             switch storeKit2UsageString {
@@ -140,42 +139,28 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             }
             
             // Memoize activation args
-            MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = apiKey
-            MEMO_ACTIVATION_ARGS[Const.USER_ID] = customerUserId
+            MEMO_ACTIVATION_ARGS[ParamKey.sdkKey.rawValue] = apiKey
+            MEMO_ACTIVATION_ARGS[ParamKey.userId.rawValue] = customerUserId
             
-            // Extract version of RN library, codegened into a plist
-            guard let path = Bundle.main.path(forResource: "CrossplatformVersion", ofType: "plist"),
-                  let dict = NSDictionary(contentsOfFile: path),
-                  let version = dict["version"] as? String else {
-                return ctx.argNotFound(name: "sdk_version")
+            let version = try fetchBridgeVersion()
+            if let logLevel = logLevel,
+               let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
+                Adapty.logLevel = level
             }
             
             Adapty.setCrossPlatformSDK(version: version, name: "react-native")
-            Adapty.idfaCollectionDisabled = idfaCollectionDisabled
+            Adapty.idfaCollectionDisabled = idfaCollectionDisabled ?? false
             
             Adapty.activate(
                 apiKey,
-                observerMode: observerMode,
+                observerMode: observerMode ?? false,
                 customerUserId: customerUserId,
-                enableUsageLogs: enableUsageLogs,
+                enableUsageLogs: enableUsageLogs ?? false,
                 storeKit2Usage: storeKit2Usage
-            ) { result in
-                switch result {
-                case .none:
-                    if let logLevel = logLevel,
-                       let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
-                        Adapty.logLevel = level
-                    }
-                    
-                    ctx.resolve()
-                    
-                case let .some(error):
-                    ctx.forwardError(error)
-                }
-            }
+            ) { maybeErr in ctx.resolveIfOk(maybeErr) }
+            
             
             Adapty.delegate = self
-            
         } catch {
             ctx.bridgeError(error)
         }
