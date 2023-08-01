@@ -192,43 +192,42 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     // MARK: - Paywalls
     
     private func handleGetPaywall(_ ctx: AdaptyContext) {
-        guard let id = ctx.args[Const.ID] as? String else {
-            return ctx.argNotFound(name: Const.ID)
-        }
-        guard let locale = ctx.args[Const.LOCALE] as? String? else {
-            return ctx.argNotFound(name: Const.LOCALE)
-        }
-        
-        Adapty.getPaywall(id, locale: locale) { result in
-            switch result {
-            case let .success(paywall):
-                ctx.resolve(data: paywall)
-            case let .failure(error):
-                ctx.err(error)
+        do {
+            let id: String = try ctx.params.getRequiredValue(for: .id)
+            let locale: String? = ctx.params.getOptionalValue(for: .locale)
+            
+            Adapty.getPaywall(id, locale: locale) { result in
+                switch result {
+                case let .success(paywall):
+                    ctx.resolve(data: paywall)
+                case let .failure(error):
+                    ctx.forwardError(error)
+                }
             }
+        } catch {
+            ctx.bridgeError(error)
         }
     }
     
     private func handleGetPaywallProducts(_ ctx: AdaptyContext) {
-        guard let paywallString = ctx.args[Const.PAYWALL] as? String,
-              let paywallData = paywallString.data(using: .utf8),
-              let paywall = try? AdaptyContext.jsonDecoder.decode(AdaptyPaywall.self, from: paywallData) else {
-            return ctx.argNotFound(name: Const.PAYWALL)
-        }
-        
-        guard let fetchPolicyJSON = ctx.args[Const.FETCH_POLICY] as? String,
-              let fetchPolicy = AdaptyProductsFetchPolicy.fromJSONValue(fetchPolicyJSON) else {
-            return ctx.argNotFound(name: Const.FETCH_POLICY)
-        }
-        
-        Adapty.getPaywallProducts(paywall: paywall, fetchPolicy: fetchPolicy) { result in
-            switch result {
-            case let .success(products):
-                ctx.resolve(data: products)
-            case let .failure(error):
-                ctx.err(error)
+        do {
+            let paywall: AdaptyPaywall = try ctx.params.getDecodedValue(
+                for: .paywall,
+                jsonDecoder: AdaptyContext.jsonDecoder
+            )
+            
+            Adapty.getPaywallProducts(paywall: paywall) { result in
+                switch result {
+                case let .success(products):
+                    ctx.resolve(data: products)
+                case let .failure(error):
+                    ctx.forwardError(error)
+                }
             }
+        } catch {
+            ctx.bridgeError(error)
         }
+        
     }
     
     private func handleLogShowOnboarding(_ ctx: AdaptyContext) {
