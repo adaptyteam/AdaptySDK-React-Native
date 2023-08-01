@@ -121,61 +121,64 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             MEMO_ACTIVATION_ARGS = ctx.args
         }
         
-        guard let apiKey = ctx.args[Const.SDK_KEY] as? String else {
-            return ctx.argNotFound(name: Const.SDK_KEY)
-        }
-        
-        let customerUserId = ctx.args[Const.USER_ID] as? String? ?? nil
-        let logLevel = ctx.args[Const.LOG_LEVEL] as? String? ?? "error"
-        let observerMode = ctx.args[Const.OBSERVER_MODE] as? Bool ?? false
-        let enableUsageLogs = ctx.args[Const.ENABLE_USAGE_LOGS] as? Bool ?? false
-        let idfaCollectionDisabled = ctx.args[Const.IDFA_DISABLED] as? Bool ?? false
-        let storeKit2UsageString = ctx.args[Const.STOREKIT2_USAGE] as? String ?? "disabled"
-        
-        let storeKit2Usage: StoreKit2Usage
-        switch storeKit2UsageString {
-        case "enabled_for_introductory_offer_eligibility":
-            storeKit2Usage = .forIntroEligibilityCheck
-        default:
-            storeKit2Usage = .disabled
-        }
-        
-        // Memoize activation args
-        MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = apiKey
-        MEMO_ACTIVATION_ARGS[Const.USER_ID] = customerUserId
-        
-        // Extract version of RN library, codegened into a plist
-        guard let path = Bundle.main.path(forResource: "CrossplatformVersion", ofType: "plist"),
-              let dict = NSDictionary(contentsOfFile: path),
-              let version = dict["version"] as? String else {
-            return ctx.argNotFound(name: "sdk_version")
-        }
-        
-        Adapty.setCrossPlatformSDK(version: version, name: "react-native")
-        Adapty.idfaCollectionDisabled = idfaCollectionDisabled
-        
-        Adapty.activate(
-            apiKey,
-            observerMode: observerMode,
-            customerUserId: customerUserId,
-            enableUsageLogs: enableUsageLogs,
-            storeKit2Usage: storeKit2Usage
-        ) { result in
-            switch result {
-            case .none:
-                if let logLevel = logLevel,
-                   let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
-                    Adapty.logLevel = level
-                }
-                
-                ctx.resolve()
-                
-            case let .some(error):
-                ctx.err(error)
+        do {
+            let apiKey: String = try ctx.params.getRequiredValue(for: Const.SDK_KEY)
+            
+            let customerUserId: String? = ctx.params.getOptionalValue(for: Const.USER_ID)
+            let logLevel: String = ctx.params.getOptionalValue(for: Const.LOG_LEVEL) ?? "error"
+            let observerMode: Bool = ctx.params.getOptionalValue(for: Const.OBSERVER_MODE) ?? false
+            let enableUsageLogs: Bool = ctx.params.getOptionalValue(for: Const.ENABLE_USAGE_LOGS) ?? false
+            let idfaCollectionDisabled: Bool = ctx.params.getOptionalValue(for: Const.IDFA_DISABLED) ?? false
+            let storeKit2UsageString: String = ctx.params.getOptionalValue(for: Const.STOREKIT2_USAGE) ?? "disabled"
+            
+            let storeKit2Usage: StoreKit2Usage
+            switch storeKit2UsageString {
+            case "enabled_for_introductory_offer_eligibility":
+                storeKit2Usage = .forIntroEligibilityCheck
+            default:
+                storeKit2Usage = .disabled
             }
+            
+            // Memoize activation args
+            MEMO_ACTIVATION_ARGS[Const.SDK_KEY] = apiKey
+            MEMO_ACTIVATION_ARGS[Const.USER_ID] = customerUserId
+            
+            // Extract version of RN library, codegened into a plist
+            guard let path = Bundle.main.path(forResource: "CrossplatformVersion", ofType: "plist"),
+                  let dict = NSDictionary(contentsOfFile: path),
+                  let version = dict["version"] as? String else {
+                return ctx.argNotFound(name: "sdk_version")
+            }
+            
+            Adapty.setCrossPlatformSDK(version: version, name: "react-native")
+            Adapty.idfaCollectionDisabled = idfaCollectionDisabled
+            
+            Adapty.activate(
+                apiKey,
+                observerMode: observerMode,
+                customerUserId: customerUserId,
+                enableUsageLogs: enableUsageLogs,
+                storeKit2Usage: storeKit2Usage
+            ) { result in
+                switch result {
+                case .none:
+                    if let logLevel = logLevel,
+                       let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
+                        Adapty.logLevel = level
+                    }
+                    
+                    ctx.resolve()
+                    
+                case let .some(error):
+                    ctx.forwardError(error)
+                }
+            }
+            
+            Adapty.delegate = self
+            
+        } catch {
+            ctx.bridgeError(error)
         }
-        
-        Adapty.delegate = self
     }
     
     // MARK: - Attribution

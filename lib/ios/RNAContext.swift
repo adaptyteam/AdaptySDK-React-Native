@@ -1,10 +1,3 @@
-//
-//  RNAdaptyContext.swift
-//  react-native-adapty
-//
-//  Created by Ivan Dorofeyev on 12/25/22.
-//
-
 import Foundation
 import Adapty
 
@@ -41,16 +34,21 @@ public struct AdaptyContext {
     public let args: [String: AnyHashable]
     public let nsArgs: NSDictionary
     
+    public let params: ParamMap
+    
     public let resolver: RCTPromiseResolveBlock
     public let rejecter: RCTPromiseRejectBlock
     
     // MARK: - Constructor
     public init(args: NSDictionary,
-         resolver: @escaping RCTPromiseResolveBlock,
-         rejecter: @escaping RCTPromiseRejectBlock
+                resolver: @escaping RCTPromiseResolveBlock,
+                rejecter: @escaping RCTPromiseRejectBlock
     ) {
         self.nsArgs = args
-        self.args = args as? [String: AnyHashable] ?? [String: AnyHashable]()
+        let agrsMap = args as? [String: AnyHashable] ?? [String: AnyHashable]()
+        self.args = argsMap
+        
+        self.params = ParamMap(dict: argsMap)
         
         self.rejecter = rejecter
         self.resolver = resolver
@@ -105,6 +103,29 @@ public struct AdaptyContext {
     
     public func failedToSerialize() {
         self.reject(dataStr: "Failed to serialize data on a client side")
+    }
+    
+    public func forwardError(_ error: AdaptyError) {
+        guard let errBytes = try? Self.jsonEncoder.encode(error),
+              let errStr = String(data: errBytes, encoding: .utf8) else {
+            return self.failedToSerialize()
+        }
+        
+        self.reject(dataStr: errStr)
+    }
+    
+    public func bridgeError(_ error: Error) {
+        guard let  bridgeError = error as? BridgeError else {
+            self.reject(dataStr: "Unknown error: \(error.localizedDescription)")
+        }
+        
+        switch bridgeError {
+        case .missingRequiredArgument(let name):
+            self.reject(dataStr: "Missing required argument: \(name)")
+            
+        case .typeMismatch(let name, let type):
+            self.reject(dataStr: "Type mismatch for argument \(name). Expected type \(type)")
+        }
     }
 }
 
