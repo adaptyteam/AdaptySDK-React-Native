@@ -52,15 +52,26 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         self.hasListeners = false
     }
     
-    //    func shouldAddStorePayment(for product: AdaptyDeferredProduct,
-    //                               defermentCompletion makeDeferredPurchase: @escaping (AdaptyResultCompletion<AdaptyProfile>?) -> Void) -> Bool {
-    //        if !self.hasListeners {
-    //            return
-    //        }
-    //
-    //        let json = Utils.encodeJson(from: AdaptyProduct(product, nil))
-    //        self.sendEvent(withName: "onDeferredPurchase", body: json)
-    //    }
+    // Deferred purchases flow
+    func shouldAddStorePayment(
+        for product: AdaptyDeferredProduct,
+        defermentCompletion makeDeferredPurchase: @escaping (AdaptyResultCompletion<AdaptyPurchasedInfo>?) -> Void
+    ) -> Bool {
+        if !self.hasListeners {
+            return false
+        }
+        
+        
+        guard let data = try? AdaptyContext.jsonEncoder.encode(product),
+              let str = String(data: data, encoding: .utf8) else {
+            return false
+        }
+        
+        self.sendEvent(
+            withName: EventName.onDeferredPurchase.rawValue,
+            body: str
+        )
+    }
     
     // MARK: - Handle router
     
