@@ -1,7 +1,7 @@
-path="examples/SubscriptionsJS/node_modules/react-native-adapty"
+path="../react-native-app/pure-0.71/node_modules/react-native-adapty"
 
 yarn build
-npm pack
+npm pack # yarn pack is extremely slow 
 
 echo "Unzipping..."
 tar -xf react-native-adapty-*.tgz
