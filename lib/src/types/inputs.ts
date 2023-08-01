@@ -97,10 +97,11 @@ export interface ActivateParamsInput {
    */
   lockMethodsUntilReady?: boolean;
   /**
+   * Enables a feature of collecting logs with at servers
+   * Read more {@link https://docs.adapty.io/docs/ios-configuring#collecting-usage-logs }
    * @defaultValue `false`
    */
   enableUsageLogs?: boolean;
-
   ios?: {
     /**
      * Controls what APIs from StoreKit 2 would be used
