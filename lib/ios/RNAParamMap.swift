@@ -28,4 +28,15 @@ class ParamMap {
         
         return value as? T
     }
+
+    func getDecodedValue<T: Decodable>(for key: ParamKey, jsonDecoder: JSONDecoder) throws -> T {
+        let jsonString: String = try getRequiredValue(for: key)
+        
+        guard let jsonData = jsonString.data(using: .utf8),
+              let decodedValue = try? jsonDecoder.decode(T.self, from: jsonData) else {
+            throw BridgeError.typeMismatch(name: key, type: "JSON-encoded \(T.self)")
+        }
+        
+        return decodedValue
+    }
 }
