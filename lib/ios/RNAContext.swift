@@ -5,6 +5,9 @@ public struct AdaptyResult<T: Encodable>: Encodable {
     public let data: T
     public let type: String
 }
+public struct NullEncodable: Encodable {
+    public init() {}
+}
 
 public struct AdaptyContext {
     let args:  [String: AnyHashable]
@@ -28,7 +31,8 @@ public struct AdaptyContext {
     }
     
     public func resolve() {
-        return self.__resolver(())
+        let result = AdaptyResult<NullEncodable>(data: NullEncodable(), type: "null")
+        return self.resolve(result: result)
     }
     
     public func resolve<T: Encodable>(result: AdaptyResult<T>) {
