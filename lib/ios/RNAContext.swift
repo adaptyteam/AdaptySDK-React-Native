@@ -1,10 +1,98 @@
 import Foundation
 import Adapty
 
-let errorCodeBridge = -1
+public struct AdaptyResult<T: Encodable>: Encodable {
+    public let data: T
+    public let type: String
+}
 
-/// `AdaptyContext` provides an API for Adapty handlers
 public struct AdaptyContext {
+    let args:  [String: AnyHashable]
+    let params: ParamMap
+    
+    // prefer decorator methods
+    // resolve and reject
+    private let __resolver: RCTPromiseResolveBlock
+    private let __rejecter: RCTPromiseRejectBlock
+    
+    public init(args: NSDictionary,
+                resolver: @escaping RCTPromiseResolveBlock,
+                rejecter: @escaping RCTPromiseRejectBlock
+    ) {
+        let argsMap = args as? [String: AnyHashable] ?? [String: AnyHashable]()
+        
+        self.args = argsMap
+        self.params = ParamMap(dict: argsMap)
+        self.__rejecter = rejecter
+        self.__resolver = resolver
+    }
+    
+    public func resolve() {
+        return self.__resolver(())
+    }
+    
+    public func resolve<T: Encodable>(result: AdaptyResult<T>) {
+        do {
+            let jsonStr = try Self.encodeToJSON(result)
+            
+            return self.__resolver(jsonStr)
+        } catch {
+            return self.bridgeError(error)
+        }
+    }
+    
+    public func resolve<T: Encodable>(with data: T) {
+        let result = AdaptyResult(data: data, type: String(describing: T.self))
+        
+        return self.resolve(result: result)
+    }
+    
+    public func reject<T: Encodable>(result: AdaptyResult<T>) {
+        do {
+            let jsonStr = try Self.encodeToJSON(result)
+            
+            return self.__rejecter("adapty_rn_bridge_error", jsonStr, nil)
+        } catch {
+            return self.bridgeError(error)
+        }
+    }
+    
+    public func forwardError(_ error: AdaptyError) {
+        let result = AdaptyResult(data: error, type: String(describing: AdaptyError.self))
+        
+        return self.reject(result: result)
+    }
+    
+    public func bridgeError(_ error: Error) {
+        if let bridgeError = error as? BridgeError {
+            let result = AdaptyResult<BridgeError>(
+                data: bridgeError,
+                type: String(describing: BridgeError.self)
+            )
+
+            return self.reject(result: result)
+        } else {
+            let unknownBridgeError = BridgeError.unexpectedError(error)
+            let result = AdaptyResult<BridgeError>(
+                data: unknownBridgeError,
+                type: String(describing: BridgeError.self)
+            )
+    
+            return self.reject(result: result)
+        }
+    }
+    public func okOrForwardError(_ maybeErr: AdaptyError?) {
+        switch maybeErr {
+        case .none:
+            self.resolve()
+            
+        case let .some(error):
+            self.forwardError(error)
+        }
+    }
+}
+
+extension AdaptyContext {
     // Other string serialized types might not work
     // on all devices, causing deserialization errors
     // JS `Date.parse` function has shown to have inconsistent results
@@ -31,99 +119,25 @@ public struct AdaptyContext {
         return encoder
     }()
     
-    let args:  [String: AnyHashable]
-    let params: ParamMap
-    
-    private let resolver: RCTPromiseResolveBlock
-    private let rejecter: RCTPromiseRejectBlock
-    
-    // MARK: - Constructor
-    public init(args: NSDictionary,
-                resolver: @escaping RCTPromiseResolveBlock,
-                rejecter: @escaping RCTPromiseRejectBlock
-    ) {
-        let argsMap = args as? [String: AnyHashable] ?? [String: AnyHashable]()
-        
-        self.args = argsMap
-        self.params = ParamMap(dict: argsMap)
-        
-        self.rejecter = rejecter
-        self.resolver = resolver
-    }
-    
-    // MARK: - Resolvers API
-    /// Resolves with a single void result
-    public func resolve() {
-        self.resolver(())
-    }
-    
-    /// Serializes data in JSON, then resolves with a single string result
-    public func resolve<T: Encodable>(data: T) {
-        guard let bytes = try? Self.jsonEncoder.encode(data),
-              let str = String(data: bytes, encoding: .utf8) else {
-            return self.failedToSerialize()
-        }
-        
-        self.resolver(str)
-    }
-    
-    public func resolveIfOk(_ maybeErr: AdaptyError?) {
-        switch maybeErr {
-        case .none:
-            self.resolve()
+    public static func encodeToJSON<T: Encodable>(_ value: T) throws -> String {
+        do {
+            let bytes = try jsonEncoder.encode(value)
             
-        case let .some(error):
-            self.err(error)
-        }
-    }
-    
-    // MARK: - Errors API
-    public func reject(dataStr: String) {
-        self.rejecter("adapty_native_error", dataStr, nil)
-    }
-    
-    public func err(_ error: AdaptyError) {
-        guard let errBytes = try? Self.jsonEncoder.encode(error),
-              let errStr = String(data: errBytes, encoding: .utf8) else {
-            return self.failedToSerialize()
-        }
-        
-        self.reject(dataStr: errStr)
-    }
-    
-    public func notImplemented() {
-        self.reject(dataStr: "method not implemented")
-    }
-    
-    public func argNotFound(name: String) {
-        self.reject(dataStr: "Argument '\(name)' was not passed to a native module.")
-    }
-    
-    public func failedToSerialize() {
-        self.reject(dataStr: "Failed to serialize data on a client side")
-    }
-    
-    public func forwardError(_ error: AdaptyError) {
-        guard let errBytes = try? Self.jsonEncoder.encode(error),
-              let errStr = String(data: errBytes, encoding: .utf8) else {
-            return self.failedToSerialize()
-        }
-        
-        self.reject(dataStr: errStr)
-    }
-    
-    public func bridgeError(_ error: Error) {
-        guard let  bridgeError = error as? BridgeError else {
-            self.reject(dataStr: "Unexpected error: \(error.localizedDescription)")
-        }
-        
-        switch bridgeError {
-        case .missingRequiredArgument(let name):
-            self.reject(dataStr: "Missing required argument: \(name.rawValue)")
+            guard let str = String(data: bytes, encoding: .utf8) else {
+                throw BridgeError.encodingFailed(
+                    EncodingError.invalidValue(
+                        value,
+                        EncodingError.Context(
+                            codingPath: [],
+                            debugDescription: "Failed to convert data to string."
+                        )
+                    )
+                )
+            }
             
-        case .typeMismatch(let name, let type):
-            self.reject(dataStr: "Type mismatch for argument \(name.rawValue). Expected type \(type)")
+            return str
+        } catch {
+            throw BridgeError.encodingFailed(error)
         }
     }
 }
-
