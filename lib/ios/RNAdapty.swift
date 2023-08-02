@@ -130,13 +130,13 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     
     // MARK: - Handle router
     
-    /// `handle` is the main function, that routes calls to a corresponding function
-    /// and wraps controllers into a `AdaptyContext`
-    ///
-    /// Since currently synchronous bridge calls are not production-ready,
-    /// all functions are considered asynchronous
-    ///
-    /// Definitions are sorted alphabetically
+    // `handle` is the main function, that routes calls to a corresponding function
+    // and wraps controllers into a `AdaptyContext`
+    //
+    // Since currently synchronous bridge calls are not production-ready,
+    // all functions are considered asynchronous
+    //
+    // Definitions are sorted alphabetically
     @objc public func handle(
         _ method: NSString,
         args: NSDictionary,
@@ -169,7 +169,8 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             case .restorePurchases: handleRestorePurchases(ctx)
             case .setLogLevel: try handleSetLogLevel(ctx)
             case .testWrap: handleTestWrap(ctx, resolver: resolver)
-            default: ctx.notImplemented()
+                
+            default: throw BridgeError.methodNotImplemented
             }
         } catch {
             ctx.bridgeError(error)
@@ -219,7 +220,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             customerUserId: customerUserId,
             enableUsageLogs: enableUsageLogs ?? false,
             storeKit2Usage: storeKit2Usage
-        ) { maybeErr in ctx.resolveIfOk(maybeErr) }
+        ) { maybeErr in ctx.okOrForwardError(maybeErr) }
         
         
         Adapty.delegate = self
@@ -242,97 +243,97 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             attribution,
             source: source,
             networkUserId: networkUserId
-        ) { maybeErr in ctx.resolveIfOk(maybeErr) }
+        ) { maybeErr in ctx.okOrForwardError(maybeErr) }
     }
     
     // MARK: - Paywalls
     private func handleGetPaywall(_ ctx: AdaptyContext) throws {
         
-            let id: String = try ctx.params.getRequiredValue(for: .id)
-            let locale: String? = ctx.params.getOptionalValue(for: .locale)
-            
-            Adapty.getPaywall(id, locale: locale) { result in
-                switch result {
-                case let .success(paywall):
-                    ctx.resolve(data: paywall)
-                case let .failure(error):
-                    ctx.forwardError(error)
-                }
+        let id: String = try ctx.params.getRequiredValue(for: .id)
+        let locale: String? = ctx.params.getOptionalValue(for: .locale)
+        
+        Adapty.getPaywall(id, locale: locale) { result in
+            switch result {
+            case let .success(paywall):
+                ctx.resolve(with: paywall)
+            case let .failure(error):
+                ctx.forwardError(error)
             }
+        }
     }
     
     private func handleGetPaywallProducts(_ ctx: AdaptyContext) throws {
-            let paywall: AdaptyPaywall = try ctx.params.getDecodedValue(
-                for: .paywall,
-                jsonDecoder: AdaptyContext.jsonDecoder
-            )
-            
-            Adapty.getPaywallProducts(paywall: paywall) { result in
-                switch result {
-                case let .success(products):
-                    ctx.resolve(data: products)
-                case let .failure(error):
-                    ctx.forwardError(error)
-                }
+        let paywall: AdaptyPaywall = try ctx.params.getDecodedValue(
+            for: .paywall,
+            jsonDecoder: AdaptyContext.jsonDecoder
+        )
+        
+        Adapty.getPaywallProducts(paywall: paywall) { result in
+            switch result {
+            case let .success(products):
+                ctx.resolve(with: products)
+            case let .failure(error):
+                ctx.forwardError(error)
             }
+        }
     }
     
     private func handleGetProductsIntroductoryOfferEligibility(_ ctx: AdaptyContext) throws {
-            let productIds: [String] = try ctx.params.getRequiredValue(for: .productIds)
-            
-            Adapty.getProductsIntroductoryOfferEligibility(vendorProductIds: productIds) { result in
-                switch result {
-                case let .failure(error):
-                    ctx.forwardError(error)
-                    
-                case let .success(eligibilities):
-                    ctx.resolve(data: eligibilities)
-                }
+        let productIds: [String] = try ctx.params.getRequiredValue(for: .productIds)
+        
+        Adapty.getProductsIntroductoryOfferEligibility(vendorProductIds: productIds) { result in
+            switch result {
+            case let .failure(error):
+                ctx.forwardError(error)
+                
+            case let .success(eligibilities):
+                ctx.resolve(with: eligibilities)
             }
+        }
     }
     
     private func handleLogShowOnboarding(_ ctx: AdaptyContext) throws {
-            let onboardingParams: AdaptyOnboardingScreenParameters = try ctx.params.getDecodedValue(
-                for: .onboardingParams,
-                jsonDecoder: AdaptyContext.jsonDecoder
-            )
-            
-            Adapty.logShowOnboarding(onboardingParams) { maybeErr in
-                ctx.resolveIfOk(maybeErr)
-            }
+        let onboardingParams: AdaptyOnboardingScreenParameters = try ctx.params.getDecodedValue(
+            for: .onboardingParams,
+            jsonDecoder: AdaptyContext.jsonDecoder
+        )
+        
+        Adapty.logShowOnboarding(onboardingParams) { maybeErr in
+            ctx.okOrForwardError(maybeErr)
+        }
     }
     
     private func handleLogShowPaywall(_ ctx: AdaptyContext) throws {
-            let paywall: AdaptyPaywall = try ctx.params.getDecodedValue(
-                for: .paywall,
-                jsonDecoder: AdaptyContext.jsonDecoder
-            )
-            
-            Adapty.logShowPaywall(paywall) { maybeErr in
-                ctx.resolveIfOk(maybeErr)
-            }
+        let paywall: AdaptyPaywall = try ctx.params.getDecodedValue(
+            for: .paywall,
+            jsonDecoder: AdaptyContext.jsonDecoder
+        )
+        
+        Adapty.logShowPaywall(paywall) { maybeErr in
+            ctx.okOrForwardError(maybeErr)
+        }
     }
     
     private func handleSetFallbackPaywalls(_ ctx: AdaptyContext) throws {
-            let paywallsString: String = try ctx.params.getRequiredValue(for: .paywalls)
-            
-            guard let paywallsData = paywallsString.data(using: .utf8) else {
-                throw BridgeError.typeMismatch(name: .paywalls, type: "UTF-8 String")
-            }
-            
-            Adapty.setFallbackPaywalls(paywallsData) { maybeErr in
-                ctx.resolveIfOk(maybeErr)
-            }
+        let paywallsString: String = try ctx.params.getRequiredValue(for: .paywalls)
+        
+        guard let paywallsData = paywallsString.data(using: .utf8) else {
+            throw BridgeError.typeMismatch(name: .paywalls, type: "UTF-8 String")
+        }
+        
+        Adapty.setFallbackPaywalls(paywallsData) { maybeErr in
+            ctx.okOrForwardError(maybeErr)
+        }
     }
     
     private func handleSetVariationId(_ ctx: AdaptyContext) throws {
-            let jsonData: String = try ctx.params.getRequiredValue(for: .variationId)
-            
-            //            Adapty.setVariationId(
-            //                <#T##variationId: String##String#>, forPurchasedTransaction: <#T##SKPaymentTransaction#>)(
-            //                    from: ctx.params.jsonDecoder,
-            //                    data: jsonData
-            //                ) { maybeErr in ctx.resolveIfOk(maybeErr) }
+        let jsonData: String = try ctx.params.getRequiredValue(for: .variationId)
+        
+        //            Adapty.setVariationId(
+        //                <#T##variationId: String##String#>, forPurchasedTransaction: <#T##SKPaymentTransaction#>)(
+        //                    from: ctx.params.jsonDecoder,
+        //                    data: jsonData
+        //                ) { maybeErr in ctx.okOrForwardError(maybeErr) }
     }
     
     // MARK: - Profile
@@ -340,7 +341,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         Adapty.getProfile { result in
             switch result {
             case let .success(profile):
-                ctx.resolve(data: profile)
+                ctx.resolve(with: profile)
             case let .failure(error):
                 ctx.forwardError(error)
             }
@@ -348,54 +349,54 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     }
     
     private func handleIdentify(_ ctx: AdaptyContext) throws {
-            let customerUserId: String = try ctx.params.getRequiredValue(for: .userId)
-            
-            Adapty.identify(customerUserId) { maybeErr in ctx.resolveIfOk(maybeErr) }
+        let customerUserId: String = try ctx.params.getRequiredValue(for: .userId)
+        
+        Adapty.identify(customerUserId) { maybeErr in ctx.okOrForwardError(maybeErr) }
     }
     
     private func handleLogout(_ ctx: AdaptyContext) {
-        Adapty.logout { maybeErr in ctx.resolveIfOk(maybeErr) }
+        Adapty.logout { maybeErr in ctx.okOrForwardError(maybeErr) }
     }
     
     private func handleUpdateProfile(_ ctx: AdaptyContext) throws {
-            let params: AdaptyProfileParameters = try ctx.params.getDecodedValue(
-                for: .params,
-                jsonDecoder: AdaptyContext.jsonDecoder
-            )
-            
-            Adapty.updateProfile(params: params) { maybeErr in
-                ctx.resolveIfOk(maybeErr)
-            }
+        let params: AdaptyProfileParameters = try ctx.params.getDecodedValue(
+            for: .params,
+            jsonDecoder: AdaptyContext.jsonDecoder
+        )
+        
+        Adapty.updateProfile(params: params) { maybeErr in
+            ctx.okOrForwardError(maybeErr)
+        }
     }
     
     // MARK: - Purchases
     private func handleMakePurchase(_ ctx: AdaptyContext) throws {
-            let productStr: String = try ctx.params.getRequiredValue(for: .product)
-            
-            guard let productData = productStr.data(using: .utf8) else {
-                throw BridgeError.typeMismatch(name: .product, type: "UTF-8 String")
-            }
-            
-            Adapty.getPaywallProduct(
-                from: AdaptyContext.jsonDecoder,
-                data: productData
-            ) { skProductResult in
-                switch skProductResult {
-                case .failure(let locateError):
-                    ctx.forwardError(locateError)
-                    
-                case .success(let product):
-                    Adapty.makePurchase(product: product) { purchaseResult in
-                        switch purchaseResult {
-                        case .failure(let error):
-                            ctx.forwardError(error)
-                            
-                        case .success(let profile):
-                            ctx.resolve(data: profile)
-                        }
+        let productStr: String = try ctx.params.getRequiredValue(for: .product)
+        
+        guard let productData = productStr.data(using: .utf8) else {
+            throw BridgeError.typeMismatch(name: .product, type: "UTF-8 String")
+        }
+        
+        Adapty.getPaywallProduct(
+            from: AdaptyContext.jsonDecoder,
+            data: productData
+        ) { skProductResult in
+            switch skProductResult {
+            case .failure(let locateError):
+                ctx.forwardError(locateError)
+                
+            case .success(let product):
+                Adapty.makePurchase(product: product) { purchaseResult in
+                    switch purchaseResult {
+                    case .failure(let error):
+                        ctx.forwardError(error)
+                        
+                    case .success(let purchase):
+                        ctx.resolve(with: purchase.profile)
                     }
                 }
             }
+        }
     }
     
     private func handlePresentCodeRedemptionSheet(_ ctx: AdaptyContext) {
@@ -410,7 +411,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
                 ctx.forwardError(error)
                 
             case let .success(profile):
-                ctx.resolve(data: profile)
+                ctx.resolve(with: profile)
                 
             }
         }
@@ -418,14 +419,14 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     
     // MARK: - Utilities
     private func handleSetLogLevel(_ ctx: AdaptyContext) throws {
-            let logLevelValue: String = try ctx.params.getRequiredValue(for: .value)
-            
-            guard let logLevel = AdaptyLogLevel.fromBridgeValue(logLevelValue) else {
-                throw BridgeError.typeMismatch(name: .value, type: "AdaptyLogLevel")
-            }
-            
-            Adapty.logLevel = logLevel
-            ctx.resolve()
+        let logLevelValue: String = try ctx.params.getRequiredValue(for: .value)
+        
+        guard let logLevel = AdaptyLogLevel.fromBridgeValue(logLevelValue) else {
+            throw BridgeError.typeMismatch(name: .value, type: "AdaptyLogLevel")
+        }
+        
+        Adapty.logLevel = logLevel
+        ctx.resolve()
     }
     
     private func handleTestWrap(_ ctx: AdaptyContext, resolver: @escaping RCTPromiseResolveBlock) {
