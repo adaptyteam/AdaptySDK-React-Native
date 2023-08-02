@@ -286,171 +286,156 @@ export interface AdaptyAccessLevel {
 }
 
 /**
- * Current user's consumable/non-subscription purchase.
+ * Interface representing a consumable or non-subscription purchase made by the user.
  * @public
  */
 export interface AdaptyNonSubscription {
   /**
-   * `true` if the product is consumable.
+   * Flag indicating whether the product is consumable.
    * @readonly
    */
   readonly isConsumable: boolean;
+
   /**
-   * true if the purchase was refunded.
+   * Flag indicating whether the purchase was refunded.
+   * @readonly
    */
   readonly isRefund: boolean;
+
   /**
-   * `true` if the product was purchased in sandbox environment
+   * Flag indicating whether the product was purchased in a sandbox environment.
    * @readonly
    */
   readonly isSandbox: boolean;
+
   /**
-   * An identifier of the purchase in Adapty.
-   * You can use it to ensure that you’ve already processed this purchase
-   * (for example tracking one time products).
+   * The date and time when the purchase was made.
    * @readonly
    */
-  readonly purchaseId: string;
+  readonly purchaseDate: Date;
+
   /**
-   * Date when the product was purchased.
+   * The identifier of the product in the store that was purchased.
    * @readonly
    */
-  readonly purchasedAt: Date;
+  readonly vendorProductId: string;
+
   /**
-   * A store of the purchase
+   * The store where the purchase was made.
    * @readonly
    */
-  readonly store: VendorStore;
-  /**
-   * An identifier of a product in a store
-   * that unlocked this subscription.
-   * @readonly
-   */
-  readonly vendorProductId: String;
-  /**
-   * A transaction id of a purchase in a store
-   * that unlocked this subscription.
-   * @readonly
-   */
-  readonly vendorTransactionId?: string;
+  readonly vendorStore: VendorStore;
 }
 
 /**
- * Current user's subscription purchase.
+ * Interface representing details about a user's subscription.
  * @public
  */
 export interface AdaptySubscription {
   /**
-   * Time when the subscription was activated.
+   * The date and time when the subscription was activated.
    * @readonly
    */
   readonly activatedAt: Date;
+
   /**
-   * A type of an active introductory offer.
-   * If the value is not `null`,
-   * it means that the offer was applied during the current subscription period.
+   * Type of active introductory offer, if any.
    * @readonly
    */
   readonly activeIntroductoryOfferType?: OfferType;
+
   /**
-   * An id of active promotional offer.
+   * Identifier of the active promotional offer, if any.
    * @readonly
    */
   readonly activePromotionalOfferId?: string;
+
   /**
-   * A type of an active promotional offer.
-   * If the value is not `null`,
-   * it means that the offer was applied during the current subscription period.
+   * Type of the active promotional offer, if any.
    * @readonly
    */
   readonly activePromotionalOfferType?: OfferType;
+
   /**
-   * Time when a billing issue was detected. Subscription can still be active.
+   * The date and time when a billing issue was detected.
    * @readonly
    */
   readonly billingIssueDetectedAt?: Date;
+
   /**
-   * A reason why a subscription was cancelled.
+   * The reason for the cancellation of the subscription.
    * @readonly
    */
   readonly cancellationReason?: CancellationReason;
+
   /**
-   * Time when the access level will expire.
-   * Could be in the past and could be `null` for lifetime access.
+   * The expiration date of the subscription, if applicable.
    * @readonly
    */
   readonly expiresAt?: Date;
+
   /**
-   * `true` if this subscription is active
+   * Flag indicating whether the subscription is currently active.
    * @readonly
    */
   readonly isActive: boolean;
+
   /**
-   * `true` if auto renewable subscription is in grace period
+   * Flag indicating whether the subscription is in the grace period.
    * @readonly
    */
   readonly isInGracePeriod: boolean;
+
   /**
-   * `true` if the subscription is active for lifetime
-   * (no expiration date).
+   * Flag indicating whether the subscription is set for a lifetime.
+   * @readonly
    */
   readonly isLifetime: boolean;
+
   /**
-   * `true` if the purchase was refunded
+   * Flag indicating whether the subscription was refunded.
    * @readonly
    */
   readonly isRefund: boolean;
+
   /**
-   * `true` if the product was purchased in sandbox enviroment
+   * Flag indicating whether the subscription was purchased in a sandbox environment.
    * @readonly
    */
   readonly isSandbox: boolean;
+
   /**
-   * Time when the subscription was renewed.
-   * It can be `null` if the purchase was first in chain
-   * or it is non-renewing subscription.
+   * The date and time when the subscription was renewed.
    * @readonly
    */
   readonly renewedAt?: Date;
+
   /**
-   * Time when the subscription has started.
-   * Could be in the future.
+   * The date and time when the subscription starts.
    * @readonly
    */
   readonly startsAt?: Date;
+
   /**
-   * A store of the purchase.
+   * The store where the subscription was made.
    * @readonly
    */
   readonly store: VendorStore;
+
   /**
-   * Time when the auto-renewable subscription was cancelled.
-   * Subscription can still be active,
-   * it means that auto-renewal is turned off.
-   * Would be `null` if a user reactivates the subscription.
-   */
-  readonly unsubscribedAt?: Date;
-  /**
-   * An original transaction id of the purchase
-   * in a store that unlocked this subscription.
-   * For auto-renewable subscription,
-   * this will be an id of the first transaction
-   *  in this subscription.
+   * The date and time when the subscription was cancelled.
    * @readonly
    */
-  readonly vendorOriginalTransactionId: string;
+  readonly unsubscribedAt?: Date;
+
   /**
-   * An identifier of a product in a store that unlocked this subscription.
+   * The identifier of the product in the store that was subscribed to.
    * @readonly
    */
   readonly vendorProductId: string;
+
   /**
-   * A transaction id of a purchase in a store that unlocked this subscription.
-   * @readonly
-   */
-  readonly vendorTransactionId: string;
-  /**
-   * `true` if the auto-renewable subscription is set to renew
+   * Flag indicating whether the subscription is set to auto-renew.
    * @readonly
    */
   readonly willRenew: boolean;
