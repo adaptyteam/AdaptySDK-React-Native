@@ -6,14 +6,14 @@ export const VendorStore = Object.freeze({
   PlayStore: 'play_store',
   Adapty: 'adapty',
 });
-export type VendorStore = typeof VendorStore[keyof typeof VendorStore];
+export type VendorStore = (typeof VendorStore)[keyof typeof VendorStore];
 
 export const OfferType = Object.freeze({
   FreeTrial: 'free_trial',
   PayAsYouGo: 'pay_as_you_go',
   PayUpFront: 'pay_up_front',
 });
-export type OfferType = typeof OfferType[keyof typeof OfferType];
+export type OfferType = (typeof OfferType)[keyof typeof OfferType];
 
 export const CancellationReason = Object.freeze({
   VolountarilyCancelled: 'voluntarily_cancelled',
@@ -24,14 +24,14 @@ export const CancellationReason = Object.freeze({
   Unknown: 'unknown',
 });
 export type CancellationReason =
-  typeof CancellationReason[keyof typeof CancellationReason];
+  (typeof CancellationReason)[keyof typeof CancellationReason];
 
 export const Gender = Object.freeze({
   Female: 'f',
   Male: 'm',
   Other: 'o',
 });
-export type Gender = typeof Gender[keyof typeof Gender];
+export type Gender = (typeof Gender)[keyof typeof Gender];
 
 export const AppTrackingTransparencyStatus = Object.freeze({
   NotDetermined: 'not_determined',
@@ -41,7 +41,7 @@ export const AppTrackingTransparencyStatus = Object.freeze({
   Unknown: 'unknown',
 });
 export type AppTrackingTransparencyStatus =
-  typeof AppTrackingTransparencyStatus[keyof typeof AppTrackingTransparencyStatus];
+  (typeof AppTrackingTransparencyStatus)[keyof typeof AppTrackingTransparencyStatus];
 
 export const ProductPeriod = Object.freeze({
   Day: 'day',
@@ -49,7 +49,7 @@ export const ProductPeriod = Object.freeze({
   Month: 'month',
   Year: 'year',
 });
-export type ProductPeriod = typeof ProductPeriod[keyof typeof ProductPeriod];
+export type ProductPeriod = (typeof ProductPeriod)[keyof typeof ProductPeriod];
 
 export const OfferEligibility = Object.freeze({
   Eligible: 'eligible',
@@ -57,7 +57,7 @@ export const OfferEligibility = Object.freeze({
   Unknown: 'unknown',
 });
 export type OfferEligibility =
-  typeof OfferEligibility[keyof typeof OfferEligibility];
+  (typeof OfferEligibility)[keyof typeof OfferEligibility];
 
 /**
  * Describes an object that represents a paywall.
