@@ -86,16 +86,46 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             return false
         }
         
-        
-        guard let data = try? AdaptyContext.jsonEncoder.encode(product),
-              let str = String(data: data, encoding: .utf8) else {
-            return false
+        do {
+            let result = AdaptyResult(
+                data: product,
+                type: String(describing: AdaptyProduct.self)
+            )
+            let jsonStr = try AdaptyContext.encodeToJSON(result)
+            
+            self.sendEvent(
+                withName: EventName.onDeferredPurchase.rawValue,
+                body: jsonStr
+            )
+            return true
+        } catch {
+            if let bridgeError = error as? BridgeError {
+                let result = AdaptyResult<BridgeError>(
+                    data: bridgeError,
+                    type: String(describing: BridgeError.self)
+                )
+                let jsonStr = try? AdaptyContext.encodeToJSON(result)
+                
+                self.sendEvent(
+                    withName: EventName.onDeferredPurchase.rawValue,
+                    body: jsonStr
+                )
+                return false
+            } else {
+                let unknownBridgeError = BridgeError.unexpectedError(error)
+                let result = AdaptyResult<BridgeError>(
+                    data: unknownBridgeError,
+                    type: String(describing: BridgeError.self)
+                )
+                let jsonStr = try? AdaptyContext.encodeToJSON(result)
+                
+                self.sendEvent(
+                    withName: EventName.onDeferredPurchase.rawValue,
+                    body: jsonStr
+                )
+                return false
+            }
         }
-        
-        self.sendEvent(
-            withName: EventName.onDeferredPurchase.rawValue,
-            body: str
-        )
     }
     
     // MARK: - Handle router
