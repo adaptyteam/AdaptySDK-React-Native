@@ -164,114 +164,122 @@ export interface AdaptyProfile {
 }
 
 /**
- * Current user's access level information.
+ * Interface representing access level details of a user.
  * @public
  */
 export interface AdaptyAccessLevel {
   /**
-   * Time when this access level was activated.
+   * The date and time when the access level was activated.
    * @readonly
    */
   readonly activatedAt: Date;
+
   /**
-   * A type of an active introductory offer.
-   * If the value is not `null`,
-   * it means that the offer was applied during the current subscription period.
+   * Type of active introductory offer, if any.
    * @readonly
    */
   readonly activeIntroductoryOfferType?: OfferType;
+
   /**
-   * An id of active promotional offer.
+   * Identifier of the active promotional offer, if any.
    * @readonly
    */
   readonly activePromotionalOfferId?: string;
+
   /**
-   *  A type of an active promotional offer.
-   * If the value is not `null`,
-   * it means that the offer was applied
-   * during the current subscription period.
+   * Type of the active promotional offer, if any.
    * @readonly
    */
   readonly activePromotionalOfferType?: OfferType;
+
   /**
-   * Time when billing issue was detected.
-   * Subscription can still be active.
-   * Would be set to `null` if a charge is made.
+   * The date and time when a billing issue was detected.
    * @readonly
    */
   readonly billingIssueDetectedAt?: Date;
+
   /**
-   * A reason why a subscription was cancelled.
+   * The reason for the cancellation of the subscription.
    * @readonly
    */
   readonly cancellationReason?: CancellationReason;
+
   /**
-   * Time when the access level will expire.
-   * Could be in the past and could be `null` for lifetime access.
+   * Object representing custom attributes set for the user using
+   * the {@link Adapty.updateProfile} method.
+   * @readonly
+   */
+  readonly customAttributes: Record<string, any>;
+
+  /**
+   * The expiration date of the access level, if applicable.
    * @readonly
    */
   readonly expiresAt?: Date;
+
   /**
    * Unique identifier of the access level
    * configured by you in Adapty Dashboard.
    * @readonly
    */
   readonly id: string;
+
   /**
-   * `true` if this access level is active.
-   * Generally, you can check this property to determine
-   * whether a user has an access to premium features.
+   * Flag indicating whether the access level is currently active.
    * @readonly
    */
   readonly isActive: boolean;
+
   /**
-   * `true` if this auto-renewable subscription is in the grace period.
+   * Flag indicating whether this auto-renewable subscription is in the grace period.
    * @readonly
    */
   readonly isInGracePeriod: boolean;
+
   /**
-   * `true` if this access level is active for a lifetime (no expiration date).
+   * Flag indicating whether this access level is active for a lifetime.
    * @readonly
    */
   readonly isLifetime: boolean;
+
   /**
-   * `true` if this purchase was refunded
+   * Flag indicating whether this purchase was refunded.
    * @readonly
    */
   readonly isRefund: boolean;
+
   /**
-   * Time when the access level was renewed.
-   * It can be null if the purchase was first in chain
-   *  or it is non-renewing subscription / non-consumable (e.g. lifetime)
+   * The date and time when the access level was renewed.
    * @readonly
    */
   readonly renewedAt?: Date;
+
   /**
-   * Time when this access level has started.
-   * Could be in the future.
+   * The start date of this access level.
    * @readonly
    */
   readonly startsAt?: Date;
+
   /**
-   * A store of the purchase that unlocked this access level.
+   * The store where the purchase that unlocked this access level was made.
    * @readonly
    */
   readonly store: VendorStore;
+
   /**
-   * Time when the auto-renewable subscription was cancelled.
-   * Subscription can still be active,
-   * it just means that auto-renewal turned off.
-   * Will be set to `null` if the user reactivates the subscription.
+   * The date and time when the auto-renewable subscription was cancelled.
    * @readonly
    */
   readonly unsubscribedAt?: Date;
+
   /**
-   * An identifier of a product in a store that unlocked this access level.
+   * The identifier of the product in the store that unlocked this access level.
    * @readonly
    */
   readonly vendorProductId: string;
+
   /**
-   * `true` if this auto-renewable subscription is set to renew.
+   * Flag indicating whether this auto-renewable subscription is set to renew.
    * @readonly
    */
   readonly willRenew: boolean;
