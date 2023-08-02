@@ -115,45 +115,52 @@ export interface AdaptyPaywall {
 }
 
 /**
- * Describes an object that represents a user profile,
- * including subscriptions and consumables.
+ * Interface representing a user profile in Adapty,
+ * including details about the user's subscriptions and consumable products.
  * @public
  */
 export interface AdaptyProfile {
   /**
-   * The keys are access level identifiers configured by you in Adapty Dashboard.
-   * The values can be `null` if the customer has no access levels.
+   * Object that maps access level identifiers (configured by you in Adapty Dashboard)
+   * to the corresponding access level details. The value can be `null`
+   * if the user does not have any access levels.
    * @readonly
    */
-  readonly accessLevels?: Record<string, AdaptyAccessLevel>;
+  readonly accessLevels: Record<string, AdaptyAccessLevel>;
+
   /**
-   * Previously set user custom attributes with {@link Adapty.updateProfile} method.
+   * Object representing custom attributes set for the user using
+   * the {@link Adapty.updateProfile} method.
    * @readonly
    */
   readonly customAttributes: Record<string, any>;
+
   /**
-   * An identifier of a user in your system.
+   * The identifier for a user in your system.
    * @readonly
    */
   readonly customerUserId?: string;
+
   /**
-   * The keys are product ids from the store.
-   * The values are arrays of information about consumables.
-   * Can be `null` if the customer has no purchases.
+   * Object that maps product ids from the store to an array of
+   * information about the user's non-subscription purchases.
+   * The value can be `null` if the user does not have any purchases.
    * @readonly
    */
-  readonly nonSubscriptions?: Record<string, AdaptyNonSubscription[]>;
+  readonly nonSubscriptions: Record<string, AdaptyNonSubscription[]>;
+
   /**
-   * An identifier of a user in Adapty.
+   * The identifier for a user in Adapty.
    */
   readonly profileId: string;
+
   /**
-   * The keys are product ids from a store.
-   * The values are information about subscriptions.
-   * Can be `null` if the customer has no subscriptions.
+   * Object that maps product ids from a store to
+   * information about the user's subscriptions.
+   * The value can be `null` if the user does not have any subscriptions.
    * @readonly
    */
-  readonly subscriptions?: Record<string, AdaptySubscription>;
+  readonly subscriptions: Record<string, AdaptySubscription>;
 }
 
 /**
