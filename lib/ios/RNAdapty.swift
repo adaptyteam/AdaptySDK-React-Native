@@ -26,17 +26,43 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             return
         }
         
-        guard let data = try? AdaptyContext.jsonEncoder.encode(profile),
-              let str = String(data: data, encoding: .utf8)
-        else {
-            // should not happen
+        do {
+            let result = AdaptyResult(
+                data: profile,
+                type: String(describing: AdaptyProfile.self)
+            )
+            let jsonStr = try AdaptyContext.encodeToJSON(result)
+            
             return self.sendEvent(
                 withName: EventName.onLatestProfileLoad.rawValue,
-                body: "null")
+                body: jsonStr
+            )
+        } catch {
+            if let bridgeError = error as? BridgeError {
+                let result = AdaptyResult<BridgeError>(
+                    data: bridgeError,
+                    type: String(describing: BridgeError.self)
+                )
+                let jsonStr = try? AdaptyContext.encodeToJSON(result)
+                
+                return self.sendEvent(
+                    withName: EventName.onLatestProfileLoad.rawValue,
+                    body: jsonStr
+                )
+            } else {
+                let unknownBridgeError = BridgeError.unexpectedError(error)
+                let result = AdaptyResult<BridgeError>(
+                    data: unknownBridgeError,
+                    type: String(describing: BridgeError.self)
+                )
+                let jsonStr = try? AdaptyContext.encodeToJSON(result)
+                
+                return self.sendEvent(
+                    withName: EventName.onLatestProfileLoad.rawValue,
+                    body: jsonStr
+                )
+            }
         }
-        
-        
-        self.sendEvent(withName: EventName.onLatestProfileLoad.rawValue, body: str)
     }
     
     // RN doesn't like when events fire
