@@ -81,10 +81,17 @@ export interface AdaptyPaywall {
    */
   readonly locale: string;
   /**
+   * If `true`, it is possible to fetch the view object
+   * and use it with AdaptyUI library.
+   */
+  readonly hasViewConfiguration: boolean;
+
+  readonly version: number;
+  /**
    * A paywall name.
    * @readonly
    */
-  readonly name?: string;
+  readonly name: string;
   /**
    * A custom dictionary configured in Adapty Dashboard for this paywall.
    * @readonly
@@ -108,10 +115,10 @@ export interface AdaptyPaywall {
    */
   readonly variationId: string;
   /**
-   * Array of related products ids.
+   * Array of initial products info
    * @readonly
    */
-  readonly vendorProductIds?: string[];
+  readonly products: AdaptyProductReference[];
 }
 
 /**
@@ -697,4 +704,12 @@ export interface AdaptyProfileParameters {
   pushwooshHWID?: string;
   firebaseAppInstanceId?: string;
   airbridgeDeviceId?: string;
+}
+
+export interface AdaptyProductReference {
+  vendorId: string;
+  ios?: {
+    promotionalOfferId?: string;
+    promotionalOfferEligibility: boolean;
+  };
 }
