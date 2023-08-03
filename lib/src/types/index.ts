@@ -205,13 +205,6 @@ export interface AdaptyAccessLevel {
   readonly cancellationReason?: CancellationReason;
 
   /**
-   * Object representing custom attributes set for the user using
-   * the {@link Adapty.updateProfile} method.
-   * @readonly
-   */
-  readonly customAttributes: Record<string, any>;
-
-  /**
    * The expiration date of the access level, if applicable.
    * @readonly
    */
@@ -312,19 +305,32 @@ export interface AdaptyNonSubscription {
    * The date and time when the purchase was made.
    * @readonly
    */
-  readonly purchaseDate: Date;
+  readonly purchasedAt: Date;
 
   /**
    * The identifier of the product in the store that was purchased.
    * @readonly
    */
   readonly vendorProductId: string;
+  /**
+   * The identifier of the product in the store that was purchased.
+   * @readonly
+   */
+  readonly vendorTransactionId?: string;
 
   /**
    * The store where the purchase was made.
    * @readonly
    */
-  readonly vendorStore: VendorStore;
+  readonly store: VendorStore;
+
+  /**
+   * An identifier of the purchase in Adapty.
+   * You can use it to ensure that you've already processed this purchase
+   * (for example tracking one time products).
+   * @readonly
+   */
+  readonly purchaseId: string;
 }
 
 /**
@@ -434,6 +440,18 @@ export interface AdaptySubscription {
    */
   readonly vendorProductId: string;
 
+  /**
+   * The identifier of the product in the store that was subscribed to.
+   * @readonly
+   */
+  readonly vendorTransactionId: string;
+
+  /**
+   * An original transaction id of the purchase in a store that unlocked this subscription.
+   * For auto-renewable subscription, this will be an id of the first transaction in this subscription.
+   * @readonly
+   */
+  readonly vendorOriginalTransactionId: string;
   /**
    * Flag indicating whether the subscription is set to auto-renew.
    * @readonly
