@@ -24,10 +24,10 @@ enum BridgeError: Error, CustomStringConvertible, Encodable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case errorType
+        case errorType = "error_type"
         case name
         case type
-        case underlyingError
+        case underlyingError = "parent_error"
     }
     
     func encode(to encoder: Encoder) throws {
@@ -38,18 +38,23 @@ enum BridgeError: Error, CustomStringConvertible, Encodable {
         case .missingRequiredArgument(let name):
             try container.encode("missingRequiredArgument", forKey: .errorType)
             try container.encode(name.rawValue, forKey: .name)
+            
         case .typeMismatch(let name, let type):
             try container.encode("typeMismatch", forKey: .errorType)
             try container.encode(name.rawValue, forKey: .name)
             try container.encode(type, forKey: .type)
+
         case .encodingFailed(let error):
             try container.encode("encodingFailed", forKey: .errorType)
             try container.encode(error.localizedDescription, forKey: .underlyingError)
+
         case .methodNotImplemented:
             try container.encode("methodNotImplemented", forKey: .errorType)
+
         case .unexpectedError(let error):
             try container.encode("unexpectedError", forKey: .errorType)
             try container.encode(error.localizedDescription, forKey: .underlyingError)
+
         }
     }
     
