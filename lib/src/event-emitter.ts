@@ -4,10 +4,10 @@ import {
   NativeModules,
 } from 'react-native';
 
-import { AdaptyEvent } from '../types/events';
-import { AdaptyProfile } from '../types';
-import { AdaptyProfileCoder } from '../internal/coders';
-import { LogContext } from '../logger';
+import { LogContext } from '@/logger';
+import { parse } from '@/coders';
+import type { AdaptyEvent } from '@/types/events';
+import type { AdaptyProfile } from '@/types';
 
 export type AddListenerFn<E extends AdaptyEvent, Data> = (
   event: E,
@@ -44,19 +44,12 @@ export class AdaptyEventEmitter {
 
       const args = data.map(arg => {
         try {
-          const param = JSON.parse(arg);
-
-          try {
-            const coder = AdaptyProfileCoder.tryDecode(param, ctx);
-            return coder.toObject();
-          } catch (error) {
-            log.failed({ error });
-
-            throw error;
-          }
+          const result = parse(arg, ctx);
+          return result;
         } catch (error) {
           log.failed({ error });
-          return arg;
+
+          throw error;
         }
       });
 
