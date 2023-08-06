@@ -1,5 +1,5 @@
 import { Log } from './log';
-import { LogScope } from './logScope';
+import { LogScope } from './log-scope';
 
 export interface ScopeArgs {
   methodName: string;

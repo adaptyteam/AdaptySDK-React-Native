@@ -1,4 +1,4 @@
-import { ScopeArgs } from './logContext';
+import { ScopeArgs } from './log-context';
 
 type LogArgs<T> = T;
 type LogCallback = (args: LogArgs<any>) => void;
