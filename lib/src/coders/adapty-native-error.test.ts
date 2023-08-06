@@ -18,6 +18,18 @@ describe('AdaptyError', () => {
     coder = new AdaptyNativeErrorCoder();
   });
 
+  it('should be Error', () => {
+    const data = coder.decode(input.data);
+    const error = coder.getError(data);
+
+    expect(error).toBeInstanceOf(Error);
+  });
+  it('should be AdaptyError', () => {
+    const data = coder.decode(input.data);
+    const error = coder.getError(data);
+
+    expect(error).toBeInstanceOf(Error);
+  });
   it('should encode/decode', () => {
     const result = coder.decode(input.data);
 

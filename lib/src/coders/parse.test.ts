@@ -1,7 +1,7 @@
 import type { AdaptyNativeError } from '@/types/bridge';
 import type { AdaptyPaywall, AdaptyProduct, AdaptyProfile } from '@/types';
+import { AdaptyError } from '@/adapty-error';
 
-import { AdaptyNativeErrorCoder } from './adapty-native-error';
 import { AdaptyPaywallCoder } from './adapty-paywall';
 import { AdaptyProductCoder } from './adapty-product';
 import { AdaptyProfileCoder } from './adapty-profile';
@@ -245,20 +245,10 @@ describe('parse SDK responses', () => {
       data: {
         adapty_code: 0,
         message: 'Product purchase failed',
-        // detail:
-        //   'StoreKitManagerError.productPurchaseFailed([2.6.2]: Adapty/SKQueueManager+MakePurchase.swift#50, Error Domain=SKErrorDomain Code=0 "An unknown error occurred" UserInfo={NSLocalizedDescription=An unknown error occurred, NSUnderlyingError=0x6000026c1050 {Error Domain=ASDErrorDomain Code=500 "Unhandled exception" UserInfo={NSUnderlyingError=0x6000026c3270 {Error Domain=AMSErrorDomain Code=100 "Authentication Failed" UserInfo={NSMultipleUnderlyingErrorsKey=(\n    "Error Domain=AMSErrorDomain Code=2 \\"An unknown error occurred. Please try again.\\" UserInfo={NSLocalizedDescription=An unknown error occurred. Please try again.}",\n    "Error Domain=com.apple.accounts Code=4 \\"No auth plugin to verify credentials for accounts of type com.apple.account.iTunesStore.sandbox\\" UserInfo={NSLocalizedDescription=No auth plugin to verify credentials for accounts of type com.apple.account.iTunesStore.sandbox}"\n), NSLocalizedDescription=Authentication Failed, NSLocalizedFailureReason=The authentication failed.}}, NSLocalizedDescription=Unhandled exception, NSLocalizedFailureReason=An unknown error occurred}}})',
       },
     };
 
     const result = parse<AdaptyNativeError>(input);
-    expect(result).toEqual({
-      adaptyCode: 0,
-      message: 'Product purchase failed',
-    } satisfies AdaptyNativeError);
-
-    const coder = new AdaptyNativeErrorCoder();
-    const recoded = coder.encode(result);
-
-    expect(input.data).toEqual(recoded);
+    expect(result).toBeInstanceOf(AdaptyError);
   });
 });
