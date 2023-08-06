@@ -39,8 +39,9 @@
     "clean": "./scripts/clean.sh",
     "format": "prettier ./lib/src -c",
     "lint": "eslint ./lib/src --ext .ts",
+    "test": "jest --rootDir lib/src",
     "update-versions": "./scripts/update_versions.sh",
-    "prepack": "yarn run update-versions && yarn run build",
+    "prepack": "yarn run test && yarn run update-versions && yarn run build",
     "prepublishOnly": "yarn run prepack"
   },
   "devDependencies": {
