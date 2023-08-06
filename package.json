@@ -19,7 +19,7 @@
     "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
   },
   "files": [
-    "lib/dist/",
+    "dist/",
     "lib/ios/",
     "!lib/ios/build",
     "!lib/ios/RNAdapty.xcodeproj/project.xcworkspace",
@@ -33,15 +33,15 @@
     "react-native.config.js",
     "!**/.*"
   ],
-  "main": "lib/dist/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "rm -rf lib/dist && tsc --project tsconfig.build.json",
+    "build": "rm -rf dist && tsc --project tsconfig.build.json",
     "clean": "./scripts/clean.sh",
     "format": "prettier ./lib/src -c",
     "lint": "eslint ./lib/src --ext .ts",
     "update-versions": "./scripts/update_versions.sh",
-    "prepack": "npm run update-versions && npm run build",
-    "prepublishOnly": "npm run prepack"
+    "prepack": "yarn run update-versions && yarn run build",
+    "prepublishOnly": "yarn run prepack"
   },
   "dependencies": {},
   "devDependencies": {

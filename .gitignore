@@ -6,7 +6,7 @@
 *.lockb
 *.log
 
-lib/dist
+dist
 
 # Version files
 lib/src/version.ts
@@ -65,3 +65,5 @@ buck-out/
 *.tgz
 
 .adapty-credentials.json
+
+.tsbuildinfo
