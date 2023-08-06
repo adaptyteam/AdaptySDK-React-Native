@@ -94,8 +94,14 @@ export interface ActivateParamsInput {
   /**
    * Locks methods threads until the SDK is ready.
    * @defaultValue `false`
+   * @deprecated Turned on by default
    */
   lockMethodsUntilReady?: boolean;
+  /**
+   * Does not activate SDK until any other method is called
+   * Fixes annoying iOS simulator auhtentication
+   */
+  __debugDeferActivation?: boolean;
   /**
    * Enables a feature of collecting logs with at servers
    * Read more {@link https://docs.adapty.io/docs/ios-configuring#collecting-usage-logs }

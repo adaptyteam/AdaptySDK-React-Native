@@ -19,6 +19,7 @@ import type { ParamMap, MethodName } from '@/types/bridge';
  */
 export class Adapty extends AdaptyEventEmitter {
   private activationPromise: Promise<void> | null = null;
+  private __resolveDeferredActivation?: (value?: unknown) => void;
 
   // Middleware to call native handle
   private handle = async <T>(
@@ -29,6 +30,11 @@ export class Adapty extends AdaptyEventEmitter {
   ): Promise<T> => {
     // Wait until activate promise resolves
     if (this.activationPromise && methodName !== 'activate') {
+      // Activate
+      if (this.__resolveDeferredActivation) {
+        this.__resolveDeferredActivation();
+      }
+
       await this.activationPromise;
     }
 
@@ -90,6 +96,17 @@ export class Adapty extends AdaptyEventEmitter {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'activate' });
     log.start({ apiKey, params });
+
+    // Defer activate call if requested
+    // Solves annoying simulator auth call
+    if (params.__debugDeferActivation) {
+      const __deferredActivation = new Promise(resolve => {
+        this.__resolveDeferredActivation = resolve;
+      });
+
+      // Wait for next SDK call
+      await __deferredActivation;
+    }
 
     const args: ParamMap = {
       sdk_key: apiKey,
