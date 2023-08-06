@@ -118,11 +118,7 @@ export interface ActivateParamsInput {
   };
 }
 
-export interface GetPaywallProductsParamsInput {
-  ios?: {
-    fetchPolicy?: FetchPolicy;
-  };
-}
+export interface GetPaywallProductsParamsInput {}
 
 export const AndroidSubscriptionUpdateProrationMode = Object.freeze({
   ImmediateAndChargeFullPrice: 'immediate_and_charge_full_price',
