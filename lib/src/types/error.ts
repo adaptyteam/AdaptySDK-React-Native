@@ -112,7 +112,7 @@ export const ErrorCode = Object.freeze({
 export type ErrorCode = keyof typeof ErrorCode;
 
 export function getErrorCode(
-  error: typeof ErrorCode[ErrorCode],
+  error: (typeof ErrorCode)[ErrorCode],
 ): ErrorCode | undefined {
   const errorCode = Object.keys(ErrorCode).find(keyStr => {
     const key = Number(keyStr) as ErrorCode;
@@ -126,11 +126,11 @@ export function getErrorCode(
   return Number(errorCode) as ErrorCode;
 }
 
-export function getErrorPrompt(code: ErrorCode): typeof ErrorCode[ErrorCode] {
+export function getErrorPrompt(code: ErrorCode): (typeof ErrorCode)[ErrorCode] {
   const prompt = ErrorCode[code];
 
   if (!prompt) {
-    return `Unknown code: ${code}` as typeof ErrorCode[ErrorCode];
+    return `Unknown code: ${code}` as (typeof ErrorCode)[ErrorCode];
   }
 
   return prompt;
