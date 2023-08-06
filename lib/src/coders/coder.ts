@@ -1,3 +1,4 @@
+import { AdaptyError } from '@/adapty-error';
 import { Converter, Properties, StrType } from './types';
 
 export abstract class Coder<
@@ -87,8 +88,11 @@ export abstract class Coder<
 
       const property = properties[key as string];
       if (!property) {
-        throw new Error('dad');
+        throw AdaptyError.failedToEncode(
+          `Failed to find encoder for property "${key}"`,
+        );
       }
+
       const converter = property.converter;
 
       this.assignNestedValue(
@@ -120,7 +124,9 @@ export abstract class Coder<
 
       const property = properties[key];
       if (!property) {
-        throw new Error('dad');
+        throw AdaptyError.failedToDecode(
+          `Failed to find decoder for property "${key}"`,
+        );
       }
 
       const value = this.getNestedValue(
@@ -129,17 +135,19 @@ export abstract class Coder<
       );
 
       if (property.required && value === undefined) {
-        throw new Error(`Missing required property: ${key}`);
+        throw AdaptyError.failedToDecode(
+          `Failed to decode native response, because it is missing required property "${key}"`,
+        );
       }
 
       // If value is undefined and property is not required, continue
       if (value === undefined) continue;
 
       if (!this.isType(value, property.type)) {
-        throw new Error(
-          `Type mismatch for property ${key}: expected ${
+        throw AdaptyError.failedToDecode(
+          `Failed to decode native response, because it\'s property "${key}" has invalid type. Expected type: ${
             property.type
-          }, got ${typeof value}`,
+          }. Received type: ${typeof value}`,
         );
       }
 

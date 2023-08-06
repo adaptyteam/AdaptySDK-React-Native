@@ -1,3 +1,4 @@
+import { AdaptyError } from '..';
 import type { Converter } from './types';
 
 export class DateCoder implements Converter<Date, string> {
@@ -34,7 +35,9 @@ export class DateCoder implements Converter<Date, string> {
 
     const parsedValue = Date.parse(pureValue);
     if (isNaN(parsedValue)) {
-      throw new Error(`Failed to parse date: ${pureValue}`);
+      throw AdaptyError.failedToDecode(
+        `Failed to decode a date string into JS Date. String value: ${pureValue}`,
+      );
     }
 
     return new Date(parsedValue);

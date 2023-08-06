@@ -1,3 +1,4 @@
+import { AdaptyError } from '..';
 import { LogContext } from '../logger';
 import { AdaptyNativeErrorCoder } from './adapty-native-error';
 import { AdaptyPaywallCoder } from './adapty-paywall';
@@ -40,22 +41,40 @@ export function parse<T>(input: string | unknown, ctx?: LogContext): T {
     } else if (input !== null && typeof input === 'object') {
       obj = input as AdaptyResult<unknown>;
     } else {
-      log?.failed('Error parsing input: invalid type');
+      const error = AdaptyError.failedToDecode(
+        `Failed to decode native response, because it has unexpected type. Expected: JSON string or object. Received: ${typeof input}`,
+      );
 
-      throw new Error('Invalid input: must be a string or object');
+      log?.failed(error.message);
+      throw error;
     }
   } catch (error) {
-    log?.failed('Error parsing input' + error);
+    const adaptyError = AdaptyError.failedToDecode(
+      `Failed to decode native response. JSON.parse raised an error: ${
+        (error as Error)?.message || ''
+      }`,
+    );
 
-    throw new Error('Error parsing input: ' + error);
+    log?.failed(adaptyError.message);
+    throw adaptyError;
   }
 
   // Compare JSON to AdaptyResult
   if (!obj.hasOwnProperty('type')) {
-    throw new Error('Invalid input: missing "type" property');
+    const adaptyError = AdaptyError.failedToDecode(
+      `Failed to decode native response. Response does not have expected "type" property`,
+    );
+
+    log?.failed(adaptyError.message);
+    throw adaptyError;
   }
   if (!obj.hasOwnProperty('data')) {
-    throw new Error('Invalid input: missing "data" property');
+    const adaptyError = AdaptyError.failedToDecode(
+      `Failed to decode native response. Response does not have expected "data" property`,
+    );
+
+    log?.failed(adaptyError.message);
+    throw adaptyError;
   }
 
   const coder = getCoder(obj.type, ctx);
@@ -94,5 +113,7 @@ function getCoder(
       return null;
   }
   // @ts-ignore
-  throw new Error('Unexpected type');
+  throw AdaptyError.failedToDecode(
+    `Failed to decode native response. Response has unexpected "type" property: ${type}`,
+  );
 }

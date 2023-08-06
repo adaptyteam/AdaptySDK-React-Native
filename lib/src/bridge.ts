@@ -8,6 +8,7 @@ import {
   HANDLER_NAME,
 } from '@/types/bridge';
 import type { LogContext } from '@/logger';
+import { AdaptyError } from './adapty-error';
 
 // Just a type defenition for bridge handle function
 const call = NativeModules[MODULE_NAME][HANDLER_NAME] as (
@@ -37,13 +38,17 @@ export async function handle<T>(
     log?.success({ error });
 
     if (typeof error !== 'object' || error === null) {
-      throw new Error('Unknown error: ' + error);
+      throw AdaptyError.failedToDecodeNativeError(
+        `Unexpected native error type. "Expected object", but got "${typeof error}"`,
+        error,
+      );
     }
 
     const errorObj = error as Record<string, any>;
     if (!errorObj.hasOwnProperty('message') || !errorObj['message']) {
-      throw new Error(
-        'Error does not have expected messsage property: ' + errorObj,
+      throw AdaptyError.failedToDecodeNativeError(
+        'Native error does not have expected "message" property',
+        error,
       );
     }
     const encodedMsg = errorObj['message'];
