@@ -1,5 +1,5 @@
 // import SDK type to link to methods in docs.
-import { Adapty } from '../sdk/adapty';
+import type { Adapty } from '@/adapty-handler';
 
 export const VendorStore = Object.freeze({
   AppStore: 'app_store',
@@ -452,7 +452,6 @@ export interface AdaptySubscription {
    * @readonly
    */
   readonly vendorTransactionId: string;
-
   /**
    * An original transaction id of the purchase in a store that unlocked this subscription.
    * For auto-renewable subscription, this will be an id of the first transaction in this subscription.
@@ -492,13 +491,6 @@ export interface AdaptyProduct {
    * and macOS version below 10.14.4.
    */
   readonly introductoryDiscount?: AdaptyProductDiscount;
-  /**
-   * User's eligibility for your introductory offer.
-   * Check this property before displaying info about
-   * introductory offers (i.e. free trials)
-   * @readonly
-   */
-  readonly introductoryOfferEligibility: OfferEligibility;
   /**
    * A description of the product.
    * @readonly
@@ -554,7 +546,7 @@ export interface AdaptyProduct {
    * @readonly
    */
   readonly vendorProductId: string;
-
+  // version: string;
   android?: {
     /**
      * An object containing free trial information for the given product.
@@ -592,7 +584,7 @@ export interface AdaptyProduct {
      * about promotional offers
      * @readonly
      */
-    readonly promotionalOfferEligibility: OfferEligibility;
+    readonly promotionalOfferEligibility?: boolean;
     /**
      * An identifier of a promotional offer,
      * provided by Adapty for this specific user.
@@ -710,6 +702,6 @@ export interface AdaptyProductReference {
   vendorId: string;
   ios?: {
     promotionalOfferId?: string;
-    promotionalOfferEligibility: boolean;
+    promotionalOfferEligibility?: boolean;
   };
 }

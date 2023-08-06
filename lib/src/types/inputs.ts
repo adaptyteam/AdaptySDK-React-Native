@@ -1,4 +1,4 @@
-import { Adapty } from '../sdk/adapty';
+import { Adapty } from '@/adapty-handler';
 /**
  * Log levels for the SDK
  *
