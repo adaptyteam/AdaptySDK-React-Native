@@ -37,7 +37,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc --project tsconfig.build.json",
     "clean": "./scripts/clean.sh",
-    "format": "prettier ./lib/src -c",
+    "format": "prettier ./lib/src -w",
     "lint": "eslint ./lib/src --ext .ts",
     "test": "jest --rootDir lib/src",
     "update-versions": "./scripts/update_versions.sh",
