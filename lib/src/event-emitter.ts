@@ -6,7 +6,7 @@ import {
 
 import { LogContext } from '@/logger';
 import { parse } from '@/coders';
-import type { AdaptyEvent } from '@/types/events';
+import { MODULE_NAME, type AdaptyEvent } from '@/types/bridge';
 import type { AdaptyProfile } from '@/types';
 
 export type AddListenerFn<E extends AdaptyEvent, Data> = (
@@ -22,7 +22,7 @@ export class AdaptyEventEmitter {
   private listeners: EmitterSubscription[];
 
   constructor() {
-    this.nativeEmitter = new NativeEventEmitter(NativeModules.RNAdapty);
+    this.nativeEmitter = new NativeEventEmitter(NativeModules[MODULE_NAME]);
     this.listeners = [];
   }
 
