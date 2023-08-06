@@ -67,3 +67,4 @@ buck-out/
 .adapty-credentials.json
 
 .tsbuildinfo
+.jest/
