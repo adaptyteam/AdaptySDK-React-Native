@@ -1,9 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "diagnostics": true,
+    "diagnostics": true
   },
-  "exclude": [
-    "./example/**/*"
-  ]
+  "exclude": ["**/*.test.ts"]
 }
