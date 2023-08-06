@@ -54,7 +54,7 @@ export type ProductPeriod = (typeof ProductPeriod)[keyof typeof ProductPeriod];
 export const OfferEligibility = Object.freeze({
   Eligible: 'eligible',
   Ineligible: 'ineligible',
-  Unknown: 'unknown',
+  NotApplicable: 'not_applicable',
 });
 export type OfferEligibility =
   (typeof OfferEligibility)[keyof typeof OfferEligibility];
