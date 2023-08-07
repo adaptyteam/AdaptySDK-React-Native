@@ -88,9 +88,10 @@ def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
     api 'io.adapty:android-sdk:2.4.3'
+    api 'io.adapty.internal:crossplatform:2.6.0'
+    // Compatible with older and newer RNs
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.billingclient:billing:4.1.0'
-    api 'io.adapty.internal:crossplatform:2.4.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
