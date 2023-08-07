@@ -4,11 +4,11 @@ module.exports = function (api) {
   return {
     presets: [
       'module:metro-react-native-babel-preset',
-      '@babel/preset-typescript',
+      // '@babel/preset-typescript',
     ],
-    plugins: [
-      '@babel/plugin-proposal-export-namespace-from',
-      '@babel/plugin-proposal-export-default-from',
-    ],
+    // plugins: [
+    //   '@babel/plugin-proposal-export-namespace-from',
+    //   '@babel/plugin-proposal-export-default-from',
+    // ],
   };
 };

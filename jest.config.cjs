@@ -1,5 +1,4 @@
 const { pathsToModuleNameMapper } = require('ts-jest');
-const { defaults: tsjPreset } = require('ts-jest/presets');
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
