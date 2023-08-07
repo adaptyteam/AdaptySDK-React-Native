@@ -28,6 +28,7 @@ export const ParamKeys = [
   'fetch_policy',
   'id',
   'idfa_collection_disabled',
+  'is_offer_personalized',
   'locale',
   'log_level',
   'network_user_id',

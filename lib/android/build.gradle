@@ -1,6 +1,9 @@
+//file:noinspection SpellCheckingInspection
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
+
 // Expose package.json version to gradle
 apply from: 'version.gradle'
 
@@ -14,6 +17,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.3'
+
         // noinspection DifferentKotlinGradleVersion
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
@@ -63,13 +67,15 @@ android {
                 google()
                 // Adapty helper library
                 maven { url "$rootDir/localMaven" }
+                maven { url "$rootDir/internalMaven" }
                 maven { url "$rootDir/../../node_modules/react-native/android" }
             }
+
             matchingFallbacks = ["debug"]
             debuggable true
         }
-
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -99,6 +105,8 @@ def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
     api 'io.adapty:android-sdk:2.4.3'
+
+    //noinspection GradleDynamicVersion
     api 'io.adapty.internal:crossplatform:2.6.0'
 
     // Compatible with older and newer RN
@@ -106,5 +114,7 @@ dependencies {
     implementation 'com.facebook.react:react-native:+'
 
     implementation 'com.android.billingclient:billing:4.1.0'
+
+    //noinspection DifferentStdlibGradleVersion
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
