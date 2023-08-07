@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
 // Expose package.json version to gradle
-apply from: 'version.gradle' 
+apply from: 'version.gradle'
 
 buildscript {
     def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['adapty_kotlinVersion']
@@ -55,6 +55,20 @@ android {
         debug {
             minifyEnabled false
         }
+        // Only for library development
+        libDebug {
+            initWith buildTypes.debug
+            versionNameSuffix "-lib-debug"
+            repositories {
+                google()
+                // Adapty helper library
+                maven { url "$rootDir/localMaven" }
+                maven { url "$rootDir/../../node_modules/react-native/android" }
+            }
+            matchingFallbacks = ["debug"]
+            debuggable true
+        }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -64,34 +78,33 @@ android {
 
 rootProject.allprojects {
     repositories {
-        maven {
-            url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven"
-        }
+        // Adapty helper library
+        maven { url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven" }
     }
 }
 
 repositories {
     mavenCentral()
     google()
-    maven {
-        url "$rootDir/../node_modules/react-native/android"
-    }
-    maven {
-        url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven"
-    }
+    maven { url "$rootDir/../node_modules/react-native/android" }
+    // Adapty helper library
+    maven { url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven" }
 }
 
 def getExtOrDefault(name) {
     return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['adapty_' + name]
 }
+
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
     api 'io.adapty:android-sdk:2.4.3'
     api 'io.adapty.internal:crossplatform:2.6.0'
-    // Compatible with older and newer RNs
+
+    // Compatible with older and newer RN
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
+
     implementation 'com.android.billingclient:billing:4.1.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
