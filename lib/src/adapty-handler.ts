@@ -19,7 +19,7 @@ import type { ParamMap, MethodName } from '@/types/bridge';
  */
 export class Adapty extends AdaptyEventEmitter {
   private activationPromise: Promise<void> | null = null;
-  private __resolveDeferredActivation?: (value?: unknown) => void;
+  private __resolveDeferredActivation?: ((value?: unknown) => void) | null;
 
   // Middleware to call native handle
   private handle = async <T>(
@@ -30,9 +30,10 @@ export class Adapty extends AdaptyEventEmitter {
   ): Promise<T> => {
     // Wait until activate promise resolves
     if (this.activationPromise && methodName !== 'activate') {
-      // Activate
+      // Initiate deferred activation
       if (this.__resolveDeferredActivation) {
         this.__resolveDeferredActivation();
+        this.__resolveDeferredActivation = null;
       }
 
       await this.activationPromise;
@@ -124,7 +125,7 @@ export class Adapty extends AdaptyEventEmitter {
     const promise = this.handle<void>('activate', args, ctx, log);
 
     // Store promise to force it to resolve before any other calls
-    if (params.lockMethodsUntilReady && !this.activationPromise) {
+    if (!this.activationPromise) {
       this.activationPromise = promise as Promise<any>;
     }
 
