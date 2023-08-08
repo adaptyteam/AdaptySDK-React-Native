@@ -36,14 +36,14 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "build": "rm -rf dist && tsc --project tsconfig.build.json",
+    "build": "rm -rf dist && yarn run tsc --project tsconfig.build.json",
     "clean": "./scripts/clean.sh",
     "format": "prettier ./lib/src -w",
     "lint": "eslint ./lib/src --ext .ts",
     "test": "jest",
     "update-versions": "./scripts/update_versions.sh",
-    "prepack": "yarn run test && yarn run update-versions && yarn run build",
-    "prepublishOnly": "yarn run prepack"
+    "prepack": "yarn test && yarn update-versions && yarn build",
+    "prepublishOnly": "yarn prepack"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
