@@ -113,12 +113,12 @@ export class Adapty extends AdaptyEventEmitter {
       observer_mode: params.observerMode,
       user_id: params.customerUserId,
       log_level: logLevel,
-      enable_usage_logs: params.enableUsageLogs,
     };
 
     if (params.ios && Platform.OS === 'ios') {
       args.storekit2_usage = params.ios.storeKit2Usage as string;
       args.idfa_collection_disabled = params.ios.idfaCollectionDisabled ?? null;
+      args.enable_usage_logs = params.ios.enableUsageLogs;
     }
 
     const promise = this.handle<void>('activate', args, ctx, log);
