@@ -34,11 +34,11 @@ export const Gender = Object.freeze({
 export type Gender = (typeof Gender)[keyof typeof Gender];
 
 export const AppTrackingTransparencyStatus = Object.freeze({
-  NotDetermined: 'not_determined',
-  Restricted: 'restricted',
-  Denied: 'denied',
-  Authorized: 'authorized',
-  Unknown: 'unknown',
+  NotDetermined: 0,
+  Restricted: 1,
+  Denied: 2,
+  Authorized: 3,
+  Unknown: 4,
 });
 export type AppTrackingTransparencyStatus =
   (typeof AppTrackingTransparencyStatus)[keyof typeof AppTrackingTransparencyStatus];
@@ -58,6 +58,31 @@ export const OfferEligibility = Object.freeze({
 });
 export type OfferEligibility =
   (typeof OfferEligibility)[keyof typeof OfferEligibility];
+
+export interface AdaptyPrice {
+  /**
+   * Price as number
+   */
+  amount: number;
+  /**
+   * The currency code of the locale
+   * used to format the price of the product.
+   * The ISO 4217 (USD, EUR).
+   */
+  currencyCode?: string;
+  /**
+   * The currency symbol of the locale
+   * used to format the price of the product.
+   * ($, €).
+   */
+  currencySymbol?: string;
+  /**
+   * A price’s language is determined
+   * by the preferred language set on the device.
+   * On Android, the formatted price from Google Play as is.
+   */
+  localizedString?: string;
+}
 
 /**
  * Describes an object that represents a paywall.
@@ -86,7 +111,6 @@ export interface AdaptyPaywall {
    */
   readonly hasViewConfiguration: boolean;
 
-  readonly version: number;
   /**
    * A paywall name.
    * @readonly
@@ -118,7 +142,10 @@ export interface AdaptyPaywall {
    * Array of initial products info
    * @readonly
    */
-  readonly products: AdaptyProductReference[];
+  readonly products: ProductReference[];
+
+  version: number;
+  payloadData?: string;
 }
 
 /**
@@ -133,14 +160,14 @@ export interface AdaptyProfile {
    * if the user does not have any access levels.
    * @readonly
    */
-  readonly accessLevels: Record<string, AdaptyAccessLevel>;
+  readonly accessLevels?: Record<string, AdaptyAccessLevel>;
 
   /**
    * Object representing custom attributes set for the user using
    * the {@link Adapty.updateProfile} method.
    * @readonly
    */
-  readonly customAttributes: Record<string, any>;
+  readonly customAttributes?: Record<string, any>;
 
   /**
    * The identifier for a user in your system.
@@ -154,7 +181,7 @@ export interface AdaptyProfile {
    * The value can be `null` if the user does not have any purchases.
    * @readonly
    */
-  readonly nonSubscriptions: Record<string, AdaptyNonSubscription[]>;
+  readonly nonSubscriptions?: Record<string, AdaptyNonSubscription[]>;
 
   /**
    * The identifier for a user in Adapty.
@@ -167,7 +194,7 @@ export interface AdaptyProfile {
    * The value can be `null` if the user does not have any subscriptions.
    * @readonly
    */
-  readonly subscriptions: Record<string, AdaptySubscription>;
+  readonly subscriptions?: Record<string, AdaptySubscription>;
 }
 
 /**
@@ -283,6 +310,10 @@ export interface AdaptyAccessLevel {
    * @readonly
    */
   readonly willRenew: boolean;
+
+  android?: {
+    offerId?: string;
+  };
 }
 
 /**
@@ -470,140 +501,99 @@ export interface AdaptySubscription {
  * Used in {@link Adapty.getPaywallProducts} method and in {@link Adapty.makePurchase} method.
  * @public
  */
-export interface AdaptyProduct {
-  /**
-   * The currency code of the locale
-   * used to format the price of the product.
-   * The ISO 4217 (USD, EUR).
-   * @readonly
-   */
-  readonly currencyCode?: string;
-  /**
-   * The currency symbol of the locale
-   * used to format the price of the product.
-   * ($, €).
-   * @readonly
-   */
-  readonly currencySymbol?: string;
-  /**
-   * An object containing introductory price information for a product.
-   * iOS: Will be null for iOS version below 11.2
-   * and macOS version below 10.14.4.
-   */
-  readonly introductoryDiscount?: AdaptyProductDiscount;
+export interface AdaptyPaywallProduct {
   /**
    * A description of the product.
-   * @readonly
    */
   readonly localizedDescription: string;
   /**
-   * A price’s language is determined
-   * by the preferred language set on the device.
-   * On Android, the formatted price from Google Play as is.
-   * @readonly
+   * The region code of the locale used to format the price of the product.
+   * ISO 3166 ALPHA-2 (US, DE)
    */
-  readonly localizedPrice?: string;
-  /**
-   * The period’s language is determined
-   * by the preferred language set on the device.
-   * @readonly
-   */
-  readonly localizedSubscriptionPeriod?: string;
+  readonly regionCode?: string;
   /**
    * The name of the product.
-   * @readonly
    */
   readonly localizedTitle: string;
   /**
    * Same as `abTestName` property of the parent {@link AdaptyPaywall}.
-   * @readonly
    */
   readonly paywallABTestName: string;
   /**
    * Same as `name` property of the parent {@link AdaptyPaywall}.
-   * @readonly
    */
   readonly paywallName: string;
   /**
    * The cost of the product in the local currency
-   * @readonly
    */
-  readonly price: number;
-  /**
-   * The period details for products that are subscriptions.
-   * Will be `null` for iOS version below 11.2 and macOS version below 10.14.4.
-   * @readonly
-   */
-  readonly subscriptionPeriod?: AdaptySubscriptionPeriod;
+  readonly price?: AdaptyPrice;
   /**
    * Same as `variationId` property of the parent {@link AdaptyPaywall}.
-   * @readonly
    */
   readonly variationId: string;
   /**
    * Unique identifier of a product
    * from App Store Connect or Google Play Console
-   * @readonly
    */
   readonly vendorProductId: string;
-  // version: string;
-  android?: {
-    /**
-     * An object containing free trial information for the given product.
-     * @see {@link https://developer.android.com/google/play/billing/subscriptions#free-trial}
-     * @readonly
-     */
-    readonly freeTrialPeriod?: AdaptySubscriptionPeriod;
-    /**
-     * The period’s language is determined
-     * by the preferred language set on the device.
-     * @readonly
-     */
-    readonly localizedFreeTrialPeriod?: string;
-  };
+  payloadData?: string;
+  subscriptionDetails?: AdaptySubscriptionDetails;
   ios?: {
-    /**
-     * An array of subscription offers available for the auto-renewable subscription.
-     * Will be empty for iOS version below 12.2
-     * and macOS version below 10.14.4.
-     * @readonly
-     */
-    readonly discounts: AdaptyProductDiscount[];
     /**
      * Boolean value that indicates
      * whether the product is available for family sharing
      * in App Store Connect.
      * Will be `false` for iOS version below 14.0 and macOS version below 11.0.
      * @see {@link https://developer.apple.com/documentation/storekit/skproduct/3564805-isfamilyshareable}
-     * @readonly
      */
     readonly isFamilyShareable: boolean;
-    /**
-     * User's eligibility for the promotional offers.
-     * Check this property before displaying info
-     * about promotional offers
-     * @readonly
-     */
-    readonly promotionalOfferEligibility?: boolean;
-    /**
-     * An identifier of a promotional offer,
-     * provided by Adapty for this specific user.
-     * @readonly
-     */
-    readonly promotionalOfferId?: string;
-    /**
-     * The region code of the locale used to format the price of the product.
-     * ISO 3166 ALPHA-2 (US, DE)
-     * @readonly
-     */
-    readonly regionCode?: string;
+  };
+}
+
+export interface AdaptySubscriptionDetails {
+  /**
+   * The period details for products that are subscriptions.
+   * Will be `null` for iOS version below 11.2 and macOS version below 10.14.4.
+   */
+  subscriptionPeriod: AdaptySubscriptionPeriod;
+  /**
+   * The period’s language is determined
+   * by the preferred language set on the device.
+   */
+  localizedSubscriptionPeriod?: string;
+  /**
+   * An array of subscription offers available for the auto-renewable subscription.
+   * Will be empty for iOS version below 12.2
+   * and macOS version below 10.14.4.
+   */
+  introductoryOffers?: AdaptyPaywallProductDiscount[];
+
+  ios?: {
+    promotionalOffer?: AdaptyPaywallProductDiscount;
     /**
      * An identifier of the subscription group
      * to which the subscription belongs.
      * Will be `null` for iOS version below 12.0 and macOS version below 10.14.
-     * @readonly
      */
-    readonly subscriptionGroupIdentifier?: string;
+    subscriptionGroupIdentifier?: string;
+  };
+
+  android?: {
+    /**
+     * An object containing free trial information for the given product.
+     * @see {@link https://developer.android.com/google/play/billing/subscriptions#free-trial}
+     */
+    // freeTrialPeriod?: AdaptySubscriptionPeriod;
+    /**
+     * The period’s language is determined
+     * by the preferred language set on the device.
+     */
+    // localizedFreeTrialPeriod?: string;
+    offerId?: string;
+    basePlanId: string;
+    introductoryOfferEligibility: OfferEligibility;
+    offerTags?: string[];
+    renewalType?: 'prepaid' | 'autorenewable';
   };
 }
 
@@ -611,17 +601,12 @@ export interface AdaptyProduct {
  * Discount model to products
  * @see {@link https://doc.adapty.io/docs/rn-api-reference#adaptyproductdiscount}
  */
-export interface AdaptyProductDiscount {
+export interface AdaptyPaywallProductDiscount {
   /**
    * A formatted number of periods of a discount for a user’s locale.
    * @readonly
    */
   readonly localizedNumberOfPeriods?: string;
-  /**
-   * A formatted price of a discount for a user’s locale.
-   * @readonly
-   */
-  readonly localizedPrice?: string;
   /**
    * A formatted subscription period of a discount for a user’s locale.
    * @readonly
@@ -636,13 +621,18 @@ export interface AdaptyProductDiscount {
    * Discount price of a product in a local currency.
    * @readonly
    */
-  readonly price: number;
+  readonly price: AdaptyPrice;
   /**
    * An information about period for a product discount.
    * @readonly
    */
   readonly subscriptionPeriod: AdaptySubscriptionPeriod;
 
+  /**
+   * A payment mode for this product discount.
+   * @readonly
+   */
+  readonly paymentMode: OfferType;
   ios?: {
     /**
      * Unique identifier of a discount offer for a product.
@@ -650,11 +640,6 @@ export interface AdaptyProductDiscount {
      * @readonly
      */
     readonly identifier?: string;
-    /**
-     * A payment mode for this product discount.
-     * @readonly
-     */
-    readonly paymentMode: OfferType;
   };
 }
 
@@ -679,7 +664,6 @@ export interface AdaptyProfileParameters {
   analyticsDisabled?: boolean;
   codableCustomAttributes?: { [key: string]: any };
   appTrackingTransparencyStatus?: AppTrackingTransparencyStatus;
-  storeCountry?: string;
   firstName?: string;
   lastName?: string;
   gender?: Gender;
@@ -698,10 +682,15 @@ export interface AdaptyProfileParameters {
   airbridgeDeviceId?: string;
 }
 
-export interface AdaptyProductReference {
+export interface ProductReference {
   vendorId: string;
+
   ios?: {
-    promotionalOfferId?: string;
-    promotionalOfferEligibility?: boolean;
+    discountId?: string;
+  };
+
+  android?: {
+    basePlanId?: string;
+    offerId?: string;
   };
 }
