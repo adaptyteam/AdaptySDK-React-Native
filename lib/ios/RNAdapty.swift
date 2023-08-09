@@ -94,7 +94,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
                         data: profile,
                         type: String(describing: AdaptyProfile.self)
                     )
-                    let jsonStr = try AdaptyContext.encodeToJSON(profile)
+                    let jsonStr = try AdaptyContext.encodeToJSON(result)
                     
                     self.sendEvent(
                         withName: EventName.onDeferredPurchase.rawValue,
@@ -250,10 +250,11 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     private func handleUpdateAttribution(_ ctx: AdaptyContext) throws {
         
         let attribution: [AnyHashable: Any] = try ctx.params.getRequiredValue(for: .attribution)
-        let source: AdaptyAttributionSource = try ctx.params.getDecodedValue(
-            for: .source,
-            jsonDecoder: AdaptyContext.jsonDecoder
-        )
+        let sourceStr: String = try ctx.params.getRequiredValue(for: .source)
+        guard let source = AdaptyAttributionSource(rawValue: sourceStr) else {
+            throw BridgeError.typeMismatch(name: .source, type: "Non decodable attribution source")
+        }
+        
         let networkUserId: String? = ctx.params.getOptionalValue(for: .networkUserId)
         
         
@@ -346,13 +347,15 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     }
     
     private func handleSetVariationId(_ ctx: AdaptyContext) throws {
-        let jsonData: String = try ctx.params.getRequiredValue(for: .variationId)
+        let jsonStr: String = try ctx.params.getRequiredValue(for: .params)
+        guard let paywallsData = jsonStr.data(using: .utf8) else {
+            throw BridgeError.typeMismatch(name: .params, type: "UTF-8 String")
+        }
         
-        //            Adapty.setVariationId(
-        //                <#T##variationId: String##String#>, forPurchasedTransaction: <#T##SKPaymentTransaction#>)(
-        //                    from: ctx.params.jsonDecoder,
-        //                    data: jsonData
-        //                ) { maybeErr in ctx.okOrForwardError(maybeErr) }
+        Adapty.setVariationId(from: AdaptyContext.jsonDecoder, data: paywallsData)  { maybeErr in
+            ctx.okOrForwardError(maybeErr)
+        }
+        
     }
     
     // MARK: - Profile

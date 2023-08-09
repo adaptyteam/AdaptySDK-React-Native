@@ -227,10 +227,9 @@ export class Adapty extends AdaptyEventEmitter {
 
     if (Platform.OS === 'android') {
       const result = products.reduce((acc, product) => {
-        // TODO:
-        console.error('Not actual data');
-
-        acc[product.vendorProductId as T] = 'ineligible';
+        acc[product.vendorProductId as T] =
+          product.subscriptionDetails?.android?.introductoryOfferEligibility ??
+          'ineligible';
         return acc;
       }, {} as Record<T, Model.OfferEligibility>);
 
@@ -621,6 +620,10 @@ export class Adapty extends AdaptyEventEmitter {
     const args: ParamMap = {
       variation_id: variationId,
       transaction_id: transactionId,
+      params: JSON.stringify({
+        variation_id: variationId,
+        transaction_id: transactionId,
+      } satisfies ParamMap),
     };
 
     const result = await this.handle<void>('set_variation_id', args, ctx, log);
