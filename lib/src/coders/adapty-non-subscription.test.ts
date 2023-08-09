@@ -1,29 +1,62 @@
+import type { Schema } from '@/types/schema';
+import type { AdaptyNonSubscription, VendorStore } from '@/types';
 import { AdaptyNonSubscriptionCoder } from './adapty-non-subscription';
 
+type Model = AdaptyNonSubscription;
+const mocks: Schema['Output.AdaptyNonSubscription'][] = [
+  {
+    is_consumable: true,
+    is_refund: false,
+    is_sandbox: false,
+    purchase_id: 'purchase123',
+    purchased_at: '2023-08-08T12:00:00.000Z',
+    store: 'appstore',
+    vendor_product_id: 'product1',
+    vendor_transaction_id: 'transaction1',
+  },
+  {
+    is_consumable: false,
+    is_refund: true,
+    is_sandbox: true,
+    purchase_id: 'purchase456',
+    purchased_at: '2023-07-15T14:30:00.000Z',
+    store: 'google_play',
+    vendor_product_id: 'product2',
+  },
+];
+
+function toModel(mock: (typeof mocks)[number]): Model {
+  return {
+    isConsumable: mock.is_consumable,
+    isRefund: mock.is_refund,
+    isSandbox: mock.is_sandbox,
+    purchaseId: mock.purchase_id,
+    purchasedAt: new Date(mock.purchased_at),
+    store: mock.store as VendorStore,
+    vendorProductId: mock.vendor_product_id,
+    ...(mock.vendor_transaction_id && {
+      vendorTransactionId: mock.vendor_transaction_id,
+    }),
+  };
+}
+
 describe('AdaptyNonSubscriptionCoder', () => {
-  it('should correctly decode and encode non-subscription data', () => {
-    const coder = new AdaptyNonSubscriptionCoder();
+  let coder: AdaptyNonSubscriptionCoder;
 
-    const data = {
-      purchase_id: 'purchase_123',
-      store: 'app_store',
-      vendor_product_id: 'product_456',
-      vendor_transaction_id: 'transaction_789',
-      purchased_at: new Date().toISOString(),
-      is_sandbox: false,
-      is_refund: false,
-      is_consumable: true,
-    };
+  beforeEach(() => {
+    coder = new AdaptyNonSubscriptionCoder();
+  });
 
-    // Test decoding
-    const decoded = coder.decode(data);
-    expect(decoded).toBeDefined();
+  it.each(mocks)('should decode to expected result', mock => {
+    const decoded = coder.decode(mock);
 
-    // Test encoding
+    expect(decoded).toStrictEqual(toModel(mock));
+  });
+
+  it.each(mocks)('should decode/encode', mock => {
+    const decoded = coder.decode(mock);
     const encoded = coder.encode(decoded);
-    expect(encoded).toBeDefined();
 
-    // Test that encoding the decoded data gives back the original data
-    expect(encoded).toEqual(data);
+    expect(encoded).toStrictEqual(mock);
   });
 });

@@ -16,13 +16,19 @@ export interface Converter<Model = unknown, Serialized = any> {
   encode: (value: Model) => Serialized;
 }
 
+// nests object keys like "obj.obj2.value"
+// type NestedKeys<T> = {
+//   [K in keyof T]: T[K] extends object ? `${K}.${NestedKeys<T[K]>}` | K : K;
+// }[keyof T];
+
 export interface PropertyMeta<
   Model = unknown,
   Key extends string | number | symbol = string,
 > {
+  platform?: 'ios' | 'android';
   converter?: Converter<NonNullable<Model>>;
   key: Key;
-  required: boolean;
+  required: undefined extends Model ? false : true;
   type: StrType<Model>;
 }
 

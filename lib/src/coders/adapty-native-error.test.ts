@@ -1,41 +1,63 @@
-import { AdaptyNativeError } from '@/types/bridge';
 import { AdaptyNativeErrorCoder } from './adapty-native-error';
+import { AdaptyError } from '@/adapty-error';
+import type { AdaptyNativeError } from '@/types/bridge';
+import type { Schema } from '@/types/schema';
 
-const input = {
-  type: 'AdaptyError',
-  data: {
-    adapty_code: 0,
-    message: 'Product purchase failed',
-    // detail:
-    //   'StoreKitManagerError.productPurchaseFailed([2.6.2]: Adapty/SKQueueManager+MakePurchase.swift#50, Error Domain=SKErrorDomain Code=0 "An unknown error occurred" UserInfo={NSLocalizedDescription=An unknown error occurred, NSUnderlyingError=0x600001816010 {Error Domain=ASDErrorDomain Code=500 "Unhandled exception" UserInfo={NSUnderlyingError=0x600001890420 {Error Domain=AMSErrorDomain Code=100 "Authentication Failed" UserInfo={NSMultipleUnderlyingErrorsKey=(\n    "Error Domain=AMSErrorDomain Code=2 \\"An unknown error occurred. Please try again.\\" UserInfo={NSLocalizedDescription=An unknown error occurred. Please try again.}",\n    "Error Domain=com.apple.accounts Code=4 \\"No auth plugin to verify credentials for accounts of type com.apple.account.iTunesStore.sandbox\\" UserInfo={NSLocalizedDescription=No auth plugin to verify credentials for accounts of type com.apple.account.iTunesStore.sandbox}"\n), NSLocalizedDescription=Authentication Failed, NSLocalizedFailureReason=The authentication failed.}}, NSLocalizedDescription=Unhandled exception, NSLocalizedFailureReason=An unknown error occurred}}})',
+type Model = AdaptyNativeError;
+const mocks: Schema['Output.AdaptyError'][] = [
+  {
+    adapty_code: 400,
+    message: 'The provided input is invalid.',
+    detail: 'Input XYZ is missing.',
   },
-};
+  {
+    adapty_code: 401,
+    message: 'User is not authorized.',
+    detail: 'Missing or invalid token.',
+  },
+  { adapty_code: 500, message: 'Internal server error.' },
+];
 
-describe('AdaptyError', () => {
+function toModel(mock: (typeof mocks)[number]): Model {
+  return {
+    adaptyCode: mock.adapty_code,
+    message: mock.message,
+    ...(mock.detail && { detail: mock.detail }),
+  };
+}
+
+describe('AdaptyNativeErrorCoder', () => {
   let coder: AdaptyNativeErrorCoder;
 
   beforeEach(() => {
     coder = new AdaptyNativeErrorCoder();
   });
 
-  it('should be Error', () => {
-    const data = coder.decode(input.data);
-    const error = coder.getError(data);
+  // Important for analytics systems, etc.
+  it.each(mocks)('should be Error', mock => {
+    const decoded = coder.decode(mock);
+    const error = coder.getError(decoded);
 
     expect(error).toBeInstanceOf(Error);
   });
-  it('should be AdaptyError', () => {
-    const data = coder.decode(input.data);
-    const error = coder.getError(data);
 
-    expect(error).toBeInstanceOf(Error);
+  it.each(mocks)('should be AdaptyError', mock => {
+    const decoded = coder.decode(mock);
+    const error = coder.getError(decoded);
+
+    expect(error).toBeInstanceOf(AdaptyError);
   });
-  it('should encode/decode', () => {
-    const result = coder.decode(input.data);
 
-    expect(result).toEqual({
-      adaptyCode: 0,
-      message: 'Product purchase failed',
-    } satisfies AdaptyNativeError);
+  it.each(mocks)('should decode to expected result', mock => {
+    const decoded = coder.decode(mock);
+
+    expect(decoded).toEqual(toModel(mock));
+  });
+
+  it.each(mocks)('should decode/encode', mock => {
+    const decoded = coder.decode(mock);
+    const encoded = coder.encode(decoded);
+
+    expect(encoded).toEqual(mock);
   });
 });

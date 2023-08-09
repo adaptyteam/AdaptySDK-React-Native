@@ -1,10 +1,11 @@
 import type { AdaptySubscription } from '../types';
+import type { Schema } from '@/types/schema';
+import type { Properties } from './types';
 import { Coder } from './coder';
 import { DateCoder } from './date';
-import { Properties } from './types';
 
 type Model = AdaptySubscription;
-type Serializable = Record<string, any>;
+type Serializable = Schema['Output.AdaptySubscription'];
 
 export class AdaptySubscriptionCoder extends Coder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
@@ -30,12 +31,12 @@ export class AdaptySubscriptionCoder extends Coder<Model, Serializable> {
     },
     vendorTransactionId: {
       key: 'vendor_transaction_id',
-      required: false,
+      required: true,
       type: 'string',
     },
     vendorOriginalTransactionId: {
       key: 'vendor_original_transaction_id',
-      required: false,
+      required: true,
       type: 'string',
     },
     activatedAt: {

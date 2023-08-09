@@ -1,6 +1,10 @@
-import { AdaptyError } from '..';
+import { AdaptyError } from '@/adapty-error';
 import type { Converter } from './types';
 
+/**
+ * Format:    yyyy-MM-dd'T'HH:mm:ss.SSSZ
+ * OpenAPI:   Output.Date
+ */
 export class DateCoder implements Converter<Date, string> {
   decode(input: string): Date {
     let pureValue = input;

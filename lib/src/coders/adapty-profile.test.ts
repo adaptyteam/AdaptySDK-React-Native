@@ -1,8 +1,14 @@
+import type { Schema } from '@/types/schema';
+import type { AdaptyProfile } from '@/types';
 import { AdaptyProfileCoder } from './adapty-profile';
+import { AdaptyAccessLevelCoder } from './adapty-access-level';
+import { HashmapCoder } from './hashmap';
+import { AdaptySubscriptionCoder } from './adapty-subscription';
+import { AdaptyNonSubscriptionCoder } from './adapty-non-subscription';
 
-describe('AdaptyProfileCoder', () => {
-  const coder = new AdaptyProfileCoder();
-  const input = {
+type Model = AdaptyProfile;
+const mocks: Schema['Output.AdaptyProfile'][] = [
+  {
     customer_user_id: '57739865-5F09-45FF-8A95-BBB5AB0B4276',
     paid_access_levels: {
       premium: {
@@ -58,12 +64,47 @@ describe('AdaptyProfileCoder', () => {
       },
     },
     profile_id: '69a4be0c-7ee2-4669-b637-814a60494346',
-  };
+  },
+];
 
-  it('should decode and encode to the same value', () => {
-    const decoded = coder.decode(input);
+function toModel(mock: (typeof mocks)[number]): Model {
+  const _levels = new HashmapCoder(AdaptyAccessLevelCoder);
+  const _subs = new HashmapCoder(AdaptySubscriptionCoder);
+  const _nonsubs = new HashmapCoder(AdaptyNonSubscriptionCoder);
+
+  return {
+    ...(mock.paid_access_levels && {
+      accessLevels: _levels.decode(mock.paid_access_levels),
+    }),
+    ...(mock.subscriptions && {
+      subscriptions: _subs.decode(mock.subscriptions),
+    }),
+    ...(mock.non_subscriptions && {
+      nonSubscriptions: _nonsubs.decode(mock.non_subscriptions),
+    }),
+    customAttributes: mock.custom_attributes,
+    customerUserId: mock.customer_user_id,
+    profileId: mock.profile_id,
+  };
+}
+
+describe('AdaptyProfileCoder', () => {
+  let coder: AdaptyProfileCoder;
+
+  beforeEach(() => {
+    coder = new AdaptyProfileCoder();
+  });
+
+  it.each(mocks)('should decode to expected result', mock => {
+    const decoded = coder.decode(mock);
+
+    expect(decoded).toStrictEqual(toModel(mock));
+  });
+
+  it.each(mocks)('should decode/encode', mock => {
+    const decoded = coder.decode(mock);
     const encoded = coder.encode(decoded);
 
-    expect(encoded).toEqual(input);
+    expect(encoded).toStrictEqual(mock);
   });
 });

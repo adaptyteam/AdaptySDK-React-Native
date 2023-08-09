@@ -1,10 +1,11 @@
+import type { Schema } from '@/types/schema';
 import type { AdaptyAccessLevel } from '../types';
+import type { Properties } from './types';
 import { Coder } from './coder';
 import { DateCoder } from './date';
-import { Properties } from './types';
 
 type Model = AdaptyAccessLevel;
-type Serializable = Record<string, any>;
+type Serializable = Schema['Output.AdaptyAccessLevel'];
 
 export class AdaptyAccessLevelCoder extends Coder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
@@ -103,6 +104,13 @@ export class AdaptyAccessLevelCoder extends Coder<Model, Serializable> {
       key: 'will_renew',
       required: true,
       type: 'boolean',
+    },
+    android: {
+      offerId: {
+        key: 'offer_id',
+        required: false,
+        type: 'string',
+      },
     },
   };
 }

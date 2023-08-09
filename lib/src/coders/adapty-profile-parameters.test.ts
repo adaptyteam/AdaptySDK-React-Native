@@ -1,11 +1,11 @@
+import { Schema } from '@/types/schema';
 import { AdaptyProfileParametersCoder } from './adapty-profile-parameters';
 
-describe('AdaptyProfileParametersCoder', () => {
-  const coder = new AdaptyProfileParametersCoder();
-  const testObject: Record<string, any> = {
+const mocks: Schema['Input.AdaptyProfileParameters'][] = [
+  {
     first_name: 'John',
     last_name: 'Doe',
-    gender: 'male',
+    gender: 'm',
     birthday: '1990-01-01',
     email: 'john.doe@example.com',
     phone_number: '+123456789',
@@ -19,15 +19,19 @@ describe('AdaptyProfileParametersCoder', () => {
     pushwoosh_hwid: 'pushwooshHWID',
     firebase_app_instance_id: 'firebaseAppInstanceId',
     airbridge_device_id: 'airbridgeDeviceId',
-    store_country: 'US',
-    att_status: 'granted',
+    att_status: 2,
     custom_attributes: { attr1: 'value1', attr2: 'value2' },
     analytics_disabled: false,
-  };
+  },
+];
 
-  it('should encode/decode', () => {
-    const decoded = coder.decode(testObject);
+describe('AdaptyProfileParametersCoder', () => {
+  const coder = new AdaptyProfileParametersCoder();
+
+  it.each(mocks)('should encode/decode', mock => {
+    const decoded = coder.decode(mock);
     const encoded = coder.encode(decoded);
-    expect(encoded).toEqual(testObject);
+
+    expect(encoded).toEqual(mock);
   });
 });

@@ -1,13 +1,14 @@
 import type { AdaptyProfile } from '../types';
+import type { Schema } from '@/types/schema';
+import type { Properties } from './types';
 import { Coder } from './coder';
 import { AdaptyAccessLevelCoder } from './adapty-access-level';
 import { AdaptyNonSubscriptionCoder } from './adapty-non-subscription';
 import { AdaptySubscriptionCoder } from './adapty-subscription';
 import { HashmapCoder } from './hashmap';
-import { Properties } from './types';
 
 type Model = AdaptyProfile;
-type Serializable = Record<string, any>;
+type Serializable = Schema['Output.AdaptyProfile'];
 
 export class AdaptyProfileCoder extends Coder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {

@@ -2,7 +2,7 @@ import { AdaptyError } from '..';
 import { LogContext } from '../logger';
 import { AdaptyNativeErrorCoder } from './adapty-native-error';
 import { AdaptyPaywallCoder } from './adapty-paywall';
-import { AdaptyProductCoder } from './adapty-product';
+import { AdaptyPaywallProductCoder } from './adapty-paywall-product';
 import { AdaptyProfileCoder } from './adapty-profile';
 import { ArrayCoder } from './array';
 import { BridgeErrorCoder } from './bridge-error';
@@ -12,7 +12,7 @@ import type { Converter } from './types';
 const AdaptyTypes = [
   'AdaptyError',
   'AdaptyProfile',
-  'AdaptyProduct',
+  'AdaptyPaywallProduct',
   'AdaptyPaywall',
   'AdaptyPaywallProduct', // handleGetPaywallProducts returns array
   'Array<AdaptyPaywallProduct>',
@@ -99,14 +99,14 @@ function getCoder(
       return new AdaptyProfileCoder();
     case 'AdaptyPaywall':
       return new AdaptyPaywallCoder();
-    case 'AdaptyProduct':
-      return new AdaptyProductCoder();
+    case 'AdaptyPaywallProduct':
+      return new AdaptyPaywallProductCoder();
     case 'AdaptyPaywallProduct':
       return new AdaptyPaywallCoder();
     case 'BridgeError':
       return new BridgeErrorCoder();
     case 'Array<AdaptyPaywallProduct>':
-      return new ArrayCoder(AdaptyProductCoder as any);
+      return new ArrayCoder(AdaptyPaywallProductCoder as any);
     case '[String : AdaptyEligibility]':
       return null;
     case 'null':
