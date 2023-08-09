@@ -479,6 +479,8 @@ export class Adapty extends AdaptyEventEmitter {
         replacement_mode: params.android.prorationMode,
         old_sub_vendor_product_id: params.android.oldSubVendorProductId,
       });
+
+      args['is_offer_personalized'] = params.android.isOfferPersonalized;
     }
 
     const result = await this.handle<Model.AdaptyProfile>(

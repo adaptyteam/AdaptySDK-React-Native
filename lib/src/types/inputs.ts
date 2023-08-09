@@ -139,6 +139,7 @@ export type AdaptyAndroidSubscriptionUpdateReplacementMode =
 export interface AdaptyAndroidSubscriptionUpdateParameters {
   oldSubVendorProductId: string;
   prorationMode: AdaptyAndroidSubscriptionUpdateReplacementMode;
+  isOfferPersonalized?: boolean;
 }
 
 export interface MakePurchaseParamsInput {
