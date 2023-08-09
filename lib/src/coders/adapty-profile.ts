@@ -1,4 +1,4 @@
-import type { AdaptyProfile } from '../types';
+import type { AdaptyNonSubscription, AdaptyProfile } from '../types';
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
 import { Coder } from './coder';
@@ -6,6 +6,7 @@ import { AdaptyAccessLevelCoder } from './adapty-access-level';
 import { AdaptyNonSubscriptionCoder } from './adapty-non-subscription';
 import { AdaptySubscriptionCoder } from './adapty-subscription';
 import { HashmapCoder } from './hashmap';
+import { ArrayCoder } from './array';
 
 type Model = AdaptyProfile;
 type Serializable = Schema['Output.AdaptyProfile'];
@@ -16,7 +17,7 @@ export class AdaptyProfileCoder extends Coder<Model, Serializable> {
       key: 'paid_access_levels',
       required: false,
       type: 'object',
-      converter: new HashmapCoder(AdaptyAccessLevelCoder),
+      converter: new HashmapCoder(new AdaptyAccessLevelCoder()),
     },
     customAttributes: {
       key: 'custom_attributes',
@@ -32,7 +33,11 @@ export class AdaptyProfileCoder extends Coder<Model, Serializable> {
       key: 'non_subscriptions',
       required: false,
       type: 'object',
-      converter: new HashmapCoder(AdaptyNonSubscriptionCoder),
+      converter: new HashmapCoder(
+        new ArrayCoder<AdaptyNonSubscription, AdaptyNonSubscriptionCoder>(
+          AdaptyNonSubscriptionCoder,
+        ),
+      ),
     },
     profileId: {
       key: 'profile_id',
@@ -43,7 +48,7 @@ export class AdaptyProfileCoder extends Coder<Model, Serializable> {
       key: 'subscriptions',
       required: false,
       type: 'object',
-      converter: new HashmapCoder(AdaptySubscriptionCoder),
+      converter: new HashmapCoder(new AdaptySubscriptionCoder()),
     },
   };
 }

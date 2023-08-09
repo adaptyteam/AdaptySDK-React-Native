@@ -1,5 +1,6 @@
 import { AdaptyError } from '@/adapty-error';
 import { Converter, Properties, StrType } from './types';
+import { Platform } from 'react-native';
 
 export abstract class Coder<
   Model extends Record<string, any>,
@@ -108,6 +109,7 @@ export abstract class Coder<
   private decodeWithProperties<Serializable, Model extends Record<string, any>>(
     data: Serializable,
     properties: Properties<Model, Serializable>,
+    platform?: 'ios' | 'android',
   ): Model {
     const result: Partial<Model> = {};
 
@@ -118,6 +120,7 @@ export abstract class Coder<
           this.decodeWithProperties(
             data,
             (properties as Record<string, any>)[key],
+            key,
           ) as any;
         continue;
       }
@@ -134,7 +137,11 @@ export abstract class Coder<
         property.key as string,
       );
 
-      if (property.required && value === undefined) {
+      if (
+        property.required &&
+        value === undefined &&
+        (!platform || platform == Platform.OS)
+      ) {
         throw AdaptyError.failedToDecode(
           `Failed to decode native response, because it is missing required property "${key}"`,
         );

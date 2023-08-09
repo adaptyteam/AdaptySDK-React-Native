@@ -25,7 +25,6 @@ export interface PropertyMeta<
   Model = unknown,
   Key extends string | number | symbol = string,
 > {
-  platform?: 'ios' | 'android';
   converter?: Converter<NonNullable<Model>>;
   key: Key;
   required: undefined extends Model ? false : true;

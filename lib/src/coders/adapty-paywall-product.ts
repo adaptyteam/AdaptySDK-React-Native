@@ -49,7 +49,7 @@ export class AdaptyPaywallProductCoder extends Coder<Model, Serializable> {
     ios: {
       isFamilyShareable: {
         key: 'is_family_shareable',
-        required: false as true,
+        required: true,
         type: 'boolean',
       },
     },

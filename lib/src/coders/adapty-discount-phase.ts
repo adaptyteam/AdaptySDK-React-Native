@@ -39,7 +39,11 @@ export class AdaptyDiscountPhaseCoder extends Coder<Model, Serializable> {
       converter: new AdaptySubscriptionPeriodCoder(),
     },
     ios: {
-      identifier: { key: 'identifier', required: false, type: 'string' },
+      identifier: {
+        key: 'identifier',
+        required: false,
+        type: 'string',
+      },
     },
   };
 }

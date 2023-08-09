@@ -1,7 +1,4 @@
-import type {
-  AdaptyDiscountPhase,
-  AdaptySubscriptionDetails,
-} from '@/types';
+import type { AdaptyDiscountPhase, AdaptySubscriptionDetails } from '@/types';
 import type { Schema } from '@/types/schema';
 import { AdaptySubscriptionDetailsCoder } from './adapty-subscription-details';
 import { AdaptySubscriptionPeriodCoder } from './adapty-subscription-period';

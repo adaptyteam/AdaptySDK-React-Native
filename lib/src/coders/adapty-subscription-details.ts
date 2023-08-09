@@ -35,7 +35,6 @@ export class AdaptySubscriptionDetailsCoder extends Coder<Model, Serializable> {
         key: 'subscription_group_identifier',
         required: false,
         type: 'string',
-        platform: 'ios',
       },
       promotionalOffer: {
         key: 'promotional_offer',
@@ -49,19 +48,16 @@ export class AdaptySubscriptionDetailsCoder extends Coder<Model, Serializable> {
         key: 'introductory_offer_eligibility',
         required: true,
         type: 'string',
-        platform: 'android',
       },
       basePlanId: {
         key: 'android_base_plan_id',
         required: true,
         type: 'string',
-        platform: 'android',
       },
       offerTags: {
         key: 'android_offer_tags',
         required: false,
         type: 'array',
-        platform: 'android',
       },
       renewalType: {
         key: 'renewal_type',

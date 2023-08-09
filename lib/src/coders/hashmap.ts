@@ -4,10 +4,10 @@ import type { Converter } from './types';
 export class HashmapCoder<T extends Converter<any, any>>
   implements Converter<Record<string, any>, Record<string, any>>
 {
-  private coder: T;
+  private coder: T | null;
 
-  constructor(coder: new () => T) {
-    this.coder = new coder();
+  constructor(coder: T | null) {
+    this.coder = coder;
   }
 
   decode(input: Record<string, any>): Record<string, any> {
@@ -15,7 +15,8 @@ export class HashmapCoder<T extends Converter<any, any>>
 
     Object.keys(input).forEach(key => {
       const property = input[key as string];
-      result[key] = this.coder.decode(property);
+
+      result[key] = this.coder?.decode(property) ?? property;
     });
 
     return result;
@@ -26,7 +27,7 @@ export class HashmapCoder<T extends Converter<any, any>>
 
     Object.keys(value).forEach(key => {
       const property = value[key as string];
-      result[key] = this.coder.encode(property);
+      result[key] = this.coder?.encode(property) ?? property;
     });
 
     return result;
