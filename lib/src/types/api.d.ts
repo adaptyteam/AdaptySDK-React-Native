@@ -95,13 +95,13 @@ export interface components {
     /** @description Android Only */
     'Input.AdaptyAndroidSubscriptionUpdateParameters': {
       old_sub_vendor_product_id: string;
-      replacement_mode: components['schemas']['Input.AdaptyAndroidSubscriptionUpdateReplacementMode'];
+      replacement_mode: components['schemas']['Input.AdaptyAndroidSubscriptionUpdateParameters'];
     };
     /**
      * @description Android Only
      * @enum {string}
      */
-    'Input.AdaptyAndroidSubscriptionUpdateReplacementMode':
+    'Input.AdaptyAndroidSubscriptionUpdateParameters':
       | 'charge_full_price'
       | 'deferred'
       | 'without_proration'

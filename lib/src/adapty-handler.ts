@@ -476,7 +476,7 @@ export class Adapty extends AdaptyEventEmitter {
 
     if (params.android && Platform.OS === 'android') {
       args['params'] = JSON.stringify({
-        proration_mode: params.android.prorationMode,
+        replacement_mode: params.android.prorationMode,
         old_sub_vendor_product_id: params.android.oldSubVendorProductId,
       });
     }
