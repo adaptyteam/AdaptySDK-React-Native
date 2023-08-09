@@ -86,46 +86,65 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             return false
         }
         
-        do {
-            let result = AdaptyResult(
-                data: product,
-                type: String(describing: AdaptyProduct.self)
-            )
-            let jsonStr = try AdaptyContext.encodeToJSON(result)
-            
-            self.sendEvent(
-                withName: EventName.onDeferredPurchase.rawValue,
-                body: jsonStr
-            )
-            return true
-        } catch {
-            if let bridgeError = error as? BridgeError {
-                let result = AdaptyResult<BridgeError>(
-                    data: bridgeError,
-                    type: String(describing: BridgeError.self)
-                )
-                let jsonStr = try? AdaptyContext.encodeToJSON(result)
-                
-                self.sendEvent(
-                    withName: EventName.onDeferredPurchase.rawValue,
-                    body: jsonStr
-                )
-                return false
-            } else {
-                let unknownBridgeError = BridgeError.unexpectedError(error)
-                let result = AdaptyResult<BridgeError>(
-                    data: unknownBridgeError,
-                    type: String(describing: BridgeError.self)
-                )
-                let jsonStr = try? AdaptyContext.encodeToJSON(result)
-                
-                self.sendEvent(
-                    withName: EventName.onDeferredPurchase.rawValue,
-                    body: jsonStr
-                )
-                return false
+        Adapty.getProfile { result in
+            do {
+                switch (result) {
+                case let .success(profile):
+                    let result = AdaptyResult(
+                        data: profile,
+                        type: String(describing: AdaptyProfile.self)
+                    )
+                    let jsonStr = try AdaptyContext.encodeToJSON(profile)
+                    
+                    self.sendEvent(
+                        withName: EventName.onDeferredPurchase.rawValue,
+                        body: jsonStr
+                    )
+                    return
+                case let .failure(error):
+                    let result = AdaptyResult(
+                        data: error,
+                        type: String(describing: AdaptyError.self)
+                    )
+                    let jsonStr = try AdaptyContext.encodeToJSON(result)
+                    
+                    self.sendEvent(
+                        withName: EventName.onDeferredPurchase.rawValue,
+                        body: jsonStr
+                    )
+                    return
+                }
+            } catch {
+                if let bridgeError = error as? BridgeError {
+                    let result = AdaptyResult<BridgeError>(
+                        data: bridgeError,
+                        type: String(describing: BridgeError.self)
+                    )
+                    let jsonStr = try? AdaptyContext.encodeToJSON(result)
+                    
+                    self.sendEvent(
+                        withName: EventName.onDeferredPurchase.rawValue,
+                        body: jsonStr
+                    )
+                    return
+                } else {
+                    let unknownBridgeError = BridgeError.unexpectedError(error)
+                    let result = AdaptyResult<BridgeError>(
+                        data: unknownBridgeError,
+                        type: String(describing: BridgeError.self)
+                    )
+                    let jsonStr = try? AdaptyContext.encodeToJSON(result)
+                    
+                    self.sendEvent(
+                        withName: EventName.onDeferredPurchase.rawValue,
+                        body: jsonStr
+                    )
+                    return
+                }
             }
         }
+        
+        return true
     }
     
     // MARK: - Handle router
