@@ -1,10 +1,10 @@
-import type { AdaptyPaywallProductDiscount, OfferType } from '@/types';
+import type { AdaptyDiscountPhase, OfferType } from '@/types';
 import type { Schema } from '@/types/schema';
 import { AdaptyDiscountPhaseCoder } from './adapty-discount-phase';
 import { AdaptyPriceCoder } from './adapty-price';
 import { AdaptySubscriptionPeriodCoder } from './adapty-subscription-period';
 
-type Model = AdaptyPaywallProductDiscount;
+type Model = AdaptyDiscountPhase;
 const mocks: Schema['Output.AdaptyDiscountPhase'][] = [
   {
     identifier: 'discount123', // iOS Only

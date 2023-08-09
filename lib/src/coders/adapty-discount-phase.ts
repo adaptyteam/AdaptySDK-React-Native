@@ -1,11 +1,11 @@
-import type { AdaptyPaywallProductDiscount } from '@/types';
+import type { AdaptyDiscountPhase } from '@/types';
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
 import { Coder } from './coder';
 import { AdaptySubscriptionPeriodCoder } from './adapty-subscription-period';
 import { AdaptyPriceCoder } from './adapty-price';
 
-type Model = AdaptyPaywallProductDiscount;
+type Model = AdaptyDiscountPhase;
 type Serializable = Schema['Output.AdaptyDiscountPhase'];
 
 export class AdaptyDiscountPhaseCoder extends Coder<Model, Serializable> {

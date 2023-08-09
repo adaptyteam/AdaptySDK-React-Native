@@ -40,7 +40,7 @@ export const ParamKeys = [
   'paywalls',
   'product',
   'product_ids',
-  'proration_mode',
+  'replacement_mode',
   'sdk_key',
   'source',
   'storekit2_usage',

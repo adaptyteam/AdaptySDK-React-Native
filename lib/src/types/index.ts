@@ -566,10 +566,10 @@ export interface AdaptySubscriptionDetails {
    * Will be empty for iOS version below 12.2
    * and macOS version below 10.14.4.
    */
-  introductoryOffers?: AdaptyPaywallProductDiscount[];
+  introductoryOffers?: AdaptyDiscountPhase[];
 
   ios?: {
-    promotionalOffer?: AdaptyPaywallProductDiscount;
+    promotionalOffer?: AdaptyDiscountPhase;
     /**
      * An identifier of the subscription group
      * to which the subscription belongs.
@@ -601,7 +601,7 @@ export interface AdaptySubscriptionDetails {
  * Discount model to products
  * @see {@link https://doc.adapty.io/docs/rn-api-reference#adaptyproductdiscount}
  */
-export interface AdaptyPaywallProductDiscount {
+export interface AdaptyDiscountPhase {
   /**
    * A formatted number of periods of a discount for a user’s locale.
    * @readonly

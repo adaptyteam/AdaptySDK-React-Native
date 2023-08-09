@@ -1,5 +1,5 @@
 import type {
-  AdaptyPaywallProductDiscount,
+  AdaptyDiscountPhase,
   AdaptySubscriptionDetails,
 } from '@/types';
 import type { Schema } from '@/types/schema';
@@ -64,7 +64,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
   const _period = new AdaptySubscriptionPeriodCoder();
   const _discount = new AdaptyDiscountPhaseCoder();
   const _discounts = new ArrayCoder<
-    AdaptyPaywallProductDiscount,
+    AdaptyDiscountPhase,
     AdaptyDiscountPhaseCoder
   >(AdaptyDiscountPhaseCoder);
 
