@@ -3,24 +3,26 @@ import { ErrorCode } from '@/types/error';
 export interface AdaptyErrorInput {
   adaptyCode: ErrorCode;
   message: string;
-  jsError?: Error;
+  detail?: string | undefined;
 }
 
 export class AdaptyError extends Error {
   // Custom prefix to be shown before log message
   public static prefix = '';
+  static middleware?: (error: AdaptyError) => void;
 
   // For example `2` for cancelled payment
   public adaptyCode: ErrorCode;
   // Message that is safe to show to a user
   public localizedDescription: string;
-  static middleware?: (error: AdaptyError) => void;
+  public detail: string | undefined;
 
   constructor(input: AdaptyErrorInput) {
     super(AdaptyError.getMessage(input));
 
     this.adaptyCode = input.adaptyCode;
     this.localizedDescription = input.message;
+    this.detail = input.detail;
 
     if (AdaptyError.middleware) {
       AdaptyError.middleware(this);
@@ -38,7 +40,7 @@ export class AdaptyError extends Error {
     return new AdaptyError({
       adaptyCode: 0,
       message: message,
-      jsError: error as Error,
+      detail: JSON.stringify(error),
     });
   }
 
