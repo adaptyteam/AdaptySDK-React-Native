@@ -105,13 +105,7 @@ export type ParamMap = Partial<Record<ParamKey, Serializable>>;
 export interface AdaptyNativeError {
   adaptyCode: number;
   message: string;
-  // errorDomain: string;
-  // description: string;
-  // debugDescription: string;
-  // originalError?: string;
-  // adaptyErrorCode: number;
-  // errorCode: number;
-  // errorUserInfo: Record<string, any>;
+  detail?: string | undefined;
 }
 
 /**
@@ -122,7 +116,7 @@ export interface AdaptyBridgeError {
   name?: string;
   type?: string;
   underlyingError?: string;
-  description: string;
+  description?: string;
 }
 
 export const AdaptyEvents = [
