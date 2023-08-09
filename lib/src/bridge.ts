@@ -51,8 +51,10 @@ export async function handle<T>(
         error,
       );
     }
+    if (errorObj instanceof AdaptyError) {
+      throw errorObj;
+    }
     const encodedMsg = errorObj['message'];
-
     const adaptyError = parse(encodedMsg);
     throw adaptyError;
   }
