@@ -5,7 +5,7 @@ import { AdaptyEventEmitter } from '@/event-emitter';
 import { LogContext, Log, LogScope } from '@/logger';
 
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
-import { AdaptyProductCoder } from '@/coders/adapty-product';
+import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
 import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
 
 import type * as Model from '@/types';
@@ -187,13 +187,13 @@ export class Adapty extends AdaptyEventEmitter {
    * ```
    *
    * @param {Model.AdaptyPaywall} paywall - a paywall to fetch products for. You can get it using {@link Adapty.getPaywall} method.
-   * @returns {Promise<Model.AdaptyProduct[]>} A promise that resolves with a list
-   * of {@link Model.AdaptyProduct} associated with a provided paywall.
+   * @returns {Promise<Model.AdaptyPaywallProduct[]>} A promise that resolves with a list
+   * of {@link Model.AdaptyPaywallProduct} associated with a provided paywall.
    * @throws {@link AdaptyError}
    */
   public async getPaywallProducts(
     paywall: Model.AdaptyPaywall,
-  ): Promise<Model.AdaptyProduct[]> {
+  ): Promise<Model.AdaptyPaywallProduct[]> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getPaywallProducts' });
 
@@ -214,17 +214,32 @@ export class Adapty extends AdaptyEventEmitter {
     return result;
   }
 
-  public async getProductsIntroductoryOfferEligibility<T extends string>(
-    productIds: T[],
+  public async getProductsIntroductoryOfferEligibility<
+    T extends Model.AdaptyPaywallProduct['vendorProductId'],
+  >(
+    products: Model.AdaptyPaywallProduct[],
   ): Promise<Record<T, Model.OfferEligibility>> {
     const ctx = new LogContext();
     const log = ctx.call({
       methodName: 'getProductsIntroductoryOfferEligibility',
     });
-    log.start({ productIds });
+    log.start({ products });
+
+    if (Platform.OS === 'android') {
+      const result = products.reduce((acc, product) => {
+        // TODO:
+        console.error('Not actual data');
+
+        acc[product.vendorProductId as T] = 'ineligible';
+        return acc;
+      }, {} as Record<T, Model.OfferEligibility>);
+
+      log.success(result);
+      return result;
+    }
 
     const args: ParamMap = {
-      product_ids: productIds,
+      product_ids: products.map(product => product.vendorProductId),
     };
 
     const result = await this.handle<Record<T, Model.OfferEligibility>>(
@@ -421,7 +436,7 @@ export class Adapty extends AdaptyEventEmitter {
    * You can use {@link Adapty.addEventListener} to subscribe to this event and handle
    * the purchase result outside of this thread.
    *
-   * @param {Model.AdaptyProduct} product - The product to e purchased.
+   * @param {Model.AdaptyPaywallProduct} product - The product to e purchased.
    * You can get the product using {@link Adapty.getPaywallProducts} method.
    * @param {Input.MakePurchaseParams} [params] - Additional parameters for the purchase.
    * @returns {Promise<Model.AdaptyProfile>} A Promise that resolves to an {@link Model.AdaptyProfile} object
@@ -446,7 +461,7 @@ export class Adapty extends AdaptyEventEmitter {
    * ```
    */
   public async makePurchase(
-    product: Model.AdaptyProduct,
+    product: Model.AdaptyPaywallProduct,
     params: Input.MakePurchaseParamsInput = {},
   ): Promise<Model.AdaptyProfile> {
     const ctx = new LogContext();
@@ -454,7 +469,7 @@ export class Adapty extends AdaptyEventEmitter {
     const log = ctx.call({ methodName: 'makePurchase' });
     log.start({ product, params });
 
-    const coder = new AdaptyProductCoder();
+    const coder = new AdaptyPaywallProductCoder();
     const args: ParamMap = {
       product: JSON.stringify(coder.encode(product)),
     };
