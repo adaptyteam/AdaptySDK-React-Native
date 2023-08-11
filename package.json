@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "react-native-adapty",
-  "version": "2.6.0-rc.10",
+  "version": "2.6.0-rc.11",
   "description": "Adapty React Native SDK",
   "license": "MIT",
   "author": "Vanya Dorofeyev <DivanDoesApps@gmail.com> (https://github.com/divanc)",
@@ -30,7 +30,6 @@
     "!lib/android/gradle",
     "!lib/android/gradlew*",
     "!lib/android/local.properties",
-    "!lib/android/internalMaven",
     "react-native.config.js",
     "!**/.*"
   ],
@@ -75,14 +74,12 @@
     "tsc-alias": "^1.8.7",
     "tslib": "2.6.1",
     "typedoc": "0.24.8",
-    "typescript": "5.1.6"
+    "typescript": "5.1.6",
+    "react-native-testing-library": "^6.0.0",
+    "react-test-renderer": "^18.2.0"
   },
   "peerDependencies": {
     "react-native": ">= 0.60.0"
   },
-  "peerDependenciesMeta": {},
-  "dependencies": {
-    "react-native-testing-library": "^6.0.0",
-    "react-test-renderer": "^18.2.0"
-  }
+  "peerDependenciesMeta": {}
 }
