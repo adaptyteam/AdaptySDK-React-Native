@@ -226,12 +226,15 @@ export class Adapty extends AdaptyEventEmitter {
     log.start({ products });
 
     if (Platform.OS === 'android') {
-      const result = products.reduce((acc, product) => {
-        acc[product.vendorProductId as T] =
-          product.subscriptionDetails?.android?.introductoryOfferEligibility ??
-          'ineligible';
-        return acc;
-      }, {} as Record<T, Model.OfferEligibility>);
+      const result = products.reduce(
+        (acc, product) => {
+          acc[product.vendorProductId as T] =
+            product.subscriptionDetails?.android
+              ?.introductoryOfferEligibility ?? 'ineligible';
+          return acc;
+        },
+        {} as Record<T, Model.OfferEligibility>,
+      );
 
       log.success(result);
       return result;
