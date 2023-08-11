@@ -15,10 +15,7 @@ data class AdaptyBridgeResult<T : Any>(
 class NullEncodable
 
 class AdaptyContext(
-    methodString: String,
-    args: ReadableMap,
-    private val __promise: Promise,
-    val activity: Activity?
+    methodString: String, args: ReadableMap, private val __promise: Promise, val activity: Activity?
 ) {
     val methodName = MethodName.fromString(methodString)
     val params = ParamMap(args)
@@ -33,7 +30,13 @@ class AdaptyContext(
     }
 
     inline fun <reified T : Any> resolve(data: T) {
-        val result = AdaptyBridgeResult(data, T::class.simpleName ?: "UnknownType")
+        val typeName = if (data is List<*>) {
+            val elementType = data.firstOrNull()?.javaClass?.simpleName ?: "UnknownType"
+            "Array<$elementType>"
+        } else {
+            T::class.simpleName ?: "UnknownType"
+        }
+        val result = AdaptyBridgeResult(data, typeName)
         return resolve(result)
     }
 
@@ -50,8 +53,7 @@ class AdaptyContext(
             val jsonStr = result.let(CrossplatformHelper.shared::toJson)
 
             return this.__promise.reject(
-                "adapty_rn_bridge_error",
-                jsonStr
+                "adapty_rn_bridge_error", jsonStr
             )
         } catch (error: Exception) {
             bridgeError(error)
@@ -60,8 +62,7 @@ class AdaptyContext(
 
     fun forwardError(error: AdaptyError) {
         val result = AdaptyBridgeResult(
-            data = error,
-            type = AdaptyError::class.java.simpleName
+            data = error, type = AdaptyError::class.java.simpleName
         )
 
         return reject(result)
@@ -70,8 +71,7 @@ class AdaptyContext(
     fun bridgeError(error: Throwable) {
         if (error is BridgeError) {
             val result = AdaptyBridgeResult(
-                data = error.toJson(),
-                type = BridgeError::class.java.simpleName
+                data = error.toJson(), type = BridgeError::class.java.simpleName
             )
 
             return reject(result)
@@ -79,8 +79,7 @@ class AdaptyContext(
 
         val unknownBridgeError = BridgeError.UnexpectedError(error)
         val result = AdaptyBridgeResult(
-            data = unknownBridgeError,
-            type = BridgeError::class.java.simpleName
+            data = unknownBridgeError, type = BridgeError::class.java.simpleName
         )
         return reject(result)
 
@@ -94,4 +93,3 @@ class AdaptyContext(
         return forwardError(maybeErr)
     }
 }
-
