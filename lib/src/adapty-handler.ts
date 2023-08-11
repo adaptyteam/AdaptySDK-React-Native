@@ -472,8 +472,10 @@ export class Adapty extends AdaptyEventEmitter {
     log.start({ product, params });
 
     const coder = new AdaptyPaywallProductCoder();
+    const encoded = coder.encode(product);
+    const productInput = coder.getInput(encoded);
     const args: ParamMap = {
-      product: JSON.stringify(coder.encode(product)),
+      product: JSON.stringify(productInput),
     };
 
     if (params.android && Platform.OS === 'android') {

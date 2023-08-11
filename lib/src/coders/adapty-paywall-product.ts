@@ -54,4 +54,16 @@ export class AdaptyPaywallProductCoder extends Coder<Model, Serializable> {
       },
     },
   };
+
+  public getInput(data: Serializable): Schema['Input.AdaptyPaywallProduct'] {
+    return {
+      paywall_ab_test_name: data.paywall_ab_test_name,
+      payload_data: data.payload_data,
+      paywall_name: data.paywall_name,
+      paywall_variation_id: data.paywall_variation_id,
+      promotional_offer_id:
+        data.subscription_details?.promotional_offer?.identifier,
+      vendor_product_id: data.vendor_product_id,
+    };
+  }
 }
