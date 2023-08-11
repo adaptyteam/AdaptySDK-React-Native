@@ -13,7 +13,7 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
     private var listenerCount = 0
     private val ctx = reactContext
-    private val callHandler = AdaptyCallHandler(CrossplatformHelper.shared, reactContext)
+    private val callHandler = AdaptyCallHandler(reactContext)
 
     override fun initialize() {
         super.initialize()
