@@ -127,12 +127,17 @@ export interface ActivateParamsInput {
 export interface GetPaywallProductsParamsInput {}
 
 export const AdaptyAndroidSubscriptionUpdateReplacementMode = Object.freeze({
-  ImmediateAndChargeFullPrice: 'immediate_and_charge_full_price',
+  ChargeFullPrice: 'charge_full_price',
   Deferred: 'deferred',
-  ImmediateWithoutProration: 'immediate_without_proration',
-  ImmediateAndChargeProratedPrice: 'immediate_and_charge_prorated_price',
-  ImmediateWithTimeProration: 'immediate_with_time_proration',
+  WithoutProration: 'without_proration',
+  ChargeProratedPrice: 'charge_prorated_price',
+  WithTimeProration: 'with_time_proration',
 });
+//  satisfies Record<
+//   string,
+//   Schema['Input.AdaptyAndroidSubscriptionUpdateParameters']['replacement_mode']
+// >;
+
 export type AdaptyAndroidSubscriptionUpdateReplacementMode =
   (typeof AdaptyAndroidSubscriptionUpdateReplacementMode)[keyof typeof AdaptyAndroidSubscriptionUpdateReplacementMode];
 
