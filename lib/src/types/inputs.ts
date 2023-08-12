@@ -42,21 +42,6 @@ export const AttributionSource = Object.freeze({
 export type AttributionSource =
   (typeof AttributionSource)[keyof typeof AttributionSource];
 
-export const FetchPolicy = Object.freeze({
-  /**
-   * The function will try
-   * to download the products anyway,
-   * although the `introductoryOfferEligibility` values may be unknown.
-   */
-  DEFAULT: 'default',
-  /**
-   * The Adapty SDK will wait for the validation
-   * and the validation itself, only then the products will be returned.
-   */
-  WAIT_FOR_RECEIPT_VALIDATION: 'wait_for_receipt_validation',
-});
-export type FetchPolicy = (typeof FetchPolicy)[keyof typeof FetchPolicy];
-
 /**
  * Describes optional parameters for the {@link Adapty.activate} method.
  */
