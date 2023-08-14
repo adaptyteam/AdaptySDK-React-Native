@@ -1,7 +1,7 @@
 watchman watch-del-all || true
 adb reverse tcp:8081 tcp:8081 || true
 
-rm -rf lib/dist
+rm -rf dist
 
 rm -rf example/ios/DerivedData
 rm -rf lib/ios/DerivedData

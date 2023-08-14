@@ -1,4 +1,4 @@
-import { Adapty } from '../sdk/adapty';
+import type { Adapty } from '@/adapty-handler';
 /**
  * Log levels for the SDK
  *
@@ -15,7 +15,7 @@ export const LogLevel = Object.freeze({
   /**
    * Logs only errors
    */
-  ERROR: 'ERROR',
+  ERROR: 'error',
   /**
    * Logs messages from the SDK
    * that do not cause critical errors,
@@ -41,21 +41,6 @@ export const AttributionSource = Object.freeze({
 
 export type AttributionSource =
   (typeof AttributionSource)[keyof typeof AttributionSource];
-
-export const FetchPolicy = Object.freeze({
-  /**
-   * The function will try
-   * to download the products anyway,
-   * although the `introductoryOfferEligibility` values may be unknown.
-   */
-  DEFAULT: 'default',
-  /**
-   * The Adapty SDK will wait for the validation
-   * and the validation itself, only then the products will be returned.
-   */
-  WAIT_FOR_RECEIPT_VALIDATION: 'wait_for_receipt_validation',
-});
-export type FetchPolicy = (typeof FetchPolicy)[keyof typeof FetchPolicy];
 
 /**
  * Describes optional parameters for the {@link Adapty.activate} method.
@@ -94,35 +79,78 @@ export interface ActivateParamsInput {
   /**
    * Locks methods threads until the SDK is ready.
    * @defaultValue `false`
+   * @deprecated Turned on by default
    */
   lockMethodsUntilReady?: boolean;
   /**
-   * @defaultValue `false`
+   * Does not activate SDK until any other method is called
+   * Fixes annoying iOS simulator auhtentication
    */
-  enableUsageLogs?: boolean;
-}
-
-export interface GetPaywallProductsParamsInput {
+  __debugDeferActivation?: boolean;
   ios?: {
-    fetchPolicy?: FetchPolicy;
+    /**
+     * Controls what APIs from StoreKit 2 would be used
+     *
+     * Read more: {@link https://docs.adapty.io/docs/displaying-products#adapty-sdk-version-250-and-higher}
+     * @default 'disabled'
+     */
+    storeKit2Usage?: IosStorekit2Usage;
+    /**
+     * Disables IDFA collection
+     * @default false
+     */
+    idfaCollectionDisabled?: boolean;
+    /**
+     * Enables a feature of collecting logs with at servers
+     * Read more {@link https://docs.adapty.io/docs/ios-configuring#collecting-usage-logs }
+     * @defaultValue `false`
+     */
+    enableUsageLogs?: boolean;
   };
 }
 
-export const AndroidSubscriptionUpdateProrationMode = Object.freeze({
-  ImmediateAndChargeFullPrice: 'immediate_and_charge_full_price',
+export interface GetPaywallProductsParamsInput {}
+
+export const AdaptyAndroidSubscriptionUpdateReplacementMode = Object.freeze({
+  ChargeFullPrice: 'charge_full_price',
   Deferred: 'deferred',
-  ImmediateWithoutProration: 'immediate_without_proration',
-  ImmediateAndChargeProratedPrice: 'immediate_and_charge_prorated_price',
-  ImmediateWithTimeProration: 'immediate_with_time_proration',
+  WithoutProration: 'without_proration',
+  ChargeProratedPrice: 'charge_prorated_price',
+  WithTimeProration: 'with_time_proration',
 });
-export type AndroidSubscriptionUpdateProrationMode =
-  (typeof AndroidSubscriptionUpdateProrationMode)[keyof typeof AndroidSubscriptionUpdateProrationMode];
+//  satisfies Record<
+//   string,
+//   Schema['Input.AdaptyAndroidSubscriptionUpdateParameters']['replacement_mode']
+// >;
+
+export type AdaptyAndroidSubscriptionUpdateReplacementMode =
+  (typeof AdaptyAndroidSubscriptionUpdateReplacementMode)[keyof typeof AdaptyAndroidSubscriptionUpdateReplacementMode];
 
 export interface AdaptyAndroidSubscriptionUpdateParameters {
   oldSubVendorProductId: string;
-  prorationMode: AndroidSubscriptionUpdateProrationMode;
+  prorationMode: AdaptyAndroidSubscriptionUpdateReplacementMode;
+  isOfferPersonalized?: boolean;
 }
 
 export interface MakePurchaseParamsInput {
   android?: AdaptyAndroidSubscriptionUpdateParameters;
 }
+export const IosStorekit2Usage = Object.freeze({
+  /**
+   * Adapty will use the legacy logic, based on receipt analysis and validation.
+   * However, in rare situations (and in Sandbox mode - always)
+   * the reecipt is not present on the device at the first startup,
+   * therefore this option will return an error.
+   */
+  Disabled: 'disabled',
+  /**
+   * Adapty will utilise StoreKit 2 logic to determine introductory offer eligibility.
+   * @requires iOS 15.0+
+   * @remarks
+   * StoreKit 2 is available since iOS 15.0. Adapty will implement the legacy logic for older versions.
+   */
+  EnabledForIntroductoryOfferEligibility:
+    'enabled_for_introductory_offer_eligibility',
+});
+export type IosStorekit2Usage =
+  (typeof IosStorekit2Usage)[keyof typeof IosStorekit2Usage];

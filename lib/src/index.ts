@@ -1,9 +1,12 @@
-// SDK
-export { adapty } from './sdk';
-export { AdaptyError } from './sdk/error';
+import { Adapty } from './adapty-handler';
 
-// Types
 export * from './types/error';
 export * from './types/index';
 export * from './types/inputs';
-export * from './types/events';
+export { AdaptyError } from './adapty-error';
+
+export const adapty = new Adapty();
+
+// console.warn(
+//   "'react-native-adapty' title was deprecated. Please, modify it to '@adapty/react-native-sdk' to see updates.",
+// );
