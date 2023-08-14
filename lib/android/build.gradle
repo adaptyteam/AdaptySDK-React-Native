@@ -105,8 +105,8 @@ def getExtOrDefault(name) {
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
-    api 'io.adapty:android-sdk:2.6.0'
-//    debugApi 'io.adapty:android-sdk:2.6.0'
+    api 'io.adapty:android-sdk:2.6.1'
+//    debugApi 'io.adapty:android-sdk:2.6.1'
 
     //noinspection GradleDynamicVersion
     api 'io.adapty.internal:crossplatform:2.6.0'
