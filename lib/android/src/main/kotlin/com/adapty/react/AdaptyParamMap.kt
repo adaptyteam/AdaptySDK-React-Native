@@ -15,8 +15,12 @@ class ParamMap(val dict: ReadableMap) {
 
     inline fun <reified T> getOptionalValue(key: ParamKey): T? {
         val keyStr = key.value
-        val value = dict.getString(keyStr) ?: return null
-        return value as? T
+        return when(T::class) {
+            Boolean::class -> dict.getBoolean(keyStr) as? T
+            String::class -> dict.getString(keyStr) as? T
+            Int::class -> dict.getInt(keyStr) as T
+            else -> null
+        }
     }
 
     inline fun <reified T : Any> getDecodedValue(key: ParamKey): T {
