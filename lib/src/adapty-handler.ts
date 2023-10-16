@@ -18,40 +18,42 @@ import type { ParamMap, MethodName } from '@/types/bridge';
  * @public
  */
 export class Adapty extends AdaptyEventEmitter {
-  private activationPromise: Promise<void> | null = null;
-  private __resolveDeferredActivation?: ((value?: unknown) => void) | null;
+  #resolveHeldActivation?: (() => Promise<void>) | null = null;
 
   // Middleware to call native handle
-  private handle = async <T>(
-    methodName: MethodName,
+  async #handle<T>(
+    method: MethodName,
     params: ParamMap,
     ctx: LogContext,
     log: LogScope,
-  ): Promise<T> => {
-    // Wait until activate promise resolves
-    if (this.activationPromise && methodName !== 'activate') {
-      // Initiate deferred activation
-      if (this.__resolveDeferredActivation) {
-        this.__resolveDeferredActivation();
-        this.__resolveDeferredActivation = null;
-      }
-
-      await this.activationPromise;
+  ): Promise<T> {
+    /*
+     * If resolveHeldActivation is defined,
+     * wait until it is resolved before calling native methods
+     *
+     * Not applicable for activate method ofc
+     */
+    if (this.#resolveHeldActivation && method !== 'activate') {
+      log.wait({});
+      await this.#resolveHeldActivation();
+      this.#resolveHeldActivation = null;
+      log.waitComplete({});
     }
 
-    // Any middleware
     try {
-      const result = await handle(methodName, params, ctx);
+      const result = await handle(method, params, ctx);
 
       log.success(result);
       return result as T;
     } catch (error) {
-      // Success because error was handled validly
-      // It is a developer task to define which errors must be logged
+      /*
+       * Success because error was handled validly
+       * It is a developer task to define which errors must be logged
+       */
       log.success({ error });
       throw error;
     }
-  };
+  }
 
   constructor() {
     super();
@@ -98,17 +100,6 @@ export class Adapty extends AdaptyEventEmitter {
     const log = ctx.call({ methodName: 'activate' });
     log.start({ apiKey, params });
 
-    // Defer activate call if requested
-    // Solves annoying simulator auth call
-    if (params.__debugDeferActivation) {
-      const __deferredActivation = new Promise(resolve => {
-        this.__resolveDeferredActivation = resolve;
-      });
-
-      // Wait for next SDK call
-      await __deferredActivation;
-    }
-
     const args: ParamMap = {
       sdk_key: apiKey,
       observer_mode: params.observerMode,
@@ -122,14 +113,24 @@ export class Adapty extends AdaptyEventEmitter {
       args.enable_usage_logs = params.ios.enableUsageLogs;
     }
 
-    const promise = this.handle<void>('activate', args, ctx, log);
+    const activate = async () => this.#handle<void>('activate', args, ctx, log);
 
-    // Store promise to force it to resolve before any other calls
-    if (!this.activationPromise) {
-      this.activationPromise = promise as Promise<any>;
+    if (!params.__debugDeferActivation) {
+      return activate();
     }
 
-    return promise;
+    /*
+     * Deferring activation solves annoying simulator authentication,
+     * by postponing the moment, when simulator will use StoreKit
+     */
+
+    return new Promise<void>(unlock => {
+      // do not resolve promise, only #resolveHeldActivation must resolve
+      this.#resolveHeldActivation = async () => {
+        const result = await activate();
+        unlock(result);
+      };
+    });
   }
 
   /**
@@ -167,7 +168,7 @@ export class Adapty extends AdaptyEventEmitter {
       locale: locale,
     };
 
-    const result = await this.handle<Model.AdaptyPaywall>(
+    const result = await this.#handle<Model.AdaptyPaywall>(
       'get_paywall',
       args,
       ctx,
@@ -204,7 +205,7 @@ export class Adapty extends AdaptyEventEmitter {
       paywall: JSON.stringify(coder.encode(paywall)),
     };
 
-    const result = await this.handle<any>(
+    const result = await this.#handle<any>(
       'get_paywall_products',
       args,
       ctx,
@@ -244,7 +245,7 @@ export class Adapty extends AdaptyEventEmitter {
       product_ids: products.map(product => product.vendorProductId),
     };
 
-    const result = await this.handle<Record<T, Model.OfferEligibility>>(
+    const result = await this.#handle<Record<T, Model.OfferEligibility>>(
       'get_products_introductory_offer_eligibility',
       args,
       ctx,
@@ -282,7 +283,7 @@ export class Adapty extends AdaptyEventEmitter {
 
     const args: ParamMap = {};
 
-    const result = await this.handle<Model.AdaptyProfile>(
+    const result = await this.#handle<Model.AdaptyProfile>(
       'get_profile',
       args,
       ctx,
@@ -313,7 +314,7 @@ export class Adapty extends AdaptyEventEmitter {
       user_id: customerUserId,
     };
 
-    const result = await this.handle<void>('identify', args, ctx, log);
+    const result = await this.#handle<void>('identify', args, ctx, log);
 
     return result;
   }
@@ -351,7 +352,7 @@ export class Adapty extends AdaptyEventEmitter {
       paywall: JSON.stringify(coder.encode(paywall)),
     };
 
-    const result = await this.handle<void>('log_show_paywall', args, ctx, log);
+    const result = await this.#handle<void>('log_show_paywall', args, ctx, log);
 
     return result;
   }
@@ -399,7 +400,7 @@ export class Adapty extends AdaptyEventEmitter {
       }),
     };
 
-    const result = await this.handle<void>(
+    const result = await this.#handle<void>(
       'log_show_onboarding',
       args,
       ctx,
@@ -423,7 +424,7 @@ export class Adapty extends AdaptyEventEmitter {
 
     const args: ParamMap = {};
 
-    const result = await this.handle<void>('logout', args, ctx, log);
+    const result = await this.#handle<void>('logout', args, ctx, log);
 
     return result;
   }
@@ -487,7 +488,7 @@ export class Adapty extends AdaptyEventEmitter {
       args['is_offer_personalized'] = params.android.isOfferPersonalized;
     }
 
-    const result = await this.handle<Model.AdaptyProfile>(
+    const result = await this.#handle<Model.AdaptyProfile>(
       'make_purchase',
       args,
       ctx,
@@ -511,7 +512,7 @@ export class Adapty extends AdaptyEventEmitter {
 
     const args: ParamMap = {};
 
-    const result = await this.handle<void>(
+    const result = await this.#handle<void>(
       'present_code_redemption_sheet',
       args,
       ctx,
@@ -534,7 +535,7 @@ export class Adapty extends AdaptyEventEmitter {
 
     const args: ParamMap = {};
 
-    const result = await this.handle<Model.AdaptyProfile>(
+    const result = await this.#handle<Model.AdaptyProfile>(
       'restore_purchases',
       args,
       ctx,
@@ -561,7 +562,7 @@ export class Adapty extends AdaptyEventEmitter {
 
     const args: ParamMap = { paywalls: paywalls };
 
-    const result = await this.handle<void>(
+    const result = await this.#handle<void>(
       'set_fallback_paywalls',
       args,
       ctx,
@@ -596,7 +597,7 @@ export class Adapty extends AdaptyEventEmitter {
     Log.logLevel = logLevel;
     const args: ParamMap = { value: logLevel };
 
-    const result = await this.handle<void>('set_log_level', args, ctx, log);
+    const result = await this.#handle<void>('set_log_level', args, ctx, log);
 
     return result;
   }
@@ -631,7 +632,7 @@ export class Adapty extends AdaptyEventEmitter {
       } satisfies ParamMap),
     };
 
-    const result = await this.handle<void>('set_variation_id', args, ctx, log);
+    const result = await this.#handle<void>('set_variation_id', args, ctx, log);
 
     return result;
   }
@@ -685,7 +686,7 @@ export class Adapty extends AdaptyEventEmitter {
       network_user_id: networkUserId,
     };
 
-    const result = await this.handle<void>(
+    const result = await this.#handle<void>(
       'update_attribution',
       args,
       ctx,
@@ -724,7 +725,7 @@ export class Adapty extends AdaptyEventEmitter {
       params: JSON.stringify(coder.encode(params)),
     };
 
-    const result = await this.handle<void>('update_profile', args, ctx, log);
+    const result = await this.#handle<void>('update_profile', args, ctx, log);
 
     return result;
   }
