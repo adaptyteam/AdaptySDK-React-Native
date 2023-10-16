@@ -5,9 +5,13 @@ import com.facebook.react.bridge.ReadableMap
 
 class ParamMap(val dict: ReadableMap) {
     inline fun <reified T> getRequiredValue(key: ParamKey): T {
-        val value = dict.getString(key.value) ?: throw BridgeError.MissingRequiredArgument(key)
+        if (!dict.hasKey(key.value)) {
+            throw BridgeError.MissingRequiredArgument(key)
+        }
 
-        return value as? T ?: throw BridgeError.TypeMismatch(
+        val value = this.getOptionalValue<T>(key)
+
+        return value ?: throw BridgeError.TypeMismatch(
             key,
             T::class.simpleName ?: "UnknownType"
         )
@@ -15,6 +19,11 @@ class ParamMap(val dict: ReadableMap) {
 
     inline fun <reified T> getOptionalValue(key: ParamKey): T? {
         val keyStr = key.value
+
+        if (!dict.hasKey(keyStr)) {
+            return null
+        }
+
         return when(T::class) {
             Boolean::class -> dict.getBoolean(keyStr) as? T
             String::class -> dict.getString(keyStr) as? T
