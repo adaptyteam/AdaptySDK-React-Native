@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Platform} from 'react-native';
+import {Button, Platform, Text} from 'react-native';
 import {SFSymbol} from 'react-native-sfsymbols';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -64,16 +64,17 @@ const App = () => {
           <Stack.Screen
             name="Logs"
             options={{
-              headerRight: () => (
-                <SFSymbol
-                  name="square.and.arrow.up"
-                  scale="medium"
-                  color="#4777FF"
-                  size={20}
-                  resizeMode="center"
-                  style={{width: 20, height: 20}}
-                />
-              ),
+              headerRight: () =>
+                Platform.OS === 'ios' ? (
+                  <SFSymbol
+                    name="square.and.arrow.up"
+                    scale="medium"
+                    color="#4777FF"
+                    size={20}
+                    resizeMode="center"
+                    style={{width: 20, height: 20}}
+                  />
+                ) : null,
             }}>
             {props => <LogsScreen {...props} logs={logs} />}
           </Stack.Screen>

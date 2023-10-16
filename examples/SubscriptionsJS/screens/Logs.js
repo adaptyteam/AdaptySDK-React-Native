@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, ScrollView, StyleSheet} from 'react-native';
+import {View, Text, ScrollView, StyleSheet, Platform} from 'react-native';
 import {Group} from '../components/Group';
 import {Line} from '../components/Line';
 import {format} from 'date-fns';
@@ -31,14 +31,16 @@ const LineLog = ({log, isFirst, isLast, onPress}) => {
   const renderIcon = () => {
     return (
       <View style={style.iconContainer}>
-        <SFSymbol
-          name="ladybug"
-          scale="medium"
-          color="#4777FF"
-          size={20}
-          resizeMode="center"
-          style={style.icon}
-        />
+        {Platform.OS === 'ios' ? (
+          <SFSymbol
+            name="ladybug"
+            scale="medium"
+            color="#4777FF"
+            size={20}
+            resizeMode="center"
+            style={style.icon}
+          />
+        ) : null}
       </View>
     );
   };

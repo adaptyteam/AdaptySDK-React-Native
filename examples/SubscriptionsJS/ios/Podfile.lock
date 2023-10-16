@@ -1,5 +1,12 @@
 PODS:
   - Adapty (2.4.5)
+  - adapty-react-native-ui (1.0.0):
+    - Adapty (= 2.4.5)
+    - AdaptyUI (= 1.1.0)
+    - React-Core
+    - react-native-adapty (~> 2.4.7)
+  - AdaptyUI (1.1.0):
+    - Adapty (~> 2.4.0)
   - boost (1.76.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
@@ -306,7 +313,7 @@ PODS:
   - react-native-adapty (2.4.7):
     - Adapty (= 2.4.5)
     - React
-  - react-native-safe-area-context (4.5.2):
+  - react-native-safe-area-context (4.5.3):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -391,6 +398,7 @@ PODS:
     - Yoga (~> 1.14)
 
 DEPENDENCIES:
+  - "adapty-react-native-ui (from `../node_modules/@adapty/react-native-ui`)"
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -459,6 +467,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Adapty
+    - AdaptyUI
     - CocoaAsyncSocket
     - Flipper
     - Flipper-Boost-iOSX
@@ -476,6 +485,8 @@ SPEC REPOS:
     - YogaKit
 
 EXTERNAL SOURCES:
+  adapty-react-native-ui:
+    :path: "../node_modules/@adapty/react-native-ui"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
@@ -557,6 +568,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Adapty: 7d3ef97291d631d1711bb176c61dd5f26d143bd1
+  adapty-react-native-ui: cfea1e047cab5afa69409f76bc2a6e8f57b26f53
+  AdaptyUI: 89fcf41089d7ad27b2f9bae3f980b845f5a1f246
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
@@ -592,7 +605,7 @@ SPEC CHECKSUMS:
   React-jsinspector: badd81696361249893a80477983e697aab3c1a34
   React-logger: fdda34dd285bdb0232e059b19d9606fa0ec3bb9c
   react-native-adapty: 4f727870cb5c97391d28507ae8e9cb025d64e268
-  react-native-safe-area-context: 1d596539b05a78f2b346e954e7c577f6f9be7544
+  react-native-safe-area-context: b8979f5eda6ed5903d4dbc885be3846ea3daa753
   react-native-sfsymbols: bd3a0d3eab185e80b571bae60753dcf5a0d57967
   React-perflogger: e68d3795cf5d247a0379735cbac7309adf2fb931
   React-RCTActionSheet: 05452c3b281edb27850253db13ecd4c5a65bc247
@@ -612,6 +625,6 @@ SPEC CHECKSUMS:
   Yoga: eca980a5771bf114c41a754098cd85e6e0d90ed7
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 887bdf269af34ab1a071fda9540a8f746a0445b1
+PODFILE CHECKSUM: a7e95d4edfda07e0f1211400ef6d4ce27e9af57d
 
 COCOAPODS: 1.12.0

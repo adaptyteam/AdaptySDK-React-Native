@@ -140,8 +140,8 @@ android {
         // applicationId "com.subscriptionsjs"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "2.0"
+        versionCode 4
+        versionName "2.4.7"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         if (isNewArchitectureEnabled()) {
@@ -220,6 +220,7 @@ android {
             keyPassword 'android'
         }
     }
+    namespace 'com.adaptytest'
     buildTypes {
         debug {
             signingConfig signingConfigs.debug

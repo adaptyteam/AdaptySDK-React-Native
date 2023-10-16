@@ -1,1 +1,0 @@
-export { SectionEmoji } from "./SectionEmoji";

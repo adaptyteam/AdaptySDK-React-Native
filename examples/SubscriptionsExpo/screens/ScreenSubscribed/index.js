@@ -1,1 +1,0 @@
-export {ScreenSubscribed} from './ScreenSubscribed';

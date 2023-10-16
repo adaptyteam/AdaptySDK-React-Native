@@ -1,7 +1,7 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '12.4'
+platform :ios, '13.0'
 install! 'cocoapods', :deterministic_uuids => false
 
 target 'SubscriptionsJS' do
@@ -25,6 +25,9 @@ target 'SubscriptionsJS' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+
+  # Link the adapty-react-native-ui package
+ # pod 'adapty-react-native-ui', :path => '../node_modules/@adapty/react-native-ui'
 
   target 'SubscriptionsJSTests' do
     inherit! :complete

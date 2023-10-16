@@ -6,6 +6,7 @@
  */
 
 module.exports = {
+  // watchFolders: [`${__dirname}/../../`],
   transformer: {
     getTransformOptions: async () => ({
       transform: {
