@@ -18,25 +18,24 @@ import type { ParamMap, MethodName } from '@/types/bridge';
  * @public
  */
 export class Adapty extends AdaptyEventEmitter {
-  private activationPromise: Promise<void> | null = null;
-  private __resolveDeferredActivation?: ((value?: unknown) => void) | null;
+  private __resolveDeferredActivation?:
+    | ((value?: unknown) => Promise<void>)
+    | null;
 
   // Middleware to call native handle
-  private handle = async <T>(
+  private handle = async <T,>(
     methodName: MethodName,
     params: ParamMap,
     ctx: LogContext,
     log: LogScope,
   ): Promise<T> => {
     // Wait until activate promise resolves
-    if (this.activationPromise && methodName !== 'activate') {
+    if (methodName !== 'activate' && this.__resolveDeferredActivation) {
       // Initiate deferred activation
       if (this.__resolveDeferredActivation) {
-        this.__resolveDeferredActivation();
+        await this.__resolveDeferredActivation();
         this.__resolveDeferredActivation = null;
       }
-
-      await this.activationPromise;
     }
 
     // Any middleware
@@ -98,17 +97,6 @@ export class Adapty extends AdaptyEventEmitter {
     const log = ctx.call({ methodName: 'activate' });
     log.start({ apiKey, params });
 
-    // Defer activate call if requested
-    // Solves annoying simulator auth call
-    if (params.__debugDeferActivation) {
-      const __deferredActivation = new Promise(resolve => {
-        this.__resolveDeferredActivation = resolve;
-      });
-
-      // Wait for next SDK call
-      await __deferredActivation;
-    }
-
     const args: ParamMap = {
       sdk_key: apiKey,
       observer_mode: params.observerMode,
@@ -122,14 +110,26 @@ export class Adapty extends AdaptyEventEmitter {
       args.enable_usage_logs = params.ios.enableUsageLogs;
     }
 
-    const promise = this.handle<void>('activate', args, ctx, log);
+    const init = async () => {
+      return this.handle<void>('activate', args, ctx, log);
+    };
 
-    // Store promise to force it to resolve before any other calls
-    if (!this.activationPromise) {
-      this.activationPromise = promise as Promise<any>;
+    // Defer activate call if requested
+    // Solves annoying simulator auth call
+    if (params.__debugDeferActivation) {
+      const __deferredActivation = new Promise<void>(resolve => {
+        // assign waiter
+        this.__resolveDeferredActivation = async () => {
+          const result = await init();
+          resolve(result);
+        };
+      });
+
+      // Wait for next SDK call
+      return __deferredActivation;
+    } else {
+      return init();
     }
-
-    return promise;
   }
 
   /**
