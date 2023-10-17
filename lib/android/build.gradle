@@ -109,7 +109,7 @@ dependencies {
 //    debugApi 'io.adapty:android-sdk:2.6.1'
 
     //noinspection GradleDynamicVersion
-    api 'io.adapty.internal:crossplatform:2.6.0'
+    api 'io.adapty.internal:crossplatform:2.7.0'
 
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion
