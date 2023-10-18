@@ -86,6 +86,16 @@ export class NativeRequestHandler<
     }
   }
 
+  addRawEventListener<
+    Event extends string,
+    Cb extends (event: any) => void | Promise<void>,
+  >(event: Event, cb: Cb): EmitterSubscription {
+    const subscription = this.#emitter.addListener(event, cb);
+
+    this.#listeners.add(subscription);
+    return subscription;
+  }
+
   addEventListener<Event extends string, CallbackData>(
     event: Event,
     cb: (data: CallbackData) => void | Promise<void>,
