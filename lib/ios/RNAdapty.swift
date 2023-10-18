@@ -21,6 +21,11 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         ]
     }
     
+    override func constantsToExport() -> [AnyHashable : Any]! {
+        // Name of the function that routes all incoming requests
+        return ["HANDLER": "handle"]
+    }
+    
     func didLoadLatestProfile(_ profile: AdaptyProfile) {
         if !self.hasListeners {
             return
