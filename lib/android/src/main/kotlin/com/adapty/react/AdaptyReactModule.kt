@@ -30,6 +30,11 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
         return "RNAdapty"
     }
 
+    override fun getConstants(): MutableMap<String, Any>? {
+        // Name of the function that routes all incoming calls
+        return hashMapOf("HANDLER" to "handle")
+    }
+
     private inline fun <reified T : Any> sendEvent(
         reactContext: ReactContext,
         eventName: EventName,
