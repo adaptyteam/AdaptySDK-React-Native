@@ -3,7 +3,6 @@
  * not for the end user.
  */
 export * from '@/adapty-handler';
-export * from '@/event-emitter';
 export * from '@/adapty-error';
 // Types
 export * from './types/error';
