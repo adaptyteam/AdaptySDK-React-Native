@@ -1,6 +1,6 @@
 import Foundation
 
-enum ParamKey: String {
+public enum ParamKey: String {
     case attribution = "attribution"
     case fetchPolicy = "fetch_policy"
     case id = "id"
@@ -24,9 +24,11 @@ enum ParamKey: String {
     case idfaDisabled = "idfa_collection_disabled"
     case storekit2Usage = "storekit2_usage"
     case bridgeVersion = "PLIST Bridge version"
+    case prefetch_products = "prefetch_products"
+    case view_id = "view_id"
 }
 
-enum MethodName: String {
+public enum MethodName: String {
     case activate = "activate"
     case updateAttribution = "update_attribution"
     case getPaywall = "get_paywall"
