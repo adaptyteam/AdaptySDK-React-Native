@@ -41,7 +41,7 @@
     "format": "prettier ./lib/src -w --plugin=prettier-plugin-sort-json",
     "lint": "eslint ./lib/src --ext .ts",
     "test": "jest",
-    "update-versions": "./scripts/update_versions.sh",
+    "update-versions": "node ./scripts/update_versions.cjs",
     "prepack": "yarn format && yarn lint && yarn test && yarn update-versions && yarn build",
     "prepublishOnly": "yarn prepack"
   },
