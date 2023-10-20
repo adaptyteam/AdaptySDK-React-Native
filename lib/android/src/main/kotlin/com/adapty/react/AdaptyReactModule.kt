@@ -13,7 +13,16 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
     private var listenerCount = 0
     private val ctx = reactContext
-    private val callHandler = AdaptyCallHandler(reactContext)
+
+    private val callHandler = AdaptyCallHandler(reactContext) {
+        Adapty.setOnProfileUpdatedListener { profile ->
+                sendEvent(
+                    ctx,
+                    EventName.ON_LATEST_PROFILE_LOAD,
+                    profile,
+                )
+        }
+    }
 
     override fun initialize() {
         super.initialize()
@@ -24,6 +33,7 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
         )
 
         CrossplatformHelper.init(info)
+
     }
 
     override fun getName(): String {
@@ -40,10 +50,6 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
         eventName: EventName,
         params: T
     ) {
-        if (listenerCount == 0) {
-            return
-        }
-
         val result = AdaptyBridgeResult(
             data = params,
             T::class.simpleName ?: "Any",
@@ -61,16 +67,6 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun addListener(eventName: String?) {
-        if (listenerCount == 0) {
-            Adapty.setOnProfileUpdatedListener { profile ->
-                sendEvent(
-                    ctx,
-                    EventName.ON_LATEST_PROFILE_LOAD,
-                    profile,
-                )
-            }
-        }
-
         listenerCount += 1
     }
 

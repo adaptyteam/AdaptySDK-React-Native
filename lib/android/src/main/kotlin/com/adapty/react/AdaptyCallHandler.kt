@@ -10,7 +10,8 @@ var MEMO_ACTIVATE_ARGS = false
 
 @Suppress("SpellCheckingInspection")
 internal class AdaptyCallHandler(
-    private val reactApplicationContext: ReactApplicationContext
+    private val reactApplicationContext: ReactApplicationContext,
+    val onActivated: () -> Unit
 ) {
     fun handle(ctx: AdaptyContext) {
         try {
@@ -62,7 +63,7 @@ internal class AdaptyCallHandler(
                 observerMode = observerMode ?: false,
                 customerUserId = customerUserId
             )
-
+            onActivated()
             ctx.resovle()
         }
     }

@@ -640,7 +640,7 @@ export class Adapty {
    * After doing this, you'll be able to see metrics in Adapty Dashboard.
    *
    * @param {string} variationId - `variationId` property of {@link Model.AdaptyPaywall}
-   * @param {string} transactionId - `transactionId` property of {@link Model.AdaptyPurchase}
+   * @param {string} transactionId - `transactionId` property of {@link Model.AdaptySubscription}
    * @throws {@link AdaptyError}
    */
   public async setVariationId(

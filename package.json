@@ -24,7 +24,7 @@
     "!lib/ios/build",
     "!lib/ios/RNAdapty.xcodeproj/project.xcworkspace",
     "!lib/ios/RNAdapty.xcodeproj/xcuserdata",
-    "react-native-adapty.podspec",
+    "*.podspec",
     "lib/android/",
     "!lib/android/build",
     "!lib/android/gradle",
