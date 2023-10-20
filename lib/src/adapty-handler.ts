@@ -18,6 +18,7 @@ import type { AddListenerFn, MethodName } from '@/types/bridge';
  */
 export class Adapty {
   #resolveHeldActivation?: (() => Promise<void>) | null = null;
+  #activating: Promise<void> | null = null;
 
   // Middleware to call native handle
   async #handle<T>(
@@ -38,6 +39,16 @@ export class Adapty {
       this.#resolveHeldActivation = null;
       log.waitComplete({});
     }
+    /*
+     * wait until activate call is resolved before calling native methods
+     * Not applicable for activate method ofc
+     */
+    if (this.#activating && method !== 'activate') {
+      log.wait({});
+      await this.#activating;
+      log.waitComplete({});
+      this.#activating = null;
+    }
 
     try {
       const result = await $bridge.request(method, params, ctx);
@@ -57,12 +68,16 @@ export class Adapty {
   /**
    * Adds a event listener for native event
    */
-  addEventListener = $bridge.addEventListener as unknown as AddListenerFn;
+  addEventListener: AddListenerFn = (event, callback) => {
+    return $bridge.addEventListener(event, callback);
+  };
 
   /**
    * Removes all attached event listeners
    */
-  removeAllListeners = $bridge.removeAllEventListeners;
+  removeAllListeners() {
+    return $bridge.removeAllEventListeners();
+  }
 
   /**
    * Initializes the Adapty SDK.
@@ -129,7 +144,10 @@ export class Adapty {
       }
     }
 
-    const activate = async () => this.#handle<void>('activate', body, ctx, log);
+    const activate = async () => {
+      this.#activating = this.#handle<void>('activate', body, ctx, log);
+      await this.#activating;
+    };
 
     if (!params.__debugDeferActivation) {
       return activate();
