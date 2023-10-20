@@ -1,6 +1,6 @@
 import Foundation
 
-enum BridgeError: Error, CustomStringConvertible, Encodable {
+public enum BridgeError: Error, CustomStringConvertible, Encodable {
     case missingRequiredArgument(name: ParamKey)
     case typeMismatch(name: ParamKey, type: String)
     case encodingFailed(Error)
@@ -30,7 +30,7 @@ enum BridgeError: Error, CustomStringConvertible, Encodable {
         case underlyingError = "parent_error"
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         // Encode error type
@@ -43,18 +43,18 @@ enum BridgeError: Error, CustomStringConvertible, Encodable {
             try container.encode("typeMismatch", forKey: .errorType)
             try container.encode(name.rawValue, forKey: .name)
             try container.encode(type, forKey: .type)
-
+            
         case .encodingFailed(let error):
             try container.encode("encodingFailed", forKey: .errorType)
             try container.encode(error.localizedDescription, forKey: .underlyingError)
-
+            
         case .methodNotImplemented:
             try container.encode("methodNotImplemented", forKey: .errorType)
-
+            
         case .unexpectedError(let error):
             try container.encode("unexpectedError", forKey: .errorType)
             try container.encode(error.localizedDescription, forKey: .underlyingError)
-
+            
         }
     }
     

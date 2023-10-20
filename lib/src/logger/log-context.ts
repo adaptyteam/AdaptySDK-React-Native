@@ -51,6 +51,14 @@ export class LogContext {
         payload['__stack__'] = this.stack;
         Log.error(args.methodName, `${message}: FAILED`, payload);
       },
+      onWait: payload => {
+        this.stack.push({ action: step, fn: args.methodName, payload });
+        Log.verbose(args.methodName, `<HOLD> ${message}`, payload);
+      },
+      onWaitComplete: payload => {
+        this.stack.push({ action: step, fn: args.methodName, payload });
+        Log.verbose(args.methodName, `<UNLOCKED> ${message}`, payload);
+      },
     });
   }
 

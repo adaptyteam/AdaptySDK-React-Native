@@ -1,17 +1,23 @@
 import Foundation
 import Adapty
 
-public struct AdaptyResult<T: Encodable>: Encodable {
+open class AdaptyResult<T: Encodable>: Encodable {
     public let data: T
     public let type: String
+    
+    public init(data: T, type: String) {
+        self.data = data
+        self.type = type
+    }
 }
+
 public struct NullEncodable: Encodable {
     public init() {}
 }
 
 public struct AdaptyContext {
-    let args:  [String: AnyHashable]
-    let params: ParamMap
+    public let args:  [String: AnyHashable]
+    public let params: ParamMap
     
     // prefer decorator methods
     // resolve and reject
@@ -73,7 +79,7 @@ public struct AdaptyContext {
                 data: bridgeError,
                 type: String(describing: BridgeError.self)
             )
-
+            
             return self.reject(result: result)
         } else {
             let unknownBridgeError = BridgeError.unexpectedError(error)
@@ -81,7 +87,7 @@ public struct AdaptyContext {
                 data: unknownBridgeError,
                 type: String(describing: BridgeError.self)
             )
-    
+            
             return self.reject(result: result)
         }
     }
