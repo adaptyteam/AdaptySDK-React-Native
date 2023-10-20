@@ -20,6 +20,7 @@ const AdaptyTypes = [
   'Array<AdaptyPaywallProduct>',
   'BridgeError',
   'null',
+  'String',
 ] as const;
 
 type AdaptyType = (typeof AdaptyTypes)[number];
@@ -78,6 +79,10 @@ export function parse<T>(input: string | unknown, ctx?: LogContext): T {
     throw adaptyError;
   }
 
+  if (obj?.type === 'String') {
+    return obj.data as T;
+  }
+
   const coder = getCoder(obj.type, ctx);
   if (coder?.type !== 'error') {
     return coder?.decode(obj.data);
@@ -111,6 +116,8 @@ function getCoder(
     case 'Dictionary<String, AdaptyEligibility>':
       return new HashmapCoder(null);
     case 'null':
+      return null;
+    case 'String':
       return null;
   }
   // @ts-ignore

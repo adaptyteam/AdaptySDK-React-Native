@@ -1,20 +1,5 @@
-/**
- * Name of bridge package
- * React Native looks for a module with provided name
- * via NativeModules API
- *
- * Must be the same as string:
- * - iOS: RNAdapty.m & RNAdapty.swift. Also match in RCT_EXTERN_MODULE
- */
-export const MODULE_NAME = 'RNAdapty';
-/**
- * Name of public function in the bridge
- *
- * All other methods are bridged through this public function
- * Must be the same as function name:
- * - iOS: RNAdapty.swift / @objc public func handle
- */
-export const HANDLER_NAME = 'handle';
+import type { EmitterSubscription } from 'react-native';
+import type { AdaptyProfile } from '@/types';
 
 /**
  * Valid list of expected parameters to the handlers
@@ -124,3 +109,14 @@ export const AdaptyEvents = [
   'onDeferredPurchase',
 ] as const;
 export type AdaptyEvent = (typeof AdaptyEvents)[number];
+
+export type AddListenerGeneric<E extends AdaptyEvent, Data> = (
+  event: E,
+  callback: (data: Data) => void | Promise<void>,
+) => EmitterSubscription;
+
+export type AddListenerFn = AddListenerGeneric<
+  'onLatestProfileLoad',
+  AdaptyProfile
+> &
+  AddListenerGeneric<'onDeferredPurchase', AdaptyProfile>;

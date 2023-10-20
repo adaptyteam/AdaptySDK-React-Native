@@ -1,13 +1,13 @@
 import Foundation
 
-class ParamMap {
+public class ParamMap {
     let dict: [String: AnyHashable]
     
     init(dict: [String: AnyHashable]) {
         self.dict = dict
     }
     
-    func getRequiredValue<T>(for key: ParamKey) throws -> T {
+    public func getRequiredValue<T>(for key: ParamKey) throws -> T {
         guard let value = dict[key.rawValue] else {
             throw BridgeError.missingRequiredArgument(name: key)
         }
@@ -19,7 +19,7 @@ class ParamMap {
         return castedValue
     }
     
-    func getOptionalValue<T>(for key: ParamKey) -> T? {
+    public func getOptionalValue<T>(for key: ParamKey) -> T? {
         let keyStr = key.rawValue;
         
         guard let value = dict[keyStr] else {
@@ -28,7 +28,7 @@ class ParamMap {
         
         return value as? T
     }
-
+    
     func getDecodedValue<T: Decodable>(for key: ParamKey, jsonDecoder: JSONDecoder) throws -> T {
         let jsonString: String = try getRequiredValue(for: key)
         
