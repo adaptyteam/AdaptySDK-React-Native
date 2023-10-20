@@ -16,20 +16,23 @@ export class NativeRequestHandler<
   Method extends string,
   Params extends ParamMap<string>,
 > {
-  #module: (typeof NativeModules)[string];
-  #request: (method: Method, params: any) => Promise<string>;
+  _module: (typeof NativeModules)[string];
+  _request: (method: Method, params: any) => Promise<string>;
 
-  #emitter: NativeEventEmitter;
-  #listeners: Set<EmitterSubscription>;
+  _emitter: NativeEventEmitter;
+  _listeners: Set<EmitterSubscription>;
 
   constructor(moduleName: string) {
-    this.#module = NativeModules[moduleName];
-    if (!this.#module) {
+    this._module = NativeModules[moduleName];
+    if (!this._module) {
       throw new Error('Adapty NativeModule is not defined');
     }
 
+    this._emitter = new NativeEventEmitter(this._module);
+    this._listeners = new Set();
+
     // Handler name is defined in native module
-    const constants = this.#module.getConstants() as Record<string, string>;
+    const constants = this._module.getConstants() as Record<string, string>;
     const handlerName = constants[KEY_HANDLER_NAME];
     if (!handlerName) {
       throw new Error(
@@ -37,16 +40,13 @@ export class NativeRequestHandler<
       );
     }
 
-    this.#request = this.#module[handlerName] as (
+    this._request = this._module[handlerName] as (
       method: Method,
       params: Params,
     ) => Promise<string>;
-    if (!this.#request) {
+    if (!this._request) {
       throw new Error('Adapty native handler is not defined');
     }
-
-    this.#emitter = new NativeEventEmitter(this.#module);
-    this.#listeners = new Set();
   }
 
   async request<T>(method: Method, params: Params, ctx?: LogContext) {
@@ -54,7 +54,7 @@ export class NativeRequestHandler<
     log?.start({ method, params });
 
     try {
-      const response = await this.#request(method, params);
+      const response = await this._request(method, params.encode());
       const result = parse<T>(response, ctx);
 
       log?.success({ response });
@@ -90,15 +90,15 @@ export class NativeRequestHandler<
     Event extends string,
     Cb extends (event: any) => void | Promise<void>,
   >(event: Event, cb: Cb): EmitterSubscription {
-    const subscription = this.#emitter.addListener(event, cb);
+    const subscription = this._emitter.addListener(event, cb);
 
-    this.#listeners.add(subscription);
+    this._listeners.add(subscription);
     return subscription;
   }
 
   addEventListener<Event extends string, CallbackData>(
     event: Event,
-    cb: (data: CallbackData) => void | Promise<void>,
+    cb: (this: { rawValue: any }, data: CallbackData) => void | Promise<void>,
   ): EmitterSubscription {
     const consumeNativeCallback = (...data: string[]) => {
       const ctx = new LogContext();
@@ -106,9 +106,15 @@ export class NativeRequestHandler<
       const log = ctx.event({ methodName: event });
       log.start(data);
 
+      let rawValue = null;
+
       const args = data.map(arg => {
         try {
           const result = parse(arg, ctx);
+
+          try {
+            rawValue = JSON.parse(arg);
+          } catch {}
           return result;
         } catch (error) {
           log.failed({ error });
@@ -117,20 +123,20 @@ export class NativeRequestHandler<
         }
       });
 
-      cb.apply(null, args as any);
+      cb.apply({ rawValue }, args as any);
     };
 
-    const subscription = this.#emitter.addListener(
+    const subscription = this._emitter.addListener(
       event,
       consumeNativeCallback,
     );
 
-    this.#listeners.add(subscription);
+    this._listeners.add(subscription);
     return subscription;
   }
 
   removeAllEventListeners(): void {
-    this.#listeners.forEach(listener => listener.remove());
-    this.#listeners.clear();
+    this._listeners.forEach(listener => listener.remove());
+    this._listeners.clear();
   }
 }
