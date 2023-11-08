@@ -112,7 +112,6 @@ export class Adapty {
     apiKey: string,
     params: Input.ActivateParamsInput = {},
   ): Promise<void> {
-    2 + 2;
     // call before log ctx calls, so no logs are lost
     const logLevel = params.logLevel;
     Log.logLevel = logLevel || null;
