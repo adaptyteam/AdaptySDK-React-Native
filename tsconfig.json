@@ -2,11 +2,9 @@
   "$schema": "http://json.schemastore.org/tsconfig",
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
-
     /* Projects */
     "incremental": true /* Save .tsbuildinfo files to allow for incremental compilation of projects. */,
     "tsBuildInfoFile": "./.tsbuildinfo" /* Specify the path to .tsbuildinfo incremental compilation file. */,
-
     /* Language and Environment */
     "target": "ES6" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
     "lib": [] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
@@ -20,7 +18,6 @@
     // "noLib": true,                                    /* Disable including any library files, including the default lib.d.ts. */
     // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
     // "moduleDetection": "auto"                         /* Control what method is used to detect module-format JS files. */,
-
     /* Modules */
     "module": "CommonJS" /* Specify what module code is generated. */,
     "rootDir": "./lib/src" /* Specify the root folder within your source files. */,
@@ -28,7 +25,9 @@
     "baseUrl": "./lib/src" /* Specify the base directory to resolve non-relative module names. */,
     "paths": {
       /* Specify a set of entries that re-map imports to additional lookup locations. */
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
@@ -42,17 +41,14 @@
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     "resolveJsonModule": true /* Enable importing .json files. */,
     // "noResolve": true,                                /* Disallow 'import's, 'require's or '<reference>'s from expanding the number of files TypeScript should add to a project. */
-
     /* JavaScript Support */
     "allowJs": false /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */,
-
     /* Interop Constraints */
     "isolatedModules": true /* Ensure that each file can be safely transpiled without relying on other imports. */,
     "allowSyntheticDefaultImports": true /* Allow 'import x from y' when a module doesn't have a default export. */,
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
-
     /* Type Checking */
     "strict": true /* Enable all strict type-checking options. */,
     "noImplicitAny": true /* Enable error reporting for expressions and declarations with an implied 'any' type. */,
@@ -73,14 +69,17 @@
     "noPropertyAccessFromIndexSignature": true /* Enforces using indexed accessors for keys declared using an indexed type. */,
     "allowUnusedLabels": false /* Disable error reporting for unused labels. */,
     "allowUnreachableCode": false /* Disable error reporting for unreachable code. */,
-
     /* Completeness */
     // "skipDefaultLibCheck": true /* Skip type checking .d.ts files that are included with TypeScript. */,
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["./lib/src/**/*"],
+  "include": [
+    "./lib/src/**/*"
+  ],
   "typedocOptions": {
-    "entryPoints": ["lib/src/__docs__.ts"],
+    "entryPoints": [
+      "lib/src/__docs__.ts"
+    ],
     "out": "docs",
     "excludeInternal": true,
     "excludePrivate": true,

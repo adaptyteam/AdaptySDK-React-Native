@@ -17,11 +17,11 @@ import type { AddListenerFn, MethodName } from '@/types/bridge';
  * @public
  */
 export class Adapty {
-  #resolveHeldActivation?: (() => Promise<void>) | null = null;
-  #activating: Promise<void> | null = null;
+  private resolveHeldActivation?: (() => Promise<void>) | null = null;
+  private activating: Promise<void> | null = null;
 
   // Middleware to call native handle
-  async #handle<T>(
+  async handle<T>(
     method: MethodName,
     params: ParamMap,
     ctx: LogContext,
@@ -33,21 +33,21 @@ export class Adapty {
      *
      * Not applicable for activate method ofc
      */
-    if (this.#resolveHeldActivation && method !== 'activate') {
+    if (this.resolveHeldActivation && method !== 'activate') {
       log.wait({});
-      await this.#resolveHeldActivation();
-      this.#resolveHeldActivation = null;
+      await this.resolveHeldActivation();
+      this.resolveHeldActivation = null;
       log.waitComplete({});
     }
     /*
      * wait until activate call is resolved before calling native methods
      * Not applicable for activate method ofc
      */
-    if (this.#activating && method !== 'activate') {
+    if (this.activating && method !== 'activate') {
       log.wait({});
-      await this.#activating;
+      await this.activating;
       log.waitComplete({});
-      this.#activating = null;
+      this.activating = null;
     }
 
     try {
@@ -112,6 +112,7 @@ export class Adapty {
     apiKey: string,
     params: Input.ActivateParamsInput = {},
   ): Promise<void> {
+    2 + 2;
     // call before log ctx calls, so no logs are lost
     const logLevel = params.logLevel;
     Log.logLevel = logLevel || null;
@@ -145,8 +146,8 @@ export class Adapty {
     }
 
     const activate = async () => {
-      this.#activating = this.#handle<void>('activate', body, ctx, log);
-      await this.#activating;
+      this.activating = this.handle<void>('activate', body, ctx, log);
+      await this.activating;
     };
 
     if (!params.__debugDeferActivation) {
@@ -159,8 +160,8 @@ export class Adapty {
      */
 
     return new Promise<void>(unlock => {
-      // do not resolve promise, only #resolveHeldActivation must resolve
-      this.#resolveHeldActivation = async () => {
+      // do not resolve promise, only resolveHeldActivation must resolve
+      this.resolveHeldActivation = async () => {
         const result = await activate();
         unlock(result);
       };
@@ -203,7 +204,7 @@ export class Adapty {
       body.set('locale', locale);
     }
 
-    const result = await this.#handle<Model.AdaptyPaywall>(
+    const result = await this.handle<Model.AdaptyPaywall>(
       'get_paywall',
       body,
       ctx,
@@ -239,7 +240,7 @@ export class Adapty {
     const body = new ParamMap();
     body.set('paywall', JSON.stringify(coder.encode(paywall)));
 
-    const result = await this.#handle<any>(
+    const result = await this.handle<any>(
       'get_paywall_products',
       body,
       ctx,
@@ -281,7 +282,7 @@ export class Adapty {
       products.map(product => product.vendorProductId),
     );
 
-    const result = await this.#handle<Record<T, Model.OfferEligibility>>(
+    const result = await this.handle<Record<T, Model.OfferEligibility>>(
       'get_products_introductory_offer_eligibility',
       body,
       ctx,
@@ -319,7 +320,7 @@ export class Adapty {
 
     const body = new ParamMap();
 
-    const result = await this.#handle<Model.AdaptyProfile>(
+    const result = await this.handle<Model.AdaptyProfile>(
       'get_profile',
       body,
       ctx,
@@ -349,7 +350,7 @@ export class Adapty {
     const body = new ParamMap();
     body.set('user_id', customerUserId);
 
-    const result = await this.#handle<void>('identify', body, ctx, log);
+    const result = await this.handle<void>('identify', body, ctx, log);
 
     return result;
   }
@@ -386,7 +387,7 @@ export class Adapty {
     const body = new ParamMap();
     body.set('paywall', JSON.stringify(coder.encode(paywall)));
 
-    const result = await this.#handle<void>('log_show_paywall', body, ctx, log);
+    const result = await this.handle<void>('log_show_paywall', body, ctx, log);
 
     return result;
   }
@@ -436,7 +437,7 @@ export class Adapty {
       }),
     );
 
-    const result = await this.#handle<void>(
+    const result = await this.handle<void>(
       'log_show_onboarding',
       body,
       ctx,
@@ -460,7 +461,7 @@ export class Adapty {
 
     const body = new ParamMap();
 
-    const result = await this.#handle<void>('logout', body, ctx, log);
+    const result = await this.handle<void>('logout', body, ctx, log);
 
     return result;
   }
@@ -532,7 +533,7 @@ export class Adapty {
       }
     }
 
-    const result = await this.#handle<Model.AdaptyProfile>(
+    const result = await this.handle<Model.AdaptyProfile>(
       'make_purchase',
       body,
       ctx,
@@ -556,7 +557,7 @@ export class Adapty {
 
     const body = new ParamMap();
 
-    const result = await this.#handle<void>(
+    const result = await this.handle<void>(
       'present_code_redemption_sheet',
       body,
       ctx,
@@ -579,7 +580,7 @@ export class Adapty {
 
     const body = new ParamMap();
 
-    const result = await this.#handle<Model.AdaptyProfile>(
+    const result = await this.handle<Model.AdaptyProfile>(
       'restore_purchases',
       body,
       ctx,
@@ -607,7 +608,7 @@ export class Adapty {
     const body = new ParamMap();
     body.set('paywalls', paywalls);
 
-    const result = await this.#handle<void>(
+    const result = await this.handle<void>(
       'set_fallback_paywalls',
       body,
       ctx,
@@ -644,7 +645,7 @@ export class Adapty {
     const body = new ParamMap();
     body.set('value', logLevel);
 
-    const result = await this.#handle<void>('set_log_level', body, ctx, log);
+    const result = await this.handle<void>('set_log_level', body, ctx, log);
 
     return result;
   }
@@ -682,7 +683,7 @@ export class Adapty {
       }),
     );
 
-    const result = await this.#handle<void>('set_variation_id', body, ctx, log);
+    const result = await this.handle<void>('set_variation_id', body, ctx, log);
 
     return result;
   }
@@ -735,7 +736,7 @@ export class Adapty {
     body.set('source', bridgeSource);
     body.set('network_user_id', networkUserId);
 
-    const result = await this.#handle<void>(
+    const result = await this.handle<void>(
       'update_attribution',
       body,
       ctx,
@@ -774,7 +775,7 @@ export class Adapty {
 
     body.set('params', JSON.stringify(coder.encode(params)));
 
-    const result = await this.#handle<void>('update_profile', body, ctx, log);
+    const result = await this.handle<void>('update_profile', body, ctx, log);
 
     return result;
   }

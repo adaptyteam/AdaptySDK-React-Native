@@ -26,6 +26,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         return ["HANDLER": "handle"]
     }
     
+
     func didLoadLatestProfile(_ profile: AdaptyProfile) {
         if !self.hasListeners {
             return
