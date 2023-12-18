@@ -129,6 +129,8 @@ export interface components {
       /** @description iOS Only */
       promotional_offer_id?: string;
       /** @description Android Only */
+      is_consumable?: boolean;
+      /** @description Android Only */
       base_plan_id?: string;
       /** @description Android Only */
       offer_id?: string;

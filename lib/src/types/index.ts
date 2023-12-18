@@ -691,6 +691,7 @@ export interface ProductReference {
   };
 
   android?: {
+    isConsumable: boolean;
     basePlanId?: string;
     offerId?: string;
   };

@@ -17,6 +17,7 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
       {
         vendor_product_id: 'product1',
         promotional_offer_id: 'offer1', // iOS Only
+        is_consumable: false, // Android Only
         base_plan_id: 'base1', // Android Only
         offer_id: 'androidOffer1', // Android Only
       },
