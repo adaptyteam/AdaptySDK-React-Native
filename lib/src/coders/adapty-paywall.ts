@@ -18,6 +18,7 @@ export class AdaptyPaywallCoder extends Coder<Model, Serializable> {
       type: 'boolean',
     },
     placementId: { key: 'developer_id', required: true, type: 'string' },
+    instanceIdentity: { key: 'paywall_id', required: true, type: 'string' },
     locale: {
       key: 'remote_config.lang' as any, // composite
       required: true,

@@ -109,6 +109,7 @@ export interface components {
       | 'with_time_proration';
     'InOutput.AdaptyPaywall': {
       developer_id: string;
+      paywall_id: string;
       revision: number;
       variation_id: string;
       ab_test_name: string;

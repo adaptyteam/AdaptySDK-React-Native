@@ -32,6 +32,7 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
   {
     ...({ use_paywall_builder: false } as any),
     developer_id: 'dev456',
+    paywall_id: 'instanceId267',
     revision: 3,
     variation_id: 'var002',
     ab_test_name: 'testB',
@@ -50,6 +51,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
   return {
     abTestName: mock.ab_test_name,
     placementId: mock.developer_id,
+    instanceIdentity: mock.paywall_id,
     locale: mock.remote_config.lang,
     name: mock.paywall_name,
     products: _products.decode(mock.products),

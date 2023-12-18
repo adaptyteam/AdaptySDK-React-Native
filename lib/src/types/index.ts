@@ -144,6 +144,7 @@ export interface AdaptyPaywall {
    */
   readonly products: ProductReference[];
 
+  instanceIdentity: string;
   version: number;
   payloadData?: string;
 }
