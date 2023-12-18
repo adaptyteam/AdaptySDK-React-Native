@@ -139,9 +139,6 @@ export class Adapty {
       if (params.ios?.idfaCollectionDisabled) {
         body.set('idfa_collection_disabled', params.ios.idfaCollectionDisabled);
       }
-      if (params.ios?.enableUsageLogs) {
-        body.set('enable_usage_logs', params.ios.enableUsageLogs);
-      }
     }
 
     const activate = async () => {

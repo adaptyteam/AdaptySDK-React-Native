@@ -214,7 +214,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         let customerUserId: String? = ctx.params.getOptionalValue(for: .userId)
         let logLevel: String? = ctx.params.getOptionalValue(for: .logLevel)
         let observerMode: Bool? = ctx.params.getOptionalValue(for: .observerMode)
-        let enableUsageLogs: Bool? = ctx.params.getOptionalValue(for: .enableUsageLogs)
         let idfaCollectionDisabled: Bool? = ctx.params.getOptionalValue(for: .idfaDisabled)
         let storeKit2UsageString: String? = ctx.params.getOptionalValue(for: .storekit2Usage)
         
@@ -245,7 +244,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             apiKey,
             observerMode: observerMode ?? false,
             customerUserId: customerUserId,
-            enableUsageLogs: enableUsageLogs ?? false,
             storeKit2Usage: storeKit2Usage
         ) { maybeErr in ctx.okOrForwardError(maybeErr) }
         

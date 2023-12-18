@@ -151,12 +151,6 @@ export interface ActivateParamsInput {
      * @default false
      */
     idfaCollectionDisabled?: boolean;
-    /**
-     * Enables a feature of collecting logs with at servers
-     * Read more {@link https://docs.adapty.io/docs/ios-configuring#collecting-usage-logs }
-     * @defaultValue `false`
-     */
-    enableUsageLogs?: boolean;
   };
 }
 
