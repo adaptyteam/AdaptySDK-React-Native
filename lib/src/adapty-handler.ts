@@ -180,6 +180,7 @@ export class Adapty {
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
    * @param {string | undefined} [locale] - The locale of the desired paywall.
+   * @param {Input.GetPaywallParamsInput} [params] - Additional parameters for retrieving paywall.
    * @returns {Promise<Model.AdaptyPaywall>}
    * A promise that resolves with a requested paywall.
    *
@@ -191,16 +192,27 @@ export class Adapty {
   public async getPaywall(
     placementId: string,
     locale?: string,
+    params: Input.GetPaywallParamsInput = {
+      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+      loadTimeoutMs: 5000,
+    },
   ): Promise<Model.AdaptyPaywall> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getPaywall' });
 
-    log.start({ placementId, locale });
+    log.start({ placementId, locale, params });
 
     const body = new ParamMap();
     body.set('placement_id', placementId);
     if (locale) {
       body.set('locale', locale);
+    }
+    body.set('load_timeout', params.loadTimeoutMs)
+
+    if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
+      body.set('fetch_policy', JSON.stringify({'type': params.fetchPolicy }));
+    } else {
+      body.set('fetch_policy', JSON.stringify({'type': params.fetchPolicy, 'max_age': params.maxAgeSeconds }));
     }
 
     const result = await this.handle<Model.AdaptyPaywall>(

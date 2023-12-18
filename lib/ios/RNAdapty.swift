@@ -279,8 +279,13 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         
         let placementId: String = try ctx.params.getRequiredValue(for: .placementId)
         let locale: String? = ctx.params.getOptionalValue(for: .locale)
+        let fetchPolicy: AdaptyPaywall.FetchPolicy = try ctx.params.getDecodedValue(
+            for: .fetchPolicy,
+            jsonDecoder: AdaptyContext.jsonDecoder
+        )
+        let loadTimeoutMillis = ctx.params.getOptionalValue(Double.self, for: .loadTimeout).map { $0 / 1000.0 } ?? .defaultLoadPaywallTimeout
         
-        Adapty.getPaywall(placementId: placementId, locale: locale) { result in
+        Adapty.getPaywall(placementId: placementId, locale: locale, fetchPolicy: fetchPolicy, loadTimeout: loadTimeoutMillis) { result in
             switch result {
             case let .success(paywall):
                 ctx.resolve(with: paywall)
@@ -489,6 +494,19 @@ extension AdaptyLogLevel {
             return .warn
         default:
             return nil
+        }
+    }
+}
+
+extension AdaptyPaywall.FetchPolicy {
+    static func fromBridgeValue(_ value: String?) -> AdaptyPaywall.FetchPolicy {
+        switch value {
+        case FetchPolicyBridge.ReturnCacheDataElseLoad:
+            return .returnCacheDataElseLoad
+        case FetchPolicyBridge.ReloadRevalidatingCacheData:
+            return .reloadRevalidatingCacheData
+        default:
+            return .default
         }
     }
 }

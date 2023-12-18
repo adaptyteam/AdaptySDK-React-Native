@@ -21,6 +21,7 @@ public enum ParamKey: String {
     case value = "value"
     case locale = "locale"
     case placementId = "placement_id"
+    case loadTimeout = "load_timeout"
     case enableUsageLogs = "enable_usage_logs"
     case idfaDisabled = "idfa_collection_disabled"
     case storekit2Usage = "storekit2_usage"
@@ -62,4 +63,9 @@ struct LogLevelBridge {
     static let ERROR = "error"
     static let WARN = "warn"
     static let INFO = "info"
+}
+
+struct FetchPolicyBridge {
+    static let ReloadRevalidatingCacheData = "reload_revalidating_cache_data"
+    static let ReturnCacheDataElseLoad = "return_cache_data_else_load"
 }
