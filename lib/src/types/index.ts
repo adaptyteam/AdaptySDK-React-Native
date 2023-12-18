@@ -96,10 +96,10 @@ export interface AdaptyPaywall {
    */
   readonly abTestName: string;
   /**
-   * ID of a paywall configured in Adapty Dashboard.
+   * ID of a placement configured in Adapty Dashboard.
    * @readonly
    */
-  readonly id: string;
+  readonly placementId: string;
   /**
    * Identifier of a paywall locale.
    * @readonly

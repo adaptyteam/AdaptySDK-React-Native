@@ -176,8 +176,8 @@ export class Adapty {
    * This way you don’t have to hardcode the products
    * and can dynamically change offers or run A/B tests without app releases.
    *
-   * @param {string} id - The identifier of the desired paywall.
-   * This is the value you specified when you created the paywall
+   * @param {string} placementId - The identifier of the desired placement.
+   * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
    * @param {string | undefined} [locale] - The locale of the desired paywall.
    * @returns {Promise<Model.AdaptyPaywall>}
@@ -189,16 +189,16 @@ export class Adapty {
    * 2. if your bundle ID does not match with your Adapty Dashboard setup
    */
   public async getPaywall(
-    id: string,
+    placementId: string,
     locale?: string,
   ): Promise<Model.AdaptyPaywall> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getPaywall' });
 
-    log.start({ id, locale });
+    log.start({ placementId, locale });
 
     const body = new ParamMap();
-    body.set('id', id);
+    body.set('placement_id', placementId);
     if (locale) {
       body.set('locale', locale);
     }

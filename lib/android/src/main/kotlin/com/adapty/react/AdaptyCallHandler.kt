@@ -87,10 +87,10 @@ internal class AdaptyCallHandler(
 
     @Throws(BridgeError.TypeMismatch::class)
     private fun handleGetPaywall(ctx: AdaptyContext) {
-        val id: String = ctx.params.getRequiredValue(ParamKey.ID)
+        val placementId: String = ctx.params.getRequiredValue(ParamKey.PLACEMENT_ID)
         val locale: String? = ctx.params.getOptionalValue(ParamKey.LOCALE)
 
-        Adapty.getPaywall(id, locale) { result ->
+        Adapty.getPaywall(placementId, locale) { result ->
             when (result) {
                 is AdaptyResult.Success -> ctx.resolve(result.value)
                 is AdaptyResult.Error -> ctx.forwardError(result.error)

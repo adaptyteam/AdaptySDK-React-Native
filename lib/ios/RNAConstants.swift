@@ -20,6 +20,7 @@ public enum ParamKey: String {
     case variationId = "variation_id"
     case value = "value"
     case locale = "locale"
+    case placementId = "placement_id"
     case enableUsageLogs = "enable_usage_logs"
     case idfaDisabled = "idfa_collection_disabled"
     case storekit2Usage = "storekit2_usage"

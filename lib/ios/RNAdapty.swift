@@ -275,10 +275,10 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     // MARK: - Paywalls
     private func handleGetPaywall(_ ctx: AdaptyContext) throws {
         
-        let id: String = try ctx.params.getRequiredValue(for: .id)
+        let placementId: String = try ctx.params.getRequiredValue(for: .placementId)
         let locale: String? = ctx.params.getOptionalValue(for: .locale)
         
-        Adapty.getPaywall(id, locale: locale) { result in
+        Adapty.getPaywall(placementId: placementId, locale: locale) { result in
             switch result {
             case let .success(paywall):
                 ctx.resolve(with: paywall)

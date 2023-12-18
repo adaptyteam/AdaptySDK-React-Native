@@ -49,7 +49,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
 
   return {
     abTestName: mock.ab_test_name,
-    id: mock.developer_id,
+    placementId: mock.developer_id,
     locale: mock.remote_config.lang,
     name: mock.paywall_name,
     products: _products.decode(mock.products),
