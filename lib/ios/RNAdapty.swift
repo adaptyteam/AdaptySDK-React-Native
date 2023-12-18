@@ -222,8 +222,10 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         switch storeKit2UsageString {
         case "enabled_for_introductory_offer_eligibility":
             storeKit2Usage = .forIntroEligibilityCheck
-        default:
+        case "disabled":
             storeKit2Usage = .disabled
+        default:
+            storeKit2Usage = .default
         }
         
         // Memoize activation args

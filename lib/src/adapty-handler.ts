@@ -133,7 +133,7 @@ export class Adapty {
     }
 
     if (Platform.OS === 'ios') {
-      if (params.ios?.idfaCollectionDisabled) {
+      if (params.ios?.storeKit2Usage) {
         body.set('storekit2_usage', params.ios.storeKit2Usage);
       }
       if (params.ios?.idfaCollectionDisabled) {
