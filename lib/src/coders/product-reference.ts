@@ -22,7 +22,7 @@ export class ProductReferenceCoder extends Coder<Model, Serializable> {
     },
     android: {
       isConsumable: {
-        key: 'is_consumable',
+        key: 'is_consumable' as any,
         required: true,
         type: 'boolean',
       },
