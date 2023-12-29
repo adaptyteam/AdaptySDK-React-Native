@@ -49,6 +49,11 @@ export class AdaptyProfileParametersCoder extends Coder<Model, Serializable> {
       required: false,
       type: 'string',
     },
+    oneSignalSubscriptionId: {
+      key: 'one_signal_subscription_id',
+      required: false,
+      type: 'string',
+    },
     pushwooshHWID: { key: 'pushwoosh_hwid', required: false, type: 'string' },
     firebaseAppInstanceId: {
       key: 'firebase_app_instance_id',

@@ -30,7 +30,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
     android: {
       ...(mock.base_plan_id && { basePlanId: mock.base_plan_id }),
       ...(mock.offer_id && { offerId: mock.offer_id }),
-    },
+    } as any,
   };
 }
 

@@ -96,10 +96,10 @@ export interface AdaptyPaywall {
    */
   readonly abTestName: string;
   /**
-   * ID of a paywall configured in Adapty Dashboard.
+   * ID of a placement configured in Adapty Dashboard.
    * @readonly
    */
-  readonly id: string;
+  readonly placementId: string;
   /**
    * Identifier of a paywall locale.
    * @readonly
@@ -144,6 +144,7 @@ export interface AdaptyPaywall {
    */
   readonly products: ProductReference[];
 
+  instanceIdentity: string;
   version: number;
   payloadData?: string;
 }
@@ -677,6 +678,7 @@ export interface AdaptyProfileParameters {
   appmetricaProfileId?: string;
   appmetricaDeviceId?: string;
   oneSignalPlayerId?: string;
+  oneSignalSubscriptionId?: string;
   pushwooshHWID?: string;
   firebaseAppInstanceId?: string;
   airbridgeDeviceId?: string;
@@ -690,6 +692,7 @@ export interface ProductReference {
   };
 
   android?: {
+    isConsumable: boolean;
     basePlanId?: string;
     offerId?: string;
   };

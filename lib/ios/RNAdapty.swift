@@ -214,7 +214,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         let customerUserId: String? = ctx.params.getOptionalValue(for: .userId)
         let logLevel: String? = ctx.params.getOptionalValue(for: .logLevel)
         let observerMode: Bool? = ctx.params.getOptionalValue(for: .observerMode)
-        let enableUsageLogs: Bool? = ctx.params.getOptionalValue(for: .enableUsageLogs)
         let idfaCollectionDisabled: Bool? = ctx.params.getOptionalValue(for: .idfaDisabled)
         let storeKit2UsageString: String? = ctx.params.getOptionalValue(for: .storekit2Usage)
         
@@ -222,8 +221,10 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         switch storeKit2UsageString {
         case "enabled_for_introductory_offer_eligibility":
             storeKit2Usage = .forIntroEligibilityCheck
-        default:
+        case "disabled":
             storeKit2Usage = .disabled
+        default:
+            storeKit2Usage = .default
         }
         
         // Memoize activation args
@@ -243,7 +244,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             apiKey,
             observerMode: observerMode ?? false,
             customerUserId: customerUserId,
-            enableUsageLogs: enableUsageLogs ?? false,
             storeKit2Usage: storeKit2Usage
         ) { maybeErr in ctx.okOrForwardError(maybeErr) }
         
@@ -275,10 +275,15 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     // MARK: - Paywalls
     private func handleGetPaywall(_ ctx: AdaptyContext) throws {
         
-        let id: String = try ctx.params.getRequiredValue(for: .id)
+        let placementId: String = try ctx.params.getRequiredValue(for: .placementId)
         let locale: String? = ctx.params.getOptionalValue(for: .locale)
+        let fetchPolicy: AdaptyPaywall.FetchPolicy = try ctx.params.getDecodedValue(
+            for: .fetchPolicy,
+            jsonDecoder: AdaptyContext.jsonDecoder
+        )
+        let loadTimeoutMillis = ctx.params.getOptionalValue(Double.self, for: .loadTimeout).map { $0 / 1000.0 } ?? .defaultLoadPaywallTimeout
         
-        Adapty.getPaywall(id, locale: locale) { result in
+        Adapty.getPaywall(placementId: placementId, locale: locale, fetchPolicy: fetchPolicy, loadTimeout: loadTimeoutMillis) { result in
             switch result {
             case let .success(paywall):
                 ctx.resolve(with: paywall)
@@ -487,6 +492,19 @@ extension AdaptyLogLevel {
             return .warn
         default:
             return nil
+        }
+    }
+}
+
+extension AdaptyPaywall.FetchPolicy {
+    static func fromBridgeValue(_ value: String?) -> AdaptyPaywall.FetchPolicy {
+        switch value {
+        case FetchPolicyBridge.ReturnCacheDataElseLoad:
+            return .returnCacheDataElseLoad
+        case FetchPolicyBridge.ReloadRevalidatingCacheData:
+            return .reloadRevalidatingCacheData
+        default:
+            return .default
         }
     }
 }

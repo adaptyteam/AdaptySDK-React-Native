@@ -20,7 +20,8 @@ public enum ParamKey: String {
     case variationId = "variation_id"
     case value = "value"
     case locale = "locale"
-    case enableUsageLogs = "enable_usage_logs"
+    case placementId = "placement_id"
+    case loadTimeout = "load_timeout"
     case idfaDisabled = "idfa_collection_disabled"
     case storekit2Usage = "storekit2_usage"
     case bridgeVersion = "PLIST Bridge version"
@@ -61,4 +62,9 @@ struct LogLevelBridge {
     static let ERROR = "error"
     static let WARN = "warn"
     static let INFO = "info"
+}
+
+struct FetchPolicyBridge {
+    static let ReloadRevalidatingCacheData = "reload_revalidating_cache_data"
+    static let ReturnCacheDataElseLoad = "return_cache_data_else_load"
 }

@@ -19,6 +19,9 @@ enum class ParamKey(val value: String) {
     VARIATION_ID("variation_id"),
     VALUE("value"),
     LOCALE("locale"),
+    PLACEMENT_ID("placement_id"),
+    FETCH_POLICY("fetch_policy"),
+    LOAD_TIMEOUT("load_timeout"),
     IS_OFFER_PERSONALIZED("is_offer_personalized"),
 //    ENABLE_USAGE_LOGS("enable_usage_logs"),
 }

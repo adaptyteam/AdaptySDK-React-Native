@@ -42,6 +42,63 @@ export const AttributionSource = Object.freeze({
 export type AttributionSource =
   (typeof AttributionSource)[keyof typeof AttributionSource];
 
+export const FetchPolicy = Object.freeze({
+  ReloadRevalidatingCacheData: 'reload_revalidating_cache_data',
+  ReturnCacheDataElseLoad: 'return_cache_data_else_load',
+  ReturnCacheDataIfNotExpiredElseLoad:
+    'return_cache_data_if_not_expired_else_load',
+});
+export type FetchPolicy = (typeof FetchPolicy)[keyof typeof FetchPolicy];
+
+export type GetPaywallParamsInput =
+  | {
+      /**
+       * Fetch policy
+       *
+       * @remarks
+       * By default SDK will try to load data from server and will return cached data in case of failure.
+       * Otherwise use `'return_cache_data_else_load'` to return cached data if it exists.
+       */
+      fetchPolicy?: Exclude<
+        FetchPolicy,
+        'return_cache_data_if_not_expired_else_load'
+      >;
+      /**
+       * This value limits the timeout (in milliseconds) for this method.
+       *
+       * @remarks
+       * If the timeout is reached, cached data or local fallback will be returned.
+       */
+      loadTimeoutMs?: number;
+    }
+  | {
+      /**
+       * Fetch policy
+       *
+       * @remarks
+       * By default SDK will try to load data from server and will return cached data in case of failure.
+       * Otherwise use `'return_cache_data_else_load'` to return cached data if it exists.
+       */
+      fetchPolicy: Extract<
+        FetchPolicy,
+        'return_cache_data_if_not_expired_else_load'
+      >;
+      /**
+       * Max age for cached data.
+       *
+       * @remarks
+       * Max time (in seconds) the cache is valid in case of `'return_cache_data_if_not_expired_else_load'` fetch policy.
+       */
+      maxAgeSeconds: number;
+      /**
+       * This value limits the timeout (in milliseconds) for this method.
+       *
+       * @remarks
+       * If the timeout is reached, cached data or local fallback will be returned.
+       */
+      loadTimeoutMs?: number;
+    };
+
 /**
  * Describes optional parameters for the {@link Adapty.activate} method.
  */
@@ -100,12 +157,6 @@ export interface ActivateParamsInput {
      * @default false
      */
     idfaCollectionDisabled?: boolean;
-    /**
-     * Enables a feature of collecting logs with at servers
-     * Read more {@link https://docs.adapty.io/docs/ios-configuring#collecting-usage-logs }
-     * @defaultValue `false`
-     */
-    enableUsageLogs?: boolean;
   };
 }
 

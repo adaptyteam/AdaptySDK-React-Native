@@ -7,16 +7,18 @@ import { ArrayCoder } from './array';
 type Model = AdaptyPaywall;
 const mocks: Schema['InOutput.AdaptyPaywall'][] = [
   {
-    ...({ use_paywall_builder: false } as any),
+    use_paywall_builder: false,
     ab_test_name: 'testA',
     developer_id: 'dev123',
     payload_data: 'additionalData',
     paywall_name: 'Paywall1',
+    paywall_id: '456789o',
     paywall_updated_at: 1630458390000,
     products: [
       {
         vendor_product_id: 'product1',
         promotional_offer_id: 'offer1', // iOS Only
+        ...({ is_consumable: false } as any), // Android Only
         base_plan_id: 'base1', // Android Only
         offer_id: 'androidOffer1', // Android Only
       },
@@ -30,8 +32,9 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
     variation_id: 'var001',
   },
   {
-    ...({ use_paywall_builder: false } as any),
+    use_paywall_builder: false,
     developer_id: 'dev456',
+    paywall_id: 'instanceId267',
     revision: 3,
     variation_id: 'var002',
     ab_test_name: 'testB',
@@ -49,7 +52,8 @@ function toModel(mock: (typeof mocks)[number]): Model {
 
   return {
     abTestName: mock.ab_test_name,
-    id: mock.developer_id,
+    placementId: mock.developer_id,
+    instanceIdentity: mock.paywall_id,
     locale: mock.remote_config.lang,
     name: mock.paywall_name,
     products: _products.decode(mock.products),

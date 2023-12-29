@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 
 import { $bridge, ParamMap } from '@/bridge';
 import { LogContext, Log, LogScope } from '@/logger';
+import type { Schema } from '@/types/schema';
 
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
@@ -133,14 +134,11 @@ export class Adapty {
     }
 
     if (Platform.OS === 'ios') {
-      if (params.ios?.idfaCollectionDisabled) {
+      if (params.ios?.storeKit2Usage) {
         body.set('storekit2_usage', params.ios.storeKit2Usage);
       }
       if (params.ios?.idfaCollectionDisabled) {
         body.set('idfa_collection_disabled', params.ios.idfaCollectionDisabled);
-      }
-      if (params.ios?.enableUsageLogs) {
-        body.set('enable_usage_logs', params.ios.enableUsageLogs);
       }
     }
 
@@ -176,10 +174,11 @@ export class Adapty {
    * This way you don’t have to hardcode the products
    * and can dynamically change offers or run A/B tests without app releases.
    *
-   * @param {string} id - The identifier of the desired paywall.
-   * This is the value you specified when you created the paywall
+   * @param {string} placementId - The identifier of the desired placement.
+   * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
    * @param {string | undefined} [locale] - The locale of the desired paywall.
+   * @param {Input.GetPaywallParamsInput} [params] - Additional parameters for retrieving paywall.
    * @returns {Promise<Model.AdaptyPaywall>}
    * A promise that resolves with a requested paywall.
    *
@@ -189,18 +188,41 @@ export class Adapty {
    * 2. if your bundle ID does not match with your Adapty Dashboard setup
    */
   public async getPaywall(
-    id: string,
+    placementId: string,
     locale?: string,
+    params: Input.GetPaywallParamsInput = {
+      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+      loadTimeoutMs: 5000,
+    },
   ): Promise<Model.AdaptyPaywall> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getPaywall' });
 
-    log.start({ id, locale });
+    log.start({ placementId, locale, params });
 
     const body = new ParamMap();
-    body.set('id', id);
+    body.set('placement_id', placementId);
     if (locale) {
       body.set('locale', locale);
+    }
+    body.set('load_timeout', params.loadTimeoutMs);
+
+    if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
+      body.set(
+        'fetch_policy',
+        JSON.stringify({
+          type:
+            params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
+      );
+    } else {
+      body.set(
+        'fetch_policy',
+        JSON.stringify({
+          type: params.fetchPolicy,
+          max_age: params.maxAgeSeconds,
+        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
+      );
     }
 
     const result = await this.handle<Model.AdaptyPaywall>(

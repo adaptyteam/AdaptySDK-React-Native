@@ -21,6 +21,11 @@ export class ProductReferenceCoder extends Coder<Model, Serializable> {
       },
     },
     android: {
+      isConsumable: {
+        key: 'is_consumable' as any,
+        required: true,
+        type: 'boolean',
+      },
       basePlanId: {
         key: 'base_plan_id',
         required: false,

@@ -11,6 +11,8 @@ export const ParamKeys = [
   'attribution',
   'enable_usage_logs',
   'fetch_policy',
+  'load_timeout',
+  'placement_id',
   'id',
   'idfa_collection_disabled',
   'is_offer_personalized',
