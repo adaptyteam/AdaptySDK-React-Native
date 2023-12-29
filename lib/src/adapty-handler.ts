@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 
 import { $bridge, ParamMap } from '@/bridge';
 import { LogContext, Log, LogScope } from '@/logger';
+import type { Schema } from '@/types/schema';
 
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
@@ -204,12 +205,24 @@ export class Adapty {
     if (locale) {
       body.set('locale', locale);
     }
-    body.set('load_timeout', params.loadTimeoutMs)
+    body.set('load_timeout', params.loadTimeoutMs);
 
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
-      body.set('fetch_policy', JSON.stringify({'type': params.fetchPolicy }));
+      body.set(
+        'fetch_policy',
+        JSON.stringify({
+          type:
+            params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
+      );
     } else {
-      body.set('fetch_policy', JSON.stringify({'type': params.fetchPolicy, 'max_age': params.maxAgeSeconds }));
+      body.set(
+        'fetch_policy',
+        JSON.stringify({
+          type: params.fetchPolicy,
+          max_age: params.maxAgeSeconds,
+        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
+      );
     }
 
     const result = await this.handle<Model.AdaptyPaywall>(
