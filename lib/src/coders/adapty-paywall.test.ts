@@ -7,17 +7,18 @@ import { ArrayCoder } from './array';
 type Model = AdaptyPaywall;
 const mocks: Schema['InOutput.AdaptyPaywall'][] = [
   {
-    ...({ use_paywall_builder: false } as any),
+    use_paywall_builder: false,
     ab_test_name: 'testA',
     developer_id: 'dev123',
     payload_data: 'additionalData',
     paywall_name: 'Paywall1',
+    paywall_id: '456789o',
     paywall_updated_at: 1630458390000,
     products: [
       {
         vendor_product_id: 'product1',
         promotional_offer_id: 'offer1', // iOS Only
-        is_consumable: false, // Android Only
+        ...({ is_consumable: false } as any), // Android Only
         base_plan_id: 'base1', // Android Only
         offer_id: 'androidOffer1', // Android Only
       },
@@ -31,7 +32,7 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
     variation_id: 'var001',
   },
   {
-    ...({ use_paywall_builder: false } as any),
+    use_paywall_builder: false,
     developer_id: 'dev456',
     paywall_id: 'instanceId267',
     revision: 3,
