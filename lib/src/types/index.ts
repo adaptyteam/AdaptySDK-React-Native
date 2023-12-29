@@ -678,6 +678,7 @@ export interface AdaptyProfileParameters {
   appmetricaProfileId?: string;
   appmetricaDeviceId?: string;
   oneSignalPlayerId?: string;
+  oneSignalSubscriptionId?: string;
   pushwooshHWID?: string;
   firebaseAppInstanceId?: string;
   airbridgeDeviceId?: string;
