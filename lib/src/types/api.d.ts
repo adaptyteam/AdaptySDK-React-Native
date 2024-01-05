@@ -88,6 +88,7 @@ export interface components {
       custom_attributes?: components['schemas']['InOutput.AdaptyProfile.CustomAttributes'];
       analytics_disabled?: boolean;
       one_signal_player_id?: string;
+      one_signal_subscription_id?: string;
       pushwoosh_hwid?: string;
       firebase_app_instance_id?: string;
       airbridge_device_id?: string;
@@ -95,25 +96,41 @@ export interface components {
     /** @description Android Only */
     'Input.AdaptyAndroidSubscriptionUpdateParameters': {
       old_sub_vendor_product_id: string;
-      replacement_mode: components['schemas']['Input.AdaptyAndroidSubscriptionUpdateParameters'];
+      replacement_mode: components['schemas']['Input.AdaptyAndroidSubscriptionUpdateReplacementMode'];
     };
     /**
      * @description Android Only
      * @enum {string}
      */
-    'Input.AdaptyAndroidSubscriptionUpdateParameters':
+    'Input.AdaptyAndroidSubscriptionUpdateReplacementMode':
       | 'charge_full_price'
       | 'deferred'
       | 'without_proration'
       | 'charge_prorated_price'
       | 'with_time_proration';
+    'InOutput.AdaptyPaywallFetchPolicy':
+      | {
+          /** @enum {string} */
+          type:
+            | 'reload_revalidating_cache_data'
+            | 'return_cache_data_else_load';
+        }
+      | {
+          /** @enum {string} */
+          type: 'return_cache_data_if_not_expired_else_load';
+          /** Format: double */
+          max_age: number;
+        };
     'InOutput.AdaptyPaywall': {
       developer_id: string;
+      paywall_id: string;
       revision: number;
       variation_id: string;
       ab_test_name: string;
       paywall_name: string;
       products: components['schemas']['InOutput.ProductReference'][];
+      /** @default false */
+      use_paywall_builder?: boolean;
       remote_config: {
         lang: string;
         /** @description A custom JSON string configured in Adapty Dashboard for this paywall. */
@@ -143,7 +160,7 @@ export interface components {
      */
     'InOutput.AdaptyLoglevel': 'error' | 'warn' | 'info' | 'verbose' | 'debug';
     'InOutput.AdaptyProfile.CustomAttributes': {
-      [key: string]: ((string | null) | (number | null)) | undefined;
+      [key: string]: (string | null) | (number | null);
     };
     'Output.AdaptyPaywallProduct': {
       /** @example yearly.premium.6999 */
@@ -206,7 +223,7 @@ export interface components {
       localized_string?: string;
     };
     /**
-subscription_details.     * @example free_trial
+     * @example free_trial
      * @enum {string}
      */
     'Output.AdaptyPaymentMode':
@@ -229,58 +246,53 @@ subscription_details.     * @example free_trial
       /** Format: uuid */
       profile_id: string;
       customer_user_id?: string;
+      segment_hash: string;
       custom_attributes?: components['schemas']['InOutput.AdaptyProfile.CustomAttributes'];
       /** @description Key - Paid Access Level ID. Value - Profile Paid Access Level object */
       paid_access_levels?: {
-        [key: string]:
-          | components['schemas']['Output.AdaptyAccessLevel']
-          | undefined;
+        [key: string]: components['schemas']['Output.AdaptyAccessLevel'];
       };
       /** @description Key - Product ID in Store. Value - Profile Subscription object */
       subscriptions?: {
-        [key: string]:
-          | components['schemas']['Output.AdaptySubscription']
-          | undefined;
+        [key: string]: components['schemas']['Output.AdaptySubscription'];
       };
       /** @description Key - Product ID in Store. Value - List of Profile Non-Subscription object */
       non_subscriptions?: {
-        [key: string]:
-          | components['schemas']['Output.AdaptyNonSubscription'][]
-          | undefined;
+        [key: string]: components['schemas']['Output.AdaptyNonSubscription'][];
       };
     };
     'Output.AdaptyAccessLevel': {
-      activated_at: components['schemas']['Output.Date'];
-      active_introductory_offer_type?: string;
-      /** @description iOS Only */
-      active_promotional_offer_id?: string;
-      active_promotional_offer_type?: string;
-      billing_issue_detected_at?: components['schemas']['Output.Date'];
-      cancellation_reason?: string;
-      expires_at?: components['schemas']['Output.Date'];
       id: string;
       is_active: boolean;
-      is_in_grace_period: boolean;
+      vendor_product_id: string;
+      store: string;
+      activated_at: components['schemas']['Output.Date'];
+      renewed_at?: components['schemas']['Output.Date'];
+      expires_at?: components['schemas']['Output.Date'];
       is_lifetime: boolean;
-      is_refund: boolean;
+      active_introductory_offer_type?: string;
+      active_promotional_offer_type?: string;
+      /** @description iOS Only */
+      active_promotional_offer_id?: string;
       /** @description Android Only */
       offer_id?: string;
-      renewed_at?: components['schemas']['Output.Date'];
-      starts_at?: components['schemas']['Output.Date'];
-      store: string;
-      unsubscribed_at?: components['schemas']['Output.Date'];
-      vendor_product_id: string;
       will_renew: boolean;
+      is_in_grace_period: boolean;
+      unsubscribed_at?: components['schemas']['Output.Date'];
+      billing_issue_detected_at?: components['schemas']['Output.Date'];
+      starts_at?: components['schemas']['Output.Date'];
+      cancellation_reason?: string;
+      is_refund: boolean;
     };
     'Output.AdaptyNonSubscription': {
-      is_consumable: boolean;
-      is_refund: boolean;
-      is_sandbox: boolean;
       purchase_id: string;
-      purchased_at: components['schemas']['Output.Date'];
       store: string;
       vendor_product_id: string;
       vendor_transaction_id?: string;
+      purchased_at: components['schemas']['Output.Date'];
+      is_sandbox: boolean;
+      is_refund: boolean;
+      is_consumable: boolean;
     };
     'Output.AdaptySubscription': {
       is_active: boolean;
@@ -333,6 +345,8 @@ subscription_details.     * @example free_trial
   headers: never;
   pathItems: never;
 }
+
+export type $defs = Record<string, never>;
 
 export type external = Record<string, never>;
 

@@ -1,7 +1,11 @@
+@file:OptIn(InternalAdaptyApi::class)
+
 package com.adapty.react
 
 import com.adapty.Adapty
 import com.adapty.internal.crossplatform.CrossplatformHelper
+import com.adapty.internal.utils.DEFAULT_PAYWALL_TIMEOUT_MILLIS
+import com.adapty.internal.utils.InternalAdaptyApi
 import com.adapty.models.*
 import com.adapty.utils.AdaptyResult
 import com.facebook.react.bridge.*
@@ -87,10 +91,12 @@ internal class AdaptyCallHandler(
 
     @Throws(BridgeError.TypeMismatch::class)
     private fun handleGetPaywall(ctx: AdaptyContext) {
-        val id: String = ctx.params.getRequiredValue(ParamKey.ID)
+        val placementId: String = ctx.params.getRequiredValue(ParamKey.PLACEMENT_ID)
         val locale: String? = ctx.params.getOptionalValue(ParamKey.LOCALE)
+        val fetchPolicy: AdaptyPaywall.FetchPolicy = ctx.params.getDecodedValue(ParamKey.FETCH_POLICY)
+        val loadTimeoutMillis: Int = ctx.params.getOptionalValue<Double>(ParamKey.LOAD_TIMEOUT)?.toInt() ?: DEFAULT_PAYWALL_TIMEOUT_MILLIS
 
-        Adapty.getPaywall(id, locale) { result ->
+        Adapty.getPaywall(placementId, locale, fetchPolicy, loadTimeoutMillis) { result ->
             when (result) {
                 is AdaptyResult.Success -> ctx.resolve(result.value)
                 is AdaptyResult.Error -> ctx.forwardError(result.error)

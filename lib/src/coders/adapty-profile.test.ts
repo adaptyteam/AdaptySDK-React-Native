@@ -8,7 +8,7 @@ import { AdaptyNonSubscriptionCoder } from './adapty-non-subscription';
 import { ArrayCoder } from './array';
 
 type Model = AdaptyProfile;
-const mocks: Schema['Output.AdaptyProfile'][] = [
+const mocks: Omit<Schema['Output.AdaptyProfile'], 'segment_hash'>[] = [
   {
     customer_user_id: '57739865-5F09-45FF-8A95-BBB5AB0B4276',
     paid_access_levels: {
@@ -213,13 +213,13 @@ describe('AdaptyProfileCoder', () => {
   });
 
   it.each(mocks)('should decode to expected result', mock => {
-    const decoded = coder.decode(mock);
+    const decoded = coder.decode(mock as any);
 
     expect(decoded).toStrictEqual(toModel(mock));
   });
 
   it.each(mocks)('should decode/encode', mock => {
-    const decoded = coder.decode(mock);
+    const decoded = coder.decode(mock as any);
     const encoded = coder.encode(decoded);
 
     expect(encoded).toStrictEqual(mock);

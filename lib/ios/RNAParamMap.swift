@@ -20,13 +20,11 @@ public class ParamMap {
     }
     
     public func getOptionalValue<T>(for key: ParamKey) -> T? {
-        let keyStr = key.rawValue;
-        
-        guard let value = dict[keyStr] else {
-            return nil
-        }
-        
-        return value as? T
+        getOptionalValue(T.self, for: key)
+    }
+    
+    @inline(__always) func getOptionalValue<T>(_ type: T.Type, for key: ParamKey) -> T? {
+        dict[key.rawValue] as? T
     }
     
     func getDecodedValue<T: Decodable>(for key: ParamKey, jsonDecoder: JSONDecoder) throws -> T {

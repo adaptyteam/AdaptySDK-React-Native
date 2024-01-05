@@ -28,6 +28,7 @@ class ParamMap(val dict: ReadableMap) {
             Boolean::class -> dict.getBoolean(keyStr) as? T
             String::class -> dict.getString(keyStr) as? T
             Int::class -> dict.getInt(keyStr) as T
+            Double::class -> dict.getDouble(keyStr) as T
             else -> null
         }
     }

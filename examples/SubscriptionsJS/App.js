@@ -29,7 +29,6 @@ async function init() {
     await adapty.activate(token, {
       lockMethodsUntilReady: true,
       logLevel: 'verbose',
-      enableUsageLogs: true,
     });
 
     // Set fallback paywalls
