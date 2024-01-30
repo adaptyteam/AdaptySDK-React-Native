@@ -136,7 +136,7 @@ export class NativeRequestHandler<
   }
 
   removeAllEventListeners(): void {
-    this._listeners.forEach(listener => listener.remove());
-    this._listeners.clear();
+    this._listeners?.forEach(listener => listener.remove());
+    this._listeners?.clear();
   }
 }
