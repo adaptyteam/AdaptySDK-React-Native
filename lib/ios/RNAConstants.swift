@@ -26,6 +26,7 @@ public enum ParamKey: String {
     case storekit2Usage = "storekit2_usage"
     case bridgeVersion = "PLIST Bridge version"
     case prefetch_products = "prefetch_products"
+    case custom_tags = "custom_tags"
     case view_id = "view_id"
 }
 
