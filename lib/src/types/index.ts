@@ -686,6 +686,7 @@ export interface AdaptyProfileParameters {
 
 export interface ProductReference {
   vendorId: string;
+  adaptyId: string;
 
   ios?: {
     discountId?: string;

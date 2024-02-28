@@ -30,6 +30,16 @@ public class ParamMap {
     func getDecodedValue<T: Decodable>(for key: ParamKey, jsonDecoder: JSONDecoder) throws -> T {
         let jsonString: String = try getRequiredValue(for: key)
         
+        return try getDecodedValue<T>(for: key, jsonString: jsonString, jsonDecoder: jsonDecoder)
+    }
+    
+    public func getDecodedOptionalValue<T: Decodable>(for key: ParamKey, jsonDecoder: JSONDecoder) throws -> T? {
+        guard let jsonString: String = getOptionalValue(for: key) else { return nil }
+        
+        return try getDecodedValue<T>(for: key, jsonString: jsonString, jsonDecoder: jsonDecoder)
+    }
+    
+    func getDecodedValue<T: Decodable>(for key: ParamKey, jsonString: String, jsonDecoder: JSONDecoder) throws -> T {
         guard let jsonData = jsonString.data(using: .utf8),
               let decodedValue = try? jsonDecoder.decode(T.self, from: jsonData) else {
             throw BridgeError.typeMismatch(name: key, type: "JSON-encoded \(T.self)")

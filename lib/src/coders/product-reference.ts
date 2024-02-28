@@ -13,6 +13,11 @@ export class ProductReferenceCoder extends Coder<Model, Serializable> {
       required: true,
       type: 'string',
     },
+    adaptyId: {
+      key: 'adapty_product_id',
+      required: true,
+      type: 'string',
+    },
     ios: {
       discountId: {
         key: 'promotional_offer_id',

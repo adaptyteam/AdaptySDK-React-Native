@@ -17,12 +17,16 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
     products: [
       {
         vendor_product_id: 'product1',
+        adapty_product_id: 'adaptyProduct1',
         promotional_offer_id: 'offer1', // iOS Only
         ...({ is_consumable: false } as any), // Android Only
         base_plan_id: 'base1', // Android Only
         offer_id: 'androidOffer1', // Android Only
       },
-      { vendor_product_id: 'product2' },
+      {
+        vendor_product_id: 'product2',
+        adapty_product_id: 'adaptyProduct2'
+      },
     ],
     remote_config: {
       lang: 'en',
@@ -39,7 +43,7 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
     variation_id: 'var002',
     ab_test_name: 'testB',
     paywall_name: 'Paywall2',
-    products: [{ vendor_product_id: 'product3' }],
+    products: [{ vendor_product_id: 'product3', adapty_product_id: 'adaptyProduct3' }],
     remote_config: { lang: 'fr', data: '' },
     paywall_updated_at: 1632458390000,
   },

@@ -4,15 +4,17 @@ import { ProductReferenceCoder } from './product-reference';
 
 type Model = ProductReference;
 const mocks: Schema['InOutput.ProductReference'][] = [
-  { vendor_product_id: 'product123' },
-  { vendor_product_id: 'product456', promotional_offer_id: 'offer789' },
+  { vendor_product_id: 'product123', adapty_product_id: 'adaptyProduct123' },
+  { vendor_product_id: 'product456', adapty_product_id: 'adaptyProduct456', promotional_offer_id: 'offer789' },
   {
     vendor_product_id: 'product111',
+    adapty_product_id: 'adaptyProduct111',
     base_plan_id: 'base222',
     offer_id: 'offer333',
   },
   {
     vendor_product_id: 'productXYZ',
+    adapty_product_id: 'adaptyProductXYZ',
     promotional_offer_id: 'offerIOS',
     base_plan_id: 'baseAndroid',
     offer_id: 'offerAndroid',
@@ -22,6 +24,7 @@ const mocks: Schema['InOutput.ProductReference'][] = [
 function toModel(mock: (typeof mocks)[number]): Model {
   return {
     vendorId: mock.vendor_product_id,
+    adaptyId: mock.adapty_product_id,
     ios: {
       ...(mock.promotional_offer_id && {
         discountId: mock.promotional_offer_id,
