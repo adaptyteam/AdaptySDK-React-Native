@@ -220,7 +220,7 @@ internal class AdaptyCallHandler(
                 isOfferPersonalized = isPersonalized ?: false
             ) { result ->
                 when (result) {
-                    is AdaptyResult.Success -> result.value?.let { purchasedInfo ->
+                    is AdaptyResult.Success -> result.value?.profile?.let { profile ->
                         ctx.resolve(purchasedInfo)
                     } ?: ctx.resovle()
 

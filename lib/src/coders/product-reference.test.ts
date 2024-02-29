@@ -5,7 +5,11 @@ import { ProductReferenceCoder } from './product-reference';
 type Model = ProductReference;
 const mocks: Schema['InOutput.ProductReference'][] = [
   { vendor_product_id: 'product123', adapty_product_id: 'adaptyProduct123' },
-  { vendor_product_id: 'product456', adapty_product_id: 'adaptyProduct456', promotional_offer_id: 'offer789' },
+  {
+    vendor_product_id: 'product456',
+    adapty_product_id: 'adaptyProduct456',
+    promotional_offer_id: 'offer789',
+  },
   {
     vendor_product_id: 'product111',
     adapty_product_id: 'adaptyProduct111',

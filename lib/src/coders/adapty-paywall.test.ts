@@ -25,7 +25,7 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
       },
       {
         vendor_product_id: 'product2',
-        adapty_product_id: 'adaptyProduct2'
+        adapty_product_id: 'adaptyProduct2',
       },
     ],
     remote_config: {
@@ -43,7 +43,9 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
     variation_id: 'var002',
     ab_test_name: 'testB',
     paywall_name: 'Paywall2',
-    products: [{ vendor_product_id: 'product3', adapty_product_id: 'adaptyProduct3' }],
+    products: [
+      { vendor_product_id: 'product3', adapty_product_id: 'adaptyProduct3' },
+    ],
     remote_config: { lang: 'fr', data: '' },
     paywall_updated_at: 1632458390000,
   },

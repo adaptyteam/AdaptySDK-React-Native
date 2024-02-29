@@ -3,11 +3,16 @@
  * Do not make direct changes to the file.
  */
 
-
 /** OneOf type helpers */
 type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
-type XOR<T, U> = (T | U) extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
-type OneOf<T extends any[]> = T extends [infer Only] ? Only : T extends [infer A, infer B, ...infer Rest] ? OneOf<[XOR<A, B>, ...Rest]> : never;
+type XOR<T, U> = T | U extends object
+  ? (Without<T, U> & U) | (Without<U, T> & T)
+  : T | U;
+type OneOf<T extends any[]> = T extends [infer Only]
+  ? Only
+  : T extends [infer A, infer B, ...infer Rest]
+  ? OneOf<[XOR<A, B>, ...Rest]>
+  : never;
 
 export type paths = Record<string, never>;
 
@@ -19,13 +24,18 @@ export interface components {
      * @example custom
      * @enum {string}
      */
-    "Input.AdaptyAttributionSource": "adjust" | "appsflyer" | "branch" | "apple_search_ads" | "custom";
-    "Input.AdaptyOnboardingScreenParameters": {
+    'Input.AdaptyAttributionSource':
+      | 'adjust'
+      | 'appsflyer'
+      | 'branch'
+      | 'apple_search_ads'
+      | 'custom';
+    'Input.AdaptyOnboardingScreenParameters': {
       onboarding_name?: string;
       onboarding_screen_name?: string;
       onboarding_screen_order: number;
     };
-    "Input.AdaptyPaywallProduct": {
+    'Input.AdaptyPaywallProduct': {
       /** @example yearly.premium.6999 */
       vendor_product_id: string;
       /** @description iOS Only */
@@ -39,12 +49,18 @@ export interface components {
      * @description iOS Only
      * @enum {string}
      */
-    "Input.AdaptyIOSProductsFetchPolicy": "default" | "wait_for_receipt_validation";
+    'Input.AdaptyIOSProductsFetchPolicy':
+      | 'default'
+      | 'wait_for_receipt_validation';
     /**
      * @description iOS Only
      * @enum {string}
      */
-    "Input.AdaptyIOSAppTrackingTransparencyStatus": "not_determined" | "restricted" | "denied" | "authorized";
+    'Input.AdaptyIOSAppTrackingTransparencyStatus':
+      | 'not_determined'
+      | 'restricted'
+      | 'denied'
+      | 'authorized';
     /**
      * @description * `f` - female
      * * `m` - male
@@ -52,11 +68,11 @@ export interface components {
      *
      * @enum {string}
      */
-    "Input.AdaptyProfileGender": "f" | "m" | "o";
-    "Input.AdaptyProfileParameters": {
+    'Input.AdaptyProfileGender': 'f' | 'm' | 'o';
+    'Input.AdaptyProfileParameters': {
       first_name?: string;
       last_name?: string;
-      gender?: components["schemas"]["Input.AdaptyProfileGender"];
+      gender?: components['schemas']['Input.AdaptyProfileGender'];
       /** Format: YYYY-MM-dd */
       birthday?: string;
       email?: string;
@@ -69,7 +85,7 @@ export interface components {
       appmetrica_device_id?: string;
       /** @description iOS Only */
       att_status?: number;
-      custom_attributes?: components["schemas"]["InOutput.AdaptyProfile.CustomAttributes"];
+      custom_attributes?: components['schemas']['InOutput.AdaptyProfile.CustomAttributes'];
       analytics_disabled?: boolean;
       one_signal_player_id?: string;
       one_signal_subscription_id?: string;
@@ -78,32 +94,41 @@ export interface components {
       airbridge_device_id?: string;
     };
     /** @description Android Only */
-    "Input.AdaptyAndroidSubscriptionUpdateParameters": {
+    'Input.AdaptyAndroidSubscriptionUpdateParameters': {
       old_sub_vendor_product_id: string;
-      replacement_mode: components["schemas"]["Input.AdaptyAndroidSubscriptionUpdateReplacementMode"];
+      replacement_mode: components['schemas']['Input.AdaptyAndroidSubscriptionUpdateReplacementMode'];
     };
     /**
      * @description Android Only
      * @enum {string}
      */
-    "Input.AdaptyAndroidSubscriptionUpdateReplacementMode": "charge_full_price" | "deferred" | "without_proration" | "charge_prorated_price" | "with_time_proration";
-    "InOutput.AdaptyPaywallFetchPolicy": ({
-      /** @enum {string} */
-      type: "reload_revalidating_cache_data" | "return_cache_data_else_load";
-    }) | {
-      /** @enum {string} */
-      type: "return_cache_data_if_not_expired_else_load";
-      /** Format: double */
-      max_age: number;
-    };
-    "InOutput.AdaptyPaywall": {
+    'Input.AdaptyAndroidSubscriptionUpdateReplacementMode':
+      | 'charge_full_price'
+      | 'deferred'
+      | 'without_proration'
+      | 'charge_prorated_price'
+      | 'with_time_proration';
+    'InOutput.AdaptyPaywallFetchPolicy':
+      | {
+          /** @enum {string} */
+          type:
+            | 'reload_revalidating_cache_data'
+            | 'return_cache_data_else_load';
+        }
+      | {
+          /** @enum {string} */
+          type: 'return_cache_data_if_not_expired_else_load';
+          /** Format: double */
+          max_age: number;
+        };
+    'InOutput.AdaptyPaywall': {
       developer_id: string;
       paywall_id: string;
       revision: number;
       variation_id: string;
       ab_test_name: string;
       paywall_name: string;
-      products: components["schemas"]["InOutput.ProductReference"][];
+      products: components['schemas']['InOutput.ProductReference'][];
       /** @default false */
       use_paywall_builder?: boolean;
       remote_config: {
@@ -115,7 +140,7 @@ export interface components {
       paywall_updated_at: number;
       payload_data?: string;
     };
-    "InOutput.ProductReference": {
+    'InOutput.ProductReference': {
       vendor_product_id: string;
       adapty_product_id: string;
       /** @description iOS Only */
@@ -129,16 +154,16 @@ export interface components {
      * @example eligible
      * @enum {string}
      */
-    "InOutput.AdaptyEligibility": "ineligible" | "eligible" | "not_applicable";
+    'InOutput.AdaptyEligibility': 'ineligible' | 'eligible' | 'not_applicable';
     /**
      * @example info
      * @enum {string}
      */
-    "InOutput.AdaptyLoglevel": "error" | "warn" | "info" | "verbose" | "debug";
-    "InOutput.AdaptyProfile.CustomAttributes": {
+    'InOutput.AdaptyLoglevel': 'error' | 'warn' | 'info' | 'verbose' | 'debug';
+    'InOutput.AdaptyProfile.CustomAttributes': {
       [key: string]: (string | null) | (number | null);
     };
-    "Output.AdaptyPaywallProduct": {
+    'Output.AdaptyPaywallProduct': {
       /** @example yearly.premium.6999 */
       vendor_product_id: string;
       localized_description: string;
@@ -152,7 +177,7 @@ export interface components {
       paywall_variation_id: string;
       paywall_ab_test_name: string;
       paywall_name: string;
-      price?: components["schemas"]["Output.AdaptyPrice"];
+      price?: components['schemas']['Output.AdaptyPrice'];
       subscription_details?: {
         /** @description iOS Only */
         subscription_group_identifier?: string;
@@ -161,28 +186,28 @@ export interface components {
         /** @description Android Only */
         android_base_plan_id: string;
         /** @description Android Only */
-        introductory_offer_eligibility: components["schemas"]["InOutput.AdaptyEligibility"];
+        introductory_offer_eligibility: components['schemas']['InOutput.AdaptyEligibility'];
         /** @description Android Only */
         android_offer_tags?: string[];
         /**
          * @default autorenewable
          * @enum {string}
          */
-        renewal_type?: "prepaid" | "autorenewable";
-        subscription_period: components["schemas"]["Output.AdaptySubscriptionPeriod"];
+        renewal_type?: 'prepaid' | 'autorenewable';
+        subscription_period: components['schemas']['Output.AdaptySubscriptionPeriod'];
         localized_subscription_period?: string;
-        introductory_offer_phases?: components["schemas"]["Output.AdaptyDiscountPhase"][];
-        promotional_offer?: components["schemas"]["Output.AdaptyDiscountPhase"];
+        introductory_offer_phases?: components['schemas']['Output.AdaptyDiscountPhase'][];
+        promotional_offer?: components['schemas']['Output.AdaptyDiscountPhase'];
       };
       payload_data?: string;
     };
-    "Output.AdaptyDiscountPhase": {
-      price: components["schemas"]["Output.AdaptyPrice"];
+    'Output.AdaptyDiscountPhase': {
+      price: components['schemas']['Output.AdaptyPrice'];
       /** @description iOS Only */
       identifier?: string;
       number_of_periods: number;
-      payment_mode: components["schemas"]["Output.AdaptyPaymentMode"];
-      subscription_period: components["schemas"]["Output.AdaptySubscriptionPeriod"];
+      payment_mode: components['schemas']['Output.AdaptyPaymentMode'];
+      subscription_period: components['schemas']['Output.AdaptySubscriptionPeriod'];
       localized_subscription_period?: string;
       localized_number_of_periods?: string;
     };
@@ -190,8 +215,8 @@ export interface components {
      * @example month
      * @enum {string}
      */
-    "Output.AdaptyPeriodUnit": "day" | "week" | "month" | "year" | "unknown";
-    "Output.AdaptyPrice": {
+    'Output.AdaptyPeriodUnit': 'day' | 'week' | 'month' | 'year' | 'unknown';
+    'Output.AdaptyPrice': {
       /** Format: float */
       amount: number;
       currency_code?: string;
@@ -202,45 +227,49 @@ export interface components {
      * @example free_trial
      * @enum {string}
      */
-    "Output.AdaptyPaymentMode": "pay_as_you_go" | "pay_up_front" | "free_trial" | "unknown";
+    'Output.AdaptyPaymentMode':
+      | 'pay_as_you_go'
+      | 'pay_up_front'
+      | 'free_trial'
+      | 'unknown';
     /**
      * @example {
      *   "unit": "year",
      *   "number_of_units": 1
      * }
      */
-    "Output.AdaptySubscriptionPeriod": {
-      unit: components["schemas"]["Output.AdaptyPeriodUnit"];
+    'Output.AdaptySubscriptionPeriod': {
+      unit: components['schemas']['Output.AdaptyPeriodUnit'];
       /** @example 1 */
       number_of_units: number;
     };
-    "Output.AdaptyProfile": {
+    'Output.AdaptyProfile': {
       /** Format: uuid */
       profile_id: string;
       customer_user_id?: string;
       segment_hash: string;
-      custom_attributes?: components["schemas"]["InOutput.AdaptyProfile.CustomAttributes"];
+      custom_attributes?: components['schemas']['InOutput.AdaptyProfile.CustomAttributes'];
       /** @description Key - Paid Access Level ID. Value - Profile Paid Access Level object */
       paid_access_levels?: {
-        [key: string]: components["schemas"]["Output.AdaptyAccessLevel"];
+        [key: string]: components['schemas']['Output.AdaptyAccessLevel'];
       };
       /** @description Key - Product ID in Store. Value - Profile Subscription object */
       subscriptions?: {
-        [key: string]: components["schemas"]["Output.AdaptySubscription"];
+        [key: string]: components['schemas']['Output.AdaptySubscription'];
       };
       /** @description Key - Product ID in Store. Value - List of Profile Non-Subscription object */
       non_subscriptions?: {
-        [key: string]: components["schemas"]["Output.AdaptyNonSubscription"][];
+        [key: string]: components['schemas']['Output.AdaptyNonSubscription'][];
       };
     };
-    "Output.AdaptyAccessLevel": {
+    'Output.AdaptyAccessLevel': {
       id: string;
       is_active: boolean;
       vendor_product_id: string;
       store: string;
-      activated_at: components["schemas"]["Output.Date"];
-      renewed_at?: components["schemas"]["Output.Date"];
-      expires_at?: components["schemas"]["Output.Date"];
+      activated_at: components['schemas']['Output.Date'];
+      renewed_at?: components['schemas']['Output.Date'];
+      expires_at?: components['schemas']['Output.Date'];
       is_lifetime: boolean;
       active_introductory_offer_type?: string;
       active_promotional_offer_type?: string;
@@ -250,31 +279,31 @@ export interface components {
       offer_id?: string;
       will_renew: boolean;
       is_in_grace_period: boolean;
-      unsubscribed_at?: components["schemas"]["Output.Date"];
-      billing_issue_detected_at?: components["schemas"]["Output.Date"];
-      starts_at?: components["schemas"]["Output.Date"];
+      unsubscribed_at?: components['schemas']['Output.Date'];
+      billing_issue_detected_at?: components['schemas']['Output.Date'];
+      starts_at?: components['schemas']['Output.Date'];
       cancellation_reason?: string;
       is_refund: boolean;
     };
-    "Output.AdaptyNonSubscription": {
+    'Output.AdaptyNonSubscription': {
       purchase_id: string;
       store: string;
       vendor_product_id: string;
       vendor_transaction_id?: string;
-      purchased_at: components["schemas"]["Output.Date"];
+      purchased_at: components['schemas']['Output.Date'];
       is_sandbox: boolean;
       is_refund: boolean;
       is_consumable: boolean;
     };
-    "Output.AdaptySubscription": {
+    'Output.AdaptySubscription': {
       is_active: boolean;
       vendor_product_id: string;
       vendor_transaction_id: string;
       vendor_original_transaction_id: string;
       store: string;
-      activated_at: components["schemas"]["Output.Date"];
-      renewed_at?: components["schemas"]["Output.Date"];
-      expires_at?: components["schemas"]["Output.Date"];
+      activated_at: components['schemas']['Output.Date'];
+      renewed_at?: components['schemas']['Output.Date'];
+      expires_at?: components['schemas']['Output.Date'];
       is_lifetime: boolean;
       active_introductory_offer_type?: string;
       active_promotional_offer_type?: string;
@@ -284,23 +313,28 @@ export interface components {
       offer_id?: string;
       will_renew: boolean;
       is_in_grace_period: boolean;
-      unsubscribed_at?: components["schemas"]["Output.Date"];
-      billing_issue_detected_at?: components["schemas"]["Output.Date"];
-      starts_at?: components["schemas"]["Output.Date"];
+      unsubscribed_at?: components['schemas']['Output.Date'];
+      billing_issue_detected_at?: components['schemas']['Output.Date'];
+      starts_at?: components['schemas']['Output.Date'];
       cancellation_reason?: string;
       is_refund: boolean;
       is_sandbox: boolean;
     };
     /** Format: yyyy-MM-dd'T'HH:mm:ss.SSSZ */
-    "Output.Date": string;
-    "Output.AdaptyResult": OneOf<[{
-      /** @description Can be any value */
-      success: unknown;
-    }, {
-      error: components["schemas"]["Output.AdaptyError"];
-    }]>;
+    'Output.Date': string;
+    'Output.AdaptyResult': OneOf<
+      [
+        {
+          /** @description Can be any value */
+          success: unknown;
+        },
+        {
+          error: components['schemas']['Output.AdaptyError'];
+        },
+      ]
+    >;
     /** @description TODO */
-    "Output.AdaptyError": {
+    'Output.AdaptyError': {
       adapty_code: number;
       message: string;
       detail?: string;
