@@ -221,7 +221,7 @@ internal class AdaptyCallHandler(
             ) { result ->
                 when (result) {
                     is AdaptyResult.Success -> result.value?.profile?.let { profile ->
-                        ctx.resolve(purchasedInfo)
+                        ctx.resolve(profile)
                     } ?: ctx.resovle()
 
                     is AdaptyResult.Error -> ctx.forwardError(result.error)
