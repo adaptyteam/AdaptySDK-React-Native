@@ -19,6 +19,11 @@ export class AdaptyProfileCoder extends Coder<Model, Serializable> {
       type: 'object',
       converter: new HashmapCoder(new AdaptyAccessLevelCoder()),
     },
+    segmentHash: {
+      key: 'segment_hash',
+      required: true,
+      type: 'string',
+    },
     customAttributes: {
       key: 'custom_attributes',
       required: false,

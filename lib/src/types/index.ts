@@ -163,6 +163,8 @@ export interface AdaptyProfile {
    */
   readonly accessLevels?: Record<string, AdaptyAccessLevel>;
 
+  readonly segmentHash: string;
+
   /**
    * Object representing custom attributes set for the user using
    * the {@link Adapty.updateProfile} method.
@@ -528,6 +530,10 @@ export interface AdaptyPaywallProduct {
    * The cost of the product in the local currency
    */
   readonly price?: AdaptyPrice;
+  /**
+   * A description of the product.
+   */
+  readonly adaptyId: string;
   /**
    * Same as `variationId` property of the parent {@link AdaptyPaywall}.
    */

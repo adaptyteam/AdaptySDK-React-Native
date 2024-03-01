@@ -8,9 +8,10 @@ import { AdaptyNonSubscriptionCoder } from './adapty-non-subscription';
 import { ArrayCoder } from './array';
 
 type Model = AdaptyProfile;
-const mocks: Omit<Schema['Output.AdaptyProfile'], 'segment_hash'>[] = [
+const mocks: Schema['Output.AdaptyProfile'][] = [
   {
     customer_user_id: '57739865-5F09-45FF-8A95-BBB5AB0B4276',
+    segment_hash: '123',
     paid_access_levels: {
       premium: {
         id: 'premium',
@@ -67,6 +68,7 @@ const mocks: Omit<Schema['Output.AdaptyProfile'], 'segment_hash'>[] = [
     profile_id: '69a4be0c-7ee2-4669-b637-814a60494346',
   },
   {
+    segment_hash: '235',
     non_subscriptions: {
       adapty_product_1: [
         {
@@ -193,6 +195,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
     ...(mock.paid_access_levels && {
       accessLevels: _levels.decode(mock.paid_access_levels),
     }),
+    segmentHash: mock.segment_hash,
     ...(mock.subscriptions && {
       subscriptions: _subs.decode(mock.subscriptions),
     }),

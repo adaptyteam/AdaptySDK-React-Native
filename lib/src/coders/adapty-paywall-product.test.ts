@@ -16,6 +16,7 @@ const mocks: Schema['Output.AdaptyPaywallProduct'][] = [
     region_code: 'US',
     payload_data: 'examplePayloadData',
     vendor_product_id: 'yearly.premium.6999',
+    adapty_product_id: 'adapty_prodict_id',
     price: {
       amount: 69.99,
       currency_code: 'USD',
@@ -79,6 +80,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
     ios: {
       isFamilyShareable: mock.is_family_shareable as boolean,
     },
+    adaptyId: mock.adapty_product_id,
     localizedDescription: mock.localized_description,
     localizedTitle: mock.localized_title,
     paywallABTestName: mock.paywall_ab_test_name,

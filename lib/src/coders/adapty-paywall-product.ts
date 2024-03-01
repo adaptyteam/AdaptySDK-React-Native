@@ -15,6 +15,11 @@ export class AdaptyPaywallProductCoder extends Coder<Model, Serializable> {
       required: true,
       type: 'string',
     },
+    adaptyId: {
+      key: 'adapty_product_id',
+      required: true,
+      type: 'string',
+    },
     localizedDescription: {
       key: 'localized_description',
       required: true,
@@ -57,6 +62,7 @@ export class AdaptyPaywallProductCoder extends Coder<Model, Serializable> {
 
   public getInput(data: Serializable): Schema['Input.AdaptyPaywallProduct'] {
     return {
+      adapty_product_id: data.adapty_product_id,
       paywall_ab_test_name: data.paywall_ab_test_name,
       payload_data: data.payload_data,
       paywall_name: data.paywall_name,

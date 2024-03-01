@@ -38,6 +38,7 @@ export interface components {
     'Input.AdaptyPaywallProduct': {
       /** @example yearly.premium.6999 */
       vendor_product_id: string;
+      adapty_product_id: string;
       /** @description iOS Only */
       promotional_offer_id?: string;
       paywall_variation_id: string;
@@ -166,6 +167,7 @@ export interface components {
     'Output.AdaptyPaywallProduct': {
       /** @example yearly.premium.6999 */
       vendor_product_id: string;
+      adapty_product_id: string;
       localized_description: string;
       localized_title: string;
       region_code?: string;
