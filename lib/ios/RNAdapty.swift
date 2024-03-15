@@ -215,17 +215,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         let logLevel: String? = ctx.params.getOptionalValue(for: .logLevel)
         let observerMode: Bool? = ctx.params.getOptionalValue(for: .observerMode)
         let idfaCollectionDisabled: Bool? = ctx.params.getOptionalValue(for: .idfaDisabled)
-        let storeKit2UsageString: String? = ctx.params.getOptionalValue(for: .storekit2Usage)
-        
-        let storeKit2Usage: StoreKit2Usage
-        switch storeKit2UsageString {
-        case "enabled_for_introductory_offer_eligibility":
-            storeKit2Usage = .forIntroEligibilityCheck
-        case "disabled":
-            storeKit2Usage = .disabled
-        default:
-            storeKit2Usage = .default
-        }
         
         // Memoize activation args
         MEMO_ACTIVATION_ARGS[ParamKey.sdkKey.rawValue] = apiKey
@@ -243,8 +232,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         Adapty.activate(
             apiKey,
             observerMode: observerMode ?? false,
-            customerUserId: customerUserId,
-            storeKit2Usage: storeKit2Usage
+            customerUserId: customerUserId
         ) { maybeErr in ctx.okOrForwardError(maybeErr) }
         
         

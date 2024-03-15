@@ -23,7 +23,6 @@ public enum ParamKey: String {
     case placementId = "placement_id"
     case loadTimeout = "load_timeout"
     case idfaDisabled = "idfa_collection_disabled"
-    case storekit2Usage = "storekit2_usage"
     case bridgeVersion = "PLIST Bridge version"
     case prefetch_products = "prefetch_products"
     case custom_tags = "custom_tags"
