@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "react-native-adapty",
-  "version": "2.9.8",
+  "version": "2.10.0",
   "description": "Adapty React Native SDK",
   "license": "MIT",
   "author": "Vanya Dorofeyev <DivanDoesApps@gmail.com> (https://github.com/divanc)",
