@@ -60,6 +60,16 @@ export class BridgeErrorCoder
             data.underlyingError ?? {},
           )}"`,
         });
+      case 'wrongParam':
+      case 'WRONG_PARAMETER':
+        return new AdaptyError({
+          adaptyCode: 3001,
+          message:
+            data.name ??
+            `Wrong parameter. Bridge error: ${JSON.stringify(
+              data.underlyingError ?? {},
+            )}"`,
+        });
       case 'methodNotImplemented':
         return new AdaptyError({
           adaptyCode: 2003,
