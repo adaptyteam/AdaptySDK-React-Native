@@ -32,7 +32,16 @@ export abstract class Coder<
 
   private getNestedValue(obj: Record<string, any>, key: string): any {
     const keys = key.split('.');
-    let current = obj;
+    let current;
+    if (typeof obj === 'string') {
+      try {
+        current = JSON.parse(obj);
+      } catch (error) {
+        return undefined;
+      }
+    } else {
+      current = obj;
+    }
 
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i]!;
