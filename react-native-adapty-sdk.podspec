@@ -12,14 +12,14 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/adaptyteam/AdaptySDK-React-Native"
   s.license      = { :type => "MIT", :file => "LICENSE" }
   s.authors      = { "Ivan Dorofeyev" => "divandoesapps@gmail.com" }
-  s.platforms    = { :ios => "11.0" }
+  s.platforms    = { :ios => "12.2" }
   s.source       = { :git => "https://github.com/adaptyteam/AdaptySDK-React-Native.git", :tag => "#{s.version}" }
 
   s.source_files = "lib/ios/**/*.{h,c,m,swift}"
   s.resources = "lib/ios/**/*.{plist}"
   s.requires_arc = true
 
-  s.dependency "Adapty", "2.9.6"
+  s.dependency "Adapty", "2.10.1"
   s.dependency "React"
 end
 
