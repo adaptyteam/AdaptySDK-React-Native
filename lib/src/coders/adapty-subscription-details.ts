@@ -1,7 +1,7 @@
 import type { AdaptySubscriptionDetails } from '@/types';
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { AdaptySubscriptionPeriodCoder } from './adapty-subscription-period';
 import { AdaptyDiscountPhaseCoder } from './adapty-discount-phase';
 import { ArrayCoder } from './array';
@@ -11,7 +11,7 @@ type Serializable = Required<
   Schema['Output.AdaptyPaywallProduct']
 >['subscription_details'];
 
-export class AdaptySubscriptionDetailsCoder extends Coder<Model, Serializable> {
+export class AdaptySubscriptionDetailsCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     subscriptionPeriod: {
       key: 'subscription_period',

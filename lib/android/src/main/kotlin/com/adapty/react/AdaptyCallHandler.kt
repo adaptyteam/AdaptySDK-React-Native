@@ -3,11 +3,16 @@
 package com.adapty.react
 
 import com.adapty.Adapty
+import com.adapty.errors.AdaptyErrorCode
 import com.adapty.internal.crossplatform.CrossplatformHelper
-import com.adapty.internal.utils.DEFAULT_PAYWALL_TIMEOUT_MILLIS
+import com.adapty.internal.utils.DEFAULT_PAYWALL_TIMEOUT
 import com.adapty.internal.utils.InternalAdaptyApi
+import com.adapty.internal.utils.adaptyError
 import com.adapty.models.*
 import com.adapty.utils.AdaptyResult
+import com.adapty.utils.FileLocation
+import com.adapty.utils.TimeInterval
+import com.adapty.utils.millis
 import com.facebook.react.bridge.*
 
 var MEMO_ACTIVATE_ARGS = false
@@ -54,6 +59,7 @@ internal class AdaptyCallHandler(
         val customerUserId: String? = ctx.params.getOptionalValue(ParamKey.USER_ID)
         val logLevel: String? = ctx.params.getOptionalValue(ParamKey.LOG_LEVEL)
         val observerMode: Boolean? = ctx.params.getOptionalValue(ParamKey.OBSERVER_MODE)
+        val ipAddressCollectionDisabled: Boolean? = ctx.params.getOptionalValue(ParamKey.IP_ADDRESS_COLLECTION_DISABLED)
         // val enableUsageLogs: Boolean? = ctx.params.getOptionalValue(ParamKey.ENABLE_USAGE_LOGS)
 
         CrossplatformHelper.shared.toLogLevel(logLevel)?.let {
@@ -63,9 +69,11 @@ internal class AdaptyCallHandler(
         UiThreadUtil.runOnUiThread {
             Adapty.activate(
                 context = reactApplicationContext,
-                appKey = apiKey,
-                observerMode = observerMode ?: false,
-                customerUserId = customerUserId
+                config = AdaptyConfig.Builder(apiKey)
+                    .withObserverMode(observerMode ?: false)
+                    .withCustomerUserId(customerUserId)
+                    .withIpAddressCollectionDisabled(ipAddressCollectionDisabled ?: false)
+                    .build()
             )
             onActivated()
             ctx.resovle()
@@ -94,7 +102,8 @@ internal class AdaptyCallHandler(
         val placementId: String = ctx.params.getRequiredValue(ParamKey.PLACEMENT_ID)
         val locale: String? = ctx.params.getOptionalValue(ParamKey.LOCALE)
         val fetchPolicy: AdaptyPaywall.FetchPolicy = ctx.params.getDecodedValue(ParamKey.FETCH_POLICY)
-        val loadTimeoutMillis: Int = ctx.params.getOptionalValue<Double>(ParamKey.LOAD_TIMEOUT)?.toInt() ?: DEFAULT_PAYWALL_TIMEOUT_MILLIS
+        val loadTimeoutMillis: TimeInterval =
+            ctx.params.getOptionalValue<Double>(ParamKey.LOAD_TIMEOUT)?.toInt()?.millis ?: DEFAULT_PAYWALL_TIMEOUT
 
         Adapty.getPaywall(placementId, locale, fetchPolicy, loadTimeoutMillis) { result ->
             when (result) {
@@ -152,9 +161,31 @@ internal class AdaptyCallHandler(
 
     @Throws(BridgeError.TypeMismatch::class)
     private fun handleSetFallbackPaywalls(ctx: AdaptyContext) {
-        val paywallsString: String = ctx.params.getRequiredValue(ParamKey.PAYWALLS)
-
-        Adapty.setFallbackPaywalls(paywallsString) { maybeErr ->
+        var fileLocationLogStr: String? = null
+        val fileLocation: FileLocation = ctx.params.getDecodedValue<Map<String, String>>(ParamKey.FILE_LOCATION).let { map ->
+            val relativeAssetPath = map["relativeAssetPath"]
+            val rawResId = map["rawResName"]?.let { name ->
+                fileLocationLogStr = "res/raw/$name"
+                reactApplicationContext.resources.getIdentifier(name, "raw", reactApplicationContext.packageName)
+            }?.takeIf { it > 0 }
+            when {
+                relativeAssetPath != null -> {
+                    fileLocationLogStr = "assets/$relativeAssetPath"
+                    FileLocation.fromAsset(relativeAssetPath)
+                }
+                rawResId != null -> FileLocation.fromResId(reactApplicationContext, rawResId)
+                else -> null
+            }
+        } ?: kotlin.run {
+            ctx.okOrForwardError(
+                adaptyError(
+                    message = "Couldn't find the file with fallback paywalls (location: ${fileLocationLogStr}).",
+                    adaptyErrorCode = AdaptyErrorCode.WRONG_PARAMETER
+                )
+            )
+            return
+        }
+        Adapty.setFallbackPaywalls(fileLocation) { maybeErr ->
             ctx.okOrForwardError(maybeErr)
         }
     }

@@ -1,7 +1,7 @@
 import type { AdaptyNonSubscription, AdaptyProfile } from '../types';
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { AdaptyAccessLevelCoder } from './adapty-access-level';
 import { AdaptyNonSubscriptionCoder } from './adapty-non-subscription';
 import { AdaptySubscriptionCoder } from './adapty-subscription';
@@ -11,7 +11,7 @@ import { ArrayCoder } from './array';
 type Model = AdaptyProfile;
 type Serializable = Schema['Output.AdaptyProfile'];
 
-export class AdaptyProfileCoder extends Coder<Model, Serializable> {
+export class AdaptyProfileCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     accessLevels: {
       key: 'paid_access_levels',

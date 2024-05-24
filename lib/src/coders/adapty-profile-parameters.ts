@@ -1,12 +1,12 @@
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
 import type { AdaptyProfileParameters } from '@/types';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 
 type Model = AdaptyProfileParameters;
 type Serializable = Schema['Input.AdaptyProfileParameters'];
 
-export class AdaptyProfileParametersCoder extends Coder<Model, Serializable> {
+export class AdaptyProfileParametersCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     firstName: { key: 'first_name', required: false, type: 'string' },
     lastName: { key: 'last_name', required: false, type: 'string' },

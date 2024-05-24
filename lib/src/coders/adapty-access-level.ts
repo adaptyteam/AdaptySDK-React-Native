@@ -1,13 +1,13 @@
 import type { Schema } from '@/types/schema';
 import type { AdaptyAccessLevel } from '../types';
 import type { Properties } from './types';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { DateCoder } from './date';
 
 type Model = AdaptyAccessLevel;
 type Serializable = Schema['Output.AdaptyAccessLevel'];
 
-export class AdaptyAccessLevelCoder extends Coder<Model, Serializable> {
+export class AdaptyAccessLevelCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     activatedAt: {
       key: 'activated_at',

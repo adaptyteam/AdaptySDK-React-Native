@@ -1,14 +1,14 @@
 import type { AdaptyDiscountPhase } from '@/types';
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { AdaptySubscriptionPeriodCoder } from './adapty-subscription-period';
 import { AdaptyPriceCoder } from './adapty-price';
 
 type Model = AdaptyDiscountPhase;
 type Serializable = Schema['Output.AdaptyDiscountPhase'];
 
-export class AdaptyDiscountPhaseCoder extends Coder<Model, Serializable> {
+export class AdaptyDiscountPhaseCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     localizedNumberOfPeriods: {
       key: 'localized_number_of_periods',

@@ -2,14 +2,14 @@ import type { AdaptyNativeError } from '@/types/bridge';
 import type { ErrorConverter } from './error-coder';
 import type { Properties } from './types';
 import type { Schema } from '@/types/schema';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { AdaptyError } from '@/adapty-error';
 
 type Model = AdaptyNativeError;
 type Serializable = Schema['Output.AdaptyError'];
 
 export class AdaptyNativeErrorCoder
-  extends Coder<Model, Serializable>
+  extends SimpleCoder<Model, Serializable>
   implements ErrorConverter<Model>
 {
   public type: 'error' = 'error';

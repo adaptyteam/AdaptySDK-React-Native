@@ -1,12 +1,12 @@
 import type { Properties } from './types';
 import type { ProductReference } from '@/types';
 import type { Schema } from '@/types/schema';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 
 type Model = ProductReference;
 type Serializable = Schema['InOutput.ProductReference'];
 
-export class ProductReferenceCoder extends Coder<Model, Serializable> {
+export class ProductReferenceCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     vendorId: {
       key: 'vendor_product_id',

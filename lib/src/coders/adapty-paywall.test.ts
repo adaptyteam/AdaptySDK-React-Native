@@ -3,17 +3,18 @@ import type { Schema } from '@/types/schema';
 import { AdaptyPaywallCoder } from './adapty-paywall';
 import { ProductReferenceCoder } from './product-reference';
 import { ArrayCoder } from './array';
+import { AdaptyRemoteConfigCoder } from './adapty-remote-config';
+import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
 
 type Model = AdaptyPaywall;
 const mocks: Schema['InOutput.AdaptyPaywall'][] = [
   {
-    use_paywall_builder: false,
     ab_test_name: 'testA',
     developer_id: 'dev123',
     payload_data: 'additionalData',
     paywall_name: 'Paywall1',
     paywall_id: '456789o',
-    paywall_updated_at: 1630458390000,
+    response_created_at: 1630458390000,
     products: [
       {
         vendor_product_id: 'product1',
@@ -34,9 +35,12 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
     },
     revision: 5,
     variation_id: 'var001',
+    paywall_builder: {
+      paywall_builder_id: 'paywallBuilder1',
+      lang: 'en'
+    },
   },
   {
-    use_paywall_builder: false,
     developer_id: 'dev456',
     paywall_id: 'instanceId267',
     revision: 3,
@@ -47,7 +51,7 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
       { vendor_product_id: 'product3', adapty_product_id: 'adaptyProduct3' },
     ],
     remote_config: { lang: 'fr', data: '' },
-    paywall_updated_at: 1632458390000,
+    response_created_at: 1632458390000,
   },
 ];
 
@@ -55,23 +59,26 @@ function toModel(mock: (typeof mocks)[number]): Model {
   const _products = new ArrayCoder<ProductReference, ProductReferenceCoder>(
     ProductReferenceCoder,
   );
+  const _remoteConfig = new AdaptyRemoteConfigCoder();
+  const _paywallBuilder = new AdaptyPaywallBuilderCoder();
 
   return {
     abTestName: mock.ab_test_name,
     placementId: mock.developer_id,
     instanceIdentity: mock.paywall_id,
-    locale: mock.remote_config.lang,
+    ...(mock.payload_data && { payloadData: mock.payload_data }),
     name: mock.paywall_name,
     products: _products.decode(mock.products),
-    remoteConfig: mock.remote_config.data
-      ? JSON.parse(mock.remote_config.data)
-      : {},
-    ...(mock.payload_data && { payloadData: mock.payload_data }),
-    remoteConfigString: mock.remote_config.data,
+    ...(mock.remote_config && {
+      remoteConfig: _remoteConfig.decode(mock.remote_config)
+    }),
     revision: mock.revision,
     variationId: mock.variation_id,
-    version: mock.paywall_updated_at,
-    hasViewConfiguration: (mock as any).use_paywall_builder as boolean,
+    version: mock.response_created_at,
+    ...(mock.paywall_builder && {
+      paywallBuilder: _paywallBuilder.decode(mock.paywall_builder)
+    }),
+    hasViewConfiguration: mock.paywall_builder !== undefined,
   };
 }
 

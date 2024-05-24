@@ -4,16 +4,17 @@ import { Platform } from 'react-native';
 
 export abstract class Coder<
   Model extends Record<string, any>,
+  CodableModel extends Partial<Model>,
   Serializable extends Record<string, any> = Record<string, any>,
-> implements Converter<Model, Serializable>
+> implements Converter<CodableModel, Serializable>
 {
-  protected abstract properties: Properties<Model, Serializable>;
+  protected abstract properties: Properties<CodableModel, Serializable>;
 
-  encode(data: Model): Serializable {
+  encode(data: CodableModel): Serializable {
     return this.encodeWithProperties(data, this.properties);
   }
   // From vendor_product_id to productId
-  decode(data: Serializable): Model {
+  decode(data: Serializable): CodableModel {
     return this.decodeWithProperties(data, this.properties);
   }
 
@@ -176,3 +177,8 @@ export abstract class Coder<
     return result as Model;
   }
 }
+
+export abstract class SimpleCoder<
+  Model extends Record<string, any>,
+  Serializable extends Record<string, any> = Record<string, any>,
+> extends Coder<Model, Model, Serializable> {}

@@ -9,7 +9,6 @@ enum class ParamKey(val value: String) {
     ONBOARDING_PARAMS("onboarding_params"),
     PARAMS("params"),
     PAYWALL("paywall"),
-    PAYWALLS("paywalls"),
     PRODUCT("product"),
 //    PRODUCT_IDS("product_ids"),
     SDK_KEY("sdk_key"),
@@ -22,6 +21,8 @@ enum class ParamKey(val value: String) {
     PLACEMENT_ID("placement_id"),
     FETCH_POLICY("fetch_policy"),
     LOAD_TIMEOUT("load_timeout"),
+    FILE_LOCATION("file_location"),
+    IP_ADDRESS_COLLECTION_DISABLED("ip_address_collection_disabled"),
     IS_OFFER_PERSONALIZED("is_offer_personalized"),
 //    ENABLE_USAGE_LOGS("enable_usage_logs"),
 }

@@ -129,6 +129,9 @@ export class Adapty {
     if (params.customerUserId) {
       body.set('user_id', params.customerUserId);
     }
+    if (params.ipAddressCollectionDisabled) {
+      body.set('ip_address_collection_disabled', params.ipAddressCollectionDisabled);
+    }
     if (logLevel) {
       body.set('log_level', logLevel);
     }
@@ -618,13 +621,17 @@ export class Adapty {
    *
    * @returns {Promise<void>} resolves when fallback paywalls are saved
    */
-  public async setFallbackPaywalls(paywalls: string): Promise<void> {
+  public async setFallbackPaywalls(paywallsLocation: Input.FallbackPaywallsLocation): Promise<void> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'setFallbackPaywalls' });
-    log.start({ paywalls });
+    const paywallsLocationJson = Platform.select({
+      ios: JSON.stringify(paywallsLocation.ios),
+      android: JSON.stringify(paywallsLocation.android),
+    });
+    log.start({ paywallsLocationJson });
 
     const body = new ParamMap();
-    body.set('paywalls', paywalls);
+    body.set('file_location', paywallsLocationJson);
 
     const result = await this.handle<void>(
       'set_fallback_paywalls',

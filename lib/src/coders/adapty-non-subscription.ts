@@ -1,13 +1,13 @@
 import type { AdaptyNonSubscription } from '@/types';
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { DateCoder } from './date';
 
 type Model = AdaptyNonSubscription;
 type Serializable = Schema['Output.AdaptyNonSubscription'];
 
-export class AdaptyNonSubscriptionCoder extends Coder<Model, Serializable> {
+export class AdaptyNonSubscriptionCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     isConsumable: { key: 'is_consumable', required: true, type: 'boolean' },
     isRefund: { key: 'is_refund', required: true, type: 'boolean' },
