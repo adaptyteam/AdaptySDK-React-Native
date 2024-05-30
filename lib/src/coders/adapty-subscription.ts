@@ -1,13 +1,13 @@
 import type { AdaptySubscription } from '../types';
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { DateCoder } from './date';
 
 type Model = AdaptySubscription;
 type Serializable = Schema['Output.AdaptySubscription'];
 
-export class AdaptySubscriptionCoder extends Coder<Model, Serializable> {
+export class AdaptySubscriptionCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     isActive: {
       key: 'is_active',

@@ -144,6 +144,11 @@ export interface ActivateParamsInput {
    * Fixes annoying iOS simulator auhtentication
    */
   __debugDeferActivation?: boolean;
+  /**
+   * Disables IP address collection
+   * @defaultValue `false`
+   */
+  ipAddressCollectionDisabled?: boolean;
   ios?: {
     /**
      * Disables IDFA collection
@@ -179,3 +184,17 @@ export interface AdaptyAndroidSubscriptionUpdateParameters {
 export interface MakePurchaseParamsInput {
   android?: AdaptyAndroidSubscriptionUpdateParameters;
 }
+
+export type FallbackPaywallsLocation =
+  {
+    ios: {
+      fileName: string
+    },
+    android:
+      | {
+        relativeAssetPath: string
+      }
+      | {
+        rawResName: string
+      }
+  }

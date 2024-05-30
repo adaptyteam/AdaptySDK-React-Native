@@ -101,13 +101,9 @@ export interface AdaptyPaywall {
    */
   readonly placementId: string;
   /**
-   * Identifier of a paywall locale.
-   * @readonly
-   */
-  readonly locale: string;
-  /**
    * If `true`, it is possible to fetch the view object
    * and use it with AdaptyUI library.
+   * @readonly
    */
   readonly hasViewConfiguration: boolean;
 
@@ -117,15 +113,10 @@ export interface AdaptyPaywall {
    */
   readonly name: string;
   /**
-   * A custom dictionary configured in Adapty Dashboard for this paywall.
+   * A remote config configured in Adapty Dashboard for this paywall.
    * @readonly
    */
-  readonly remoteConfig?: Record<string, any>;
-  /**
-   * A custom JSON string configured in Adapty Dashboard for this paywall.
-   * @readonly
-   */
-  readonly remoteConfigString?: string;
+  readonly remoteConfig?: AdaptyRemoteConfig;
   /**
    * Current revision (version) of a paywall.
    * Every change within a paywall creates a new revision.
@@ -145,8 +136,36 @@ export interface AdaptyPaywall {
   readonly products: ProductReference[];
 
   instanceIdentity: string;
-  version: number;
+  version?: number;
   payloadData?: string;
+  paywallBuilder?: AdaptyPaywallBuilder;
+}
+
+/**
+ * Describes an object that represents a remote config of a paywall.
+ * @public
+ */
+export interface AdaptyRemoteConfig {
+  /**
+   * Identifier of a paywall locale.
+   * @readonly
+   */
+  readonly lang: string;
+  /**
+   * A custom dictionary configured in Adapty Dashboard for this paywall.
+   * @readonly
+   */
+  readonly data: Record<string, any>;
+  /**
+   * A custom JSON string configured in Adapty Dashboard for this paywall.
+   * @readonly
+   */
+  readonly dataString: string;
+}
+
+export interface AdaptyPaywallBuilder {
+  readonly id: string;
+  readonly lang: string;
 }
 
 /**

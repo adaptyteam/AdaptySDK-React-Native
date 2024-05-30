@@ -215,6 +215,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         let logLevel: String? = ctx.params.getOptionalValue(for: .logLevel)
         let observerMode: Bool? = ctx.params.getOptionalValue(for: .observerMode)
         let idfaCollectionDisabled: Bool? = ctx.params.getOptionalValue(for: .idfaDisabled)
+        let ipAddressCollectionDisabled: Bool? = ctx.params.getOptionalValue(for: .ipAddressCollectionDisabled)
         
         // Memoize activation args
         MEMO_ACTIVATION_ARGS[ParamKey.sdkKey.rawValue] = apiKey
@@ -227,13 +228,16 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         }
         
         Adapty.setCrossPlatformSDK(version: version, name: "react-native")
-        Adapty.idfaCollectionDisabled = idfaCollectionDisabled ?? false
         
-        Adapty.activate(
-            apiKey,
-            observerMode: observerMode ?? false,
-            customerUserId: customerUserId
-        ) { maybeErr in ctx.okOrForwardError(maybeErr) }
+        let configuration = Adapty.Configuration
+            .builder(withAPIKey: apiKey)
+            .with(observerMode: observerMode ?? false)
+            .with(customerUserId: customerUserId)
+            .with(ipAddressCollectionDisabled: ipAddressCollectionDisabled ?? false)
+            .with(idfaCollectionDisabled: idfaCollectionDisabled ?? false)
+            .build()
+        
+        Adapty.activate(with: configuration) { maybeErr in ctx.okOrForwardError(maybeErr) }
         
         
         Adapty.delegate = self
@@ -334,13 +338,21 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     }
     
     private func handleSetFallbackPaywalls(_ ctx: AdaptyContext) throws {
-        let paywallsString: String = try ctx.params.getRequiredValue(for: .paywalls)
-        
-        guard let paywallsData = paywallsString.data(using: .utf8) else {
-            throw BridgeError.typeMismatch(name: .paywalls, type: "UTF-8 String")
+        let fileLocation: [String: String] = try ctx.params.getDecodedValue(
+            for: .fileLocation,
+            jsonDecoder: AdaptyContext.jsonDecoder
+        )
+        guard let fileNameArr = fileLocation["fileName"]?.components(separatedBy: ".") else {
+            throw BridgeError.typeMismatch(name: .fileLocation, type: "UTF-8 String")
         }
-        
-        Adapty.setFallbackPaywalls(paywallsData) { maybeErr in
+        let forResource = !fileNameArr.isEmpty ? fileNameArr[0] : nil
+        let withExtension = (fileNameArr.count > 1) ? fileNameArr[1] : "json"
+        guard let forResource = forResource,
+              let fileURL = Bundle.main.url(forResource: forResource, withExtension: withExtension)
+        else {
+            throw BridgeError.typeMismatch(name: .fileLocation, type: "UTF-8 String")
+        }
+        Adapty.setFallbackPaywalls(fileURL: fileURL) { maybeErr in
             ctx.okOrForwardError(maybeErr)
         }
     }

@@ -9,13 +9,16 @@ import { BridgeErrorCoder } from './bridge-error';
 import { ErrorConverter } from './error-coder';
 import { HashmapCoder } from './hashmap';
 import type { Converter } from './types';
+import { AdaptyRemoteConfigCoder } from './adapty-remote-config';
+import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
 
 const AdaptyTypes = [
   'AdaptyError',
   'AdaptyProfile',
-  'AdaptyPaywallProduct',
   'AdaptyPaywall',
   'AdaptyPaywallProduct', // handleGetPaywallProducts returns array
+  'AdaptyRemoteConfig',
+  'AdaptyPaywallBuilder',
   'Dictionary<String, AdaptyEligibility>',
   'Array<AdaptyPaywallProduct>',
   'BridgeError',
@@ -107,8 +110,10 @@ function getCoder(
       return new AdaptyPaywallCoder();
     case 'AdaptyPaywallProduct':
       return new AdaptyPaywallProductCoder();
-    case 'AdaptyPaywallProduct':
-      return new AdaptyPaywallCoder();
+    case 'AdaptyRemoteConfig':
+      return new AdaptyRemoteConfigCoder();
+    case 'AdaptyPaywallBuilder':
+      return new AdaptyPaywallBuilderCoder();
     case 'BridgeError':
       return new BridgeErrorCoder();
     case 'Array<AdaptyPaywallProduct>':

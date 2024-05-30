@@ -1,14 +1,14 @@
 import type { AdaptyPaywallProduct } from '@/types';
 import type { Schema } from '@/types/schema';
 import type { Properties } from './types';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { AdaptyPriceCoder } from './adapty-price';
 import { AdaptySubscriptionDetailsCoder } from './adapty-subscription-details';
 
 type Model = AdaptyPaywallProduct;
 type Serializable = Schema['Output.AdaptyPaywallProduct'];
 
-export class AdaptyPaywallProductCoder extends Coder<Model, Serializable> {
+export class AdaptyPaywallProductCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     vendorProductId: {
       key: 'vendor_product_id',

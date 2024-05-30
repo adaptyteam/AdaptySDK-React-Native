@@ -1,5 +1,5 @@
 import { AdaptyBridgeError } from '@/types/bridge';
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { Properties } from './types';
 import { ErrorConverter } from './error-coder';
 import { AdaptyError } from '@/adapty-error';
@@ -8,7 +8,7 @@ type Model = AdaptyBridgeError;
 type Serializable = Record<string, any>;
 
 export class BridgeErrorCoder
-  extends Coder<Model, Serializable>
+  extends SimpleCoder<Model, Serializable>
   implements ErrorConverter<Model>
 {
   public type: 'error' = 'error';

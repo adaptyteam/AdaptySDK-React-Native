@@ -1,10 +1,10 @@
-import { Coder } from './coder';
+import { SimpleCoder } from './coder';
 import { Converter } from './types';
 
 // Coder for Array<T>
 export class ArrayCoder<
   Model extends Record<string, any>,
-  ModelCoder extends Coder<Model, any>,
+  ModelCoder extends SimpleCoder<Model, any>,
 > implements Converter<any[], any[]>
 {
   private coder: ModelCoder;
