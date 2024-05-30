@@ -3,9 +3,7 @@ import type { AdaptyPaywallBuilder } from '@/types';
 import type { Schema } from '@/types/schema';
 
 type Model = AdaptyPaywallBuilder;
-const mocks: Required<
-Schema['InOutput.AdaptyPaywall']
->['paywall_builder'][] = [
+const mocks: Required<Schema['InOutput.AdaptyPaywall']>['paywall_builder'][] = [
   {
     paywall_builder_id: 'paywallBuilder1',
     lang: 'en',

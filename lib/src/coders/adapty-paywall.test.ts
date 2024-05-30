@@ -37,7 +37,7 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
     variation_id: 'var001',
     paywall_builder: {
       paywall_builder_id: 'paywallBuilder1',
-      lang: 'en'
+      lang: 'en',
     },
   },
   {
@@ -70,13 +70,13 @@ function toModel(mock: (typeof mocks)[number]): Model {
     name: mock.paywall_name,
     products: _products.decode(mock.products),
     ...(mock.remote_config && {
-      remoteConfig: _remoteConfig.decode(mock.remote_config)
+      remoteConfig: _remoteConfig.decode(mock.remote_config),
     }),
     revision: mock.revision,
     variationId: mock.variation_id,
     version: mock.response_created_at,
     ...(mock.paywall_builder && {
-      paywallBuilder: _paywallBuilder.decode(mock.paywall_builder)
+      paywallBuilder: _paywallBuilder.decode(mock.paywall_builder),
     }),
     hasViewConfiguration: mock.paywall_builder !== undefined,
   };

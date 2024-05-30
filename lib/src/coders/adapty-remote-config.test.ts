@@ -3,9 +3,7 @@ import type { AdaptyRemoteConfig } from '@/types';
 import type { Schema } from '@/types/schema';
 
 type Model = AdaptyRemoteConfig;
-const mocks: Required<
-Schema['InOutput.AdaptyPaywall']
->['remote_config'][] = [
+const mocks: Required<Schema['InOutput.AdaptyPaywall']>['remote_config'][] = [
   {
     lang: 'en',
     data: '{"key":"value"}', // A custom JSON string configured in Adapty Dashboard

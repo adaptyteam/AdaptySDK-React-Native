@@ -11,7 +11,10 @@ type Serializable = Required<
   Schema['Output.AdaptyPaywallProduct']
 >['subscription_details'];
 
-export class AdaptySubscriptionDetailsCoder extends SimpleCoder<Model, Serializable> {
+export class AdaptySubscriptionDetailsCoder extends SimpleCoder<
+  Model,
+  Serializable
+> {
   protected properties: Properties<Model, Serializable> = {
     subscriptionPeriod: {
       key: 'subscription_period',

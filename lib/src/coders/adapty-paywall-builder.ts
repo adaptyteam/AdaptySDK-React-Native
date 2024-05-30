@@ -5,10 +5,13 @@ import { SimpleCoder } from './coder';
 
 type Model = AdaptyPaywallBuilder;
 type Serializable = Required<
-Schema['InOutput.AdaptyPaywall']
+  Schema['InOutput.AdaptyPaywall']
 >['paywall_builder'];
 
-export class AdaptyPaywallBuilderCoder extends SimpleCoder<Model, Serializable> {
+export class AdaptyPaywallBuilderCoder extends SimpleCoder<
+  Model,
+  Serializable
+> {
   protected properties: Properties<Model, Serializable> = {
     id: {
       key: 'paywall_builder_id',

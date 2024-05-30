@@ -185,16 +185,15 @@ export interface MakePurchaseParamsInput {
   android?: AdaptyAndroidSubscriptionUpdateParameters;
 }
 
-export type FallbackPaywallsLocation =
-  {
-    ios: {
-      fileName: string
-    },
-    android:
-      | {
-        relativeAssetPath: string
+export type FallbackPaywallsLocation = {
+  ios: {
+    fileName: string;
+  };
+  android:
+    | {
+        relativeAssetPath: string;
       }
-      | {
-        rawResName: string
-      }
-  }
+    | {
+        rawResName: string;
+      };
+};
