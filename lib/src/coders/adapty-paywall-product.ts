@@ -8,7 +8,10 @@ import { AdaptySubscriptionDetailsCoder } from './adapty-subscription-details';
 type Model = AdaptyPaywallProduct;
 type Serializable = Schema['Output.AdaptyPaywallProduct'];
 
-export class AdaptyPaywallProductCoder extends SimpleCoder<Model, Serializable> {
+export class AdaptyPaywallProductCoder extends SimpleCoder<
+  Model,
+  Serializable
+> {
   protected properties: Properties<Model, Serializable> = {
     vendorProductId: {
       key: 'vendor_product_id',

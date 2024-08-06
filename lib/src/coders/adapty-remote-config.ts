@@ -6,11 +6,13 @@ import { JSONCoder } from './json';
 
 type Model = AdaptyRemoteConfig;
 type CodableModel = Omit<Model, 'dataString'>;
-type Serializable = Required<
-Schema['InOutput.AdaptyPaywall']
->['remote_config'];
+type Serializable = Required<Schema['InOutput.AdaptyPaywall']>['remote_config'];
 
-export class AdaptyRemoteConfigCoder extends Coder<Model, CodableModel, Serializable> {
+export class AdaptyRemoteConfigCoder extends Coder<
+  Model,
+  CodableModel,
+  Serializable
+> {
   protected properties: Properties<CodableModel, Serializable> = {
     data: {
       key: 'data',
@@ -28,7 +30,10 @@ export class AdaptyRemoteConfigCoder extends Coder<Model, CodableModel, Serializ
   override decode(data: Serializable): Model {
     const codablePart = super.decode(data);
     const dataString = JSON.stringify(codablePart.data);
-    return {...codablePart, dataString: dataString.length < 4 ? '' : dataString};
+    return {
+      ...codablePart,
+      dataString: dataString.length < 4 ? '' : dataString,
+    };
   }
 
   override encode(data: Model): Serializable {

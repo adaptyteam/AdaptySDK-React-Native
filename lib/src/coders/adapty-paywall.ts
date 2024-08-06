@@ -11,7 +11,11 @@ type Model = AdaptyPaywall;
 type CodableModel = Omit<Model, 'hasViewConfiguration'>;
 type Serializable = Schema['InOutput.AdaptyPaywall'];
 
-export class AdaptyPaywallCoder extends Coder<Model, CodableModel, Serializable> {
+export class AdaptyPaywallCoder extends Coder<
+  Model,
+  CodableModel,
+  Serializable
+> {
   protected properties: Properties<CodableModel, Serializable> = {
     abTestName: { key: 'ab_test_name', required: true, type: 'string' },
     placementId: { key: 'developer_id', required: true, type: 'string' },
@@ -43,7 +47,10 @@ export class AdaptyPaywallCoder extends Coder<Model, CodableModel, Serializable>
 
   override decode(data: Serializable): Model {
     const codablePart = super.decode(data);
-    return {...codablePart, hasViewConfiguration: codablePart.paywallBuilder !== undefined };
+    return {
+      ...codablePart,
+      hasViewConfiguration: codablePart.paywallBuilder !== undefined,
+    };
   }
 
   override encode(data: Model): Serializable {
