@@ -20,6 +20,7 @@ import type { AddListenerFn, MethodName } from '@/types/bridge';
 export class Adapty {
   private resolveHeldActivation?: (() => Promise<void>) | null = null;
   private activating: Promise<void> | null = null;
+  private nonWaitingMethods: MethodName[] = ['activate', 'get_paywall_for_default_audience']
 
   // Middleware to call native handle
   async handle<T>(
@@ -34,7 +35,7 @@ export class Adapty {
      *
      * Not applicable for activate method ofc
      */
-    if (this.resolveHeldActivation && method !== 'activate') {
+    if (this.resolveHeldActivation && !this.nonWaitingMethods.includes(method)) {
       log.wait({});
       await this.resolveHeldActivation();
       this.resolveHeldActivation = null;
@@ -44,7 +45,7 @@ export class Adapty {
      * wait until activate call is resolved before calling native methods
      * Not applicable for activate method ofc
      */
-    if (this.activating && method !== 'activate') {
+    if (this.activating && !this.nonWaitingMethods.includes(method)) {
       log.wait({});
       await this.activating;
       log.waitComplete({});
@@ -169,13 +170,14 @@ export class Adapty {
   }
 
   /**
-   * Fetches a paywall by its developer ID.
+   * Fetches the paywall by the specified placement.
    *
    * @remarks
-   * Adapty allows you remotely configure the products
-   * that will be displayed in your app.
-   * This way you don’t have to hardcode the products
-   * and can dynamically change offers or run A/B tests without app releases.
+   * With Adapty, you can remotely configure the products and offers in your app
+   * by simply adding them to paywalls – no need for hardcoding them.
+   * The only thing you hardcode is the placement ID.
+   * This flexibility allows you to easily update paywalls, products, and offers,
+   * or run A/B tests, all without the need for a new app release.
    *
    * @param {string} placementId - The identifier of the desired placement.
    * This is the value you specified when you created the placement
@@ -230,6 +232,80 @@ export class Adapty {
 
     const result = await this.handle<Model.AdaptyPaywall>(
       'get_paywall',
+      body,
+      ctx,
+      log,
+    );
+
+    return result;
+  }
+
+  /**
+   * Fetches the paywall of the specified placement for the **All Users** audience.
+   * 
+   * @remarks
+   * With Adapty, you can remotely configure the products and offers in your app
+   * by simply adding them to paywalls – no need for hardcoding them.
+   * The only thing you hardcode is the placement ID.
+   * This flexibility allows you to easily update paywalls, products, and offers,
+   * or run A/B tests, all without the need for a new app release.
+   * 
+   * However, it’s crucial to understand that the recommended approach is to fetch the paywall
+   * through the placement ID by the {@link getPaywall} method.
+   * The `getPaywallForDefaultAudience` method should be a last resort due to its significant drawbacks.
+   * See docs for more details
+   * 
+   * @param {string} placementId - The identifier of the desired placement.
+   * This is the value you specified when you created the placement
+   * in the Adapty Dashboard.
+   * @param {string | undefined} [locale] - The locale of the desired paywall.
+   * @param {Input.GetPaywallForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
+   * @returns {Promise<Model.AdaptyPaywall>}
+   * A promise that resolves with a requested paywall.
+   * 
+   * @throws {@link AdaptyError}
+   * Throws an error:
+   * 1. if the paywall with the specified ID is not found
+   * 2. if your bundle ID does not match with your Adapty Dashboard setup
+   */
+  public async getPaywallForDefaultAudience(
+    placementId: string,
+    locale?: string,
+    params: Input.GetPaywallForDefaultAudienceParamsInput = {
+      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+    },
+  ): Promise<Model.AdaptyPaywall> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'getPaywallForDefaultAudience' });
+
+    log.start({ placementId, locale, params });
+
+    const body = new ParamMap();
+    body.set('placement_id', placementId);
+    if (locale) {
+      body.set('locale', locale);
+    }
+
+    if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
+      body.set(
+        'fetch_policy',
+        JSON.stringify({
+          type:
+            params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
+      );
+    } else {
+      body.set(
+        'fetch_policy',
+        JSON.stringify({
+          type: params.fetchPolicy,
+          max_age: params.maxAgeSeconds,
+        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
+      );
+    }
+
+    const result = await this.handle<Model.AdaptyPaywall>(
+      'get_paywall_for_default_audience',
       body,
       ctx,
       log,

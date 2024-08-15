@@ -34,6 +34,7 @@ public enum MethodName: String {
     case activate = "activate"
     case updateAttribution = "update_attribution"
     case getPaywall = "get_paywall"
+    case getPaywallForDefaultAudience = "get_paywall_for_default_audience"
     case getPaywallProducts = "get_paywall_products"
     case getProductsIntroductoryOfferEligibility = "get_products_introductory_offer_eligibility"
     case logShowOnboarding = "log_show_onboarding"

@@ -51,6 +51,18 @@ export const FetchPolicy = Object.freeze({
 export type FetchPolicy = (typeof FetchPolicy)[keyof typeof FetchPolicy];
 
 export type GetPaywallParamsInput =
+  & GetPaywallForDefaultAudienceParamsInput
+  & {
+      /**
+       * This value limits the timeout (in milliseconds) for this method.
+       *
+       * @remarks
+       * If the timeout is reached, cached data or local fallback will be returned.
+       */
+      loadTimeoutMs?: number;
+    };
+
+export type GetPaywallForDefaultAudienceParamsInput =
   | {
       /**
        * Fetch policy
@@ -63,13 +75,6 @@ export type GetPaywallParamsInput =
         FetchPolicy,
         'return_cache_data_if_not_expired_else_load'
       >;
-      /**
-       * This value limits the timeout (in milliseconds) for this method.
-       *
-       * @remarks
-       * If the timeout is reached, cached data or local fallback will be returned.
-       */
-      loadTimeoutMs?: number;
     }
   | {
       /**
@@ -90,13 +95,6 @@ export type GetPaywallParamsInput =
        * Max time (in seconds) the cache is valid in case of `'return_cache_data_if_not_expired_else_load'` fetch policy.
        */
       maxAgeSeconds: number;
-      /**
-       * This value limits the timeout (in milliseconds) for this method.
-       *
-       * @remarks
-       * If the timeout is reached, cached data or local fallback will be returned.
-       */
-      loadTimeoutMs?: number;
     };
 
 /**
