@@ -27,6 +27,7 @@ internal class AdaptyCallHandler(
             when (ctx.methodName) {
                 MethodName.ACTIVATE -> handleActivate(ctx)
                 MethodName.GET_PAYWALL -> handleGetPaywall(ctx)
+                MethodName.GET_PAYWALL_FOR_DEFAULT_AUDIENCE -> handleGetPaywallForDefaultAudience(ctx)
                 MethodName.GET_PAYWALL_PRODUCTS -> handleGetPaywallProducts(ctx)
                 MethodName.GET_PROFILE -> handleGetProfile(ctx)
                 MethodName.IDENTIFY -> handleIdentify(ctx)
@@ -106,6 +107,20 @@ internal class AdaptyCallHandler(
             ctx.params.getOptionalValue<Double>(ParamKey.LOAD_TIMEOUT)?.toInt()?.millis ?: DEFAULT_PAYWALL_TIMEOUT
 
         Adapty.getPaywall(placementId, locale, fetchPolicy, loadTimeoutMillis) { result ->
+            when (result) {
+                is AdaptyResult.Success -> ctx.resolve(result.value)
+                is AdaptyResult.Error -> ctx.forwardError(result.error)
+            }
+        }
+    }
+
+    @Throws(BridgeError.TypeMismatch::class)
+    private fun handleGetPaywallForDefaultAudience(ctx: AdaptyContext) {
+        val placementId: String = ctx.params.getRequiredValue(ParamKey.PLACEMENT_ID)
+        val locale: String? = ctx.params.getOptionalValue(ParamKey.LOCALE)
+        val fetchPolicy: AdaptyPaywall.FetchPolicy = ctx.params.getDecodedValue(ParamKey.FETCH_POLICY)
+
+        Adapty.getPaywallForDefaultAudience(placementId, locale, fetchPolicy) { result ->
             when (result) {
                 is AdaptyResult.Success -> ctx.resolve(result.value)
                 is AdaptyResult.Error -> ctx.forwardError(result.error)

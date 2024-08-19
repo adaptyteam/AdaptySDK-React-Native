@@ -179,6 +179,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             case .activate: try handleActivate(ctx)
             case .updateAttribution: try handleUpdateAttribution(ctx)
             case .getPaywall: try handleGetPaywall(ctx)
+            case .getPaywallForDefaultAudience: try handleGetPaywallForDefaultAudience(ctx)
             case .getPaywallProducts: try handleGetPaywallProducts(ctx)
             case .getProductsIntroductoryOfferEligibility: try handleGetProductsIntroductoryOfferEligibility(ctx)
             case .logShowOnboarding: try handleLogShowOnboarding(ctx)
@@ -276,6 +277,25 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         let loadTimeoutMillis = ctx.params.getOptionalValue(Double.self, for: .loadTimeout).map { $0 / 1000.0 } ?? .defaultLoadPaywallTimeout
         
         Adapty.getPaywall(placementId: placementId, locale: locale, fetchPolicy: fetchPolicy, loadTimeout: loadTimeoutMillis) { result in
+            switch result {
+            case let .success(paywall):
+                ctx.resolve(with: paywall)
+            case let .failure(error):
+                ctx.forwardError(error)
+            }
+        }
+    }
+    
+    private func handleGetPaywallForDefaultAudience(_ ctx: AdaptyContext) throws {
+        
+        let placementId: String = try ctx.params.getRequiredValue(for: .placementId)
+        let locale: String? = ctx.params.getOptionalValue(for: .locale)
+        let fetchPolicy: AdaptyPaywall.FetchPolicy = try ctx.params.getDecodedValue(
+            for: .fetchPolicy,
+            jsonDecoder: AdaptyContext.jsonDecoder
+        )
+        
+        Adapty.getPaywallForDefaultAudience(placementId: placementId, locale: locale, fetchPolicy: fetchPolicy) { result in
             switch result {
             case let .success(paywall):
                 ctx.resolve(with: paywall)

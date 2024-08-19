@@ -31,6 +31,7 @@ enum class MethodName(val value: String) {
     ACTIVATE("activate"),
     UPDATE_ATTRIBUTION("update_attribution"),
     GET_PAYWALL("get_paywall"),
+    GET_PAYWALL_FOR_DEFAULT_AUDIENCE("get_paywall_for_default_audience"),
     GET_PAYWALL_PRODUCTS("get_paywall_products"),
 //    GET_PRODUCTS_INTRODUCTORY_OFFER_ELIGIBILITY("get_products_introductory_offer_eligibility"),
     LOG_SHOW_ONBOARDING("log_show_onboarding"),
