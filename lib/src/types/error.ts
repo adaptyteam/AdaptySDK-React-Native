@@ -70,6 +70,24 @@ export const ErrorCode = Object.freeze({
 
   14: 'invalidOfferPrice',
 
+  /**
+   * Custom Android codes.
+   */
+  20: 'adaptyNotInitialized',
+  22: 'productNotFound',
+  24: 'currentSubscriptionToUpdateNotFoundInHistory',
+  25: 'pendingPurchase',
+  97: 'billingServiceTimeout',
+  98: 'featureNotSupported',
+  99: 'billingServiceDisconnected',
+  102: 'billingServiceUnavailable',
+  103: 'billingUnavailable',
+  105: 'developerError',
+  106: 'billingError',
+  107: 'itemAlreadyOwned',
+  108: 'itemNotOwned',
+  112: 'billingNetworkError',
+
   1000: 'noProductIDsFound',
   1002: 'productRequestFailed',
 
@@ -84,7 +102,7 @@ export const ErrorCode = Object.freeze({
   1011: 'receiveRestoredTransactionsFailed',
 
   /**
-   * Adapty SDK is not activated.
+   * You need to be authenticated to perform requests.
    */
   2002: 'notActivated',
   2003: 'badRequest',
@@ -106,7 +124,9 @@ export const ErrorCode = Object.freeze({
    * The user profile was changed during the operation.
    */
   3006: 'profileWasChanged',
+  3007: 'unsupportedData',
   3100: 'persistingDataError',
+  3101: 'fetchTimeoutError',
   9000: 'operationInterrupted',
 });
 export type ErrorCode = keyof typeof ErrorCode;
