@@ -52,7 +52,10 @@ export class Adapty {
      * wait until activate call is resolved before calling native methods
      * Not applicable for activate method ofc
      */
-    if (this.activating && (!this.nonWaitingMethods.includes(method) || method === 'is_activated')) {
+    if (
+      this.activating &&
+      (!this.nonWaitingMethods.includes(method) || method === 'is_activated')
+    ) {
       log.wait({});
       await this.activating;
       log.waitComplete({});
@@ -901,12 +904,7 @@ export class Adapty {
 
     const body = new ParamMap();
 
-    const result = await this.handle<string>(
-      'is_activated',
-      body,
-      ctx,
-      log,
-    );
+    const result = await this.handle<string>('is_activated', body, ctx, log);
 
     return result === 'true';
   }
