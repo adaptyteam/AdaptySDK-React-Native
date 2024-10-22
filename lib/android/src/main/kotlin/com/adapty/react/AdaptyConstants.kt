@@ -29,6 +29,7 @@ enum class ParamKey(val value: String) {
 
 enum class MethodName(val value: String) {
     ACTIVATE("activate"),
+    IS_ACTIVATED("is_activated"),
     UPDATE_ATTRIBUTION("update_attribution"),
     GET_PAYWALL("get_paywall"),
     GET_PAYWALL_FOR_DEFAULT_AUDIENCE("get_paywall_for_default_audience"),

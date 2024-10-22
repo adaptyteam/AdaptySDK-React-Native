@@ -22,6 +22,7 @@ export class Adapty {
   private activating: Promise<void> | null = null;
   private nonWaitingMethods: MethodName[] = [
     'activate',
+    'is_activated',
     'get_paywall_for_default_audience',
   ];
 
@@ -51,7 +52,7 @@ export class Adapty {
      * wait until activate call is resolved before calling native methods
      * Not applicable for activate method ofc
      */
-    if (this.activating && !this.nonWaitingMethods.includes(method)) {
+    if (this.activating && (!this.nonWaitingMethods.includes(method) || method === 'is_activated')) {
       log.wait({});
       await this.activating;
       log.waitComplete({});
@@ -890,5 +891,23 @@ export class Adapty {
     const result = await this.handle<void>('update_profile', body, ctx, log);
 
     return result;
+  }
+
+  public async isActivated(): Promise<boolean> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'isActivated' });
+    log.start({});
+
+    const body = new ParamMap();
+
+    const result = await this.handle<string>(
+      'is_activated',
+      body,
+      ctx,
+      log,
+    );
+
+    return result === 'true';
   }
 }

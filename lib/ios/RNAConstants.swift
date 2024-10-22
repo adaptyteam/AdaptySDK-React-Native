@@ -27,11 +27,13 @@ public enum ParamKey: String {
     case bridgeVersion = "PLIST Bridge version"
     case prefetch_products = "prefetch_products"
     case custom_tags = "custom_tags"
+    case timer_info = "timer_info"
     case view_id = "view_id"
 }
 
 public enum MethodName: String {
     case activate = "activate"
+    case isActivated = "is_activated"
     case updateAttribution = "update_attribution"
     case getPaywall = "get_paywall"
     case getPaywallForDefaultAudience = "get_paywall_for_default_audience"

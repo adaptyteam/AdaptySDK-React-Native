@@ -75,6 +75,11 @@ export class BridgeErrorCoder
           adaptyCode: 2003,
           message: 'Requested bridge handle not found',
         });
+      case 'unsupportedIosVersion':
+        return new AdaptyError({
+          adaptyCode: 2003,
+          message: 'Unsupported iOS version',
+        });
       case 'unexpectedError':
       default:
         return new AdaptyError({
