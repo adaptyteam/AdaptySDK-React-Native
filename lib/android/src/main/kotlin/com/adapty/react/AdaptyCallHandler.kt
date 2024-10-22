@@ -26,6 +26,7 @@ internal class AdaptyCallHandler(
         try {
             when (ctx.methodName) {
                 MethodName.ACTIVATE -> handleActivate(ctx)
+                MethodName.IS_ACTIVATED -> handleIsActivated(ctx)
                 MethodName.GET_PAYWALL -> handleGetPaywall(ctx)
                 MethodName.GET_PAYWALL_FOR_DEFAULT_AUDIENCE -> handleGetPaywallForDefaultAudience(ctx)
                 MethodName.GET_PAYWALL_PRODUCTS -> handleGetPaywallProducts(ctx)
@@ -67,18 +68,21 @@ internal class AdaptyCallHandler(
             Adapty.logLevel = it
         }
 
-        UiThreadUtil.runOnUiThread {
-            Adapty.activate(
-                context = reactApplicationContext,
-                config = AdaptyConfig.Builder(apiKey)
-                    .withObserverMode(observerMode ?: false)
-                    .withCustomerUserId(customerUserId)
-                    .withIpAddressCollectionDisabled(ipAddressCollectionDisabled ?: false)
-                    .build()
-            )
-            onActivated()
-            ctx.resovle()
-        }
+        Adapty.activate(
+            context = reactApplicationContext,
+            config = AdaptyConfig.Builder(apiKey)
+                .withObserverMode(observerMode ?: false)
+                .withCustomerUserId(customerUserId)
+                .withIpAddressCollectionDisabled(ipAddressCollectionDisabled ?: false)
+                .build()
+        )
+        onActivated()
+        ctx.resovle()
+    }
+
+    private fun handleIsActivated(ctx: AdaptyContext) {
+        val isActivated = Adapty.isActivated
+        ctx.resolve("$isActivated")
     }
 
     @Throws(BridgeError.TypeMismatch::class)

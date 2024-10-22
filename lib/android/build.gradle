@@ -66,8 +66,6 @@ android {
             versionNameSuffix "-lib-debug"
             repositories {
                 google()
-                // Adapty helper library
-                maven { url "$rootDir/localMaven" }
                 maven { url "$rootDir/internalMaven" }
                 maven { url "$rootDir/../../node_modules/react-native/android" }
             }
@@ -81,21 +79,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-}
 
-rootProject.allprojects {
-    repositories {
-        // Adapty helper library
-        maven { url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven" }
-    }
+  if (project.android.hasProperty("namespace")) {
+    namespace 'com.adapty.react'
+  }
 }
 
 repositories {
     mavenCentral()
     google()
     maven { url "$rootDir/../node_modules/react-native/android" }
-    // Adapty helper library
-    maven { url "$rootDir/../node_modules/react-native-adapty/lib/android/localMaven" }
 }
 
 def getExtOrDefault(name) {
@@ -105,10 +98,10 @@ def getExtOrDefault(name) {
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
-    api 'io.adapty:android-sdk:2.11.5'
+    api 'io.adapty:android-sdk:3.0.2'
 
     //noinspection GradleDynamicVersion
-    api 'io.adapty.internal:crossplatform:2.11.1'
+    api 'io.adapty.internal:crossplatform:3.0.0'
 
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion

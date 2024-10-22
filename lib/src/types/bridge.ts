@@ -48,6 +48,7 @@ export type ParamKey = (typeof ParamKeys)[number];
  */
 export const MethodNames = [
   'activate',
+  'is_activated',
   'get_paywall',
   'get_paywall_for_default_audience',
   'get_paywall_products',

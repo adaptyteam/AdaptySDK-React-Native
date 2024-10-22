@@ -5,6 +5,7 @@ public enum BridgeError: Error, CustomStringConvertible, Encodable {
     case typeMismatch(name: ParamKey, type: String)
     case encodingFailed(Error)
     case methodNotImplemented
+    case unsupportedIosVersion
     case unexpectedError(Error)
     
     public var description: String {
@@ -17,6 +18,8 @@ public enum BridgeError: Error, CustomStringConvertible, Encodable {
             return "Failed to encode data into JSON with error: \(error.localizedDescription)."
         case .methodNotImplemented:
             return "Method not implemented."
+        case .unsupportedIosVersion:
+            return "Unsupported iOS version."
         case .unexpectedError(let error):
             return "Unexpected error: \(error.localizedDescription)."
             
@@ -50,6 +53,9 @@ public enum BridgeError: Error, CustomStringConvertible, Encodable {
             
         case .methodNotImplemented:
             try container.encode("methodNotImplemented", forKey: .errorType)
+            
+        case .unsupportedIosVersion:
+            try container.encode("unsupportedIosVersion", forKey: .errorType)
             
         case .unexpectedError(let error):
             try container.encode("unexpectedError", forKey: .errorType)

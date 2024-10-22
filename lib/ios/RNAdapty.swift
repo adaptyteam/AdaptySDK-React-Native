@@ -1,5 +1,6 @@
 import Foundation
 import Adapty
+import AdaptyUI
 
 private var MEMO_ACTIVATION_ARGS: [String: AnyHashable] = [:]
 public func ==<K, L: Hashable, R: Hashable>(lhs: [K: L], rhs: [K: R] ) -> Bool {
@@ -177,6 +178,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         do {
             switch MethodName(rawValue: method as String) ?? .notImplemented {
             case .activate: try handleActivate(ctx)
+            case .isActivated: handleIsActivated(ctx)
             case .updateAttribution: try handleUpdateAttribution(ctx)
             case .getPaywall: try handleGetPaywall(ctx)
             case .getPaywallForDefaultAudience: try handleGetPaywallForDefaultAudience(ctx)
@@ -238,11 +240,20 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
             .with(idfaCollectionDisabled: idfaCollectionDisabled ?? false)
             .build()
         
-        Adapty.activate(with: configuration) { maybeErr in ctx.okOrForwardError(maybeErr) }
-        
+        Adapty.activate(with: configuration) { maybeErr in
+            ctx.okOrForwardError(maybeErr)
+            if #available(iOS 15.0, *) {
+                AdaptyUI.activate()
+            }
+        }
         
         Adapty.delegate = self
         
+    }
+    
+    private func handleIsActivated(_ ctx: AdaptyContext) {
+        let isActivated = Adapty.isActivated
+        ctx.resolve(with: String(isActivated))
     }
     
     // MARK: - Attribution
