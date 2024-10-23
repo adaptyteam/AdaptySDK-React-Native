@@ -103,6 +103,8 @@ dependencies {
     //noinspection GradleDynamicVersion
     api 'io.adapty.internal:crossplatform:3.0.0'
 
+    implementation 'io.adapty:android-ui:3.0.1'
+
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
