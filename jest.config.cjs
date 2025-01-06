@@ -4,10 +4,10 @@ const { pathsToModuleNameMapper } = require('ts-jest');
 module.exports = {
   preset: 'react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  modulePaths: ['./lib/src'],
+  modulePaths: ['./src'],
   moduleNameMapper: pathsToModuleNameMapper(
     { '@/*': ['*'] },
-    { prefix: '<rootDir>/lib/src/' },
+    { prefix: '<rootDir>/src/' },
   ),
   setupFiles: ['./jest/jest.setup.js'],
   transformIgnorePatterns: ['node_modules/(?!@react-native|react-native)'],

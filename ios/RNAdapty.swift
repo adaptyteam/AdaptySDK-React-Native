@@ -224,7 +224,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         MEMO_ACTIVATION_ARGS[ParamKey.sdkKey.rawValue] = apiKey
         MEMO_ACTIVATION_ARGS[ParamKey.userId.rawValue] = customerUserId
         
-        let version = try fetchBridgeVersion()
+        let version = "3.1.0"
         if let logLevel = logLevel,
            let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
             Adapty.logLevel = level
@@ -495,18 +495,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     
     private func handleTestWrap(_ ctx: AdaptyContext, resolver: @escaping RCTPromiseResolveBlock) {
         ctx.resolve()
-    }
-}
-
-extension RNAdapty {
-    private func fetchBridgeVersion() throws -> String {
-        guard let path = Bundle.main.path(forResource: "CrossplatformVersion", ofType: "plist"),
-              let dict = NSDictionary(contentsOfFile: path),
-              let version = dict["version"] as? String else {
-            throw BridgeError.missingRequiredArgument(name: .bridgeVersion)
-        }
-        
-        return version
     }
 }
 

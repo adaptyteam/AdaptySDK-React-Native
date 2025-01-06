@@ -9,8 +9,7 @@
 dist
 
 # Version files
-lib/src/version.ts
-lib/ios/CrossplatformVersion.plist
+src/version.ts
 
 node_modules
 package-lock.json
