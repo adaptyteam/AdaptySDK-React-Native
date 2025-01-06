@@ -224,7 +224,7 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         MEMO_ACTIVATION_ARGS[ParamKey.sdkKey.rawValue] = apiKey
         MEMO_ACTIVATION_ARGS[ParamKey.userId.rawValue] = customerUserId
         
-        let version = "3.0.1"
+        let version = "3.1.0"
         if let logLevel = logLevel,
            let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
             Adapty.logLevel = level
