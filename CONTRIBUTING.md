@@ -15,7 +15,7 @@ To develop locally you need to have Xcode and Android Studio running.
 After you have done setting up Adapty locally, run following commands to make things work: 
 1. `yarn` to fetch required node packages
 2. `yarn pods` to install required Pods to run example iOS app (you will need to have CocoaPods installed)
-3. `cd lib/android && ./gradlew` to install required packages to develop Android app
+3. `cd android && ./gradlew` to install required packages to develop Android app
 
 Then you can run:
 `yarn xcode` to open the library Xcode project or `yarn xcode-example` to open example-app Xcode project (might be convinient to develop there)

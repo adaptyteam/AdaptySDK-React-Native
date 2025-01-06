@@ -7,6 +7,14 @@ apply plugin: 'maven-publish'
 // Expose package.json version to gradle
 apply from: 'version.gradle'
 
+def isNewArchitectureEnabled() {
+  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+}
+
+if (isNewArchitectureEnabled()) {
+  apply plugin: "com.facebook.react"
+}
+
 buildscript {
     def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['adapty_kotlinVersion']
 
@@ -46,6 +54,7 @@ android {
         versionName packageJsonVersion
         multiDexEnabled true
         buildConfigField 'String', 'VERSION_NAME', "\"$packageJsonVersion\""
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
     }
 
     lintOptions {
@@ -76,13 +85,16 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
-  if (project.android.hasProperty("namespace")) {
-    namespace 'com.adapty.react'
-  }
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.adapty.react'
+    }
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 repositories {
@@ -111,4 +123,12 @@ dependencies {
 
     //noinspection DifferentStdlibGradleVersion
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+if (isNewArchitectureEnabled()) {
+  react {
+    jsRootDir = file("../src/")
+    libraryName = "ReactNativeAdapty"
+    codegenJavaPackageName = "com.adapty.react"
+  }
 }

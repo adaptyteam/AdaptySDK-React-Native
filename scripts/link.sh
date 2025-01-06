@@ -5,7 +5,7 @@ mkdir -p $DIST
 ln -s ios $DIST/ios
 ls -s android $DIST/android
 ln -s node_modules $DIST/node_modules
-ln -s lib $DIST/lib
+ln -s src $DIST/src
 ln -s react-native-adapty.podspec $DIST/react-native-adapty.podspec
 ln -s tsconfig.json $DIST/tsconfig.json
 ln -s package.json $DIST/package.json
