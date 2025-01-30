@@ -1,10 +1,10 @@
 import type { AdaptyPrice } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { SimpleCoder } from './coder';
 
 type Model = AdaptyPrice;
-type Serializable = Schema['Output.AdaptyPrice'];
+type Serializable = Def['AdaptyPrice'];
 
 export class AdaptyPriceCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {

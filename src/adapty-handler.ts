@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 
-import { $bridge, ParamMap } from '@/bridge';
+import { $bridge } from '@/bridge';
 import { LogContext, Log, LogScope } from '@/logger';
-import type { Schema } from '@/types/schema';
+import type { Def, Req } from '@/types/schema';
 
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
@@ -10,7 +10,11 @@ import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters
 
 import type * as Model from '@/types';
 import * as Input from '@/types/inputs';
-import type { AddListenerFn, MethodName } from '@/types/bridge';
+import { AddListenerFn, MethodName } from '@/types/bridge';
+import { AdaptyType } from '@/coders/parse';
+import version from '@/version';
+import { AdaptyUiMediaCacheCoder } from '@/coders/adapty-ui-media-cache';
+import { AdaptyUiMediaCache } from '@/ui/types';
 
 /**
  * Entry point for the Adapty SDK.
@@ -25,11 +29,17 @@ export class Adapty {
     'is_activated',
     'get_paywall_for_default_audience',
   ];
+  private defaultMediaCache: AdaptyUiMediaCache = {
+    memoryStorageTotalCostLimit: 100 * 1024 * 1024,
+    memoryStorageCountLimit: 2147483647,
+    diskStorageSizeLimit: 100 * 1024 * 1024,
+  };
 
   // Middleware to call native handle
   async handle<T>(
     method: MethodName,
-    params: ParamMap,
+    params: string,
+    resultType: AdaptyType,
     ctx: LogContext,
     log: LogScope,
   ): Promise<T> {
@@ -63,7 +73,7 @@ export class Adapty {
     }
 
     try {
-      const result = await $bridge.request(method, params, ctx);
+      const result = await $bridge.request(method, params, resultType, ctx);
 
       log.success(result);
       return result as T;
@@ -81,7 +91,10 @@ export class Adapty {
    * Adds a event listener for native event
    */
   addEventListener: AddListenerFn = (event, callback) => {
-    return $bridge.addEventListener(event, callback);
+    if (event !== 'onLatestProfileLoad') {
+      throw new Error('Only onLatestProfileLoad event is supported');
+    }
+    return $bridge.addEventListener('did_load_latest_profile', callback);
   };
 
   /**
@@ -132,32 +145,55 @@ export class Adapty {
     const log = ctx.call({ methodName: 'activate' });
     log.start({ apiKey, params });
 
-    const body = new ParamMap();
-    body.set('sdk_key', apiKey);
-    if (params.observerMode) {
-      body.set('observer_mode', params.observerMode);
-    }
+    const config: Def['AdaptyConfiguration'] = {
+      api_key: apiKey,
+      cross_platform_sdk_name: 'react-native',
+      cross_platform_sdk_version: version,
+    };
     if (params.customerUserId) {
-      body.set('user_id', params.customerUserId);
+      config['customer_user_id'] = params.customerUserId;
     }
-    if (params.ipAddressCollectionDisabled) {
-      body.set(
-        'ip_address_collection_disabled',
-        params.ipAddressCollectionDisabled,
-      );
-    }
+    config['observer_mode'] = params.observerMode ?? false;
+    config['ip_address_collection_disabled'] =
+      params.ipAddressCollectionDisabled ?? false;
     if (logLevel) {
-      body.set('log_level', logLevel);
+      config['log_level'] = logLevel;
     }
+    config['server_cluster'] = params.serverCluster ?? 'default';
+    if (params.backendBaseUrl) {
+      config['backend_base_url'] = params.backendBaseUrl;
+    }
+    if (params.backendFallbackBaseUrl) {
+      config['backend_fallback_base_url'] = params.backendFallbackBaseUrl;
+    }
+    if (params.backendConfigsBaseUrl) {
+      config['backend_configs_base_url'] = params.backendConfigsBaseUrl;
+    }
+    if (params.backendProxyHost) {
+      config['backend_proxy_host'] = params.backendProxyHost;
+    }
+    if (params.backendProxyPort) {
+      config['backend_proxy_port'] = params.backendProxyPort;
+    }
+    config['activate_ui'] = params.activateUi ?? true;
+    const coder = new AdaptyUiMediaCacheCoder();
+    config['media_cache'] = coder.encode(
+      params.mediaCache ?? this.defaultMediaCache,
+    );
 
     if (Platform.OS === 'ios') {
-      if (params.ios?.idfaCollectionDisabled) {
-        body.set('idfa_collection_disabled', params.ios.idfaCollectionDisabled);
-      }
+      config['idfa_collection_disabled'] =
+        params.ios?.idfaCollectionDisabled ?? false;
     }
 
+    const methodKey = 'activate';
+    const body = JSON.stringify({
+      method: methodKey,
+      configuration: config,
+    } satisfies Req['Activate.Request']);
+
     const activate = async () => {
-      this.activating = this.handle<void>('activate', body, ctx, log);
+      this.activating = this.handle<void>(methodKey, body, 'Void', ctx, log);
       await this.activating;
     };
 
@@ -215,34 +251,33 @@ export class Adapty {
 
     log.start({ placementId, locale, params });
 
-    const body = new ParamMap();
-    body.set('placement_id', placementId);
+    const methodKey = 'get_paywall';
+    const data: Req['GetPaywall.Request'] = {
+      method: methodKey,
+      placement_id: placementId,
+      load_timeout: (params.loadTimeoutMs ?? 5000) / 1000,
+    };
     if (locale) {
-      body.set('locale', locale);
+      data['locale'] = locale;
     }
-    body.set('load_timeout', params.loadTimeoutMs);
-
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
-      body.set(
-        'fetch_policy',
-        JSON.stringify({
-          type:
-            params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
-        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
-      );
+      data['fetch_policy'] = {
+        type:
+          params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+      } satisfies Def['AdaptyPaywall.FetchPolicy'];
     } else {
-      body.set(
-        'fetch_policy',
-        JSON.stringify({
-          type: params.fetchPolicy,
-          max_age: params.maxAgeSeconds,
-        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
-      );
+      data['fetch_policy'] = {
+        type: params.fetchPolicy,
+        max_age: params.maxAgeSeconds,
+      } satisfies Def['AdaptyPaywall.FetchPolicy'];
     }
+
+    const body = JSON.stringify(data);
 
     const result = await this.handle<Model.AdaptyPaywall>(
-      'get_paywall',
+      methodKey,
       body,
+      'AdaptyPaywall',
       ctx,
       log,
     );
@@ -290,33 +325,32 @@ export class Adapty {
 
     log.start({ placementId, locale, params });
 
-    const body = new ParamMap();
-    body.set('placement_id', placementId);
+    const methodKey = 'get_paywall_for_default_audience';
+    const data: Req['GetPaywallForDefaultAudience.Request'] = {
+      method: methodKey,
+      placement_id: placementId,
+    };
     if (locale) {
-      body.set('locale', locale);
+      data['locale'] = locale;
+    }
+    if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
+      data['fetch_policy'] = {
+        type:
+          params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+      } satisfies Def['AdaptyPaywall.FetchPolicy'];
+    } else {
+      data['fetch_policy'] = {
+        type: params.fetchPolicy,
+        max_age: params.maxAgeSeconds,
+      } satisfies Def['AdaptyPaywall.FetchPolicy'];
     }
 
-    if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
-      body.set(
-        'fetch_policy',
-        JSON.stringify({
-          type:
-            params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
-        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
-      );
-    } else {
-      body.set(
-        'fetch_policy',
-        JSON.stringify({
-          type: params.fetchPolicy,
-          max_age: params.maxAgeSeconds,
-        } satisfies Schema['InOutput.AdaptyPaywallFetchPolicy']),
-      );
-    }
+    const body = JSON.stringify(data);
 
     const result = await this.handle<Model.AdaptyPaywall>(
-      'get_paywall_for_default_audience',
+      methodKey,
       body,
+      'AdaptyPaywall',
       ctx,
       log,
     );
@@ -347,54 +381,18 @@ export class Adapty {
     log.start({ paywall });
 
     const coder = new AdaptyPaywallCoder();
-    const body = new ParamMap();
-    body.set('paywall', JSON.stringify(coder.encode(paywall)));
+    const methodKey = 'get_paywall_products';
+    const data: Req['GetPaywallProducts.Request'] = {
+      method: methodKey,
+      paywall: coder.encode(paywall),
+    };
+
+    const body = JSON.stringify(data);
 
     const result = await this.handle<any>(
-      'get_paywall_products',
+      methodKey,
       body,
-      ctx,
-      log,
-    );
-
-    return result;
-  }
-
-  public async getProductsIntroductoryOfferEligibility<
-    T extends Model.AdaptyPaywallProduct['vendorProductId'],
-  >(
-    products: Model.AdaptyPaywallProduct[],
-  ): Promise<Record<T, Model.OfferEligibility>> {
-    const ctx = new LogContext();
-    const log = ctx.call({
-      methodName: 'getProductsIntroductoryOfferEligibility',
-    });
-    log.start({ products });
-
-    if (Platform.OS === 'android') {
-      const result = products.reduce(
-        (acc, product) => {
-          acc[product.vendorProductId as T] =
-            product.subscriptionDetails?.android
-              ?.introductoryOfferEligibility ?? 'ineligible';
-          return acc;
-        },
-        {} as Record<T, Model.OfferEligibility>,
-      );
-
-      log.success(result);
-      return result;
-    }
-
-    const body = new ParamMap();
-    body.set(
-      'product_ids',
-      products.map(product => product.vendorProductId),
-    );
-
-    const result = await this.handle<Record<T, Model.OfferEligibility>>(
-      'get_products_introductory_offer_eligibility',
-      body,
+      'Array<AdaptyPaywallProduct>',
       ctx,
       log,
     );
@@ -428,11 +426,15 @@ export class Adapty {
     const log = ctx.call({ methodName: 'getProfile' });
     log.start({});
 
-    const body = new ParamMap();
+    const methodKey = 'get_profile';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['GetProfile.Request']);
 
     const result = await this.handle<Model.AdaptyProfile>(
-      'get_profile',
+      methodKey,
       body,
+      'AdaptyProfile',
       ctx,
       log,
     );
@@ -457,10 +459,14 @@ export class Adapty {
     const log = ctx.call({ methodName: 'identify' });
     log.start({ customerUserId });
 
-    const body = new ParamMap();
-    body.set('user_id', customerUserId);
+    const methodKey = 'identify';
+    const data: Req['Identify.Request'] = {
+      method: methodKey,
+      customer_user_id: customerUserId,
+    };
+    const body = JSON.stringify(data);
 
-    const result = await this.handle<void>('identify', body, ctx, log);
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -494,10 +500,15 @@ export class Adapty {
     log.start({ paywall });
 
     const coder = new AdaptyPaywallCoder();
-    const body = new ParamMap();
-    body.set('paywall', JSON.stringify(coder.encode(paywall)));
+    const methodKey = 'log_show_paywall';
+    const data: Req['LogShowPaywall.Request'] = {
+      method: methodKey,
+      paywall: coder.encode(paywall),
+    };
 
-    const result = await this.handle<void>('log_show_paywall', body, ctx, log);
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -537,22 +548,19 @@ export class Adapty {
     const log = ctx.call({ methodName: 'logShowOnboarding' });
     log.start({ screenOrder, onboardingName, screenName });
 
-    const body = new ParamMap();
-    body.set(
-      'onboarding_params',
-      JSON.stringify({
+    const methodKey = 'log_show_onboarding';
+    const data: Req['LogShowOnboarding.Request'] = {
+      method: methodKey,
+      params: {
         onboarding_screen_order: screenOrder,
         onboarding_name: onboardingName,
         onboarding_screen_name: screenName,
-      }),
-    );
+      },
+    };
 
-    const result = await this.handle<void>(
-      'log_show_onboarding',
-      body,
-      ctx,
-      log,
-    );
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -569,9 +577,12 @@ export class Adapty {
     const log = ctx.call({ methodName: 'logout' });
     log.start({});
 
-    const body = new ParamMap();
+    const methodKey = 'logout';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['Logout.Request']);
 
-    const result = await this.handle<void>('logout', body, ctx, log);
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -579,22 +590,20 @@ export class Adapty {
   /**
    * Performs a purchase of the specified product.
    *
-   * All the available promotions will be applied automatically.
+   * All available promotions will be applied automatically.
    *
    * @remarks
-   * Successful purchase will also result in a call to `'onLatestProfileLoad'` listener.
+   * Successful purchase will also result in a call to the `'onLatestProfileLoad'` listener.
    * You can use {@link Adapty.addEventListener} to subscribe to this event and handle
    * the purchase result outside of this thread.
    *
-   * @param {Model.AdaptyPaywallProduct} product - The product to e purchased.
+   * @param {Model.AdaptyPaywallProduct} product - The product to be purchased.
    * You can get the product using {@link Adapty.getPaywallProducts} method.
-   * @param {Input.MakePurchaseParams} [params] - Additional parameters for the purchase.
-   * @returns {Promise<Model.AdaptyProfile>} A Promise that resolves to an {@link Model.AdaptyProfile} object
-   * containing the user's profile information after the purchase is made.
+   * @param {Input.MakePurchaseParamsInput} [params] - Additional parameters for the purchase.
+   * @returns {Promise<Model.AdaptyPurchaseResult>} A Promise that resolves to the {@link Model.AdaptyPurchaseResult} object
+   * containing details about the purchase. If the result is `'success'`, it also includes the updated user's profile.
    * @throws {AdaptyError} If an error occurs during the purchase process
    * or while decoding the response from the native SDK.
-   * Some of the possible errors are:
-   * * #1006 — User has cancelled
    *
    * @example
    * ```ts
@@ -604,7 +613,7 @@ export class Adapty {
    *   const product = products[0];
    *
    *   const profile = await adapty.makePurchase(product);
-   *   // successfull purchase
+   *   // successful, canceled, or pending purchase
    * } catch (error) {
    *   // handle error
    * }
@@ -613,7 +622,7 @@ export class Adapty {
   public async makePurchase(
     product: Model.AdaptyPaywallProduct,
     params: Input.MakePurchaseParamsInput = {},
-  ): Promise<Model.AdaptyProfile> {
+  ): Promise<Model.AdaptyPurchaseResult> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'makePurchase' });
@@ -623,29 +632,29 @@ export class Adapty {
     const encoded = coder.encode(product);
     const productInput = coder.getInput(encoded);
 
-    const body = new ParamMap();
-
-    body.set('product', JSON.stringify(productInput));
+    const methodKey = 'make_purchase';
+    const data: Req['MakePurchase.Request'] = {
+      method: methodKey,
+      product: productInput,
+    };
 
     if (params.android && Platform.OS === 'android') {
-      if (params.android) {
-        body.set(
-          'params',
-          JSON.stringify({
-            replacement_mode: params.android.prorationMode,
-            old_sub_vendor_product_id: params.android.oldSubVendorProductId,
-          }),
-        );
-      }
+      data['subscription_update_params'] = {
+        replacement_mode: params.android.prorationMode,
+        old_sub_vendor_product_id: params.android.oldSubVendorProductId,
+      };
 
       if (params.android.isOfferPersonalized) {
-        body.set('is_offer_personalized', params.android.isOfferPersonalized);
+        data['is_offer_personalized'] = params.android.isOfferPersonalized;
       }
     }
 
-    const result = await this.handle<Model.AdaptyProfile>(
-      'make_purchase',
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<Model.AdaptyPurchaseResult>(
+      methodKey,
       body,
+      'AdaptyPurchaseResult',
       ctx,
       log,
     );
@@ -660,19 +669,59 @@ export class Adapty {
    * iOS 14+ only.
    */
   public async presentCodeRedemptionSheet(): Promise<void> {
+    if (Platform.OS === 'android') {
+      return Promise.resolve();
+    }
+
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'presentCodeRedemptionSheet' });
     log.start({});
 
-    const body = new ParamMap();
+    const methodKey = 'present_code_redemption_sheet';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['PresentCodeRedemptionSheet.Request']);
 
-    const result = await this.handle<void>(
-      'present_code_redemption_sheet',
-      body,
-      ctx,
-      log,
-    );
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+    return result;
+  }
+
+  /**
+   * Sets the variation ID of the purchase.
+   *
+   * In Observer mode, Adapty SDK doesn't know, where the purchase was made from.
+   * If you display products using our Paywalls or A/B Tests,
+   * you can manually assign variation to the purchase.
+   * After doing this, you'll be able to see metrics in Adapty Dashboard.
+   *
+   * @param {string} transactionId - `transactionId` property of {@link Model.AdaptySubscription}
+   * @param {string} variationId - `variationId` property of {@link Model.AdaptyPaywall}
+   * @throws {@link AdaptyError}
+   */
+  public async reportTransaction(
+    transactionId: string,
+    variationId?: string,
+  ): Promise<void> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'reportTransaction' });
+    log.start({ variationId, transactionId });
+
+    const methodKey = 'report_transaction';
+    const data: Req['ReportTransaction.Request'] = {
+      method: methodKey,
+      transaction_id: transactionId,
+    };
+
+    if (variationId) {
+      data['variation_id'] = variationId;
+    }
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
     return result;
   }
 
@@ -680,7 +729,7 @@ export class Adapty {
    * Restores user purchases and updates the profile.
    *
    * @returns {Promise<Model.AdaptyProfile>} resolves with the updated profile
-   * @throws {@link AdaptyError} if an error occurs during the restore proccess or while decoding the response
+   * @throws {@link AdaptyError} if an error occurs during the restore process or while decoding the response
    */
   public async restorePurchases(): Promise<Model.AdaptyProfile> {
     const ctx = new LogContext();
@@ -688,11 +737,15 @@ export class Adapty {
     const log = ctx.call({ methodName: 'restorePurchases' });
     log.start({});
 
-    const body = new ParamMap();
+    const methodKey = 'restore_purchases';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['RestorePurchases.Request']);
 
     const result = await this.handle<Model.AdaptyProfile>(
-      'restore_purchases',
+      methodKey,
       body,
+      'AdaptyProfile',
       ctx,
       log,
     );
@@ -716,20 +769,44 @@ export class Adapty {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'setFallbackPaywalls' });
     const paywallsLocationJson = Platform.select({
-      ios: JSON.stringify(paywallsLocation.ios),
-      android: JSON.stringify(paywallsLocation.android),
+      ios: paywallsLocation.ios.fileName,
+      android:
+        'relativeAssetPath' in paywallsLocation.android
+          ? `${paywallsLocation.android.relativeAssetPath}a`
+          : `${paywallsLocation.android.rawResName}r`,
     });
     log.start({ paywallsLocationJson });
 
-    const body = new ParamMap();
-    body.set('file_location', paywallsLocationJson);
+    const methodKey = 'set_fallback_paywalls';
+    const data: Req['SetFallbackPaywalls.Request'] = {
+      method: methodKey,
+      asset_id: paywallsLocationJson ?? '',
+    };
 
-    const result = await this.handle<void>(
-      'set_fallback_paywalls',
-      body,
-      ctx,
-      log,
-    );
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  public async setIntegrationIdentifier(
+    key: string,
+    value: string,
+  ): Promise<void> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'setIntegrationIdentifier' });
+    log.start({ key });
+
+    const methodKey = 'set_integration_identifiers';
+    const data: Req['SetIntegrationIdentifier.Request'] = {
+      method: methodKey,
+      key_values: { [key]: value },
+    };
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -758,48 +835,15 @@ export class Adapty {
 
     Log.logLevel = logLevel;
 
-    const body = new ParamMap();
-    body.set('value', logLevel);
+    const methodKey = 'set_log_level';
+    const data: Req['SetLogLevel.Request'] = {
+      method: methodKey,
+      value: logLevel,
+    };
 
-    const result = await this.handle<void>('set_log_level', body, ctx, log);
+    const body = JSON.stringify(data);
 
-    return result;
-  }
-
-  /**
-   * Sets the variation ID of the purchase.
-   *
-   * In Observer mode, Adapty SDK doesn't know, where the purchase was made from.
-   * If you display products using our Paywalls or A/B Tests,
-   * you can manually assign variation to the purchase.
-   * After doing this, you'll be able to see metrics in Adapty Dashboard.
-   *
-   * @param {string} variationId - `variationId` property of {@link Model.AdaptyPaywall}
-   * @param {string} transactionId - `transactionId` property of {@link Model.AdaptySubscription}
-   * @throws {@link AdaptyError}
-   */
-  public async setVariationId(
-    variationId: string,
-    transactionId: string,
-  ): Promise<void> {
-    const ctx = new LogContext();
-
-    const log = ctx.call({ methodName: 'setVariationId' });
-    log.start({ variationId, transactionId });
-
-    const body = new ParamMap();
-
-    body.set('variation_id', variationId);
-    body.set('transaction_id', transactionId);
-    body.set(
-      'params',
-      JSON.stringify({
-        variation_id: variationId,
-        transaction_id: transactionId,
-      }),
-    );
-
-    const result = await this.handle<void>('set_variation_id', body, ctx, log);
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -819,45 +863,30 @@ export class Adapty {
    * adapty.updateAttribution(attribution, 'adjust');
    * ```
    *
-   * @param {Record<string | number, any>} attribution - An object containing attribution data.
+   * @param {Record<string, any>} attribution - An object containing attribution data.
    * @param {string} source - The source of the attribution data.
-   * @param {string} [networkUserId] - The network user ID.
    * @returns {Promise<void>} A promise that resolves when the attribution data is updated.
    *
    * @throws {@link AdaptyError} Throws if parameters are invalid or not provided.
    */
   public async updateAttribution(
     attribution: Record<string, any>,
-    source: Input.AttributionSource,
-    networkUserId?: string,
+    source: string,
   ): Promise<void> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'updateAttribution' });
-    log.start({ attribution, source, networkUserId });
+    log.start({ attribution, source });
 
-    let bridgeSource = source;
-    if ((Input.AttributionSource as object).hasOwnProperty(source)) {
-      bridgeSource =
-        Input.AttributionSource[source as keyof typeof Input.AttributionSource];
-    }
+    const methodKey = 'update_attribution_data';
+    const data: Req['UpdateAttributionData.Request'] = {
+      method: methodKey,
+      attribution: JSON.stringify(attribution),
+      source: source,
+    };
 
-    let attributionData: any = attribution;
-    if (Platform.OS === 'android') {
-      // Android bridge handles objects poorly
-      attributionData = JSON.stringify(attribution);
-    }
+    const body = JSON.stringify(data);
 
-    const body = new ParamMap();
-    body.set('attribution', attributionData);
-    body.set('source', bridgeSource);
-    body.set('network_user_id', networkUserId);
-
-    const result = await this.handle<void>(
-      'update_attribution',
-      body,
-      ctx,
-      log,
-    );
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -887,11 +916,15 @@ export class Adapty {
     log.start({ params });
 
     const coder = new AdaptyProfileParametersCoder();
-    const body = new ParamMap();
+    const methodKey = 'update_profile';
+    const data: Req['UpdateProfile.Request'] = {
+      method: methodKey,
+      params: coder.encode(params),
+    };
 
-    body.set('params', JSON.stringify(coder.encode(params)));
+    const body = JSON.stringify(data);
 
-    const result = await this.handle<void>('update_profile', body, ctx, log);
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -902,10 +935,19 @@ export class Adapty {
     const log = ctx.call({ methodName: 'isActivated' });
     log.start({});
 
-    const body = new ParamMap();
+    const methodKey = 'is_activated';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['IsActivated.Request']);
 
-    const result = await this.handle<string>('is_activated', body, ctx, log);
+    const result = await this.handle<boolean>(
+      methodKey,
+      body,
+      'Boolean',
+      ctx,
+      log,
+    );
 
-    return result === 'true';
+    return result;
   }
 }

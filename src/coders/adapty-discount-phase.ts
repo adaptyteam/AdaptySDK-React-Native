@@ -1,12 +1,12 @@
 import type { AdaptyDiscountPhase } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { SimpleCoder } from './coder';
 import { AdaptySubscriptionPeriodCoder } from './adapty-subscription-period';
 import { AdaptyPriceCoder } from './adapty-price';
 
 type Model = AdaptyDiscountPhase;
-type Serializable = Schema['Output.AdaptyDiscountPhase'];
+type Serializable = Def['AdaptySubscriptionOffer.Phase'];
 
 export class AdaptyDiscountPhaseCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
@@ -37,13 +37,6 @@ export class AdaptyDiscountPhaseCoder extends SimpleCoder<Model, Serializable> {
       required: true,
       type: 'object',
       converter: new AdaptySubscriptionPeriodCoder(),
-    },
-    ios: {
-      identifier: {
-        key: 'identifier',
-        required: false,
-        type: 'string',
-      },
     },
   };
 }

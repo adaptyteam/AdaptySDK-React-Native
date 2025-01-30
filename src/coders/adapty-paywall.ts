@@ -1,5 +1,5 @@
 import type { AdaptyPaywall } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { ProductReferenceCoder } from './product-reference';
 import { ArrayCoder } from './array';
@@ -9,7 +9,7 @@ import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
 
 type Model = AdaptyPaywall;
 type CodableModel = Omit<Model, 'hasViewConfiguration'>;
-type Serializable = Schema['InOutput.AdaptyPaywall'];
+type Serializable = Def['AdaptyPaywall'];
 
 export class AdaptyPaywallCoder extends Coder<
   Model,

@@ -1,10 +1,10 @@
 import type { AdaptySubscriptionPeriod } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { SimpleCoder } from './coder';
 
 type Model = AdaptySubscriptionPeriod;
-type Serializable = Schema['Output.AdaptySubscriptionPeriod'];
+type Serializable = Def['AdaptySubscriptionPeriod'];
 
 export class AdaptySubscriptionPeriodCoder extends SimpleCoder<
   Model,

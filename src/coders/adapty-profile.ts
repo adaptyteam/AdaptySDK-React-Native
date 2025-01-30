@@ -1,5 +1,5 @@
 import type { AdaptyNonSubscription, AdaptyProfile } from '../types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { SimpleCoder } from './coder';
 import { AdaptyAccessLevelCoder } from './adapty-access-level';
@@ -9,7 +9,7 @@ import { HashmapCoder } from './hashmap';
 import { ArrayCoder } from './array';
 
 type Model = AdaptyProfile;
-type Serializable = Schema['Output.AdaptyProfile'];
+type Serializable = Def['AdaptyProfile'];
 
 export class AdaptyProfileCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
@@ -18,11 +18,6 @@ export class AdaptyProfileCoder extends SimpleCoder<Model, Serializable> {
       required: false,
       type: 'object',
       converter: new HashmapCoder(new AdaptyAccessLevelCoder()),
-    },
-    segmentHash: {
-      key: 'segment_hash',
-      required: true,
-      type: 'string',
     },
     customAttributes: {
       key: 'custom_attributes',

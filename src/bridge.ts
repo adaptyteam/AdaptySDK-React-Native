@@ -1,9 +1,6 @@
-import {
-  NativeRequestHandler,
-  ParamMap as GenericParamMap,
-} from '@/native-request-handler';
+import { NativeRequestHandler } from '@/native-request-handler';
 
-import type { MethodName, ParamKey } from '@/types/bridge';
+import type { MethodName } from '@/types/bridge';
 
 /**
  * Name of bridge package
@@ -16,12 +13,6 @@ import type { MethodName, ParamKey } from '@/types/bridge';
  */
 export const MODULE_NAME = 'RNAdapty';
 
-export class ParamMap extends GenericParamMap<ParamKey> {
-  constructor() {
-    super();
-  }
-}
-
-export const $bridge = new NativeRequestHandler<MethodName, ParamMap>(
+export const $bridge = new NativeRequestHandler<MethodName, string>(
   MODULE_NAME,
 );

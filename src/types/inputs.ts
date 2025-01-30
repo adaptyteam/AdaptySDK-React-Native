@@ -1,4 +1,5 @@
 import type { Adapty } from '@/adapty-handler';
+import { AdaptyUiMediaCache } from '@/ui/types';
 /**
  * Log levels for the SDK
  *
@@ -30,17 +31,6 @@ export const LogLevel = Object.freeze({
 });
 
 export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel];
-
-export const AttributionSource = Object.freeze({
-  Adjust: 'adjust',
-  AppsFlyer: 'appsflyer',
-  AppleSearchAds: 'apple_search_ads',
-  Branch: 'branch',
-  Custom: 'custom',
-});
-
-export type AttributionSource =
-  (typeof AttributionSource)[keyof typeof AttributionSource];
 
 export const FetchPolicy = Object.freeze({
   ReloadRevalidatingCacheData: 'reload_revalidating_cache_data',
@@ -128,6 +118,15 @@ export interface ActivateParamsInput {
    * @defaultValue `VERBOSE`
    */
   logLevel?: LogLevel;
+
+  serverCluster?: 'default' | 'eu';
+  backendBaseUrl?: string;
+  backendFallbackBaseUrl?: string;
+  backendConfigsBaseUrl?: string;
+  backendProxyHost?: string;
+  backendProxyPort?: number;
+  activateUi?: boolean;
+  mediaCache?: AdaptyUiMediaCache;
 
   /**
    * Locks methods threads until the SDK is ready.

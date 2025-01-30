@@ -6,18 +6,21 @@ import {
 
 import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '@/logger';
-import { parse } from '@/coders';
-
-import type { ParamMap } from './param-map';
+import { parseMethodResult } from '@/coders';
+import {
+  AdaptyType,
+  parseCommonEvent,
+  parsePaywallEvent,
+} from '@/coders/parse';
 
 const KEY_HANDLER_NAME = 'HANDLER';
 
 export class NativeRequestHandler<
   Method extends string,
-  Params extends ParamMap<string>,
+  Params extends string,
 > {
   _module: (typeof NativeModules)[string];
-  _request: (method: Method, params: any) => Promise<string>;
+  _request: (method: Method, params: Record<string, string>) => Promise<string>;
 
   _emitter: NativeEventEmitter;
   _listeners: Set<EmitterSubscription>;
@@ -42,20 +45,25 @@ export class NativeRequestHandler<
 
     this._request = this._module[handlerName] as (
       method: Method,
-      params: Params,
+      params: Record<string, string>,
     ) => Promise<string>;
     if (!this._request) {
       throw new Error('Adapty native handler is not defined');
     }
   }
 
-  async request<T>(method: Method, params: Params, ctx?: LogContext) {
+  async request<T>(
+    method: Method,
+    params: Params,
+    resultType: AdaptyType,
+    ctx?: LogContext,
+  ) {
     const log = ctx?.bridge({ methodName: `fetch/${method}` });
     log?.start({ method, params });
 
     try {
-      const response = await this._request(method, params.encode());
-      const result = parse<T>(response, ctx);
+      const response = await this._request(method, { args: params });
+      const result = parseMethodResult<T>(response, resultType, ctx);
 
       log?.success({ response });
       return result;
@@ -76,13 +84,7 @@ export class NativeRequestHandler<
           error,
         );
       }
-      if (errorObj instanceof AdaptyError) {
-        throw errorObj;
-      }
-
-      const encodedMsg = errorObj['message'];
-      const adaptyError = parse(encodedMsg);
-      throw adaptyError;
+      throw errorObj;
     }
   }
 
@@ -110,12 +112,15 @@ export class NativeRequestHandler<
 
       const args = data.map(arg => {
         try {
-          const result = parse(arg, ctx);
+          const commonEvent = parseCommonEvent(event, arg, ctx);
+          if (commonEvent) return commonEvent;
+
+          const paywallEvent = parsePaywallEvent(arg, ctx);
 
           try {
             rawValue = JSON.parse(arg);
           } catch {}
-          return result;
+          return paywallEvent;
         } catch (error) {
           log.failed({ error });
 

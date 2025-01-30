@@ -1,5 +1,5 @@
 import type { AdaptyPaywall, ProductReference } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import { AdaptyPaywallCoder } from './adapty-paywall';
 import { ProductReferenceCoder } from './product-reference';
 import { ArrayCoder } from './array';
@@ -7,7 +7,7 @@ import { AdaptyRemoteConfigCoder } from './adapty-remote-config';
 import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
 
 type Model = AdaptyPaywall;
-const mocks: Schema['InOutput.AdaptyPaywall'][] = [
+const mocks: Def['AdaptyPaywall'][] = [
   {
     ab_test_name: 'testA',
     developer_id: 'dev123',
@@ -20,7 +20,7 @@ const mocks: Schema['InOutput.AdaptyPaywall'][] = [
         vendor_product_id: 'product1',
         adapty_product_id: 'adaptyProduct1',
         promotional_offer_id: 'offer1', // iOS Only
-        ...({ is_consumable: false } as any), // Android Only
+        win_back_offer_id: 'offer2', // iOS Only
         base_plan_id: 'base1', // Android Only
         offer_id: 'androidOffer1', // Android Only
       },

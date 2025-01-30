@@ -51,14 +51,6 @@ export const ProductPeriod = Object.freeze({
 });
 export type ProductPeriod = (typeof ProductPeriod)[keyof typeof ProductPeriod];
 
-export const OfferEligibility = Object.freeze({
-  Eligible: 'eligible',
-  Ineligible: 'ineligible',
-  NotApplicable: 'not_applicable',
-});
-export type OfferEligibility =
-  (typeof OfferEligibility)[keyof typeof OfferEligibility];
-
 export interface AdaptyPrice {
   /**
    * Price as number
@@ -168,6 +160,15 @@ export interface AdaptyPaywallBuilder {
   readonly lang: string;
 }
 
+export type AdaptyPurchaseResult =
+  | {
+      type: 'pending' | 'user_cancelled';
+    }
+  | {
+      type: 'success';
+      profile: AdaptyProfile;
+    };
+
 /**
  * Interface representing a user profile in Adapty,
  * including details about the user's subscriptions and consumable products.
@@ -181,8 +182,6 @@ export interface AdaptyProfile {
    * @readonly
    */
   readonly accessLevels?: Record<string, AdaptyAccessLevel>;
-
-  readonly segmentHash: string;
 
   /**
    * Object representing custom attributes set for the user using
@@ -563,7 +562,7 @@ export interface AdaptyPaywallProduct {
    */
   readonly vendorProductId: string;
   payloadData?: string;
-  subscriptionDetails?: AdaptySubscriptionDetails;
+  subscription?: AdaptySubscriptionDetails;
   ios?: {
     /**
      * Boolean value that indicates
@@ -588,14 +587,11 @@ export interface AdaptySubscriptionDetails {
    */
   localizedSubscriptionPeriod?: string;
   /**
-   * An array of subscription offers available for the auto-renewable subscription.
-   * Will be empty for iOS version below 12.2
-   * and macOS version below 10.14.4.
+   * A subscription offer if available for the auto-renewable subscription.
    */
-  introductoryOffers?: AdaptyDiscountPhase[];
+  offer?: AdaptySubscriptionOffer;
 
   ios?: {
-    promotionalOffer?: AdaptyDiscountPhase;
     /**
      * An identifier of the subscription group
      * to which the subscription belongs.
@@ -605,23 +601,28 @@ export interface AdaptySubscriptionDetails {
   };
 
   android?: {
-    /**
-     * An object containing free trial information for the given product.
-     * @see {@link https://developer.android.com/google/play/billing/subscriptions#free-trial}
-     */
-    // freeTrialPeriod?: AdaptySubscriptionPeriod;
-    /**
-     * The period’s language is determined
-     * by the preferred language set on the device.
-     */
-    // localizedFreeTrialPeriod?: string;
-    offerId?: string;
     basePlanId: string;
-    introductoryOfferEligibility: OfferEligibility;
-    offerTags?: string[];
     renewalType?: 'prepaid' | 'autorenewable';
   };
 }
+
+/**
+ * Subscription offer model to products
+ * @see {@link https://doc.adapty.io/docs/rn-api-reference#adaptysubscriptionoffer}
+ */
+export interface AdaptySubscriptionOffer {
+  readonly identifier: AdaptySubscriptionOfferId;
+
+  phases: AdaptyDiscountPhase[];
+
+  android?: {
+    offerTags?: string[];
+  };
+}
+
+export type AdaptySubscriptionOfferId =
+  | { id?: string; type: 'introductory' }
+  | { id: string; type: 'promotional' | 'win_back' };
 
 /**
  * Discount model to products
@@ -659,14 +660,6 @@ export interface AdaptyDiscountPhase {
    * @readonly
    */
   readonly paymentMode: OfferType;
-  ios?: {
-    /**
-     * Unique identifier of a discount offer for a product.
-     * @see {@link https://developer.apple.com/documentation/storekit/skpaymentdiscount/3043528-identifier}
-     * @readonly
-     */
-    readonly identifier?: string;
-  };
 }
 
 /**
@@ -696,17 +689,6 @@ export interface AdaptyProfileParameters {
   birthday?: string;
   email?: string;
   phoneNumber?: string;
-  facebookAnonymousId?: string;
-  amplitudeUserId?: string;
-  amplitudeDeviceId?: string;
-  mixpanelUserId?: string;
-  appmetricaProfileId?: string;
-  appmetricaDeviceId?: string;
-  oneSignalPlayerId?: string;
-  oneSignalSubscriptionId?: string;
-  pushwooshHWID?: string;
-  firebaseAppInstanceId?: string;
-  airbridgeDeviceId?: string;
 }
 
 export interface ProductReference {
@@ -714,11 +696,11 @@ export interface ProductReference {
   adaptyId: string;
 
   ios?: {
-    discountId?: string;
+    promotionalOfferId?: string;
+    winBackOfferId?: string;
   };
 
   android?: {
-    isConsumable: boolean;
     basePlanId?: string;
     offerId?: string;
   };

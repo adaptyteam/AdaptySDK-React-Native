@@ -4,11 +4,11 @@ import type {
   OfferType,
   VendorStore,
 } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import { AdaptyAccessLevelCoder } from './adapty-access-level';
 
 type Model = AdaptyAccessLevel;
-const mocks: Schema['Output.AdaptyAccessLevel'][] = [
+const mocks: Def['AdaptyProfile.AccessLevel'][] = [
   {
     activated_at: '2023-08-08T12:00:00.000Z',
     active_introductory_offer_type: 'offer1',

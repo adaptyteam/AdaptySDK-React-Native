@@ -1,14 +1,15 @@
 import type { ProductReference } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import { ProductReferenceCoder } from './product-reference';
 
 type Model = ProductReference;
-const mocks: Schema['InOutput.ProductReference'][] = [
+const mocks: Def['AdaptyPaywall.ProductReference'][] = [
   { vendor_product_id: 'product123', adapty_product_id: 'adaptyProduct123' },
   {
     vendor_product_id: 'product456',
     adapty_product_id: 'adaptyProduct456',
     promotional_offer_id: 'offer789',
+    win_back_offer_id: 'offer456',
   },
   {
     vendor_product_id: 'product111',
@@ -19,7 +20,8 @@ const mocks: Schema['InOutput.ProductReference'][] = [
   {
     vendor_product_id: 'productXYZ',
     adapty_product_id: 'adaptyProductXYZ',
-    promotional_offer_id: 'offerIOS',
+    promotional_offer_id: 'promoOfferIOS',
+    win_back_offer_id: 'winBackOfferIOS',
     base_plan_id: 'baseAndroid',
     offer_id: 'offerAndroid',
   },
@@ -31,7 +33,10 @@ function toModel(mock: (typeof mocks)[number]): Model {
     adaptyId: mock.adapty_product_id,
     ios: {
       ...(mock.promotional_offer_id && {
-        discountId: mock.promotional_offer_id,
+        promotionalOfferId: mock.promotional_offer_id,
+      }),
+      ...(mock.win_back_offer_id && {
+        winBackOfferId: mock.win_back_offer_id,
       }),
     },
     android: {

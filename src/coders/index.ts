@@ -1,1 +1,1 @@
-export { parse } from './parse';
+export { parseMethodResult } from './parse';
