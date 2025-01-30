@@ -1,12 +1,12 @@
 import type { AdaptyPaywallProduct } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { SimpleCoder } from './coder';
 import { AdaptyPriceCoder } from './adapty-price';
 import { AdaptySubscriptionDetailsCoder } from './adapty-subscription-details';
 
 type Model = AdaptyPaywallProduct;
-type Serializable = Schema['Output.AdaptyPaywallProduct'];
+type Serializable = Def['AdaptyPaywallProduct.Response'];
 
 export class AdaptyPaywallProductCoder extends SimpleCoder<
   Model,
@@ -48,8 +48,8 @@ export class AdaptyPaywallProductCoder extends SimpleCoder<
       converter: new AdaptyPriceCoder(),
     },
     payloadData: { key: 'payload_data', required: false, type: 'string' },
-    subscriptionDetails: {
-      key: 'subscription_details',
+    subscription: {
+      key: 'subscription',
       required: false,
       type: 'object',
       converter: new AdaptySubscriptionDetailsCoder(),
@@ -63,15 +63,14 @@ export class AdaptyPaywallProductCoder extends SimpleCoder<
     },
   };
 
-  public getInput(data: Serializable): Schema['Input.AdaptyPaywallProduct'] {
+  public getInput(data: Serializable): Def['AdaptyPaywallProduct.Request'] {
     return {
       adapty_product_id: data.adapty_product_id,
       paywall_ab_test_name: data.paywall_ab_test_name,
       payload_data: data.payload_data,
       paywall_name: data.paywall_name,
       paywall_variation_id: data.paywall_variation_id,
-      promotional_offer_id:
-        data.subscription_details?.promotional_offer?.identifier,
+      subscription_offer_identifier: data.subscription?.offer?.offer_identifier,
       vendor_product_id: data.vendor_product_id,
     };
   }

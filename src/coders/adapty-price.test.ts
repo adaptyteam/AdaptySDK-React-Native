@@ -1,9 +1,9 @@
 import { AdaptyPriceCoder } from './adapty-price';
 import type { AdaptyPrice } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 
 type Model = AdaptyPrice;
-const mocks: Schema['Output.AdaptyPrice'][] = [
+const mocks: Def['AdaptyPrice'][] = [
   {
     amount: 9.99,
     currency_code: 'USD',

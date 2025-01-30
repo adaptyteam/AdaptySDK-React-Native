@@ -1,11 +1,11 @@
 import type { AdaptyNonSubscription } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { SimpleCoder } from './coder';
 import { DateCoder } from './date';
 
 type Model = AdaptyNonSubscription;
-type Serializable = Schema['Output.AdaptyNonSubscription'];
+type Serializable = Def['AdaptyProfile.NonSubscription'];
 
 export class AdaptyNonSubscriptionCoder extends SimpleCoder<
   Model,

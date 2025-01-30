@@ -11,10 +11,6 @@ export const ErrorCode = Object.freeze({
    */
   1: 'clientInvalid',
   /**
-   * User cancelled the request, etc.
-   */
-  2: 'paymentCancelled',
-  /**
    * Invalid purchase identifier, etc.
    */
   3: 'paymentInvalid',
@@ -76,7 +72,6 @@ export const ErrorCode = Object.freeze({
   20: 'adaptyNotInitialized',
   22: 'productNotFound',
   24: 'currentSubscriptionToUpdateNotFoundInHistory',
-  25: 'pendingPurchase',
   97: 'billingServiceTimeout',
   98: 'featureNotSupported',
   99: 'billingServiceDisconnected',

@@ -48,26 +48,29 @@ export type ParamKey = (typeof ParamKeys)[number];
  */
 export const MethodNames = [
   'activate',
+  'adapty_ui_activate',
+  'adapty_ui_create_view',
+  'adapty_ui_dismiss_view',
+  'adapty_ui_present_view',
+  'adapty_ui_show_dialog',
   'is_activated',
   'get_paywall',
   'get_paywall_for_default_audience',
   'get_paywall_products',
-  'get_products_introductory_offer_eligibility',
   'get_profile',
   'identify',
   'log_show_onboarding',
   'log_show_paywall',
   'logout',
   'make_purchase',
-  'not_implemented',
   'present_code_redemption_sheet',
+  'report_transaction',
   'restore_purchases',
   'set_fallback_paywalls',
+  'set_integration_identifiers',
   'set_log_level',
-  'set_variation_id',
-  'update_attribution',
+  'update_attribution_data',
   'update_profile',
-  '__test__',
 ] as const;
 export type MethodName = (typeof MethodNames)[number];
 
@@ -82,12 +85,6 @@ export type Serializable =
   | string[]
   | null
   | undefined;
-
-/**
- * Hashmap of parameters that can be passed to the bridge
- * without any further encoding/serialization
- */
-export type ParamMap = Partial<Record<ParamKey, Serializable>>;
 
 /**
  * Interface of error that emit from native SDK
@@ -109,13 +106,13 @@ export interface AdaptyBridgeError {
   description?: string;
 }
 
-export const AdaptyEvents = [
-  'onLatestProfileLoad',
-  'onDeferredPurchase',
-] as const;
-export type AdaptyEvent = (typeof AdaptyEvents)[number];
+interface EventMap {
+  onLatestProfileLoad: string;
+}
 
-export type AddListenerGeneric<E extends AdaptyEvent, Data> = (
+type UserEventName = keyof EventMap;
+
+export type AddListenerGeneric<E extends UserEventName, Data> = (
   event: E,
   callback: (data: Data) => void | Promise<void>,
 ) => EmitterSubscription;
@@ -123,5 +120,4 @@ export type AddListenerGeneric<E extends AdaptyEvent, Data> = (
 export type AddListenerFn = AddListenerGeneric<
   'onLatestProfileLoad',
   AdaptyProfile
-> &
-  AddListenerGeneric<'onDeferredPurchase', AdaptyProfile>;
+>;

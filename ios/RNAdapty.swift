@@ -1,75 +1,60 @@
 import Foundation
 import Adapty
 import AdaptyUI
+import AdaptyPlugin
 
-private var MEMO_ACTIVATION_ARGS: [String: AnyHashable] = [:]
-public func ==<K, L: Hashable, R: Hashable>(lhs: [K: L], rhs: [K: R] ) -> Bool {
-    (lhs as NSDictionary).isEqual(to: rhs)
+enum Log {
+    typealias Category = AdaptyPlugin.LogCategory
+
+    static let wrapper = Category(subsystem: "io.adapty.react", name: "wrapper")
 }
 
 @objc(RNAdapty)
-class RNAdapty: RCTEventEmitter, AdaptyDelegate {
+class RNAdapty: RCTEventEmitter {
     // UI Thread is required to properly work with StoreKit SDK
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
     
+    override init() {
+        super.init()
+        Task { @MainActor in
+            AdaptyPlugin.reqister(setFallbackPaywallsRequests: { @MainActor assetId in
+                return Bundle.main.url(forResource: assetId, withExtension: nil)
+            })
+
+            AdaptyPlugin.reqister(eventHandler: SwiftAdaptyPluginEventHandler { [weak self] event in
+                guard let self = self, self.hasListeners else {
+                    return
+                }
+                self.sendEvent(
+                    withName: event.id,
+                    body: try event.asAdaptyJsonData.asAdaptyJsonString
+                )
+            })
+        }
+    }
+    
     // A list of emittable events to JavaScript
-    override func supportedEvents() -> [String]! {
+    override func supportedEvents() -> [String] {
         return [
-            EventName.onDeferredPurchase.rawValue,
-            EventName.onLatestProfileLoad.rawValue,
+            "did_load_latest_profile",
+            "paywall_view_did_perform_action",
+            "paywall_view_did_select_product",
+            "paywall_view_did_start_purchase",
+            "paywall_view_did_finish_purchase",
+            "paywall_view_did_fail_purchase",
+            "paywall_view_did_start_restore",
+            "paywall_view_did_finish_restore",
+            "paywall_view_did_fail_restore",
+            "paywall_view_did_fail_rendering",
+            "paywall_view_did_fail_loading_products",
         ]
     }
     
     override func constantsToExport() -> [AnyHashable : Any]! {
         // Name of the function that routes all incoming requests
         return ["HANDLER": "handle"]
-    }
-    
-
-    func didLoadLatestProfile(_ profile: AdaptyProfile) {
-        if !self.hasListeners {
-            return
-        }
-        
-        do {
-            let result = AdaptyResult(
-                data: profile,
-                type: String(describing: AdaptyProfile.self)
-            )
-            let jsonStr = try AdaptyContext.encodeToJSON(result)
-            
-            return self.sendEvent(
-                withName: EventName.onLatestProfileLoad.rawValue,
-                body: jsonStr
-            )
-        } catch {
-            if let bridgeError = error as? BridgeError {
-                let result = AdaptyResult<BridgeError>(
-                    data: bridgeError,
-                    type: String(describing: BridgeError.self)
-                )
-                let jsonStr = try? AdaptyContext.encodeToJSON(result)
-                
-                return self.sendEvent(
-                    withName: EventName.onLatestProfileLoad.rawValue,
-                    body: jsonStr
-                )
-            } else {
-                let unknownBridgeError = BridgeError.unexpectedError(error)
-                let result = AdaptyResult<BridgeError>(
-                    data: unknownBridgeError,
-                    type: String(describing: BridgeError.self)
-                )
-                let jsonStr = try? AdaptyContext.encodeToJSON(result)
-                
-                return self.sendEvent(
-                    withName: EventName.onLatestProfileLoad.rawValue,
-                    body: jsonStr
-                )
-            }
-        }
     }
     
     // RN doesn't like when events fire
@@ -82,76 +67,6 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
     }
     override func stopObserving() {
         self.hasListeners = false
-    }
-    
-    // Deferred purchases flow
-    func shouldAddStorePayment(
-        for product: AdaptyDeferredProduct,
-        defermentCompletion makeDeferredPurchase: @escaping (AdaptyResultCompletion<AdaptyPurchasedInfo>?) -> Void
-    ) -> Bool {
-        if !self.hasListeners {
-            return false
-        }
-        
-        Adapty.getProfile { result in
-            do {
-                switch (result) {
-                case let .success(profile):
-                    let result = AdaptyResult(
-                        data: profile,
-                        type: String(describing: AdaptyProfile.self)
-                    )
-                    let jsonStr = try AdaptyContext.encodeToJSON(result)
-                    
-                    self.sendEvent(
-                        withName: EventName.onDeferredPurchase.rawValue,
-                        body: jsonStr
-                    )
-                    return
-                case let .failure(error):
-                    let result = AdaptyResult(
-                        data: error,
-                        type: String(describing: AdaptyError.self)
-                    )
-                    let jsonStr = try AdaptyContext.encodeToJSON(result)
-                    
-                    self.sendEvent(
-                        withName: EventName.onDeferredPurchase.rawValue,
-                        body: jsonStr
-                    )
-                    return
-                }
-            } catch {
-                if let bridgeError = error as? BridgeError {
-                    let result = AdaptyResult<BridgeError>(
-                        data: bridgeError,
-                        type: String(describing: BridgeError.self)
-                    )
-                    let jsonStr = try? AdaptyContext.encodeToJSON(result)
-                    
-                    self.sendEvent(
-                        withName: EventName.onDeferredPurchase.rawValue,
-                        body: jsonStr
-                    )
-                    return
-                } else {
-                    let unknownBridgeError = BridgeError.unexpectedError(error)
-                    let result = AdaptyResult<BridgeError>(
-                        data: unknownBridgeError,
-                        type: String(describing: BridgeError.self)
-                    )
-                    let jsonStr = try? AdaptyContext.encodeToJSON(result)
-                    
-                    self.sendEvent(
-                        withName: EventName.onDeferredPurchase.rawValue,
-                        body: jsonStr
-                    )
-                    return
-                }
-            }
-        }
-        
-        return true
     }
     
     // MARK: - Handle router
@@ -169,361 +84,28 @@ class RNAdapty: RCTEventEmitter, AdaptyDelegate {
         resolver: @escaping RCTPromiseResolveBlock,
         rejecter: @escaping RCTPromiseRejectBlock
     ) {
-        let ctx = AdaptyContext(
-            args: args,
-            resolver: resolver,
-            rejecter: rejecter
-        )
+        Task {
+            let response = await AdaptyPlugin.execute(
+                method: method as String,
+                withJson: args["args"] as? String ?? ""
+            )
+            resolver(response.asAdaptyJsonString)
+        }
+    }
+}
+
+final class SwiftAdaptyPluginEventHandler: EventHandler {
+    private let onEvent: @Sendable (AdaptyPluginEvent) throws -> Void
         
+        init(onEvent: @escaping @Sendable (AdaptyPluginEvent) throws -> Void) {
+            self.onEvent = onEvent
+        }
+    
+    public func handle(event: AdaptyPluginEvent) {
         do {
-            switch MethodName(rawValue: method as String) ?? .notImplemented {
-            case .activate: try handleActivate(ctx)
-            case .isActivated: handleIsActivated(ctx)
-            case .updateAttribution: try handleUpdateAttribution(ctx)
-            case .getPaywall: try handleGetPaywall(ctx)
-            case .getPaywallForDefaultAudience: try handleGetPaywallForDefaultAudience(ctx)
-            case .getPaywallProducts: try handleGetPaywallProducts(ctx)
-            case .getProductsIntroductoryOfferEligibility: try handleGetProductsIntroductoryOfferEligibility(ctx)
-            case .logShowOnboarding: try handleLogShowOnboarding(ctx)
-            case .logShowPaywall: try handleLogShowPaywall(ctx)
-            case .setFallbackPaywalls: try handleSetFallbackPaywalls(ctx)
-            case .setVariationId: try handleSetVariationId(ctx)
-            case .getProfile: handleGetProfile(ctx)
-            case .identify: try handleIdentify(ctx)
-            case .logout: handleLogout(ctx)
-            case .updateProfile: try handleUpdateProfile(ctx)
-            case .makePurchase: try handleMakePurchase(ctx)
-            case .presentCodeRedemptionSheet: handlePresentCodeRedemptionSheet(ctx)
-            case .restorePurchases: handleRestorePurchases(ctx)
-            case .setLogLevel: try handleSetLogLevel(ctx)
-            case .testWrap: handleTestWrap(ctx, resolver: resolver)
-                
-            default: throw BridgeError.methodNotImplemented
-            }
+            try onEvent(event)
         } catch {
-            ctx.bridgeError(error)
-        }
-    }
-    
-    // MARK: - Activation
-    private func handleActivate(_ ctx: AdaptyContext) throws {
-        if ctx.args == MEMO_ACTIVATION_ARGS {
-            return ctx.resolve()
-        } else {
-            MEMO_ACTIVATION_ARGS = ctx.args
-        }
-        
-        let apiKey: String = try ctx.params.getRequiredValue(for: .sdkKey)
-        let customerUserId: String? = ctx.params.getOptionalValue(for: .userId)
-        let logLevel: String? = ctx.params.getOptionalValue(for: .logLevel)
-        let observerMode: Bool? = ctx.params.getOptionalValue(for: .observerMode)
-        let idfaCollectionDisabled: Bool? = ctx.params.getOptionalValue(for: .idfaDisabled)
-        let ipAddressCollectionDisabled: Bool? = ctx.params.getOptionalValue(for: .ipAddressCollectionDisabled)
-        
-        // Memoize activation args
-        MEMO_ACTIVATION_ARGS[ParamKey.sdkKey.rawValue] = apiKey
-        MEMO_ACTIVATION_ARGS[ParamKey.userId.rawValue] = customerUserId
-        
-        let version = "3.1.0"
-        if let logLevel = logLevel,
-           let level = AdaptyLogLevel.fromBridgeValue(logLevel) {
-            Adapty.logLevel = level
-        }
-        
-        Adapty.setCrossPlatformSDK(version: version, name: "react-native")
-        
-        let configuration = Adapty.Configuration
-            .builder(withAPIKey: apiKey)
-            .with(observerMode: observerMode ?? false)
-            .with(customerUserId: customerUserId)
-            .with(ipAddressCollectionDisabled: ipAddressCollectionDisabled ?? false)
-            .with(idfaCollectionDisabled: idfaCollectionDisabled ?? false)
-            .build()
-        
-        Adapty.activate(with: configuration) { maybeErr in
-            ctx.okOrForwardError(maybeErr)
-            if #available(iOS 15.0, *) {
-                AdaptyUI.activate()
-            }
-        }
-        
-        Adapty.delegate = self
-        
-    }
-    
-    private func handleIsActivated(_ ctx: AdaptyContext) {
-        let isActivated = Adapty.isActivated
-        ctx.resolve(with: String(isActivated))
-    }
-    
-    // MARK: - Attribution
-    private func handleUpdateAttribution(_ ctx: AdaptyContext) throws {
-        
-        let attribution: [AnyHashable: Any] = try ctx.params.getRequiredValue(for: .attribution)
-        let sourceStr: String = try ctx.params.getRequiredValue(for: .source)
-        guard let source = AdaptyAttributionSource(rawValue: sourceStr) else {
-            throw BridgeError.typeMismatch(name: .source, type: "Non decodable attribution source")
-        }
-        
-        let networkUserId: String? = ctx.params.getOptionalValue(for: .networkUserId)
-        
-        
-        
-        Adapty.updateAttribution(
-            attribution,
-            source: source,
-            networkUserId: networkUserId
-        ) { maybeErr in ctx.okOrForwardError(maybeErr) }
-    }
-    
-    // MARK: - Paywalls
-    private func handleGetPaywall(_ ctx: AdaptyContext) throws {
-        
-        let placementId: String = try ctx.params.getRequiredValue(for: .placementId)
-        let locale: String? = ctx.params.getOptionalValue(for: .locale)
-        let fetchPolicy: AdaptyPaywall.FetchPolicy = try ctx.params.getDecodedValue(
-            for: .fetchPolicy,
-            jsonDecoder: AdaptyContext.jsonDecoder
-        )
-        let loadTimeoutMillis = ctx.params.getOptionalValue(Double.self, for: .loadTimeout).map { $0 / 1000.0 } ?? .defaultLoadPaywallTimeout
-        
-        Adapty.getPaywall(placementId: placementId, locale: locale, fetchPolicy: fetchPolicy, loadTimeout: loadTimeoutMillis) { result in
-            switch result {
-            case let .success(paywall):
-                ctx.resolve(with: paywall)
-            case let .failure(error):
-                ctx.forwardError(error)
-            }
-        }
-    }
-    
-    private func handleGetPaywallForDefaultAudience(_ ctx: AdaptyContext) throws {
-        
-        let placementId: String = try ctx.params.getRequiredValue(for: .placementId)
-        let locale: String? = ctx.params.getOptionalValue(for: .locale)
-        let fetchPolicy: AdaptyPaywall.FetchPolicy = try ctx.params.getDecodedValue(
-            for: .fetchPolicy,
-            jsonDecoder: AdaptyContext.jsonDecoder
-        )
-        
-        Adapty.getPaywallForDefaultAudience(placementId: placementId, locale: locale, fetchPolicy: fetchPolicy) { result in
-            switch result {
-            case let .success(paywall):
-                ctx.resolve(with: paywall)
-            case let .failure(error):
-                ctx.forwardError(error)
-            }
-        }
-    }
-    
-    private func handleGetPaywallProducts(_ ctx: AdaptyContext) throws {
-        let paywall: AdaptyPaywall = try ctx.params.getDecodedValue(
-            for: .paywall,
-            jsonDecoder: AdaptyContext.jsonDecoder
-        )
-        
-        Adapty.getPaywallProducts(paywall: paywall) { result in
-            switch result {
-            case let .success(products):
-                ctx.resolve(with: products)
-            case let .failure(error):
-                ctx.forwardError(error)
-            }
-        }
-    }
-    
-    private func handleGetProductsIntroductoryOfferEligibility(_ ctx: AdaptyContext) throws {
-        let productIds: [String] = try ctx.params.getRequiredValue(for: .productIds)
-        
-        Adapty.getProductsIntroductoryOfferEligibility(vendorProductIds: productIds) { result in
-            switch result {
-            case let .failure(error):
-                ctx.forwardError(error)
-                
-            case let .success(eligibilities):
-                ctx.resolve(with: eligibilities)
-            }
-        }
-    }
-    
-    private func handleLogShowOnboarding(_ ctx: AdaptyContext) throws {
-        let onboardingParams: AdaptyOnboardingScreenParameters = try ctx.params.getDecodedValue(
-            for: .onboardingParams,
-            jsonDecoder: AdaptyContext.jsonDecoder
-        )
-        
-        Adapty.logShowOnboarding(onboardingParams) { maybeErr in
-            ctx.okOrForwardError(maybeErr)
-        }
-    }
-    
-    private func handleLogShowPaywall(_ ctx: AdaptyContext) throws {
-        let paywall: AdaptyPaywall = try ctx.params.getDecodedValue(
-            for: .paywall,
-            jsonDecoder: AdaptyContext.jsonDecoder
-        )
-        
-        Adapty.logShowPaywall(paywall) { maybeErr in
-            ctx.okOrForwardError(maybeErr)
-        }
-    }
-    
-    private func handleSetFallbackPaywalls(_ ctx: AdaptyContext) throws {
-        let fileLocation: [String: String] = try ctx.params.getDecodedValue(
-            for: .fileLocation,
-            jsonDecoder: AdaptyContext.jsonDecoder
-        )
-        guard let fileNameArr = fileLocation["fileName"]?.components(separatedBy: ".") else {
-            throw BridgeError.typeMismatch(name: .fileLocation, type: "UTF-8 String")
-        }
-        let forResource = !fileNameArr.isEmpty ? fileNameArr[0] : nil
-        let withExtension = (fileNameArr.count > 1) ? fileNameArr[1] : "json"
-        guard let forResource = forResource,
-              let fileURL = Bundle.main.url(forResource: forResource, withExtension: withExtension)
-        else {
-            throw BridgeError.typeMismatch(name: .fileLocation, type: "UTF-8 String")
-        }
-        Adapty.setFallbackPaywalls(fileURL: fileURL) { maybeErr in
-            ctx.okOrForwardError(maybeErr)
-        }
-    }
-    
-    private func handleSetVariationId(_ ctx: AdaptyContext) throws {
-        let jsonStr: String = try ctx.params.getRequiredValue(for: .params)
-        guard let paywallsData = jsonStr.data(using: .utf8) else {
-            throw BridgeError.typeMismatch(name: .params, type: "UTF-8 String")
-        }
-        
-        Adapty.setVariationId(from: AdaptyContext.jsonDecoder, data: paywallsData)  { maybeErr in
-            ctx.okOrForwardError(maybeErr)
-        }
-        
-    }
-    
-    // MARK: - Profile
-    private func handleGetProfile(_ ctx: AdaptyContext) {
-        Adapty.getProfile { result in
-            switch result {
-            case let .success(profile):
-                ctx.resolve(with: profile)
-            case let .failure(error):
-                ctx.forwardError(error)
-            }
-        }
-    }
-    
-    private func handleIdentify(_ ctx: AdaptyContext) throws {
-        let customerUserId: String = try ctx.params.getRequiredValue(for: .userId)
-        
-        Adapty.identify(customerUserId) { maybeErr in ctx.okOrForwardError(maybeErr) }
-    }
-    
-    private func handleLogout(_ ctx: AdaptyContext) {
-        Adapty.logout { maybeErr in ctx.okOrForwardError(maybeErr) }
-    }
-    
-    private func handleUpdateProfile(_ ctx: AdaptyContext) throws {
-        let params: AdaptyProfileParameters = try ctx.params.getDecodedValue(
-            for: .params,
-            jsonDecoder: AdaptyContext.jsonDecoder
-        )
-        
-        Adapty.updateProfile(params: params) { maybeErr in
-            ctx.okOrForwardError(maybeErr)
-        }
-    }
-    
-    // MARK: - Purchases
-    private func handleMakePurchase(_ ctx: AdaptyContext) throws {
-        let productStr: String = try ctx.params.getRequiredValue(for: .product)
-        
-        guard let productData = productStr.data(using: .utf8) else {
-            throw BridgeError.typeMismatch(name: .product, type: "UTF-8 String")
-        }
-        
-        Adapty.getPaywallProduct(
-            from: AdaptyContext.jsonDecoder,
-            data: productData
-        ) { skProductResult in
-            switch skProductResult {
-            case .failure(let locateError):
-                ctx.forwardError(locateError)
-                
-            case .success(let product):
-                Adapty.makePurchase(product: product) { purchaseResult in
-                    switch purchaseResult {
-                    case .failure(let error):
-                        ctx.forwardError(error)
-                        
-                    case .success(let purchase):
-                        ctx.resolve(with: purchase.profile)
-                    }
-                }
-            }
-        }
-    }
-    
-    private func handlePresentCodeRedemptionSheet(_ ctx: AdaptyContext) {
-        Adapty.presentCodeRedemptionSheet()
-        ctx.resolve()
-    }
-    
-    private func handleRestorePurchases(_ ctx: AdaptyContext) {
-        Adapty.restorePurchases { result in
-            switch result {
-            case let .failure(error):
-                ctx.forwardError(error)
-                
-            case let .success(profile):
-                ctx.resolve(with: profile)
-                
-            }
-        }
-    }
-    
-    // MARK: - Utilities
-    private func handleSetLogLevel(_ ctx: AdaptyContext) throws {
-        let logLevelValue: String = try ctx.params.getRequiredValue(for: .value)
-        
-        guard let logLevel = AdaptyLogLevel.fromBridgeValue(logLevelValue) else {
-            throw BridgeError.typeMismatch(name: .value, type: "AdaptyLogLevel")
-        }
-        
-        Adapty.logLevel = logLevel
-        ctx.resolve()
-    }
-    
-    private func handleTestWrap(_ ctx: AdaptyContext, resolver: @escaping RCTPromiseResolveBlock) {
-        ctx.resolve()
-    }
-}
-
-extension AdaptyLogLevel {
-    static func fromBridgeValue(_ value: String) -> AdaptyLogLevel? {
-        switch value {
-        case LogLevelBridge.ERROR:
-            return .error
-        case LogLevelBridge.INFO:
-            return .info
-        case LogLevelBridge.VERBOSE:
-            return .verbose
-        case LogLevelBridge.WARN:
-            return .warn
-        default:
-            return nil
-        }
-    }
-}
-
-extension AdaptyPaywall.FetchPolicy {
-    static func fromBridgeValue(_ value: String?) -> AdaptyPaywall.FetchPolicy {
-        switch value {
-        case FetchPolicyBridge.ReturnCacheDataElseLoad:
-            return .returnCacheDataElseLoad
-        case FetchPolicyBridge.ReloadRevalidatingCacheData:
-            return .reloadRevalidatingCacheData
-        default:
-            return .default
+            Log.wrapper.error("Plugin encoding error: \(error.localizedDescription)")
         }
     }
 }

@@ -1,9 +1,9 @@
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { AdaptyNonSubscription, VendorStore } from '@/types';
 import { AdaptyNonSubscriptionCoder } from './adapty-non-subscription';
 
 type Model = AdaptyNonSubscription;
-const mocks: Schema['Output.AdaptyNonSubscription'][] = [
+const mocks: Def['AdaptyProfile.NonSubscription'][] = [
   {
     is_consumable: true,
     is_refund: false,

@@ -1,9 +1,9 @@
 import type { AdaptySubscriptionPeriod, ProductPeriod } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import { AdaptySubscriptionPeriodCoder } from './adapty-subscription-period';
 
 type Model = AdaptySubscriptionPeriod;
-const mocks: Schema['Output.AdaptySubscriptionPeriod'][] = [
+const mocks: Def['AdaptySubscriptionPeriod'][] = [
   { unit: 'day', number_of_units: 5 },
   { unit: 'week', number_of_units: 2 },
   { unit: 'month', number_of_units: 6 },

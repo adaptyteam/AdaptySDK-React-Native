@@ -157,12 +157,12 @@ export abstract class Coder<
         );
       }
 
-      // If value is undefined and property is not required, continue
-      if (value === undefined) continue;
+      // If value is null or undefined and property is not required, continue
+      if (value == null) continue;
 
       if (!this.isType(value, property.type)) {
         throw AdaptyError.failedToDecode(
-          `Failed to decode native response, because it\'s property "${key}" has invalid type. Expected type: ${
+          `Failed to decode native response, because its property "${key}" has invalid type. Expected type: ${
             property.type
           }. Received type: ${typeof value}`,
         );

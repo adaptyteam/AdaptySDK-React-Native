@@ -2,37 +2,37 @@ package com.adapty.react
 
 import com.adapty.Adapty
 import com.adapty.internal.crossplatform.CrossplatformHelper
-import com.adapty.internal.crossplatform.CrossplatformName
-import com.adapty.internal.crossplatform.MetaInfo
-import com.adapty.react.BuildConfig.VERSION_NAME
+import com.adapty.utils.FileLocation
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
-@Suppress("SpellCheckingInspection")
 class AdaptyReactModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
     private var listenerCount = 0
-    private val ctx = reactContext
 
-    private val callHandler = AdaptyCallHandler(reactContext) {
-        Adapty.setOnProfileUpdatedListener { profile ->
-                sendEvent(
-                    ctx,
-                    EventName.ON_LATEST_PROFILE_LOAD,
-                    profile,
-                )
-        }
+    private val crossplatformHelper by lazy {
+        CrossplatformHelper.shared
     }
 
     override fun initialize() {
         super.initialize()
+        CrossplatformHelper.init(
+            reactApplicationContext,
+            { eventName, eventData ->
+                if (listenerCount > 0) {
+                    val receiver = reactApplicationContext.getJSModule(
+                        DeviceEventManagerModule.RCTDeviceEventEmitter::class.java
+                    )
 
-        val info = MetaInfo.from(
-            CrossplatformName.REACT_NATIVE,
-            VERSION_NAME
+                    receiver.emit(
+                        eventName,
+                        eventData,
+                    )
+                }
+            },
+            { value -> FileLocation.extract(value) },
         )
-
-        CrossplatformHelper.init(info)
+        crossplatformHelper.setActivity { currentActivity }
 
     }
 
@@ -43,26 +43,6 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
     override fun getConstants(): MutableMap<String, Any>? {
         // Name of the function that routes all incoming calls
         return hashMapOf("HANDLER" to "handle")
-    }
-
-    private inline fun <reified T : Any> sendEvent(
-        reactContext: ReactContext,
-        eventName: EventName,
-        params: T
-    ) {
-        val result = AdaptyBridgeResult(
-            data = params,
-            T::class.simpleName ?: "Any",
-        )
-
-        val receiver = reactContext.getJSModule(
-            DeviceEventManagerModule.RCTDeviceEventEmitter::class.java
-        )
-
-        receiver.emit(
-            eventName.value,
-            result.let(CrossplatformHelper.shared::toJson)
-        )
     }
 
     @ReactMethod
@@ -81,13 +61,21 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun handle(methodName: String, args: ReadableMap, promise: Promise) {
-        val ctx = AdaptyContext(
-            methodName,
-            args,
-            promise,
-            currentActivity
-        )
-
-        callHandler.handle(ctx)
+        crossplatformHelper.onMethodCall(args.getString("args").orEmpty(), methodName) { data ->
+            promise.resolve(data)
+        }
     }
+
+    private fun FileLocation.Companion.extract(value: String): FileLocation =
+        if (value.lastOrNull() == 'r')
+            fromResId(
+                reactApplicationContext,
+                reactApplicationContext.resources.getIdentifier(
+                    value.dropLast(1),
+                    "raw",
+                    reactApplicationContext.packageName,
+                )
+            )
+        else
+            fromAsset(value.dropLast(1))
 }

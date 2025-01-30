@@ -1,10 +1,10 @@
 import type { Properties } from './types';
 import type { ProductReference } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import { SimpleCoder } from './coder';
 
 type Model = ProductReference;
-type Serializable = Schema['InOutput.ProductReference'];
+type Serializable = Def['AdaptyPaywall.ProductReference'];
 
 export class ProductReferenceCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
@@ -19,18 +19,18 @@ export class ProductReferenceCoder extends SimpleCoder<Model, Serializable> {
       type: 'string',
     },
     ios: {
-      discountId: {
+      promotionalOfferId: {
         key: 'promotional_offer_id',
+        required: false,
+        type: 'string',
+      },
+      winBackOfferId: {
+        key: 'win_back_offer_id',
         required: false,
         type: 'string',
       },
     },
     android: {
-      isConsumable: {
-        key: 'is_consumable' as any,
-        required: true,
-        type: 'boolean',
-      },
       basePlanId: {
         key: 'base_plan_id',
         required: false,

@@ -3,11 +3,11 @@ import type {
   CancellationReason,
   VendorStore,
 } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import { AdaptySubscriptionCoder } from './adapty-subscription';
 
 type Model = AdaptySubscription;
-const mocks: Schema['Output.AdaptySubscription'][] = [
+const mocks: Def['AdaptyProfile.Subscription'][] = [
   {
     activated_at: '2023-08-09T12:34:56.789Z',
     is_active: true,

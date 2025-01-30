@@ -1,10 +1,10 @@
 import { AdaptyNativeErrorCoder } from './adapty-native-error';
 import { AdaptyError } from '@/adapty-error';
 import type { AdaptyNativeError } from '@/types/bridge';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 
 type Model = AdaptyNativeError;
-const mocks: Schema['Output.AdaptyError'][] = [
+const mocks: Def['AdaptyError'][] = [
   {
     adapty_code: 400,
     message: 'The provided input is invalid.',

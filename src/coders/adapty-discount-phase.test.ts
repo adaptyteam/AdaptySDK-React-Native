@@ -1,13 +1,12 @@
 import type { AdaptyDiscountPhase, OfferType } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import { AdaptyDiscountPhaseCoder } from './adapty-discount-phase';
 import { AdaptyPriceCoder } from './adapty-price';
 import { AdaptySubscriptionPeriodCoder } from './adapty-subscription-period';
 
 type Model = AdaptyDiscountPhase;
-const mocks: Schema['Output.AdaptyDiscountPhase'][] = [
+const mocks: Def['AdaptySubscriptionOffer.Phase'][] = [
   {
-    identifier: 'discount123', // iOS Only
     localized_number_of_periods: '6 months',
     localized_subscription_period: '1 month',
     number_of_periods: 6,
@@ -48,7 +47,6 @@ function toModel(mock: (typeof mocks)[number]): Model {
     ...(mock.localized_subscription_period && {
       localizedSubscriptionPeriod: mock.localized_subscription_period,
     }),
-    ios: { ...(mock.identifier && { identifier: mock.identifier }) },
   };
 }
 

@@ -1,11 +1,11 @@
 import type { AdaptySubscription } from '../types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { SimpleCoder } from './coder';
 import { DateCoder } from './date';
 
 type Model = AdaptySubscription;
-type Serializable = Schema['Output.AdaptySubscription'];
+type Serializable = Def['AdaptyProfile.Subscription'];
 
 export class AdaptySubscriptionCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {

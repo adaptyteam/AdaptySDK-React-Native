@@ -1,12 +1,12 @@
 import type { AdaptyRemoteConfig } from '@/types';
-import type { Schema } from '@/types/schema';
+import type { Def } from '@/types/schema';
 import type { Properties } from './types';
 import { Coder } from './coder';
 import { JSONCoder } from './json';
 
 type Model = AdaptyRemoteConfig;
 type CodableModel = Omit<Model, 'dataString'>;
-type Serializable = Required<Schema['InOutput.AdaptyPaywall']>['remote_config'];
+type Serializable = Required<Def['AdaptyPaywall']>['remote_config'];
 
 export class AdaptyRemoteConfigCoder extends Coder<
   Model,
