@@ -157,7 +157,9 @@ export function parsePaywallEvent(
     result['product_id'] = obj['product_id'];
   }
   if (obj.hasOwnProperty('purchased_result')) {
-    result['purchased_result'] = obj['purchased_result'];
+    result['purchased_result'] = getCoder('AdaptyPurchaseResult', ctx)?.decode(
+      obj['purchased_result'],
+    );
   }
 
   return result;

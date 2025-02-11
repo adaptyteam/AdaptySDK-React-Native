@@ -1,4 +1,3 @@
-import type { Adapty } from '@/adapty-handler';
 import { AdaptyUiMediaCache } from '@/ui/types';
 /**
  * Log levels for the SDK
@@ -86,7 +85,7 @@ export type GetPaywallForDefaultAudienceParamsInput =
     };
 
 /**
- * Describes optional parameters for the {@link Adapty.activate} method.
+ * Describes optional parameters for the {@link activate} method.
  */
 export interface ActivateParamsInput {
   /**
@@ -114,8 +113,6 @@ export interface ActivateParamsInput {
    * @remarks
    * Logging is performed on a native side.
    * So you are expected to watch logs in Xcode or Android Studio.
-   *
-   * @defaultValue `VERBOSE`
    */
   logLevel?: LogLevel;
 
