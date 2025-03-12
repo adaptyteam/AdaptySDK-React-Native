@@ -5,6 +5,9 @@ import {
   AdaptyPurchaseResult,
 } from '@/types';
 
+/**
+ * @internal
+ */
 export type ArgType<T> = T extends () => any
   ? void
   : T extends (arg: infer U) => any
@@ -17,7 +20,7 @@ export type ArgType<T> = T extends () => any
  *
  * We don't want to block the UI thread.
  */
-type EventHandlerResult = boolean | void;
+export type EventHandlerResult = boolean | void;
 
 /**
  * Hashmap of possible events to their callbacks
@@ -192,6 +195,9 @@ export const AdaptyUiDialogActionType = Object.freeze({
 export type AdaptyUiDialogActionType =
   (typeof AdaptyUiDialogActionType)[keyof typeof AdaptyUiDialogActionType];
 
+/**
+ * @internal
+ */
 export const DEFAULT_EVENT_HANDLERS: Partial<EventHandlers> = {
   onCloseButtonPress: () => true,
   onAndroidSystemBack: () => true,
