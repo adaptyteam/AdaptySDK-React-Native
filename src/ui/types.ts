@@ -163,9 +163,9 @@ export interface AdaptyUiView {
 }
 
 export interface AdaptyUiMediaCache {
-  memoryStorageTotalCostLimit: number;
-  memoryStorageCountLimit: number;
-  diskStorageSizeLimit: number;
+  memoryStorageTotalCostLimit?: number;
+  memoryStorageCountLimit?: number;
+  diskStorageSizeLimit?: number;
 }
 
 export interface AdaptyUiDialogConfig {

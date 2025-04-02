@@ -19,9 +19,9 @@ Pod::Spec.new do |s|
   s.resources = "ios/**/*.{plist}"
   s.requires_arc = true
 
-  s.dependency "Adapty", "3.3.4"
-  s.dependency "AdaptyUI", "3.3.4"
-  s.dependency "AdaptyPlugin", "3.3.4"
+  s.dependency "Adapty", "3.4.2"
+  s.dependency "AdaptyUI", "3.4.2"
+  s.dependency "AdaptyPlugin", "3.4.2"
   s.dependency "React"
 end
 

@@ -87,6 +87,12 @@ export interface AdaptyPaywall {
    * @readonly
    */
   readonly abTestName: string;
+
+  /**
+   * A name of an audience to which the paywall belongs.
+   * @readonly
+   */
+  readonly audienceName: string;
   /**
    * ID of a placement configured in Adapty Dashboard.
    * @readonly
@@ -705,3 +711,11 @@ export interface ProductReference {
     offerId?: string;
   };
 }
+
+export const RefundPreference = Object.freeze({
+  NoPreference: 'no_preference',
+  Grant: 'grant',
+  Decline: 'decline',
+});
+export type RefundPreference =
+  (typeof RefundPreference)[keyof typeof RefundPreference];

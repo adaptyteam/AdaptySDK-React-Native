@@ -15,6 +15,7 @@ import { AdaptyType } from '@/coders/parse';
 import version from '@/version';
 import { AdaptyUiMediaCacheCoder } from '@/coders/adapty-ui-media-cache';
 import { AdaptyUiMediaCache } from '@/ui/types';
+import { RefundPreference } from '@/types';
 
 /**
  * Entry point for the Adapty SDK.
@@ -182,8 +183,13 @@ export class Adapty {
     );
 
     if (Platform.OS === 'ios') {
-      config['idfa_collection_disabled'] =
+      config['apple_idfa_collection_disabled'] =
         params.ios?.idfaCollectionDisabled ?? false;
+    }
+
+    if (Platform.OS === 'android') {
+      config['google_adid_collection_disabled'] =
+        params.android?.adIdCollectionDisabled ?? false;
     }
 
     const methodKey = 'activate';
@@ -882,6 +888,56 @@ export class Adapty {
       method: methodKey,
       attribution: JSON.stringify(attribution),
       source: source,
+    };
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  public async updateCollectingRefundDataConsent(
+    consent: boolean,
+  ): Promise<void> {
+    if (Platform.OS === 'android') {
+      return Promise.resolve();
+    }
+
+    const ctx = new LogContext();
+    const log = ctx.call({
+      methodName: 'update_collecting_refund_data_consent',
+    });
+    log.start({ consent });
+
+    const methodKey = 'update_collecting_refund_data_consent';
+    const data: Req['UpdateCollectingRefundDataConsent.Request'] = {
+      method: methodKey,
+      consent: consent,
+    };
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  public async updateRefundPreference(
+    refundPreference: RefundPreference,
+  ): Promise<void> {
+    if (Platform.OS === 'android') {
+      return Promise.resolve();
+    }
+
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'update_refund_preference' });
+    log.start({ refundPreference });
+
+    const methodKey = 'update_refund_preference';
+    const data: Req['UpdateRefundPreference.Request'] = {
+      method: methodKey,
+      refund_preference: refundPreference,
     };
 
     const body = JSON.stringify(data);

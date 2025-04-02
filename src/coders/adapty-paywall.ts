@@ -18,6 +18,7 @@ export class AdaptyPaywallCoder extends Coder<
 > {
   protected properties: Properties<CodableModel, Serializable> = {
     abTestName: { key: 'ab_test_name', required: true, type: 'string' },
+    audienceName: { key: 'audience_name', required: true, type: 'string' },
     placementId: { key: 'developer_id', required: true, type: 'string' },
     instanceIdentity: { key: 'paywall_id', required: true, type: 'string' },
     name: { key: 'paywall_name', required: true, type: 'string' },

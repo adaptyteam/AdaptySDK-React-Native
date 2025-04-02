@@ -266,12 +266,30 @@ export interface components {
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
+    'UpdateCollectingRefundDataConsent.Request': {
+      method: 'update_collecting_refund_data_consent';
+      consent: boolean;
+    };
+
+    'UpdateCollectingRefundDataConsent.Response': OneOf<
+      [{ error: components['defs']['AdaptyError'] }, { success: true }]
+    >;
+
     'UpdateProfile.Request': {
       method: 'update_profile';
       params: components['defs']['AdaptyProfileParameters'];
     };
 
     'UpdateProfile.Response': OneOf<
+      [{ error: components['defs']['AdaptyError'] }, { success: true }]
+    >;
+
+    'UpdateRefundPreference.Request': {
+      method: 'update_refund_preference';
+      refund_preference: components['defs']['AdaptyRefundPreference'];
+    };
+
+    'UpdateRefundPreference.Response': OneOf<
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
   };
@@ -359,7 +377,8 @@ export interface components {
       api_key: string;
       customer_user_id?: string;
       observer_mode?: boolean;
-      idfa_collection_disabled?: boolean;
+      apple_idfa_collection_disabled?: boolean;
+      google_adid_collection_disabled?: boolean;
       ip_address_collection_disabled?: boolean;
       server_cluster?: 'default' | 'eu';
       backend_base_url?: string;
@@ -372,9 +391,9 @@ export interface components {
       cross_platform_sdk_version?: string;
       activate_ui?: boolean;
       media_cache?: {
-        memory_storage_total_cost_limit: number;
-        memory_storage_count_limit: number;
-        disk_storage_size_limit: number;
+        memory_storage_total_cost_limit?: number;
+        memory_storage_count_limit?: number;
+        disk_storage_size_limit?: number;
       };
     };
 
@@ -445,6 +464,7 @@ export interface components {
       paywall_id: string;
       paywall_name: string;
       ab_test_name: string;
+      audience_name: string;
       variation_id: string;
       revision: number;
       products: components['defs']['AdaptyPaywall.ProductReference'][];
@@ -671,6 +691,8 @@ export interface components {
         | 'charge_prorated_price'
         | 'with_time_proration';
     };
+
+    AdaptyRefundPreference: 'no_preference' | 'grant' | 'decline';
   };
 }
 
