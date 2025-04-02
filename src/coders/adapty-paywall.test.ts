@@ -10,6 +10,7 @@ type Model = AdaptyPaywall;
 const mocks: Def['AdaptyPaywall'][] = [
   {
     ab_test_name: 'testA',
+    audience_name: 'audienceC',
     developer_id: 'dev123',
     payload_data: 'additionalData',
     paywall_name: 'Paywall1',
@@ -46,6 +47,7 @@ const mocks: Def['AdaptyPaywall'][] = [
     revision: 3,
     variation_id: 'var002',
     ab_test_name: 'testB',
+    audience_name: 'audienceD',
     paywall_name: 'Paywall2',
     products: [
       { vendor_product_id: 'product3', adapty_product_id: 'adaptyProduct3' },
@@ -64,6 +66,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
 
   return {
     abTestName: mock.ab_test_name,
+    audienceName: mock.audience_name,
     placementId: mock.developer_id,
     instanceIdentity: mock.paywall_id,
     ...(mock.payload_data && { payloadData: mock.payload_data }),

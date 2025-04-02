@@ -10,17 +10,17 @@ export class AdaptyUiMediaCacheCoder extends SimpleCoder<Model, Serializable> {
   protected properties: Properties<Model, Serializable> = {
     memoryStorageTotalCostLimit: {
       key: 'memory_storage_total_cost_limit',
-      required: true,
+      required: false,
       type: 'number',
     },
     memoryStorageCountLimit: {
       key: 'memory_storage_count_limit',
-      required: true,
+      required: false,
       type: 'number',
     },
     diskStorageSizeLimit: {
       key: 'disk_storage_size_limit',
-      required: true,
+      required: false,
       type: 'number',
     },
   };

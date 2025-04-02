@@ -148,6 +148,13 @@ export interface ActivateParamsInput {
      */
     idfaCollectionDisabled?: boolean;
   };
+  android?: {
+    /**
+     * Disables Google AdvertisingID collection
+     * @default false
+     */
+    adIdCollectionDisabled?: boolean;
+  };
 }
 
 export interface GetPaywallProductsParamsInput {}

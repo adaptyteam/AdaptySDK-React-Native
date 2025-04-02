@@ -70,7 +70,9 @@ export const MethodNames = [
   'set_integration_identifiers',
   'set_log_level',
   'update_attribution_data',
+  'update_collecting_refund_data_consent',
   'update_profile',
+  'update_refund_preference',
 ] as const;
 export type MethodName = (typeof MethodNames)[number];
 

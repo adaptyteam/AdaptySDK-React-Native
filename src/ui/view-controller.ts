@@ -27,6 +27,7 @@ export class ViewController {
    * Intended way to create a ViewController instance.
    * It prepares a native controller to be presented
    * and creates reference between native controller and JS instance
+   * @internal
    */
   static async create(
     paywall: AdaptyPaywall,
