@@ -63,15 +63,15 @@ export class ViewController {
             return paddingLength > 0 ? '0'.repeat(paddingLength) + str : str;
           };
 
-          const year = date.getFullYear();
-          const month = pad(date.getMonth() + 1);
-          const day = pad(date.getDate());
-          const hours = pad(date.getHours());
-          const minutes = pad(date.getMinutes());
-          const seconds = pad(date.getSeconds());
-          const millis = pad(date.getMilliseconds(), 3);
+          const year = date.getUTCFullYear();
+          const month = pad(date.getUTCMonth() + 1);
+          const day = pad(date.getUTCDate());
+          const hours = pad(date.getUTCHours());
+          const minutes = pad(date.getUTCMinutes());
+          const seconds = pad(date.getUTCSeconds());
+          const millis = pad(date.getUTCMilliseconds(), 3);
 
-          return `${year}-${month}-${day}'T'${hours}:${minutes}:${seconds}.${millis}Z`;
+          return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${millis}Z`;
         };
 
         const result: Record<string, string> = {};
