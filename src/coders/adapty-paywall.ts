@@ -43,6 +43,7 @@ export class AdaptyPaywallCoder extends Coder<
       type: 'object',
       converter: new AdaptyPaywallBuilderCoder(),
     },
+    webPurchaseUrl: { key: 'web_purchase_url', required: false, type: 'string' },
     payloadData: { key: 'payload_data', required: false, type: 'string' },
   };
 

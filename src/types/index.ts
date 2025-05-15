@@ -135,6 +135,7 @@ export interface AdaptyPaywall {
 
   instanceIdentity: string;
   version?: number;
+  webPurchaseUrl?: string;
   payloadData?: string;
   paywallBuilder?: AdaptyPaywallBuilder;
 }
@@ -554,9 +555,6 @@ export interface AdaptyPaywallProduct {
    * The cost of the product in the local currency
    */
   readonly price?: AdaptyPrice;
-  /**
-   * A description of the product.
-   */
   readonly adaptyId: string;
   /**
    * Same as `variationId` property of the parent {@link AdaptyPaywall}.
@@ -567,6 +565,8 @@ export interface AdaptyPaywallProduct {
    * from App Store Connect or Google Play Console
    */
   readonly vendorProductId: string;
+  paywallProductIndex: number;
+  webPurchaseUrl?: string;
   payloadData?: string;
   subscription?: AdaptySubscriptionDetails;
   ios?: {

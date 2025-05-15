@@ -87,6 +87,15 @@ export interface EventHandlers {
    * If you return `true` from this callback, the paywall view will be closed.
    */
   onRestoreStarted: () => EventHandlerResult;
+
+  onPaywallClosed: () => EventHandlerResult;
+
+  onPaywallShown: () => EventHandlerResult;
+
+  onWebPaymentNavigationFinished: (
+    product?: AdaptyPaywallProduct,
+    error?: AdaptyError,
+  ) => EventHandlerResult;
   /**
    * Called when a purchase is completed
    *

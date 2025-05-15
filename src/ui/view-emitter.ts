@@ -143,6 +143,9 @@ const UI_EVENT_MAPPINGS: UiEventMapping = {
   paywall_view_did_finish_purchase: [{ handlerName: 'onPurchaseCompleted' }],
   paywall_view_did_fail_purchase: [{ handlerName: 'onPurchaseFailed' }],
   paywall_view_did_start_restore: [{ handlerName: 'onRestoreStarted' }],
+  paywall_view_did_appear: [{ handlerName: 'onPaywallShown' }],
+  paywall_view_did_disappear: [{ handlerName: 'onPaywallClosed' }],
+  paywall_view_did_finish_web_payment_navigation: [{ handlerName: 'onWebPaymentNavigationFinished' }],
   paywall_view_did_finish_restore: [{ handlerName: 'onRestoreCompleted' }],
   paywall_view_did_fail_restore: [{ handlerName: 'onRestoreFailed' }],
   paywall_view_did_fail_rendering: [{ handlerName: 'onRenderingFailed' }],
@@ -201,6 +204,8 @@ function extractCallbackArgs(
     case 'onCustomAction':
     case 'onUrlPress':
       return [eventArg['action'].value];
+    case 'onWebPaymentNavigationFinished':
+      return [eventArg['product'], eventArg['error']];
     default:
       return [];
   }

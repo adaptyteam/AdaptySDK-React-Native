@@ -23,6 +23,11 @@ export class AdaptyPaywallProductCoder extends SimpleCoder<
       required: true,
       type: 'string',
     },
+    paywallProductIndex: {
+      key: 'paywall_product_index',
+      required: true,
+      type: 'number',
+    },
     localizedDescription: {
       key: 'localized_description',
       required: true,
@@ -47,6 +52,7 @@ export class AdaptyPaywallProductCoder extends SimpleCoder<
       type: 'object',
       converter: new AdaptyPriceCoder(),
     },
+    webPurchaseUrl: { key: 'web_purchase_url', required: false, type: 'string' },
     payloadData: { key: 'payload_data', required: false, type: 'string' },
     subscription: {
       key: 'subscription',
@@ -66,6 +72,7 @@ export class AdaptyPaywallProductCoder extends SimpleCoder<
   public getInput(data: Serializable): Def['AdaptyPaywallProduct.Request'] {
     return {
       adapty_product_id: data.adapty_product_id,
+      paywall_product_index: data.paywall_product_index,
       paywall_ab_test_name: data.paywall_ab_test_name,
       payload_data: data.payload_data,
       paywall_name: data.paywall_name,

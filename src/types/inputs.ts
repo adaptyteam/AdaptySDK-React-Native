@@ -116,7 +116,7 @@ export interface ActivateParamsInput {
    */
   logLevel?: LogLevel;
 
-  serverCluster?: 'default' | 'eu';
+  serverCluster?: 'default' | 'eu' | 'cn';
   backendBaseUrl?: string;
   backendFallbackBaseUrl?: string;
   backendConfigsBaseUrl?: string;
