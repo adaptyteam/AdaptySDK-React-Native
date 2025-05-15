@@ -52,7 +52,11 @@ export class AdaptyPaywallProductCoder extends SimpleCoder<
       type: 'object',
       converter: new AdaptyPriceCoder(),
     },
-    webPurchaseUrl: { key: 'web_purchase_url', required: false, type: 'string' },
+    webPurchaseUrl: {
+      key: 'web_purchase_url',
+      required: false,
+      type: 'string',
+    },
     payloadData: { key: 'payload_data', required: false, type: 'string' },
     subscription: {
       key: 'subscription',
