@@ -53,6 +53,7 @@ const mocks: Def['AdaptyPaywall'][] = [
       { vendor_product_id: 'product3', adapty_product_id: 'adaptyProduct3' },
     ],
     remote_config: { lang: 'fr', data: '' },
+    web_purchase_url: 'https://example.com/purchase',
     response_created_at: 1632458390000,
   },
 ];
@@ -81,6 +82,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
     ...(mock.paywall_builder && {
       paywallBuilder: _paywallBuilder.decode(mock.paywall_builder),
     }),
+    ...(mock.web_purchase_url && { webPurchaseUrl: mock.web_purchase_url }),
     hasViewConfiguration: mock.paywall_builder !== undefined,
   };
 }

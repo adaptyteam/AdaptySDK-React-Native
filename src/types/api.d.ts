@@ -199,6 +199,40 @@ export interface components {
       ]
     >;
 
+    'OpenWebPaywall.Request': OneOf<
+      [
+        {
+          method: 'open_web_paywall';
+          product: components['defs']['AdaptyPaywallProduct.Request'];
+        },
+        {
+          method: 'open_web_paywall';
+          paywall: components['defs']['AdaptyPaywall'];
+        },
+      ]
+    >;
+
+    'OpenWebPaywall.Response': OneOf<
+      [{ error: components['defs']['AdaptyError'] }, { success: true }]
+    >;
+
+    'CreateWebPaywallUrl.Request': OneOf<
+      [
+        {
+          method: 'create_web_paywall_url';
+          product: components['defs']['AdaptyPaywallProduct.Request'];
+        },
+        {
+          method: 'create_web_paywall_url';
+          paywall: components['defs']['AdaptyPaywall'];
+        },
+      ]
+    >;
+
+    'CreateWebPaywallUrl.Response': OneOf<
+      [{ error: components['defs']['AdaptyError'] }, { success: string }]
+    >;
+
     'PresentCodeRedemptionSheet.Request': {
       method: 'present_code_redemption_sheet';
     };
@@ -299,6 +333,16 @@ export interface components {
       profile: components['defs']['AdaptyProfile'];
     };
 
+    'PaywallViewEvent.DidAppear': {
+      id: 'paywall_view_did_appear';
+      view: components['defs']['AdaptyUI.View'];
+    };
+
+    'PaywallViewEvent.DidDisappear': {
+      id: 'paywall_view_did_disappear';
+      view: components['defs']['AdaptyUI.View'];
+    };
+
     'PaywallViewEvent.DidUserAction': {
       id: 'paywall_view_did_perform_action';
       view: components['defs']['AdaptyUI.View'];
@@ -359,6 +403,13 @@ export interface components {
       view: components['defs']['AdaptyUI.View'];
       error: components['defs']['AdaptyError'];
     };
+
+    'PaywallViewEvent.DidFinishWebPaymentNavigation': {
+      id: 'paywall_view_did_finish_web_payment_navigation';
+      view: components['defs']['AdaptyUI.View'];
+      product?: components['defs']['AdaptyPaywallProduct.Response'];
+      error?: components['defs']['AdaptyError'];
+    };
   };
   defs: {
     AdaptyError: {
@@ -380,7 +431,7 @@ export interface components {
       apple_idfa_collection_disabled?: boolean;
       google_adid_collection_disabled?: boolean;
       ip_address_collection_disabled?: boolean;
-      server_cluster?: 'default' | 'eu';
+      server_cluster?: 'default' | 'eu' | 'cn';
       backend_base_url?: string;
       backend_fallback_base_url?: string;
       backend_configs_base_url?: string;
@@ -400,19 +451,23 @@ export interface components {
     'AdaptyPaywallProduct.Request': {
       vendor_product_id: string;
       adapty_product_id: string;
+      paywall_product_index: number;
       subscription_offer_identifier?: components['defs']['AdaptySubscriptionOffer.Identifier'];
       paywall_variation_id: string;
       paywall_ab_test_name: string;
       paywall_name: string;
+      web_purchase_url?: string;
       payload_data?: string;
     };
 
     'AdaptyPaywallProduct.Response': {
       vendor_product_id: string;
       adapty_product_id: string;
+      paywall_product_index: number;
       paywall_variation_id: string;
       paywall_ab_test_name: string;
       paywall_name: string;
+      web_purchase_url?: string;
       localized_description: string;
       localized_title: string;
       is_family_shareable?: boolean;
@@ -471,6 +526,7 @@ export interface components {
       response_created_at: number;
       remote_config?: components['defs']['AdaptyPaywall.RemoteConfig'];
       paywall_builder?: components['defs']['AdaptyPaywall.ViewConfiguration'];
+      web_purchase_url?: string;
       payload_data?: string;
     };
 

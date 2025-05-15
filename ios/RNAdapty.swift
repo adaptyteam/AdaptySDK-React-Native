@@ -49,6 +49,9 @@ class RNAdapty: RCTEventEmitter {
             "paywall_view_did_fail_restore",
             "paywall_view_did_fail_rendering",
             "paywall_view_did_fail_loading_products",
+            "paywall_view_did_finish_web_payment_navigation",
+            "paywall_view_did_appear",
+            "paywall_view_did_disappear",
         ]
     }
     

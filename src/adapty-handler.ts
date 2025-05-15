@@ -519,6 +519,50 @@ export class Adapty {
     return result;
   }
 
+  public async openWebPaywall(paywallOrProduct: Model.AdaptyPaywall | Model.AdaptyPaywallProduct): Promise<void> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'openWebPaywall' });
+    log.start({ paywallOrProduct });
+
+    const methodKey = 'open_web_paywall';
+    const data: Req['OpenWebPaywall.Request'] = {
+      method: methodKey,
+      ...('vendorProductId' in paywallOrProduct
+          ? { product: new AdaptyPaywallProductCoder().encode(paywallOrProduct) }
+          : { paywall: new AdaptyPaywallCoder().encode(paywallOrProduct) }
+      ),
+    };
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  public async createWebPaywallUrl(paywallOrProduct: Model.AdaptyPaywall | Model.AdaptyPaywallProduct): Promise<string> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'create_web_paywall_url' });
+    log.start({ paywallOrProduct });
+
+    const methodKey = 'create_web_paywall_url';
+    const data: Req['CreateWebPaywallUrl.Request'] = {
+      method: methodKey,
+      ...('vendorProductId' in paywallOrProduct
+          ? { product: new AdaptyPaywallProductCoder().encode(paywallOrProduct) }
+          : { paywall: new AdaptyPaywallCoder().encode(paywallOrProduct) }
+      ),
+    };
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<string>(methodKey, body, 'String', ctx, log);
+
+    return result;
+  }
+
   /**
    * Logs an onboarding screen view event.
    *
