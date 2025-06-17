@@ -146,6 +146,26 @@ export class Adapty {
     const log = ctx.call({ methodName: 'activate' });
     log.start({ apiKey, params });
 
+    // Skipping activation if SDK is already activated
+    if (params.__ignoreActivationOnFastRefresh) {
+      try {
+        const isAlreadyActivated = await this.isActivated();
+        if (!!this.activating || isAlreadyActivated) {
+          log.success({
+            message:
+              'SDK already activated, skipping activation because ignoreActivationOnFastRefresh flag is enabled',
+          });
+          return Promise.resolve();
+        }
+      } catch (error) {
+        log.waitComplete({
+          message:
+            'Failed to check activation status, proceeding with activation; ignoreActivationOnFastRefresh flag could not be applied',
+          error,
+        });
+      }
+    }
+
     const config: Def['AdaptyConfiguration'] = {
       api_key: apiKey,
       cross_platform_sdk_name: 'react-native',
