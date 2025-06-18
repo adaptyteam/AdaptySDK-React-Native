@@ -6,4 +6,13 @@ module.exports = {
   rules: {
     'no-console': 'error',
   },
+
+  "overrides": [
+    {
+      "files": ["scripts/**/*.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
 };
