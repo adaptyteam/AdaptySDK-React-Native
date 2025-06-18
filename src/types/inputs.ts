@@ -137,6 +137,11 @@ export interface ActivateParamsInput {
    */
   __debugDeferActivation?: boolean;
   /**
+   * Ignores multiple activation attempts on fast refresh.
+   * If true, skips activation if SDK is already activated.
+   */
+  __ignoreActivationOnFastRefresh?: boolean;
+  /**
    * Disables IP address collection
    * @defaultValue `false`
    */
