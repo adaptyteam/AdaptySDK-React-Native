@@ -1,8 +1,5 @@
-# Adapty: React Native Subscription App (TypeScript)
-This app demonstrates how `react-native-adapty` can be used to check user access and manage subscriptions.
-
-## Prerequisites 
-This project was created using [React Native CLI](https://reactnative.dev/docs/environment-setup). Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+# Adapty React Native SDK example
+This app demonstrates basic `react-native-adapty` integration.
 
 ## Features
 This application demonstrates:
@@ -11,13 +8,26 @@ This application demonstrates:
 * How to display a paywall
 * How to display a list of products
 
+## 📱 Screenshots
+
+<div align="left">
+  <img src="./screenshots/main-screen.png" width="90" alt="Main Screen" />
+  <img src="./screenshots/paywall-loaded.png" width="90" alt="Paywall Loaded" />
+  <img src="./screenshots/paywall-shown.png" width="90" alt="Paywall Shown" />
+</div>
+
+## Prerequisites 
+This project was created using [React Native CLI](https://reactnative.dev/docs/environment-setup). Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+
 ## Adapty Configuration
 
-This example uses an automated credential setup system. When you run `yarn start`, the app will automatically prompt you to enter:
-- Your Adapty API token
-- iOS Bundle ID (if different from default)
+1. This example uses an automated credential setup system. When you run `yarn start`, the app will automatically prompt you to enter:
+   - Your Adapty API token
+   - iOS Bundle ID (if different from default)
+   
+   Your credentials are stored in `.adapty-credentials.json` file (which is gitignored for security).
 
-Your credentials are stored in `.adapty-credentials.json` file (which is gitignored for security).
+2. Add placement ID from your dashboard to ./src/constants.ts.
 
 ## How to run example with production version of the library
 1. Clone this repository
@@ -25,8 +35,10 @@ Your credentials are stored in `.adapty-credentials.json` file (which is gitigno
    1. `yarn` to pull node_modules
    2. `bundle exec pod install` (from the root directory) to pull iOS pods. You may need to install `bundle install` before.
    3. For Android you can install dependencies either via Android Studio or with gradle CLI
-3. Run `yarn start` to start RN development server. It will prompt you to insert your Adapty token and iOS bundle id. If you have automated flow and you don't run `start` command, you can optionally run `yarn credentials` to provide your private data
-4. Now you can run the example on a device with your preferred method
+3. Run `yarn start` to start RN development server. It will automatically run `yarn credentials` to prompt you for your Adapty token and iOS bundle id, then patch the iOS project file with your credentials. You can also run `yarn credentials` manually if needed.
+4. Now you can run the example on a device:
+   - **For iOS**: Make sure to start the development server with `yarn start` first before running `yarn ios`
+   - **For Android**: Run `yarn android`
 
 ## How to run example with local version of the library
 

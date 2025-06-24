@@ -82,6 +82,10 @@ yarn add react-native-adapty
 
 Read the [documentation](https://docs.adapty.io/docs/react-native-installation?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
+## Examples
+
+Check out our [example applications](./examples) to see Adapty SDK in action.
+
 ## Contributing
 
 - Feel free to open an issue, we check all of them or drop us an email at [support@adapty.io](mailto:support@adapty.io) and tell us everything you want.

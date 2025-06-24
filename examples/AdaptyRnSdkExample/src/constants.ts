@@ -1,4 +1,4 @@
 export enum PlacementId {
     Standard = "standard",
-    Settings = "settings"
+    // Settings = "settings"
 }
