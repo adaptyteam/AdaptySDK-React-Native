@@ -24,39 +24,40 @@ export interface components {
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
-    'AdaptyUICreateView.Request': {
-      method: 'adapty_ui_create_view';
+    'AdaptyUICreatePaywallView.Request': {
+      method: 'adapty_ui_create_paywall_view';
       paywall: components['defs']['AdaptyPaywall'];
       load_timeout?: number;
       preload_products?: boolean;
       custom_tags?: components['defs']['AdaptyUI.CustomTagsValues'];
       custom_timers?: components['defs']['AdaptyUI.CustomTimersValues'];
+      custom_assets?: components['defs']['AdaptyUI.CustomAssets'];
       android_personalized_offers?: components['defs']['AdaptyUI.AndroidPersonalizedOffers'];
     };
 
-    'AdaptyUICreateView.Response': OneOf<
+    'AdaptyUICreatePaywallView.Response': OneOf<
       [
         { error: components['defs']['AdaptyError'] },
-        { success: components['defs']['AdaptyUI.View'] },
+        { success: components['defs']['AdaptyUI.PaywallView'] },
       ]
     >;
 
-    'AdaptyUIDismissView.Request': {
-      method: 'adapty_ui_dismiss_view';
+    'AdaptyUIDismissPaywallView.Request': {
+      method: 'adapty_ui_dismiss_paywall_view';
       id: string;
       destroy?: boolean;
     };
 
-    'AdaptyUIDismissView.Response': OneOf<
+    'AdaptyUIDismissPaywallView.Response': OneOf<
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
-    'AdaptyUIPresentView.Request': {
-      method: 'adapty_ui_present_view';
+    'AdaptyUIPresentPaywallView.Request': {
+      method: 'adapty_ui_present_paywall_view';
       id: string;
     };
 
-    'AdaptyUIPresentView.Response': OneOf<
+    'AdaptyUIPresentPaywallView.Response': OneOf<
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
@@ -73,11 +74,42 @@ export interface components {
       ]
     >;
 
+    'AdaptyUICreateOnboardingView.Request': {
+      method: 'adapty_ui_create_onboarding_view';
+      onboarding: components['defs']['AdaptyOnboarding'];
+    };
+
+    'AdaptyUICreateOnboardingView.Response': OneOf<
+      [
+        { error: components['defs']['AdaptyError'] },
+        { success: components['defs']['AdaptyUI.OnboardingView'] },
+      ]
+    >;
+
+    'AdaptyUIDismissOnboardingView.Request': {
+      method: 'adapty_ui_dismiss_onboarding_view';
+      id: string;
+      destroy?: boolean;
+    };
+
+    'AdaptyUIDismissOnboardingView.Response': OneOf<
+      [{ error: components['defs']['AdaptyError'] }, { success: true }]
+    >;
+
+    'AdaptyUIPresentOnboardingView.Request': {
+      method: 'adapty_ui_present_onboarding_view';
+      id: string;
+    };
+
+    'AdaptyUIPresentOnboardingView.Response': OneOf<
+      [{ error: components['defs']['AdaptyError'] }, { success: true }]
+    >;
+
     'GetPaywall.Request': {
       method: 'get_paywall';
       placement_id: string;
       locale?: components['defs']['AdaptyLocale'];
-      fetch_policy?: components['defs']['AdaptyPaywall.FetchPolicy'];
+      fetch_policy?: components['defs']['AdaptyPlacementFetchPolicy'];
       load_timeout?: number;
     };
 
@@ -92,7 +124,7 @@ export interface components {
       method: 'get_paywall_for_default_audience';
       placement_id: string;
       locale?: components['defs']['AdaptyLocale'];
-      fetch_policy?: components['defs']['AdaptyPaywall.FetchPolicy'];
+      fetch_policy?: components['defs']['AdaptyPlacementFetchPolicy'];
     };
 
     'GetPaywallForDefaultAudience.Response': OneOf<
@@ -111,6 +143,35 @@ export interface components {
       [
         { error: components['defs']['AdaptyError'] },
         { success: components['defs']['AdaptyPaywallProduct.Response'][] },
+      ]
+    >;
+
+    'GetOnboarding.Request': {
+      method: 'get_onboarding';
+      placement_id: string;
+      locale?: components['defs']['AdaptyLocale'];
+      fetch_policy?: components['defs']['AdaptyPlacementFetchPolicy'];
+      load_timeout?: number;
+    };
+
+    'GetOnboarding.Response': OneOf<
+      [
+        { error: components['defs']['AdaptyError'] },
+        { success: components['defs']['AdaptyOnboarding'] },
+      ]
+    >;
+
+    'GetOnboardingForDefaultAudience.Request': {
+      method: 'get_onboarding_for_default_audience';
+      placement_id: string;
+      locale?: components['defs']['AdaptyLocale'];
+      fetch_policy?: components['defs']['AdaptyPlacementFetchPolicy'];
+    };
+
+    'GetOnboardingForDefaultAudience.Response': OneOf<
+      [
+        { error: components['defs']['AdaptyError'] },
+        { success: components['defs']['AdaptyOnboarding'] },
       ]
     >;
 
@@ -273,11 +334,11 @@ export interface components {
       success: string;
     };
 
-    'SetFallbackPaywalls.Request': {
-      method: 'set_fallback_paywalls';
+    'SetFallback.Request': {
+      method: 'set_fallback';
     } & OneOf<[{ asset_id: string }, { path: string }]>;
 
-    'SetFallbackPaywalls.Response': OneOf<
+    'SetFallback.Response': OneOf<
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
@@ -335,80 +396,166 @@ export interface components {
 
     'PaywallViewEvent.DidAppear': {
       id: 'paywall_view_did_appear';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
     };
 
     'PaywallViewEvent.DidDisappear': {
       id: 'paywall_view_did_disappear';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
     };
 
     'PaywallViewEvent.DidUserAction': {
       id: 'paywall_view_did_perform_action';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       action: components['defs']['AdaptyUI.UserAction'];
     };
 
     'PaywallViewEvent.DidSelectProduct': {
       id: 'paywall_view_did_select_product';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       product_id: string;
     };
 
     'PaywallViewEvent.WillPurchase': {
       id: 'paywall_view_did_start_purchase';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       product: components['defs']['AdaptyPaywallProduct.Response'];
     };
 
     'PaywallViewEvent.DidPurchase': {
       id: 'paywall_view_did_finish_purchase';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       product: components['defs']['AdaptyPaywallProduct.Response'];
       purchased_result: components['defs']['AdaptyPurchaseResult'];
     };
 
     'PaywallViewEvent.DidFailPurchase': {
       id: 'paywall_view_did_fail_purchase';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       product: components['defs']['AdaptyPaywallProduct.Response'];
       error: components['defs']['AdaptyError'];
     };
 
     'PaywallViewEvent.WillRestorePurchase': {
       id: 'paywall_view_did_start_restore';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
     };
 
     'PaywallViewEvent.DidRestorePurchase': {
       id: 'paywall_view_did_finish_restore';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       profile: components['defs']['AdaptyProfile'];
     };
 
     'PaywallViewEvent.DidFailRestorePurchase': {
       id: 'paywall_view_did_fail_restore';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       error: components['defs']['AdaptyError'];
     };
 
     'PaywallViewEvent.DidFailRendering': {
       id: 'paywall_view_did_fail_rendering';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       error: components['defs']['AdaptyError'];
     };
 
     'PaywallViewEvent.DidFailLoadingProducts': {
       id: 'paywall_view_did_fail_loading_products';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       error: components['defs']['AdaptyError'];
     };
 
     'PaywallViewEvent.DidFinishWebPaymentNavigation': {
       id: 'paywall_view_did_finish_web_payment_navigation';
-      view: components['defs']['AdaptyUI.View'];
+      view: components['defs']['AdaptyUI.PaywallView'];
       product?: components['defs']['AdaptyPaywallProduct.Response'];
       error?: components['defs']['AdaptyError'];
+    };
+
+    'OnboardingViewEvent.DidFailWithError': {
+      id: 'onboarding_did_fail_with_error';
+      view: components['defs']['AdaptyUI.OnboardingView'];
+      error: components['defs']['AdaptyError'];
+    };
+
+    'OnboardingViewEvent.OnAnalyticsEvent': {
+      id: 'onboarding_on_analytics_action';
+      view: components['defs']['AdaptyUI.OnboardingView'];
+      meta: components['defs']['AdaptyUI.OnboardingMeta'];
+      event: {
+        name:
+          | 'onboarding_started'
+          | 'screen_presented'
+          | 'screen_completed'
+          | 'second_screen_presented'
+          | 'registration_screen_presented'
+          | 'products_screen_presented'
+          | 'user_email_collected'
+          | 'onboarding_completed'
+          | string;
+        element_id?: string;
+        reply?: string;
+      };
+    };
+
+    'OnboardingViewEvent.DidFinishLoading': {
+      id: 'onboarding_did_finish_loading';
+      view: components['defs']['AdaptyUI.OnboardingView'];
+      meta: components['defs']['AdaptyUI.OnboardingMeta'];
+    };
+
+    'OnboardingViewEvent.OnCloseAction': {
+      id: 'onboarding_on_close_action';
+      view: components['defs']['AdaptyUI.OnboardingView'];
+      meta: components['defs']['AdaptyUI.OnboardingMeta'];
+      action_id: string;
+    };
+
+    'OnboardingViewEvent.OnCustomAction': {
+      id: 'onboarding_on_custom_action';
+      view: components['defs']['AdaptyUI.OnboardingView'];
+      meta: components['defs']['AdaptyUI.OnboardingMeta'];
+      action_id: string;
+    };
+
+    'OnboardingViewEvent.OnPaywallAction': {
+      id: 'onboarding_on_paywall_action';
+      view: components['defs']['AdaptyUI.OnboardingView'];
+      meta: components['defs']['AdaptyUI.OnboardingMeta'];
+      action_id: string;
+    };
+
+    'OnboardingViewEvent.OnStateUpdatedAction': {
+      id: 'onboarding_on_state_updated_action';
+      view: components['defs']['AdaptyUI.OnboardingView'];
+      meta: components['defs']['AdaptyUI.OnboardingMeta'];
+      action:
+        | {
+            element_id: string;
+            element_type: 'select';
+            value: components['defs']['AdaptyUI.OnboardingsStateParams'];
+          }
+        | {
+            element_id: string;
+            element_type: 'multi_select';
+            value: components['defs']['AdaptyUI.OnboardingsStateParams'][];
+          }
+        | {
+            element_id: string;
+            element_type: 'input';
+            value:
+              | { type: 'text' | 'email'; value: string }
+              | { type: 'number'; value: number };
+          }
+        | {
+            element_id: string;
+            element_type: 'date_picker';
+            value: {
+              day?: number;
+              month?: number;
+              year?: number;
+            };
+          };
     };
   };
   defs: {
@@ -514,23 +661,43 @@ export interface components {
       onboarding_screen_name?: string;
     };
 
-    AdaptyPaywall: {
+    AdaptyPlacement: {
       developer_id: string;
-      paywall_id: string;
-      paywall_name: string;
       ab_test_name: string;
       audience_name: string;
-      variation_id: string;
       revision: number;
+      is_tracking_purchases?: boolean;
+      placement_audience_version_id: string;
+    };
+
+    AdaptyPaywall: {
+      placement: components['defs']['AdaptyPlacement'];
+      paywall_id: string;
+      paywall_name: string;
+      variation_id: string;
       products: components['defs']['AdaptyPaywall.ProductReference'][];
       response_created_at: number;
-      remote_config?: components['defs']['AdaptyPaywall.RemoteConfig'];
+      remote_config?: components['defs']['AdaptyRemoteConfig'];
       paywall_builder?: components['defs']['AdaptyPaywall.ViewConfiguration'];
       web_purchase_url?: string;
       payload_data?: string;
     };
 
-    'AdaptyPaywall.FetchPolicy': OneOf<
+    AdaptyOnboarding: {
+      placement: components['defs']['AdaptyPlacement'];
+      onboarding_id: string;
+      onboarding_name: string;
+      variation_id: string;
+      response_created_at: number;
+      remote_config?: components['defs']['AdaptyRemoteConfig'];
+      onboarding_builder?: {
+        config_url: string;
+        lang: components['defs']['AdaptyLocale'];
+      };
+      payload_data?: string;
+    };
+
+    AdaptyPlacementFetchPolicy: OneOf<
       [
         {
           type:
@@ -544,7 +711,7 @@ export interface components {
       ]
     >;
 
-    'AdaptyPaywall.RemoteConfig': {
+    AdaptyRemoteConfig: {
       lang: components['defs']['AdaptyLocale'];
       data: string;
     };
@@ -699,10 +866,36 @@ export interface components {
       ]
     >;
 
-    'AdaptyUI.View': {
+    'AdaptyUI.CustomAssets': (
+      | components['assets']['Color']
+      | components['assets']['ColorGradient']
+      | components['assets']['Image']
+      | components['assets']['Video']
+    )[];
+
+    'AdaptyUI.PaywallView': {
       id: string;
       placement_id: string;
-      paywall_variation_id: string;
+      variation_id: string;
+    };
+
+    'AdaptyUI.OnboardingView': {
+      id: string;
+      placement_id: string;
+      variation_id: string;
+    };
+
+    'AdaptyUI.OnboardingMeta': {
+      onboarding_id: string;
+      screen_cid: string;
+      screen_index: number;
+      total_screens: number;
+    };
+
+    'AdaptyUI.OnboardingsStateParams': {
+      id: string;
+      value: string;
+      label: string;
     };
 
     'AdaptyUI.UserAction': OneOf<
@@ -749,6 +942,63 @@ export interface components {
     };
 
     AdaptyRefundPreference: 'no_preference' | 'grant' | 'decline';
+  };
+  assets: {
+    Color: {
+      id: string;
+      type: 'color';
+      value: string; // Hex string: ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$
+    };
+
+    ColorGradient: {
+      id: string;
+      type: 'linear-gradient';
+      values: {
+        color: string;
+        p: number;
+      }[];
+      points: {
+        x0: number;
+        y0: number;
+        x1: number;
+        y1: number;
+      };
+    };
+
+    Image: OneOf<
+      [
+        {
+          id: string;
+          type: 'image';
+          value: string; // base64
+        },
+        {
+          id: string;
+          type: 'image';
+          asset_id: string;
+        },
+        {
+          id: string;
+          type: 'image';
+          path: string;
+        },
+      ]
+    >;
+
+    Video: OneOf<
+      [
+        {
+          id: string;
+          type: 'video';
+          asset_id: string;
+        },
+        {
+          id: string;
+          type: 'video';
+          path: string;
+        },
+      ]
+    >;
   };
 }
 

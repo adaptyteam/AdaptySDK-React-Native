@@ -13,17 +13,11 @@ src/version.ts
 
 node_modules
 package-lock.json
-yarn.lock
 .yarn
 
 ios/build/
 ios/DerivedData/
 ios/Pods/
-
-example/ios/Pods/
-example/android/.settings/
-example/android/app/.settings/
-example/ios/Podfile.lock
 
 .gradle
 .idea
@@ -35,7 +29,6 @@ android/out/
 gradlew*
 gradle/
 local.properties
-
 build/
 *.pbxuser
 !default.pbxuser

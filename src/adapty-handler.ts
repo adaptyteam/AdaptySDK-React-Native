@@ -29,6 +29,7 @@ export class Adapty {
     'activate',
     'is_activated',
     'get_paywall_for_default_audience',
+    'get_onboarding_for_default_audience',
   ];
   private defaultMediaCache: AdaptyUiMediaCache = {
     memoryStorageTotalCostLimit: 100 * 1024 * 1024,
@@ -146,6 +147,26 @@ export class Adapty {
     const log = ctx.call({ methodName: 'activate' });
     log.start({ apiKey, params });
 
+    // Skipping activation if SDK is already activated
+    if (params.__ignoreActivationOnFastRefresh) {
+      try {
+        const isAlreadyActivated = await this.isActivated();
+        if (!!this.activating || isAlreadyActivated) {
+          log.success({
+            message:
+              'SDK already activated, skipping activation because ignoreActivationOnFastRefresh flag is enabled',
+          });
+          return Promise.resolve();
+        }
+      } catch (error) {
+        log.waitComplete({
+          message:
+            'Failed to check activation status, proceeding with activation; ignoreActivationOnFastRefresh flag could not be applied',
+          error,
+        });
+      }
+    }
+
     const config: Def['AdaptyConfiguration'] = {
       api_key: apiKey,
       cross_platform_sdk_name: 'react-native',
@@ -235,7 +256,7 @@ export class Adapty {
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
    * @param {string | undefined} [locale] - The locale of the desired paywall.
-   * @param {Input.GetPaywallParamsInput} [params] - Additional parameters for retrieving paywall.
+   * @param {Input.GetPlacementParamsInput} [params] - Additional parameters for retrieving paywall.
    * @returns {Promise<Model.AdaptyPaywall>}
    * A promise that resolves with a requested paywall.
    *
@@ -247,7 +268,7 @@ export class Adapty {
   public async getPaywall(
     placementId: string,
     locale?: string,
-    params: Input.GetPaywallParamsInput = {
+    params: Input.GetPlacementParamsInput = {
       fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
       loadTimeoutMs: 5000,
     },
@@ -270,12 +291,12 @@ export class Adapty {
       data['fetch_policy'] = {
         type:
           params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
-      } satisfies Def['AdaptyPaywall.FetchPolicy'];
+      } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
         type: params.fetchPolicy,
         max_age: params.maxAgeSeconds,
-      } satisfies Def['AdaptyPaywall.FetchPolicy'];
+      } satisfies Def['AdaptyPlacementFetchPolicy'];
     }
 
     const body = JSON.stringify(data);
@@ -310,7 +331,7 @@ export class Adapty {
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
    * @param {string | undefined} [locale] - The locale of the desired paywall.
-   * @param {Input.GetPaywallForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
+   * @param {Input.GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
    * @returns {Promise<Model.AdaptyPaywall>}
    * A promise that resolves with a requested paywall.
    *
@@ -322,7 +343,7 @@ export class Adapty {
   public async getPaywallForDefaultAudience(
     placementId: string,
     locale?: string,
-    params: Input.GetPaywallForDefaultAudienceParamsInput = {
+    params: Input.GetPlacementForDefaultAudienceParamsInput = {
       fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
     },
   ): Promise<Model.AdaptyPaywall> {
@@ -343,12 +364,12 @@ export class Adapty {
       data['fetch_policy'] = {
         type:
           params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
-      } satisfies Def['AdaptyPaywall.FetchPolicy'];
+      } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
         type: params.fetchPolicy,
         max_age: params.maxAgeSeconds,
-      } satisfies Def['AdaptyPaywall.FetchPolicy'];
+      } satisfies Def['AdaptyPlacementFetchPolicy'];
     }
 
     const body = JSON.stringify(data);
@@ -399,6 +420,99 @@ export class Adapty {
       methodKey,
       body,
       'Array<AdaptyPaywallProduct>',
+      ctx,
+      log,
+    );
+
+    return result;
+  }
+
+  public async getOnboarding(
+    placementId: string,
+    locale?: string,
+    params: Input.GetPlacementParamsInput = {
+      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+      loadTimeoutMs: 5000,
+    },
+  ): Promise<Model.AdaptyOnboarding> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'getOnboarding' });
+
+    log.start({ placementId, locale, params });
+
+    const methodKey = 'get_onboarding';
+    const data: Req['GetOnboarding.Request'] = {
+      method: methodKey,
+      placement_id: placementId,
+      load_timeout: (params.loadTimeoutMs ?? 5000) / 1000,
+    };
+    if (locale) {
+      data['locale'] = locale;
+    }
+    if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
+      data['fetch_policy'] = {
+        type:
+          params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+      } satisfies Def['AdaptyPlacementFetchPolicy'];
+    } else {
+      data['fetch_policy'] = {
+        type: params.fetchPolicy,
+        max_age: params.maxAgeSeconds,
+      } satisfies Def['AdaptyPlacementFetchPolicy'];
+    }
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<Model.AdaptyOnboarding>(
+      methodKey,
+      body,
+      'AdaptyOnboarding',
+      ctx,
+      log,
+    );
+
+    return result;
+  }
+
+  public async getOnboardingForDefaultAudience(
+    placementId: string,
+    locale?: string,
+    params: Input.GetPlacementParamsInput = {
+      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+      loadTimeoutMs: 5000,
+    },
+  ): Promise<Model.AdaptyOnboarding> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'getOnboardingForDefaultAudience' });
+
+    log.start({ placementId, locale, params });
+
+    const methodKey = 'get_onboarding_for_default_audience';
+    const data: Req['GetOnboardingForDefaultAudience.Request'] = {
+      method: methodKey,
+      placement_id: placementId,
+    };
+    if (locale) {
+      data['locale'] = locale;
+    }
+    if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
+      data['fetch_policy'] = {
+        type:
+          params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+      } satisfies Def['AdaptyPlacementFetchPolicy'];
+    } else {
+      data['fetch_policy'] = {
+        type: params.fetchPolicy,
+        max_age: params.maxAgeSeconds,
+      } satisfies Def['AdaptyPlacementFetchPolicy'];
+    }
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<Model.AdaptyOnboarding>(
+      methodKey,
+      body,
+      'AdaptyOnboarding',
       ctx,
       log,
     );
@@ -814,31 +928,29 @@ export class Adapty {
   /**
    * Sets the fallback paywalls.
    *
-   * Fallback paywalls will be used if the SDK fails
-   * to fetch the paywalls from the dashboard.
+   * Fallback file will be used if the SDK fails
+   * to fetch the paywalls or onboardings from the dashboard.
    * It is not designed to be used for the offline flow,
    * as products are not cached in Adapty.
    *
-   * @returns {Promise<void>} resolves when fallback paywalls are saved
+   * @returns {Promise<void>} resolves when fallback placements are saved
    */
-  public async setFallbackPaywalls(
-    paywallsLocation: Input.FallbackPaywallsLocation,
-  ): Promise<void> {
+  public async setFallback(fileLocation: Input.FileLocation): Promise<void> {
     const ctx = new LogContext();
-    const log = ctx.call({ methodName: 'setFallbackPaywalls' });
-    const paywallsLocationJson = Platform.select({
-      ios: paywallsLocation.ios.fileName,
+    const log = ctx.call({ methodName: 'setFallback' });
+    const fileLocationJson = Platform.select({
+      ios: fileLocation.ios.fileName,
       android:
-        'relativeAssetPath' in paywallsLocation.android
-          ? `${paywallsLocation.android.relativeAssetPath}a`
-          : `${paywallsLocation.android.rawResName}r`,
+        'relativeAssetPath' in fileLocation.android
+          ? `${fileLocation.android.relativeAssetPath}a`
+          : `${fileLocation.android.rawResName}r`,
     });
-    log.start({ paywallsLocationJson });
+    log.start({ fileLocationJson });
 
-    const methodKey = 'set_fallback_paywalls';
-    const data: Req['SetFallbackPaywalls.Request'] = {
+    const methodKey = 'set_fallback';
+    const data: Req['SetFallback.Request'] = {
       method: methodKey,
-      asset_id: paywallsLocationJson ?? '',
+      asset_id: fileLocationJson ?? '',
     };
 
     const body = JSON.stringify(data);
@@ -846,6 +958,15 @@ export class Adapty {
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
+  }
+
+  /**
+   * @deprecated use {@link setFallback}
+   */
+  public async setFallbackPaywalls(
+    paywallsLocation: Input.FileLocation,
+  ): Promise<void> {
+    return this.setFallback(paywallsLocation);
   }
 
   public async setIntegrationIdentifier(

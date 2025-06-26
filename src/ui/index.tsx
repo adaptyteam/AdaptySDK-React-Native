@@ -1,6 +1,7 @@
-import { AdaptyPaywall } from '@/types';
+import { AdaptyOnboarding, AdaptyPaywall } from '@/types';
 import { CreatePaywallViewParamsInput } from './types';
 import { ViewController } from './view-controller';
+import { OnboardingViewController } from '@/ui/onboarding-view-controller';
 
 /**
  * Creates a paywall view controller.
@@ -31,3 +32,13 @@ export async function createPaywallView(
 
   return controller;
 }
+
+export async function createOnboardingView(
+  onboarding: AdaptyOnboarding,
+): Promise<OnboardingViewController> {
+  const controller = await OnboardingViewController.create(onboarding);
+
+  return controller;
+}
+
+export { AdaptyOnboardingView } from './AdaptyOnboardingView';

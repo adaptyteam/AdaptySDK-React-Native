@@ -82,22 +82,8 @@ export interface AdaptyPrice {
  * @public
  */
 export interface AdaptyPaywall {
-  /**
-   * Parent A/B test name.
-   * @readonly
-   */
-  readonly abTestName: string;
+  readonly placement: AdaptyPlacement;
 
-  /**
-   * A name of an audience to which the paywall belongs.
-   * @readonly
-   */
-  readonly audienceName: string;
-  /**
-   * ID of a placement configured in Adapty Dashboard.
-   * @readonly
-   */
-  readonly placementId: string;
   /**
    * If `true`, it is possible to fetch the view object
    * and use it with AdaptyUI library.
@@ -116,12 +102,6 @@ export interface AdaptyPaywall {
    */
   readonly remoteConfig?: AdaptyRemoteConfig;
   /**
-   * Current revision (version) of a paywall.
-   * Every change within a paywall creates a new revision.
-   * @readonly
-   */
-  readonly revision: number;
-  /**
    * An identifier of a variation,
    * used to attribute purchases to this paywall.
    * @readonly
@@ -133,11 +113,71 @@ export interface AdaptyPaywall {
    */
   readonly products: ProductReference[];
 
-  instanceIdentity: string;
+  id: string;
   version?: number;
   webPurchaseUrl?: string;
   payloadData?: string;
   paywallBuilder?: AdaptyPaywallBuilder;
+}
+
+export interface AdaptyOnboarding {
+  readonly placement: AdaptyPlacement;
+  /**
+   * If `true`, it is possible to fetch the view object
+   * and use it with AdaptyUI library.
+   * @readonly
+   */
+  readonly hasViewConfiguration: boolean;
+
+  /**
+   * A paywall name.
+   * @readonly
+   */
+  readonly name: string;
+  /**
+   * A remote config configured in Adapty Dashboard for this paywall.
+   * @readonly
+   */
+  readonly remoteConfig?: AdaptyRemoteConfig;
+  /**
+   * An identifier of a variation,
+   * used to attribute purchases to this paywall.
+   * @readonly
+   */
+  readonly variationId: string;
+
+  id: string;
+  version?: number;
+  payloadData?: string;
+  onboardingBuilder?: AdaptyOnboardingBuilder;
+}
+
+export interface AdaptyPlacement {
+  /**
+   * Parent A/B test name.
+   * @readonly
+   */
+  readonly abTestName: string;
+
+  /**
+   * A name of an audience to which the paywall belongs.
+   * @readonly
+   */
+  readonly audienceName: string;
+  /**
+   * ID of a placement configured in Adapty Dashboard.
+   * @readonly
+   */
+  readonly id: string;
+  /**
+   * Current revision (version) of a paywall.
+   * Every change within a paywall creates a new revision.
+   * @readonly
+   */
+  readonly revision: number;
+
+  isTrackingPurchases?: boolean;
+  audienceVersionId: string;
 }
 
 /**
@@ -164,6 +204,11 @@ export interface AdaptyRemoteConfig {
 
 export interface AdaptyPaywallBuilder {
   readonly id: string;
+  readonly lang: string;
+}
+
+export interface AdaptyOnboardingBuilder {
+  readonly url: string;
   readonly lang: string;
 }
 

@@ -6,6 +6,7 @@ import { ArrayCoder } from './array';
 import { Coder } from './coder';
 import { AdaptyRemoteConfigCoder } from './adapty-remote-config';
 import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
+import { AdaptyPlacementCoder } from '@/coders/adapty-placement';
 
 type Model = AdaptyPaywall;
 type CodableModel = Omit<Model, 'hasViewConfiguration'>;
@@ -17,10 +18,13 @@ export class AdaptyPaywallCoder extends Coder<
   Serializable
 > {
   protected properties: Properties<CodableModel, Serializable> = {
-    abTestName: { key: 'ab_test_name', required: true, type: 'string' },
-    audienceName: { key: 'audience_name', required: true, type: 'string' },
-    placementId: { key: 'developer_id', required: true, type: 'string' },
-    instanceIdentity: { key: 'paywall_id', required: true, type: 'string' },
+    placement: {
+      key: 'placement',
+      required: true,
+      type: 'object',
+      converter: new AdaptyPlacementCoder(),
+    },
+    id: { key: 'paywall_id', required: true, type: 'string' },
     name: { key: 'paywall_name', required: true, type: 'string' },
     products: {
       key: 'products',
@@ -34,7 +38,6 @@ export class AdaptyPaywallCoder extends Coder<
       type: 'object',
       converter: new AdaptyRemoteConfigCoder(),
     },
-    revision: { key: 'revision', required: true, type: 'number' },
     variationId: { key: 'variation_id', required: true, type: 'string' },
     version: { key: 'response_created_at', required: false, type: 'number' },
     paywallBuilder: {
