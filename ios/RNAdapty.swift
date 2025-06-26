@@ -19,11 +19,15 @@ class RNAdapty: RCTEventEmitter {
     override init() {
         super.init()
         Task { @MainActor in
-            AdaptyPlugin.reqister(setFallbackPaywallsRequests: { @MainActor assetId in
+            let assetResolver: (String) -> URL? = { @MainActor assetId in
                 return Bundle.main.url(forResource: assetId, withExtension: nil)
-            })
+            }
+            if #available(iOS 15.0, *) {
+                AdaptyPlugin.register(createPaywallView: assetResolver)
+            }
+            AdaptyPlugin.register(setFallbackRequests: assetResolver)
 
-            AdaptyPlugin.reqister(eventHandler: SwiftAdaptyPluginEventHandler { [weak self] event in
+            AdaptyPlugin.register(eventHandler: SwiftAdaptyPluginEventHandler { [weak self] event in
                 guard let self = self, self.hasListeners else {
                     return
                 }
@@ -52,6 +56,13 @@ class RNAdapty: RCTEventEmitter {
             "paywall_view_did_finish_web_payment_navigation",
             "paywall_view_did_appear",
             "paywall_view_did_disappear",
+            "onboarding_did_fail_with_error",
+            "onboarding_on_analytics_action",
+            "onboarding_did_finish_loading",
+            "onboarding_on_close_action",
+            "onboarding_on_custom_action",
+            "onboarding_on_paywall_action",
+            "onboarding_on_state_updated_action",
         ]
     }
     
@@ -97,12 +108,12 @@ class RNAdapty: RCTEventEmitter {
     }
 }
 
-final class SwiftAdaptyPluginEventHandler: EventHandler {
+public final class SwiftAdaptyPluginEventHandler: EventHandler {
     private let onEvent: @Sendable (AdaptyPluginEvent) throws -> Void
         
-        init(onEvent: @escaping @Sendable (AdaptyPluginEvent) throws -> Void) {
-            self.onEvent = onEvent
-        }
+    public init(onEvent: @escaping @Sendable (AdaptyPluginEvent) throws -> Void) {
+        self.onEvent = onEvent
+    }
     
     public func handle(event: AdaptyPluginEvent) {
         do {

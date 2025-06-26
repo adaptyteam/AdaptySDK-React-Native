@@ -1,18 +1,16 @@
-import type { AdaptyPaywall } from '@/types';
+import type { AdaptyOnboarding } from '@/types';
 import type { Def } from '@/types/schema';
 import type { Properties } from './types';
-import { ProductReferenceCoder } from './product-reference';
-import { ArrayCoder } from './array';
 import { Coder } from './coder';
 import { AdaptyRemoteConfigCoder } from './adapty-remote-config';
-import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
+import { AdaptyOnboardingBuilderCoder } from './adapty-onboarding-builder';
 import { AdaptyPlacementCoder } from '@/coders/adapty-placement';
 
-type Model = AdaptyPaywall;
+type Model = AdaptyOnboarding;
 type CodableModel = Omit<Model, 'hasViewConfiguration'>;
-type Serializable = Def['AdaptyPaywall'];
+type Serializable = Def['AdaptyOnboarding'];
 
-export class AdaptyPaywallCoder extends Coder<
+export class AdaptyOnboardingCoder extends Coder<
   Model,
   CodableModel,
   Serializable
@@ -24,14 +22,8 @@ export class AdaptyPaywallCoder extends Coder<
       type: 'object',
       converter: new AdaptyPlacementCoder(),
     },
-    id: { key: 'paywall_id', required: true, type: 'string' },
-    name: { key: 'paywall_name', required: true, type: 'string' },
-    products: {
-      key: 'products',
-      required: true,
-      type: 'array',
-      converter: new ArrayCoder(ProductReferenceCoder),
-    },
+    id: { key: 'onboarding_id', required: true, type: 'string' },
+    name: { key: 'onboarding_name', required: true, type: 'string' },
     remoteConfig: {
       key: 'remote_config',
       required: false,
@@ -40,16 +32,11 @@ export class AdaptyPaywallCoder extends Coder<
     },
     variationId: { key: 'variation_id', required: true, type: 'string' },
     version: { key: 'response_created_at', required: false, type: 'number' },
-    paywallBuilder: {
-      key: 'paywall_builder',
+    onboardingBuilder: {
+      key: 'onboarding_builder',
       required: false,
       type: 'object',
-      converter: new AdaptyPaywallBuilderCoder(),
-    },
-    webPurchaseUrl: {
-      key: 'web_purchase_url',
-      required: false,
-      type: 'string',
+      converter: new AdaptyOnboardingBuilderCoder(),
     },
     payloadData: { key: 'payload_data', required: false, type: 'string' },
   };
@@ -58,7 +45,7 @@ export class AdaptyPaywallCoder extends Coder<
     const codablePart = super.decode(data);
     return {
       ...codablePart,
-      hasViewConfiguration: codablePart.paywallBuilder !== undefined,
+      hasViewConfiguration: codablePart.onboardingBuilder !== undefined,
     };
   }
 

@@ -13,6 +13,9 @@
 		8673C46A2A795432004CC1F7 /* RNAConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673C4692A795432004CC1F7 /* RNAConstants.swift */; };
 		9C3BB65625236EED00D08A07 /* RNAdapty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65225236EED00D08A07 /* RNAdapty.swift */; };
 		9C3BB65725236EED00D08A07 /* RNAdapty.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C3BB65325236EED00D08A07 /* RNAdapty.m */; };
+		DEE325D22DF6C2320054D867 /* AdaptyOnboardingWrapperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE325D12DF6C2320054D867 /* AdaptyOnboardingWrapperView.swift */; };
+		DEE325D32DF6C2320054D867 /* AdaptyOnboardingViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE325D02DF6C2320054D867 /* AdaptyOnboardingViewManager.swift */; };
+		DEE325D72DF6CDFF0054D867 /* AdaptyOnboardingViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE325D62DF6CDF50054D867 /* AdaptyOnboardingViewManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +40,9 @@
 		9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNAdapty-Bridging-Header.h"; sourceTree = "<group>"; };
 		9C3BB65225236EED00D08A07 /* RNAdapty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RNAdapty.swift; sourceTree = "<group>"; };
 		9C3BB65325236EED00D08A07 /* RNAdapty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNAdapty.m; sourceTree = "<group>"; };
+		DEE325D02DF6C2320054D867 /* AdaptyOnboardingViewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptyOnboardingViewManager.swift; sourceTree = "<group>"; };
+		DEE325D12DF6C2320054D867 /* AdaptyOnboardingWrapperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptyOnboardingWrapperView.swift; sourceTree = "<group>"; };
+		DEE325D62DF6CDF50054D867 /* AdaptyOnboardingViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AdaptyOnboardingViewManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,10 +59,13 @@
 		9C3BB63425236E6000D08A07 = {
 			isa = PBXGroup;
 			children = (
+				DEE325D02DF6C2320054D867 /* AdaptyOnboardingViewManager.swift */,
+				DEE325D12DF6C2320054D867 /* AdaptyOnboardingWrapperView.swift */,
 				86670EF529EFEA370018CBE2 /* CrossplatformVersion.plist */,
 				9C3BB63E25236E6100D08A07 /* Products */,
 				9C3BB64A25236E7D00D08A07 /* RNAdapty-Bridging-Header.h */,
 				9C3BB65325236EED00D08A07 /* RNAdapty.m */,
+				DEE325D62DF6CDF50054D867 /* AdaptyOnboardingViewManager.m */,
 				8673C4652A7953C6004CC1F7 /* RNAParamMap.swift */,
 				8673C4632A7953A5004CC1F7 /* RNAContext.swift */,
 				9C3BB65225236EED00D08A07 /* RNAdapty.swift */,
@@ -134,7 +143,10 @@
 				9C3BB65725236EED00D08A07 /* RNAdapty.m in Sources */,
 				8673C4662A7953C6004CC1F7 /* RNAParamMap.swift in Sources */,
 				8673C46A2A795432004CC1F7 /* RNAConstants.swift in Sources */,
+				DEE325D22DF6C2320054D867 /* AdaptyOnboardingWrapperView.swift in Sources */,
+				DEE325D32DF6C2320054D867 /* AdaptyOnboardingViewManager.swift in Sources */,
 				8673C4682A7953E9004CC1F7 /* RNABridgeError.swift in Sources */,
+				DEE325D72DF6CDFF0054D867 /* AdaptyOnboardingViewManager.m in Sources */,
 				9C3BB65625236EED00D08A07 /* RNAdapty.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

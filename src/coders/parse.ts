@@ -11,6 +11,10 @@ import type { Converter } from './types';
 import { AdaptyRemoteConfigCoder } from './adapty-remote-config';
 import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
 import { AdaptyPurchaseResultCoder } from '@/coders/adapty-purchase-result';
+import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
+import { AdaptyUiOnboardingMetaCoder } from '@/coders/adapty-ui-onboarding-meta';
+import { AdaptyUiOnboardingStateParamsCoder } from '@/coders/adapty-ui-onboarding-state-params';
+import { AdaptyUiOnboardingStateUpdatedActionCoder } from '@/coders/adapty-ui-onboarding-state-updated-action';
 
 const AdaptyTypes = [
   'AdaptyError',
@@ -18,10 +22,14 @@ const AdaptyTypes = [
   'AdaptyPurchaseResult',
   'AdaptyPaywall',
   'AdaptyPaywallProduct',
+  'AdaptyOnboarding',
   'AdaptyRemoteConfig',
   'AdaptyPaywallBuilder',
   'AdaptyUiView',
   'AdaptyUiDialogActionType',
+  'AdaptyUiOnboardingMeta',
+  'AdaptyUiOnboardingStateParams',
+  'AdaptyUiOnboardingStateUpdatedAction',
   'Array<AdaptyPaywallProduct>',
   'BridgeError',
   'String',
@@ -184,8 +192,16 @@ function getCoder(
       return new AdaptyRemoteConfigCoder();
     case 'AdaptyPaywallBuilder':
       return new AdaptyPaywallBuilderCoder();
+    case 'AdaptyOnboarding':
+      return new AdaptyOnboardingCoder();
     case 'AdaptyPurchaseResult':
       return new AdaptyPurchaseResultCoder();
+    case 'AdaptyUiOnboardingMeta':
+      return new AdaptyUiOnboardingMetaCoder();
+    case 'AdaptyUiOnboardingStateParams':
+      return new AdaptyUiOnboardingStateParamsCoder();
+    case 'AdaptyUiOnboardingStateUpdatedAction':
+      return new AdaptyUiOnboardingStateUpdatedActionCoder();
     case 'BridgeError':
       return new BridgeErrorCoder();
     case 'Array<AdaptyPaywallProduct>':

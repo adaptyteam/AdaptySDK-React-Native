@@ -39,17 +39,18 @@ export const FetchPolicy = Object.freeze({
 });
 export type FetchPolicy = (typeof FetchPolicy)[keyof typeof FetchPolicy];
 
-export type GetPaywallParamsInput = GetPaywallForDefaultAudienceParamsInput & {
-  /**
-   * This value limits the timeout (in milliseconds) for this method.
-   *
-   * @remarks
-   * If the timeout is reached, cached data or local fallback will be returned.
-   */
-  loadTimeoutMs?: number;
-};
+export type GetPlacementParamsInput =
+  GetPlacementForDefaultAudienceParamsInput & {
+    /**
+     * This value limits the timeout (in milliseconds) for this method.
+     *
+     * @remarks
+     * If the timeout is reached, cached data or local fallback will be returned.
+     */
+    loadTimeoutMs?: number;
+  };
 
-export type GetPaywallForDefaultAudienceParamsInput =
+export type GetPlacementForDefaultAudienceParamsInput =
   | {
       /**
        * Fetch policy
@@ -189,7 +190,7 @@ export interface MakePurchaseParamsInput {
   android?: AdaptyAndroidSubscriptionUpdateParameters;
 }
 
-export type FallbackPaywallsLocation = {
+export type FileLocation = {
   ios: {
     fileName: string;
   };

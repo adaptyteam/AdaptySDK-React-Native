@@ -1,6 +1,8 @@
 import { ViewEmitter } from './view-emitter';
+import { Platform } from 'react-native';
 
 import {
+  AdaptyCustomAsset,
   AdaptyUiDialogActionType,
   AdaptyUiDialogConfig,
   AdaptyUiView,
@@ -15,7 +17,7 @@ import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
-import { Req } from '@/types/schema';
+import { Def, Req } from '@/types/schema';
 import { AdaptyUiDialogConfigCoder } from '@/coders/adapty-ui-dialog-config';
 
 /**
@@ -41,8 +43,8 @@ export class ViewController {
     const view = new ViewController();
 
     const coder = new AdaptyPaywallCoder();
-    const methodKey = 'adapty_ui_create_view';
-    const data: Req['AdaptyUICreateView.Request'] = {
+    const methodKey = 'adapty_ui_create_paywall_view';
+    const data: Req['AdaptyUICreatePaywallView.Request'] = {
       method: methodKey,
       paywall: coder.encode(paywall),
       preload_products: params.prefetchProducts ?? true,
@@ -86,6 +88,139 @@ export class ViewController {
         return result;
       };
       data['custom_timers'] = convertTimerInfo(params.customTimers);
+    }
+
+    if (params.customAssets) {
+      const argbToHex = (value: number): string => {
+        const hex = value.toString(16).padStart(8, '0');
+        return `#${hex.slice(2)}${hex.slice(0, 2)}`;
+      };
+      const rgbaToHex = (value: number): string => {
+        return `#${value.toString(16).padStart(8, '0')}`;
+      };
+      const rgbToHex = (value: number): string => {
+        return `#${value.toString(16).padStart(6, '0')}FF`;
+      };
+      const extractBase64Data = (input: string): string => {
+        const commaIndex = input.indexOf(',');
+        if (input.startsWith('data:') && commaIndex !== -1) {
+          return input.slice(commaIndex + 1);
+        }
+        return input;
+      };
+
+      const getAssetId = (asset: any): string => {
+        if ('relativeAssetPath' in asset) {
+          return Platform.select({
+            ios: asset.relativeAssetPath,
+            android: `${asset.relativeAssetPath}a`,
+          });
+        }
+
+        if ('fileLocation' in asset) {
+          const fileLocation = asset.fileLocation;
+          return Platform.select({
+            ios: fileLocation.ios.fileName,
+            android:
+              'relativeAssetPath' in fileLocation.android
+                ? `${fileLocation.android.relativeAssetPath}a`
+                : `${fileLocation.android.rawResName}r`,
+          });
+        }
+
+        return '';
+      };
+
+      const convertAssets = (
+        assets: Record<string, AdaptyCustomAsset>,
+      ): Def['AdaptyUI.CustomAssets'] => {
+        return Object.entries(assets)
+          .map(
+            ([id, asset]): Def['AdaptyUI.CustomAssets'][number] | undefined => {
+              switch (asset.type) {
+                case 'image':
+                  return 'base64' in asset
+                    ? {
+                        id,
+                        type: 'image',
+                        value: extractBase64Data(asset.base64),
+                      }
+                    : {
+                        id,
+                        type: 'image',
+                        asset_id: getAssetId(asset),
+                      };
+
+                case 'video':
+                  return {
+                    id,
+                    type: 'video',
+                    asset_id: getAssetId(asset),
+                  };
+
+                case 'color':
+                  let value: string;
+
+                  if ('argb' in asset) {
+                    value = argbToHex(asset.argb);
+                  } else if ('rgba' in asset) {
+                    value = rgbaToHex(asset.rgba);
+                  } else if ('rgb' in asset) {
+                    value = rgbToHex(asset.rgb);
+                  } else {
+                    return undefined;
+                  }
+
+                  return {
+                    id,
+                    type: 'color',
+                    value,
+                  };
+
+                case 'linear-gradient':
+                  const { values, points = {} } = asset;
+                  const { x0 = 0, y0 = 0, x1 = 1, y1 = 0 } = points;
+
+                  const colorStops = values
+                    .map(({ p, ...colorInput }) => {
+                      let color: string;
+
+                      if ('argb' in colorInput) {
+                        color = argbToHex(colorInput.argb);
+                      } else if ('rgba' in colorInput) {
+                        color = rgbaToHex(colorInput.rgba);
+                      } else if ('rgb' in colorInput) {
+                        color = rgbToHex(colorInput.rgb);
+                      } else {
+                        return undefined;
+                      }
+
+                      return { color, p };
+                    })
+                    .filter(
+                      (v): v is { color: string; p: number } => v !== undefined,
+                    );
+
+                  if (colorStops.length !== values.length) return undefined;
+
+                  return {
+                    id,
+                    type: 'linear-gradient',
+                    values: colorStops,
+                    points: { x0, y0, x1, y1 },
+                  };
+
+                default:
+                  return undefined;
+              }
+            },
+          )
+          .filter(
+            (item): item is Def['AdaptyUI.CustomAssets'][number] =>
+              item !== undefined,
+          );
+      };
+      data['custom_assets'] = convertAssets(params.customAssets);
     }
     const body = JSON.stringify(data);
 
@@ -162,11 +297,11 @@ export class ViewController {
       throw this.errNoViewReference();
     }
 
-    const methodKey = 'adapty_ui_present_view';
+    const methodKey = 'adapty_ui_present_paywall_view';
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
-    } satisfies Req['AdaptyUIPresentView.Request']);
+    } satisfies Req['AdaptyUIPresentPaywallView.Request']);
 
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
     return result;
@@ -188,12 +323,12 @@ export class ViewController {
       throw this.errNoViewReference();
     }
 
-    const methodKey = 'adapty_ui_dismiss_view';
+    const methodKey = 'adapty_ui_dismiss_paywall_view';
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
       destroy: false,
-    } satisfies Req['AdaptyUIDismissView.Request']);
+    } satisfies Req['AdaptyUIDismissPaywallView.Request']);
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
 

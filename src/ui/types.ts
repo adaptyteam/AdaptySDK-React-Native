@@ -4,6 +4,7 @@ import {
   AdaptyProfile,
   AdaptyPurchaseResult,
 } from '@/types';
+import { FileLocation } from '@/types/inputs';
 
 /**
  * @internal
@@ -136,6 +137,87 @@ export interface EventHandlers {
   onUrlPress: (url: string) => EventHandlerResult;
 }
 
+export interface OnboardingEventHandlers {
+  onClose: (
+    actionId: string,
+    meta: AdaptyUiOnboardingMeta,
+  ) => EventHandlerResult;
+  onCustom: (
+    actionId: string,
+    meta: AdaptyUiOnboardingMeta,
+  ) => EventHandlerResult;
+  onPaywall: (
+    actionId: string,
+    meta: AdaptyUiOnboardingMeta,
+  ) => EventHandlerResult;
+  onStateUpdated: (
+    action: OnboardingStateUpdatedAction,
+    meta: AdaptyUiOnboardingMeta,
+  ) => EventHandlerResult;
+  onFinishedLoading: (meta: AdaptyUiOnboardingMeta) => EventHandlerResult;
+  onAnalytics: (
+    event: {
+      name: OnboardingAnalyticsEventName;
+      element_id?: string;
+      reply?: string;
+    },
+    meta: AdaptyUiOnboardingMeta,
+  ) => EventHandlerResult;
+  onError: (error: AdaptyError) => EventHandlerResult;
+}
+
+export type OnboardingAnalyticsEventName =
+  | 'onboarding_started'
+  | 'screen_presented'
+  | 'screen_completed'
+  | 'second_screen_presented'
+  | 'registration_screen_presented'
+  | 'products_screen_presented'
+  | 'user_email_collected'
+  | 'onboarding_completed'
+  | (string & {});
+
+export type AdaptyUiOnboardingMeta = {
+  onboardingId: string;
+  screenClientId: string;
+  screenIndex: number;
+  totalScreens: number;
+};
+
+export type AdaptyUiOnboardingStateParams = {
+  id: string;
+  value: string;
+  label: string;
+};
+
+export type OnboardingStateUpdatedAction =
+  | {
+      elementId: string;
+      elementType: 'select';
+      value: AdaptyUiOnboardingStateParams;
+    }
+  | {
+      elementId: string;
+      elementType: 'multi_select';
+      value: AdaptyUiOnboardingStateParams[];
+    }
+  | {
+      elementId: string;
+      elementType: 'input';
+      value:
+        | { type: 'text' | 'email'; value: string }
+        | { type: 'number'; value: number };
+    }
+  | {
+      elementId: string;
+      elementType: 'date_picker';
+      value: {
+        day?: number;
+        month?: number;
+        year?: number;
+      };
+    };
+
 /**
  * Additional options for creating a paywall view
  *
@@ -165,6 +247,8 @@ export interface CreatePaywallViewParamsInput {
    * If you are going to use custom timer functionality, pass an object with timer ids and corresponding dates the timers should end at
    */
   customTimers?: Record<string, Date>;
+
+  customAssets?: Record<string, AdaptyCustomAsset>;
 }
 
 export interface AdaptyUiView {
@@ -213,4 +297,42 @@ export const DEFAULT_EVENT_HANDLERS: Partial<EventHandlers> = {
   onRestoreCompleted: () => true,
   onPurchaseCompleted: (purchaseResult: AdaptyPurchaseResult) =>
     purchaseResult.type !== 'user_cancelled',
+};
+
+/**
+ * @internal
+ */
+export const DEFAULT_ONBOARDING_EVENT_HANDLERS: Partial<OnboardingEventHandlers> =
+  {
+    onClose: () => true,
+  };
+
+export type AdaptyCustomAsset =
+  | AdaptyCustomImageAsset
+  | AdaptyCustomVideoAsset
+  | AdaptyCustomColorAsset
+  | AdaptyCustomGradientAsset;
+
+export type AdaptyCustomImageAsset =
+  | { type: 'image'; base64: string }
+  | { type: 'image'; relativeAssetPath: string } // shorthand: uses same path for both iOS fileName and Android relativeAssetPath
+  | { type: 'image'; fileLocation: FileLocation }; // full control for platform-specific paths
+
+export type AdaptyCustomVideoAsset =
+  | { type: 'video'; relativeAssetPath: string } // shorthand: uses same path for both iOS fileName and Android relativeAssetPath
+  | { type: 'video'; fileLocation: FileLocation }; // full control for platform-specific paths
+
+export type AdaptyCustomColorAsset =
+  | { type: 'color'; argb: number /* e.g. 0xFFFF0000 (opaque red) */ }
+  | { type: 'color'; rgb: number /* e.g. 0xFF0000 (red) */ }
+  | { type: 'color'; rgba: number /* e.g. 0xFF0000FF (opaque red) */ };
+
+export type AdaptyCustomGradientAsset = {
+  type: 'linear-gradient';
+  values: (
+    | { p: number; argb: number }
+    | { p: number; rgb: number }
+    | { p: number; rgba: number }
+  )[];
+  points?: { x0?: number; y0?: number; x1?: number; y1?: number };
 };

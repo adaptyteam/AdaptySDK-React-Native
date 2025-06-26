@@ -9,9 +9,14 @@ import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
 type Model = AdaptyPaywall;
 const mocks: Def['AdaptyPaywall'][] = [
   {
-    ab_test_name: 'testA',
-    audience_name: 'audienceC',
-    developer_id: 'dev123',
+    placement: {
+      ab_test_name: 'testA',
+      audience_name: 'audienceC',
+      developer_id: 'dev123',
+      revision: 5,
+      placement_audience_version_id: 'version_123',
+      is_tracking_purchases: true,
+    },
     payload_data: 'additionalData',
     paywall_name: 'Paywall1',
     paywall_id: '456789o',
@@ -34,7 +39,6 @@ const mocks: Def['AdaptyPaywall'][] = [
       lang: 'en',
       data: '{"key":"value"}', // A custom JSON string configured in Adapty Dashboard for this paywall
     },
-    revision: 5,
     variation_id: 'var001',
     paywall_builder: {
       paywall_builder_id: 'paywallBuilder1',
@@ -42,12 +46,15 @@ const mocks: Def['AdaptyPaywall'][] = [
     },
   },
   {
-    developer_id: 'dev456',
+    placement: {
+      ab_test_name: 'testB',
+      audience_name: 'audienceD',
+      developer_id: 'dev456',
+      revision: 3,
+      placement_audience_version_id: 'version_456',
+    },
     paywall_id: 'instanceId267',
-    revision: 3,
     variation_id: 'var002',
-    ab_test_name: 'testB',
-    audience_name: 'audienceD',
     paywall_name: 'Paywall2',
     products: [
       { vendor_product_id: 'product3', adapty_product_id: 'adaptyProduct3' },
@@ -66,19 +73,25 @@ function toModel(mock: (typeof mocks)[number]): Model {
   const _paywallBuilder = new AdaptyPaywallBuilderCoder();
 
   return {
-    abTestName: mock.ab_test_name,
-    audienceName: mock.audience_name,
-    placementId: mock.developer_id,
-    instanceIdentity: mock.paywall_id,
+    placement: {
+      abTestName: mock.placement.ab_test_name,
+      audienceName: mock.placement.audience_name,
+      id: mock.placement.developer_id,
+      revision: mock.placement.revision,
+      audienceVersionId: mock.placement.placement_audience_version_id,
+      ...(mock.placement.is_tracking_purchases !== undefined && {
+        isTrackingPurchases: mock.placement.is_tracking_purchases,
+      }),
+    },
+    id: mock.paywall_id,
     ...(mock.payload_data && { payloadData: mock.payload_data }),
     name: mock.paywall_name,
     products: _products.decode(mock.products),
     ...(mock.remote_config && {
       remoteConfig: _remoteConfig.decode(mock.remote_config),
     }),
-    revision: mock.revision,
     variationId: mock.variation_id,
-    version: mock.response_created_at,
+    ...(mock.response_created_at && { version: mock.response_created_at }),
     ...(mock.paywall_builder && {
       paywallBuilder: _paywallBuilder.decode(mock.paywall_builder),
     }),
