@@ -219,7 +219,7 @@ export const PaywallSection: React.FC<Props> = ({
         <LineParam label="Variation ID" value={paywall.variationId} bordered />
         <LineParam
           label="Revision"
-          value={paywall.revision.toString()}
+          value={paywall.placement.revision.toString()}
           bordered
         />
         <LineParam
