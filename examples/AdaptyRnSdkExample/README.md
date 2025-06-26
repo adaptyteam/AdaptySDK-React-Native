@@ -19,6 +19,8 @@ This application demonstrates:
 ## Prerequisites 
 This project was created using [React Native CLI](https://reactnative.dev/docs/environment-setup). Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
+**For Android Emulator Testing**: Make sure to use an Android emulator with Google Play services installed (look for "Google Play" in the system image name when creating an AVD). This is required for in-app purchases functionality.
+
 ## Adapty Configuration
 
 1. This example uses an automated credential setup system. When you run `yarn start`, the app will automatically prompt you to enter:
