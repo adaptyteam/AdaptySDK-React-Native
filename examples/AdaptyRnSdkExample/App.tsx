@@ -34,6 +34,7 @@ async function init() {
     console.info('[ADAPTY] Activating Adapty SDK...');
     // Async activate Adapty
     await adapty.activate(token, {
+      __ignoreActivationOnFastRefresh: __DEV__,
       logLevel: 'verbose',
     });
 
