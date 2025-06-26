@@ -4,7 +4,7 @@
   "version": "3.6.1",
   "description": "Adapty React Native SDK",
   "license": "MIT",
-  "author": "Vanya Dorofeyev <DivanDoesApps@gmail.com> (https://github.com/divanc)",
+  "author": "Adapty team <support@adapty.io>",
   "packageManager": "yarn@1.22.19",
   "keywords": [
     "react-native",
