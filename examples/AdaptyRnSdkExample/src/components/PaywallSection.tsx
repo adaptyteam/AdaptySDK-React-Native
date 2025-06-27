@@ -7,7 +7,7 @@ import {
   AdaptyError,
   AdaptyPaywall,
   AdaptyPaywallProduct,
-  GetPaywallForDefaultAudienceParamsInput,
+  GetPlacementForDefaultAudienceParamsInput,
 } from 'react-native-adapty';
 
 import { Group } from './Group';
@@ -37,7 +37,7 @@ export const PaywallSection: React.FC<Props> = ({
         placementId,
       );
 
-      const params: GetPaywallForDefaultAudienceParamsInput = {
+      const params: GetPlacementForDefaultAudienceParamsInput = {
         fetchPolicy: 'reload_revalidating_cache_data',
       };
 
