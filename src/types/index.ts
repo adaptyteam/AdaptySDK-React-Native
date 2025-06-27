@@ -102,6 +102,10 @@ export interface AdaptyPaywall {
    */
   readonly remoteConfig?: AdaptyRemoteConfig;
   /**
+   * @deprecated Use `placement.revision` instead
+   */
+  readonly revision?: never;
+  /**
    * An identifier of a variation,
    * used to attribute purchases to this paywall.
    * @readonly

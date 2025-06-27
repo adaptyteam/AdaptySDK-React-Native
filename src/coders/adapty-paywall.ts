@@ -9,7 +9,7 @@ import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
 import { AdaptyPlacementCoder } from '@/coders/adapty-placement';
 
 type Model = AdaptyPaywall;
-type CodableModel = Omit<Model, 'hasViewConfiguration'>;
+type CodableModel = Omit<Model, 'hasViewConfiguration' | 'revision'>;
 type Serializable = Def['AdaptyPaywall'];
 
 export class AdaptyPaywallCoder extends Coder<

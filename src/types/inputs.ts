@@ -50,6 +50,11 @@ export type GetPlacementParamsInput =
     loadTimeoutMs?: number;
   };
 
+/**
+ * @deprecated Use GetPlacementParamsInput instead
+ */
+export type GetPaywallParamsInput = GetPlacementParamsInput;
+
 export type GetPlacementForDefaultAudienceParamsInput =
   | {
       /**
