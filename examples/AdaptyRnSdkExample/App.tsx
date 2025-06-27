@@ -10,7 +10,7 @@ import { Button, Platform, Text } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { adapty, GetPaywallForDefaultAudienceParamsInput } from 'react-native-adapty';
+import { adapty, GetPlacementForDefaultAudienceParamsInput } from 'react-native-adapty';
 import adaptyVersion from 'react-native-adapty/dist/version';
 
 import { readCredentials, useJsLogs } from './src/helpers';
@@ -38,7 +38,7 @@ async function init() {
       logLevel: 'verbose',
     });
 
-    let params: GetPaywallForDefaultAudienceParamsInput = {
+    let params: GetPlacementForDefaultAudienceParamsInput = {
       fetchPolicy: 'reload_revalidating_cache_data',
     };
 
