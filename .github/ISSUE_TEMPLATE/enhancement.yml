@@ -1,8 +1,6 @@
 name: 💫 Feature request
 description: Request a new feature
 labels: ["enhancement"]
-assignees:
-  - divanc
 body:
 - type: markdown
   attributes:

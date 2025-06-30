@@ -1,8 +1,6 @@
 name: 🐛 Bug Report
 description: Report a reproducible bug or regression in Adapty SDK.
 labels: ["bug"]
-assignees:
-  - divanc
 body:
 - type: markdown
   attributes:
