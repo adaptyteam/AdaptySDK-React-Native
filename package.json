@@ -43,7 +43,8 @@
     "test": "jest",
     "update-versions": "node ./scripts/update_versions.cjs",
     "prepack": "yarn format && yarn lint && yarn test && yarn update-versions && yarn build",
-    "prepublishOnly": "yarn prepack"
+    "prepublishOnly": "yarn prepack",
+    "doc-gen": "typedoc --out docs src/__docs__.ts"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
