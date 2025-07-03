@@ -26,17 +26,19 @@ This repository demonstrates how to integrate the [Adapty SDK](https://adapty.io
 3. **Display a customizable paywall UI using Paywall Builder**  
 4. **Handle purchase and restore callbacks**  
 
-You can follow along on the `starter` branch to add Adapty manually, or inspect the `main` branch to see the final result.
+You can follow along on the `feat/focus-journal-expo-starter` branch to add Adapty manually, or inspect the `master` branch to see the final result.
+
+You can also follow along with the video tutorial which can be found [here]().
 
 ---
 
 ## Branch Structure
 
-- **`starter`**  
+- **`feat/focus-journal-expo-starter`**  
   - Contains the Focus Journal app without any Adapty code.  
   - Meant as a starting point for following the Quickstart guide.  
 
-- **`main`**  
+- **`master`**  
   - Contains the same app with Adapty fully integrated.  
   - Compare this branch to `starter` to see the complete implementation.  
 
@@ -56,27 +58,27 @@ You can follow along on the `starter` branch to add Adapty manually, or inspect 
 
 1. **Clone this repository**  
    ```bash
-   git clone https://github.com/ferrousguy/Focus-Journal-React-Native.git
-   cd Focus-Journal-React-Native
+   git clone https://github.com/adaptyteam/AdaptySDK-React-Native.git
+   cd examples/FocusJournalExpo
    ```
 
 2. **Check out the starter branch**  
    ```bash
-   git checkout starter
+   git checkout feat/focus-journal-expo-starter
    ```
 
 3. **Follow the Quickstart Integration Guide to add Adapty step-by-step.**
 
 4. When you're done, or if you get stuck, switch to the `main` branch to compare your work:  
    ```bash
-   git checkout main
+   git checkout master
    ```
 
 ---
 
 ## Running the Example
 
-1. `git checkout main`  
+1. `git checkout master`  
 2. Add your Adapty API key to `AdaptyConstants.js`  
 3. Build your dev client and run the app:  
    ```bash
