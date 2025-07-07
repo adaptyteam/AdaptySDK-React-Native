@@ -1,13 +1,11 @@
 name: 🤔 Question
 description: Ask a question about anything that is unclear about Adapty
 labels: ["question"]
-assignees:
-  - divanc
 body:
 - type: markdown
   attributes:
     value: |
-      Have we missed something? Does documentation lacks something? 
+      Have we missed something? Does documentation lacks something?
 - type: textarea
   id: what-happened
   attributes:
