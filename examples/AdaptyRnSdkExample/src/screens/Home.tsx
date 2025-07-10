@@ -65,19 +65,20 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
+    adapty.addEventListener(
+      'onLatestProfileLoad',
+      (profile_: AdaptyProfile) => {
+        console.info('[ADAPTY] onLatestProfileLoad', profile_);
+        setProfile(profile_);
+      },
+    );
+
     async function fetch() {
-      if (!adapty.isActivated()) {
+      const isActivated = await adapty.isActivated();
+      if (!isActivated) {
         return;
       }
       fetchProfile();
-
-      adapty.addEventListener(
-        'onLatestProfileLoad',
-        (profile_: AdaptyProfile) => {
-          console.info('[ADAPTY] onLatestProfileLoad', profile_);
-          setProfile(profile_);
-        },
-      );
     }
     fetch();
 

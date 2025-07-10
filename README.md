@@ -88,7 +88,7 @@ Read the [documentation](https://docs.adapty.io/docs/react-native-installation?u
 
 ## Examples
 
-Check out our [example applications](./examples) to see Adapty SDK in action.
+Check out our [example applications](./examples) to see Adapty SDK in action. The Expo example is recommended for Adapty beginners.
 
 ## Contributing
 
