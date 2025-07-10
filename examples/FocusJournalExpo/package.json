@@ -1,0 +1,29 @@
+{
+  "name": "focusjournalexpo",
+  "license": "0BSD",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@react-navigation/native": "^7.1.10",
+    "@react-navigation/native-stack": "^7.3.14",
+    "expo": "~53.0.10",
+    "expo-dev-client": "~5.2.0",
+    "expo-status-bar": "~2.2.3",
+    "react": "19.0.0",
+    "react-native": "0.79.3",
+    "react-native-adapty": "^3.6.1",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.11.1",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  },
+  "private": true
+}
