@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 
-// Constants for error messages
 const ADAPTY_PREFIX = '[ADAPTY]';
 const CREDENTIALS_FILE = '.adapty-credentials.json';
 const CREDENTIALS_COMMAND = "Please run 'yarn run credentials' to generate the credentials file.";
 
-// Import credentials at the module level
 let credentials: { token?: string; placement_id?: string };
 
 try {
@@ -69,12 +67,15 @@ export function useJsLogs(): JsLog[] {
 
     // Override console method
     const overrideConsoleMethod = (method: ConsoleKey): void => {
-      (console as Console)[method] = (...args: any[]) => {
-        // Call the original console method
-        originalConsoleMethods[method](...args);
+      const originalMethod = originalConsoleMethods[method];
+      
+      (console as Console)[method] = function() {
+        // Call the original method with arguments object to avoid spread overhead
+        originalMethod.apply(console, arguments);
+        
         // Append the new log to the state, if it is adapty related
-        if (args[0] && typeof args[0] === 'string' && args[0].includes('[adapty')) {
-          const msg = args[0].split(' ');
+        if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('[adapty')) {
+          const msg = arguments[0].split(' ');
           // msg format `[${now}] [adapty@${version}] "${funcName}": ${message}`;
           // extract isoDate, funcName, message
           const isoDate = msg[0].replace('[', '').replace(']', '');
@@ -83,7 +84,7 @@ export function useJsLogs(): JsLog[] {
 
           setLogs(prevLogs => [
             ...prevLogs,
-            { logLevel: method as any, message, isoDate, funcName, args },
+            { logLevel: method as any, message, isoDate, funcName, args: Array.from(arguments) },
           ]);
         }
       };
