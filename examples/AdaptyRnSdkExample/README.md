@@ -25,11 +25,10 @@ This project was created using [React Native CLI](https://reactnative.dev/docs/e
 
 1. This example uses an automated credential setup system. When you run `yarn start`, the app will automatically prompt you to enter:
    - Your Adapty API token
+   - Add placement ID from your dashboard
    - iOS Bundle ID (if different from default)
    
    Your credentials are stored in `.adapty-credentials.json` file (which is gitignored for security).
-
-2. Add placement ID from your dashboard to ./src/constants.ts.
 
 ## How to run example with production version of the library
 1. Clone this repository

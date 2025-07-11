@@ -14,14 +14,14 @@ import { Group } from './Group';
 import { LineButton } from './LineButton';
 import { LineParam } from './LineParam';
 import { Bool } from './Bool';
-import { PlacementId } from '../constants';
+import { readPlacementId } from '../helpers';
 
 interface Props {
   placementId?: string;
 }
 
 export const PaywallSection: React.FC<Props> = ({
-  placementId = PlacementId.Standard,
+  placementId,
 }) => {
   const [paywall, setPaywall] = useState<AdaptyPaywall | null>(null);
   const [products, setProducts] = useState<AdaptyPaywallProduct[]>([]);
@@ -32,9 +32,11 @@ export const PaywallSection: React.FC<Props> = ({
 
     setIsLoading(true);
     try {
+      const effectivePlacementId = placementId || readPlacementId();
+
       console.log(
         '[ADAPTY]: Fetching paywall for default audience:',
-        placementId,
+        effectivePlacementId,
       );
 
       const params: GetPlacementForDefaultAudienceParamsInput = {
@@ -42,7 +44,7 @@ export const PaywallSection: React.FC<Props> = ({
       };
 
       const paywall_ = await adapty.getPaywallForDefaultAudience(
-        placementId,
+        effectivePlacementId,
         undefined,
         params,
       );
