@@ -1,3 +1,4 @@
+import { Linking } from 'react-native';
 import { AdaptyError } from '@/adapty-error';
 import {
   AdaptyPaywallProduct,
@@ -297,6 +298,10 @@ export const DEFAULT_EVENT_HANDLERS: Partial<EventHandlers> = {
   onRestoreCompleted: () => true,
   onPurchaseCompleted: (purchaseResult: AdaptyPurchaseResult) =>
     purchaseResult.type !== 'user_cancelled',
+  onUrlPress: url => {
+    Linking.openURL(url);
+    return false; // Keep paywall open
+  },
 };
 
 /**
