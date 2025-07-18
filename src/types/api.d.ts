@@ -249,8 +249,7 @@ export interface components {
     'MakePurchase.Request': {
       method: 'make_purchase';
       product: components['defs']['AdaptyPaywallProduct.Request'];
-      subscription_update_params?: components['defs']['AdaptySubscriptionUpdateParameters'];
-      is_offer_personalized?: boolean;
+      parameters?: components['defs']['AdaptyPurchaseParameters'];
     };
 
     'MakePurchase.Response': OneOf<
@@ -930,6 +929,13 @@ export interface components {
     };
 
     'AdaptyUI.DialogActionType': 'primary' | 'secondary';
+
+    AdaptyPurchaseParameters: {
+      subscription_update_params?: components['defs']['AdaptySubscriptionUpdateParameters'];
+      is_offer_personalized?: boolean;
+      obfuscated_account_id?: string;
+      obfuscated_profile_id?: string;
+    };
 
     AdaptySubscriptionUpdateParameters: {
       old_sub_vendor_product_id: string;

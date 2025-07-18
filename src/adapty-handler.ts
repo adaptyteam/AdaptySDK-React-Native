@@ -7,6 +7,7 @@ import type { Def, Req } from '@/types/schema';
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
 import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
+import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
 
 import type * as Model from '@/types';
 import * as Input from '@/types/inputs';
@@ -810,15 +811,11 @@ export class Adapty {
       product: productInput,
     };
 
-    if (params.android && Platform.OS === 'android') {
-      data['subscription_update_params'] = {
-        replacement_mode: params.android.prorationMode,
-        old_sub_vendor_product_id: params.android.oldSubVendorProductId,
-      };
+    const purchaseParamsCoder = new AdaptyPurchaseParamsCoder();
+    const purchaseParams = purchaseParamsCoder.encode(params);
 
-      if (params.android.isOfferPersonalized) {
-        data['is_offer_personalized'] = params.android.isOfferPersonalized;
-      }
+    if (Object.keys(purchaseParams).length > 0) {
+      data.parameters = purchaseParams;
     }
 
     const body = JSON.stringify(data);
