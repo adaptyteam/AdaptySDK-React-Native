@@ -180,15 +180,103 @@ export const AdaptyAndroidSubscriptionUpdateReplacementMode = Object.freeze({
 export type AdaptyAndroidSubscriptionUpdateReplacementMode =
   (typeof AdaptyAndroidSubscriptionUpdateReplacementMode)[keyof typeof AdaptyAndroidSubscriptionUpdateReplacementMode];
 
+/**
+ * Android purchase parameters structure
+ * @public
+ */
+export interface AdaptyAndroidPurchaseParams {
+  /**
+   * Android subscription update parameters
+   * @platform android
+   */
+  subscriptionUpdateParams?: {
+    oldSubVendorProductId: string;
+    prorationMode: AdaptyAndroidSubscriptionUpdateReplacementMode;
+  };
+  /**
+   * Whether the offer is personalized
+   * @platform android
+   * @see {@link https://developer.android.com/google/play/billing/integrate#personalized-price}
+   */
+  isOfferPersonalized?: boolean;
+  /**
+   * Obfuscated account ID
+   * @platform android
+   */
+  obfuscatedAccountId?: string;
+  /**
+   * Obfuscated profile ID
+   * @platform android
+   */
+  obfuscatedProfileId?: string;
+}
+
 export interface AdaptyAndroidSubscriptionUpdateParameters {
   oldSubVendorProductId: string;
   prorationMode: AdaptyAndroidSubscriptionUpdateReplacementMode;
+  /**
+   * @deprecated Use {@link AdaptyAndroidPurchaseParams.isOfferPersonalized} instead.
+   * This field has been moved to the upper level in the new structure.
+   *
+   * @example
+   * // OLD (deprecated):
+   * android: {
+   *   oldSubVendorProductId: 'old_product_id',
+   *   prorationMode: 'charge_prorated_price',
+   *   isOfferPersonalized: true  // This field is deprecated
+   * }
+   *
+   * // NEW:
+   * android: {
+   *   subscriptionUpdateParams: {
+   *     oldSubVendorProductId: 'old_product_id',
+   *     prorationMode: 'charge_prorated_price'
+   *   },
+   *   isOfferPersonalized: true  // Moved to upper level
+   * }
+   */
   isOfferPersonalized?: boolean;
 }
 
-export interface MakePurchaseParamsInput {
-  android?: AdaptyAndroidSubscriptionUpdateParameters;
-}
+export type MakePurchaseParamsInput =
+  | {
+      /**
+       * Android purchase parameters
+       * @platform android
+       */
+      android?: AdaptyAndroidPurchaseParams;
+    }
+  | {
+      /**
+       * @deprecated Use the new parameter structure instead
+       *
+       * @example
+       * // OLD (deprecated):
+       * makePurchase(product, {
+       *   android: {
+       *     oldSubVendorProductId: 'old_product_id',
+       *     prorationMode: 'charge_prorated_price',
+       *     isOfferPersonalized: true
+       *   }
+       * });
+       *
+       * // NEW:
+       * makePurchase(product, {
+       *   android: {
+       *     subscriptionUpdateParams: {
+       *       oldSubVendorProductId: 'old_product_id',
+       *       prorationMode: 'charge_prorated_price'
+       *     },
+       *     isOfferPersonalized: true,  // Note: moved to upper level
+       *     obfuscatedAccountId: 'account_123',
+       *     obfuscatedProfileId: 'profile_456'
+       *   }
+       * });
+       *
+       * @platform android
+       */
+      android?: AdaptyAndroidSubscriptionUpdateParameters;
+    };
 
 export type FileLocation = {
   ios: {

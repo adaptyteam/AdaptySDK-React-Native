@@ -15,7 +15,7 @@ import com.facebook.react.uimanager.events.RCTEventEmitter
 
 class AdaptyOnboardingViewManager : SimpleViewManager<AdaptyOnboardingView>() {
 
-    private val onboardingUiManager: OnboardingUiManager? by safeInject()
+    private val onboardingUiManager: OnboardingUiManager? by safeInject<OnboardingUiManager>()
 
     override fun getName(): String = "AdaptyOnboardingView"
 
