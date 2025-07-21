@@ -387,15 +387,16 @@ export class ViewController {
    *
    * @remarks
    * It registers only requested set of event handlers.
-   * Your config is assigned into four event listeners {@link DEFAULT_EVENT_HANDLERS},
-   * that handle default closing behavior.
-   * - `onCloseButtonPress`
-   * - `onAndroidSystemBack`
-   * - `onRestoreCompleted`
-   * - `onPurchaseCompleted`
+   * Your config is assigned into five event listeners {@link DEFAULT_EVENT_HANDLERS},
+   * that handle default behavior.
+   * - `onCloseButtonPress` - closes paywall (returns `true`)
+   * - `onAndroidSystemBack` - closes paywall (returns `true`)
+   * - `onRestoreCompleted` - closes paywall (returns `true`)
+   * - `onPurchaseCompleted` - closes paywall on success (returns `purchaseResult.type !== 'user_cancelled'`)
+   * - `onUrlPress` - opens URL and keeps paywall open (returns `false`)
    *
-   * If you want to override these listeners, we strongly recommend to return `true` (or `purchaseResult.type !== 'user_cancelled'` in case of `onPurchaseCompleted`)
-   * from your custom listener to retain default closing behavior.
+   * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
+   * from your custom listener to retain default behavior.
    *
    * @param {Partial<EventHandlers> | undefined} [eventHandlers] - set of event handling callbacks
    * @returns {() => void} unsubscribe - function to unsubscribe all listeners
