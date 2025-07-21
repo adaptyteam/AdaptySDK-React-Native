@@ -1,5 +1,21 @@
 import { useState, useEffect } from 'react';
 
+// Constants for error messages
+const ADAPTY_PREFIX = '[ADAPTY]';
+const CREDENTIALS_FILE = '.adapty-credentials.json';
+const CREDENTIALS_COMMAND = "Please run 'yarn run credentials' to generate the credentials file.";
+
+// Import credentials at the module level
+let credentials: { token?: string; placement_id?: string };
+
+try {
+  credentials = require('../.adapty-credentials.json');
+} catch (error) {
+  throw new Error(
+    `${ADAPTY_PREFIX} Failed to read Adapty credentials from ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`
+  );
+}
+
 // Interface for JS logs
 export interface JsLog {
   logLevel: 'error' | 'warn' | 'info' | 'debug';
@@ -9,20 +25,20 @@ export interface JsLog {
   isoDate: string;
 }
 
-// readCredentials handles generated credentials
 // This function is only for this example
-export async function readCredentials(): Promise<string | undefined> {
-  try {
-    const credentials = await import('../.adapty-credentials.json');
-    return credentials.token;
-  } catch (error) {
-    console.error(
-      "[ADAPTY] Failed to read Adapty credentials. Please, follow the instructions in the example's README.md file to proceed.",
-    );
-
-    console.error(error);
-    return undefined;
+export function readCredentials(): string {
+  if (!credentials?.token) {
+    throw new Error(`${ADAPTY_PREFIX} Token not found in ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`);
   }
+  return credentials.token;
+}
+
+// This function is only for this example  
+export function readPlacementId(): string {
+  if (!credentials?.placement_id) {
+    throw new Error(`${ADAPTY_PREFIX} Placement ID not found in ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`);
+  }
+  return credentials.placement_id;
 }
 
 type ConsoleKey = keyof typeof console;
