@@ -28,7 +28,9 @@ This repository demonstrates how to integrate the [Adapty SDK](https://adapty.io
 
 You can follow along on the `feat/focus-journal-expo-starter` branch to add Adapty manually, or inspect the `master` branch to see the final result.
 
-You can also follow along with the video tutorial which can be found [here]().
+You can also follow along with the video tutorial:
+
+[![Focus Journal Expo Integration Guide](https://img.youtube.com/vi/TtCJswpt2ms/hqdefault.jpg)](https://www.youtube.com/watch?v=TtCJswpt2ms)
 
 ---
 
@@ -46,7 +48,7 @@ You can also follow along with the video tutorial which can be found [here]().
 
 ## Prerequisites
 
-- **Node.js**  
+- **Node.js** (version 18 or higher)  
 - **Expo CLI and EAS CLI**  
 - A custom **Expo Dev Client** (Expo Go will not work)  
 - A valid **Adapty account** with an SDK key  
@@ -79,8 +81,12 @@ You can also follow along with the video tutorial which can be found [here]().
 ## Running the Example
 
 1. `git checkout master`  
-2. Add your Adapty API key to `AdaptyConstants.js`  
-3. Build your dev client and run the app:  
+2. Install dependencies  
+   ```bash
+   yarn install
+   ```
+3. Add your Adapty API key to `AdaptyConstants.js`  
+4. Build your dev client and run the app:  
    ```bash
    eas build --profile development --platform ios
    npx expo start --dev-client
