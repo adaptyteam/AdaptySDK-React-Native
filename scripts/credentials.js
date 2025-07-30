@@ -5,6 +5,7 @@ var prompt = require('prompt-sync')();
 var filename = '.adapty-credentials.json';
 var token_key = 'token';
 var ios_bundle_key = 'ios_bundle';
+var android_application_id_key = 'android_application_id';
 var placement_id_key = 'placement_id';
 
 // Parse command line arguments
@@ -54,6 +55,19 @@ function read_credentials_sync(obj = {}) {
     result[ios_bundle_key] = cache_bundle;
   }
 
+  // Android Application ID
+  var cache_android_app_id = obj[android_application_id_key];
+  var input_android_app_id = prompt(
+    `Enter your Android application ID${cache_android_app_id ? ` (${cache_android_app_id})` : ''
+    }: `,
+  );
+
+  if (input_android_app_id) {
+    result[android_application_id_key] = input_android_app_id;
+  } else if (cache_android_app_id) {
+    result[android_application_id_key] = cache_android_app_id;
+  }
+
   // Placement ID
   var cache_placement = obj[placement_id_key];
   var input_placement_id = prompt(
@@ -76,6 +90,17 @@ function read_credentials_sync(obj = {}) {
     console.info('Don\'t forget to set your team in Xcode!');
   } else {
     console.log(`[CREDENTIALS] Bundle ID unchanged (${result[ios_bundle_key]}), because no update needed`);
+  }
+
+  if (result[android_application_id_key] !== cache_android_app_id || forceBundleUpdate) {
+    if (forceBundleUpdate) {
+      console.log(`[CREDENTIALS] Force bundle update flag detected, updating Android build.gradle...`);
+    } else {
+      console.log(`[CREDENTIALS] Android Application ID changed from "${cache_android_app_id}" to "${result[android_application_id_key]}", updating build.gradle...`);
+    }
+    write_android_application_id(result[android_application_id_key]);
+  } else {
+    console.log(`[CREDENTIALS] Android Application ID unchanged (${result[android_application_id_key]}), because no update needed`);
   }
 
   return result;
@@ -132,5 +157,29 @@ function write_ios_bundle(new_bundle) {
   } catch (error) {
     console.error(`[CREDENTIALS] Error updating project file: ${error.message}`);
     process.exit(1);
+  }
+}
+
+function write_android_application_id(new_app_id) {
+  var buildGradlePath = 'android/app/build.gradle';
+
+  try {
+    if (!fs.existsSync(buildGradlePath)) {
+      console.error('[CREDENTIALS] Error: build.gradle not found in android/app directory');
+      return;
+    }
+
+    var buildGradleContent = fs.readFileSync(buildGradlePath, 'utf8');
+
+    // Replace applicationId in defaultConfig
+    var buildGradleContentNew = buildGradleContent.replace(
+      /applicationId\s+"[^"]+"/g,
+      `applicationId "${new_app_id}"`
+    );
+
+    fs.writeFileSync(buildGradlePath, buildGradleContentNew);
+    console.log('[CREDENTIALS] ✅ Successfully updated Android application ID in build.gradle');
+  } catch (error) {
+    console.error(`[CREDENTIALS] Error updating Android build.gradle: ${error.message}`);
   }
 }
