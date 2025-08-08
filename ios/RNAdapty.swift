@@ -63,6 +63,8 @@ class RNAdapty: RCTEventEmitter {
             "onboarding_on_custom_action",
             "onboarding_on_paywall_action",
             "onboarding_on_state_updated_action",
+            "on_installation_details_success",
+            "on_installation_details_fail",
         ]
     }
     

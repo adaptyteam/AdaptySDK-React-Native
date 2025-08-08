@@ -121,6 +121,7 @@ export interface ActivateParamsInput {
   backendBaseUrl?: string;
   backendFallbackBaseUrl?: string;
   backendConfigsBaseUrl?: string;
+  backendUABaseUrl?: string;
   backendProxyHost?: string;
   backendProxyPort?: number;
   activateUi?: boolean;

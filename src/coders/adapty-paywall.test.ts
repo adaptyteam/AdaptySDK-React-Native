@@ -87,6 +87,11 @@ function toModel(mock: (typeof mocks)[number]): Model {
     ...(mock.payload_data && { payloadData: mock.payload_data }),
     name: mock.paywall_name,
     products: _products.decode(mock.products),
+    productIdentifiers: mock.products.map(product => ({
+      vendorProductId: product.vendor_product_id,
+      adaptyProductId: product.adapty_product_id,
+      basePlanId: product.base_plan_id,
+    })),
     ...(mock.remote_config && {
       remoteConfig: _remoteConfig.decode(mock.remote_config),
     }),
@@ -118,5 +123,26 @@ describe('AdaptyPaywallCoder', () => {
     const encoded = coder.encode(decoded);
 
     expect(encoded).toStrictEqual(mock);
+  });
+
+  it('should derive productIdentifiers from products', () => {
+    const mock = mocks[0]; // Use the first mock that has both iOS and Android data
+    expect(mock).toBeDefined();
+    const decoded = coder.decode(mock!);
+
+    expect(decoded.productIdentifiers).toBeDefined();
+    expect(decoded.productIdentifiers).toHaveLength(2);
+
+    expect(decoded.productIdentifiers[0]).toEqual({
+      vendorProductId: 'product1',
+      adaptyProductId: 'adaptyProduct1',
+      basePlanId: 'base1',
+    });
+
+    expect(decoded.productIdentifiers[1]).toEqual({
+      vendorProductId: 'product2',
+      adaptyProductId: 'adaptyProduct2',
+      basePlanId: undefined,
+    });
   });
 });

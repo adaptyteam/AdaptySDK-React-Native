@@ -110,8 +110,15 @@ export interface AdaptyPaywall {
   /**
    * Array of initial products info
    * @readonly
+   * @deprecated Use {@link AdaptyPaywall.productIdentifiers} instead
    */
   readonly products: ProductReference[];
+
+  /**
+   * Array of product identifiers for this paywall
+   * @readonly
+   */
+  readonly productIdentifiers: AdaptyProductIdentifier[];
 
   id: string;
   version?: number;
@@ -757,6 +764,30 @@ export interface ProductReference {
   };
 }
 
+/**
+ * Interface representing a product identifier with vendor and platform-specific information.
+ * @public
+ */
+export interface AdaptyProductIdentifier {
+  /**
+   * The vendor-specific product identifier (e.g., App Store or Google Play product ID).
+   * @readonly
+   */
+  readonly vendorProductId: string;
+
+  /**
+   * The base plan identifier for Google Play subscriptions (Android only).
+   * @readonly
+   */
+  readonly basePlanId?: string;
+
+  /**
+   * Internal Adapty product identifier.
+   * @readonly
+   */
+  readonly adaptyProductId: string;
+}
+
 export const RefundPreference = Object.freeze({
   NoPreference: 'no_preference',
   Grant: 'grant',
@@ -764,3 +795,35 @@ export const RefundPreference = Object.freeze({
 });
 export type RefundPreference =
   (typeof RefundPreference)[keyof typeof RefundPreference];
+
+export type AdaptyInstallationStatus =
+  | {
+      status: 'not_available' | 'not_determined';
+    }
+  | {
+      status: 'determined';
+      details: AdaptyInstallationDetails;
+    };
+
+export interface AdaptyInstallationDetails {
+  /**
+   * A unique identifier for this installation.
+   * @readonly
+   */
+  readonly installId?: string;
+  /**
+   * The date and time when the app was installed.
+   * @readonly
+   */
+  readonly installTime: Date;
+  /**
+   * The total number of times the app has been launched.
+   * @readonly
+   */
+  readonly appLaunchCount: number;
+  /**
+   * Custom payload data associated with the installation.
+   * @readonly
+   */
+  readonly payload?: string;
+}

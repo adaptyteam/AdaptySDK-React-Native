@@ -32,7 +32,7 @@ export interface components {
       custom_tags?: components['defs']['AdaptyUI.CustomTagsValues'];
       custom_timers?: components['defs']['AdaptyUI.CustomTimersValues'];
       custom_assets?: components['defs']['AdaptyUI.CustomAssets'];
-      android_personalized_offers?: components['defs']['AdaptyUI.AndroidPersonalizedOffers'];
+      product_purchase_parameters?: components['defs']['AdaptyUI.ProductPurchaseParameters'];
     };
 
     'AdaptyUICreatePaywallView.Response': OneOf<
@@ -333,6 +333,17 @@ export interface components {
       success: string;
     };
 
+    'GetCurrentInstallationStatus.Request': {
+      method: 'get_current_installation_status';
+    };
+
+    'GetCurrentInstallationStatus.Response': OneOf<
+      [
+        { error: components['defs']['AdaptyError'] },
+        { success: components['defs']['AdaptyInstallationStatus'] },
+      ]
+    >;
+
     'SetFallback.Request': {
       method: 'set_fallback';
     } & OneOf<[{ asset_id: string }, { path: string }]>;
@@ -391,6 +402,16 @@ export interface components {
     'Event.DidLoadLatestProfile': {
       id: 'did_load_latest_profile';
       profile: components['defs']['AdaptyProfile'];
+    };
+
+    'Event.OnInstallationDetailsSuccess': {
+      id: 'on_installation_details_success';
+      details: components['defs']['AdaptyInstallationDetails'];
+    };
+
+    'Event.OnInstallationDetailsFail': {
+      id: 'on_installation_details_fail';
+      error: components['defs']['AdaptyError'];
     };
 
     'PaywallViewEvent.DidAppear': {
@@ -581,6 +602,7 @@ export interface components {
       backend_base_url?: string;
       backend_fallback_base_url?: string;
       backend_configs_base_url?: string;
+      backend_ua_base_url?: string;
       backend_proxy_host?: string;
       backend_proxy_port?: number;
       log_level?: components['defs']['AdaptyLog.Level'];
@@ -917,8 +939,8 @@ export interface components {
       [key: string]: components['defs']['Date'];
     };
 
-    'AdaptyUI.AndroidPersonalizedOffers': {
-      [key: string]: boolean;
+    'AdaptyUI.ProductPurchaseParameters': {
+      [key: string]: components['defs']['AdaptyPurchaseParameters'];
     };
 
     'AdaptyUI.DialogConfiguration': {
@@ -948,6 +970,25 @@ export interface components {
     };
 
     AdaptyRefundPreference: 'no_preference' | 'grant' | 'decline';
+
+    AdaptyInstallationStatus: OneOf<
+      [
+        {
+          status: 'not_available' | 'not_determined';
+        },
+        {
+          status: 'determined';
+          details: components['defs']['AdaptyInstallationDetails'];
+        },
+      ]
+    >;
+
+    AdaptyInstallationDetails: {
+      install_id?: string;
+      install_time: components['defs']['Date'];
+      app_launch_count: number;
+      payload?: string;
+    };
   };
   assets: {
     Color: {

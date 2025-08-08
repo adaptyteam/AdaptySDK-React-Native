@@ -2,10 +2,11 @@ import { Linking } from 'react-native';
 import { AdaptyError } from '@/adapty-error';
 import {
   AdaptyPaywallProduct,
+  AdaptyProductIdentifier,
   AdaptyProfile,
   AdaptyPurchaseResult,
 } from '@/types';
-import { FileLocation } from '@/types/inputs';
+import { FileLocation, MakePurchaseParamsInput } from '@/types/inputs';
 
 /**
  * @internal
@@ -23,6 +24,14 @@ export type ArgType<T> = T extends () => any
  * We don't want to block the UI thread.
  */
 export type EventHandlerResult = boolean | void;
+
+/**
+ * Purchase parameters keyed by AdaptyProductIdentifier objects
+ */
+export type ProductPurchaseParams = Array<{
+  productId: AdaptyProductIdentifier;
+  params: MakePurchaseParamsInput;
+}>;
 
 /**
  * Hashmap of possible events to their callbacks
@@ -250,6 +259,8 @@ export interface CreatePaywallViewParamsInput {
   customTimers?: Record<string, Date>;
 
   customAssets?: Record<string, AdaptyCustomAsset>;
+
+  productPurchaseParams?: ProductPurchaseParams;
 }
 
 export interface AdaptyUiView {

@@ -13,6 +13,7 @@ import {
 import { AdaptyPaywall } from '@/types';
 import { LogContext, LogScope } from '@/logger';
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
+import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
@@ -221,6 +222,15 @@ export class ViewController {
           );
       };
       data['custom_assets'] = convertAssets(params.customAssets);
+    }
+    if (params.productPurchaseParams) {
+      const purchaseParamsCoder = new AdaptyPurchaseParamsCoder();
+      data['product_purchase_parameters'] = Object.fromEntries(
+        params.productPurchaseParams.map(({ productId, params }) => [
+          productId.adaptyProductId,
+          purchaseParamsCoder.encode(params),
+        ]),
+      );
     }
     const body = JSON.stringify(data);
 

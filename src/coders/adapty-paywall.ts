@@ -9,7 +9,7 @@ import { AdaptyPaywallBuilderCoder } from './adapty-paywall-builder';
 import { AdaptyPlacementCoder } from '@/coders/adapty-placement';
 
 type Model = AdaptyPaywall;
-type CodableModel = Omit<Model, 'hasViewConfiguration'>;
+type CodableModel = Omit<Model, 'hasViewConfiguration' | 'productIdentifiers'>;
 type Serializable = Def['AdaptyPaywall'];
 
 export class AdaptyPaywallCoder extends Coder<
@@ -59,11 +59,16 @@ export class AdaptyPaywallCoder extends Coder<
     return {
       ...codablePart,
       hasViewConfiguration: codablePart.paywallBuilder !== undefined,
+      productIdentifiers: codablePart.products.map(product => ({
+        vendorProductId: product.vendorId,
+        adaptyProductId: product.adaptyId,
+        basePlanId: product.android?.basePlanId,
+      })),
     };
   }
 
   override encode(data: Model): Serializable {
-    const { hasViewConfiguration, ...codablePart } = data;
+    const { hasViewConfiguration, productIdentifiers, ...codablePart } = data;
     return super.encode(codablePart);
   }
 }

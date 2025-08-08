@@ -8,14 +8,12 @@ import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
 import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
 import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
+import { AdaptyConfigurationCoder } from '@/coders/adapty-configuration';
 
 import type * as Model from '@/types';
 import * as Input from '@/types/inputs';
 import { AddListenerFn, MethodName } from '@/types/bridge';
 import { AdaptyType } from '@/coders/parse';
-import version from '@/version';
-import { AdaptyUiMediaCacheCoder } from '@/coders/adapty-ui-media-cache';
-import { AdaptyUiMediaCache } from '@/ui/types';
 import { RefundPreference } from '@/types';
 
 /**
@@ -32,11 +30,6 @@ export class Adapty {
     'get_paywall_for_default_audience',
     'get_onboarding_for_default_audience',
   ];
-  private defaultMediaCache: AdaptyUiMediaCache = {
-    memoryStorageTotalCostLimit: 100 * 1024 * 1024,
-    memoryStorageCountLimit: 2147483647,
-    diskStorageSizeLimit: 100 * 1024 * 1024,
-  };
 
   // Middleware to call native handle
   async handle<T>(
@@ -93,12 +86,24 @@ export class Adapty {
   /**
    * Adds a event listener for native event
    */
-  addEventListener: AddListenerFn = (event, callback) => {
-    if (event !== 'onLatestProfileLoad') {
-      throw new Error('Only onLatestProfileLoad event is supported');
+  addEventListener = ((event: any, callback: any) => {
+    switch (event) {
+      case 'onLatestProfileLoad':
+        return $bridge.addEventListener('did_load_latest_profile', callback);
+      case 'onInstallationDetailsSuccess':
+        return $bridge.addEventListener(
+          'on_installation_details_success',
+          callback,
+        );
+      case 'onInstallationDetailsFail':
+        return $bridge.addEventListener(
+          'on_installation_details_fail',
+          callback,
+        );
+      default:
+        throw new Error(`Unsupported event: ${event}`);
     }
-    return $bridge.addEventListener('did_load_latest_profile', callback);
-  };
+  }) as AddListenerFn;
 
   /**
    * Removes all attached event listeners
@@ -168,51 +173,8 @@ export class Adapty {
       }
     }
 
-    const config: Def['AdaptyConfiguration'] = {
-      api_key: apiKey,
-      cross_platform_sdk_name: 'react-native',
-      cross_platform_sdk_version: version,
-    };
-    if (params.customerUserId) {
-      config['customer_user_id'] = params.customerUserId;
-    }
-    config['observer_mode'] = params.observerMode ?? false;
-    config['ip_address_collection_disabled'] =
-      params.ipAddressCollectionDisabled ?? false;
-    if (logLevel) {
-      config['log_level'] = logLevel;
-    }
-    config['server_cluster'] = params.serverCluster ?? 'default';
-    if (params.backendBaseUrl) {
-      config['backend_base_url'] = params.backendBaseUrl;
-    }
-    if (params.backendFallbackBaseUrl) {
-      config['backend_fallback_base_url'] = params.backendFallbackBaseUrl;
-    }
-    if (params.backendConfigsBaseUrl) {
-      config['backend_configs_base_url'] = params.backendConfigsBaseUrl;
-    }
-    if (params.backendProxyHost) {
-      config['backend_proxy_host'] = params.backendProxyHost;
-    }
-    if (params.backendProxyPort) {
-      config['backend_proxy_port'] = params.backendProxyPort;
-    }
-    config['activate_ui'] = params.activateUi ?? true;
-    const coder = new AdaptyUiMediaCacheCoder();
-    config['media_cache'] = coder.encode(
-      params.mediaCache ?? this.defaultMediaCache,
-    );
-
-    if (Platform.OS === 'ios') {
-      config['apple_idfa_collection_disabled'] =
-        params.ios?.idfaCollectionDisabled ?? false;
-    }
-
-    if (Platform.OS === 'android') {
-      config['google_adid_collection_disabled'] =
-        params.android?.adIdCollectionDisabled ?? false;
-    }
+    const configurationCoder = new AdaptyConfigurationCoder();
+    const config = configurationCoder.encode(apiKey, params);
 
     const methodKey = 'activate';
     const body = JSON.stringify({
@@ -1170,6 +1132,52 @@ export class Adapty {
       methodKey,
       body,
       'Boolean',
+      ctx,
+      log,
+    );
+
+    return result;
+  }
+
+  /**
+   * Gets the current installation status.
+   *
+   * @remarks
+   * Installation status provides information about when the app was installed,
+   * how many times it has been launched, and other installation-related details.
+   * The status can be "not_available", "not_determined", or "determined" with details.
+   *
+   * @returns {Promise<Model.AdaptyInstallationStatus>} A promise that resolves with the installation status.
+   * @throws {@link AdaptyError} If an error occurs while retrieving the installation status.
+   *
+   * @example
+   * ```ts
+   * try {
+   *   const status = await adapty.getCurrentInstallationStatus();
+   *   if (status.status === 'determined') {
+   *     console.log('Install time:', status.details.installTime);
+   *     console.log('Launch count:', status.details.appLaunchCount);
+   *   }
+   * } catch (error) {
+   *   // handle error
+   * }
+   * ```
+   */
+  public async getCurrentInstallationStatus(): Promise<Model.AdaptyInstallationStatus> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'getCurrentInstallationStatus' });
+    log.start({});
+
+    const methodKey = 'get_current_installation_status';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['GetCurrentInstallationStatus.Request']);
+
+    const result = await this.handle<Model.AdaptyInstallationStatus>(
+      methodKey,
+      body,
+      'AdaptyInstallationStatus',
       ctx,
       log,
     );
