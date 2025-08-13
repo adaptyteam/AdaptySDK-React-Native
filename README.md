@@ -90,6 +90,10 @@ Read the [documentation](https://docs.adapty.io/docs/react-native-installation?u
 
 Check out our [example applications](./examples) to see Adapty SDK in action. The Expo example is recommended for Adapty beginners.
 
+📹 **Watch our video guide** for step-by-step integration with the Focus Journal Expo example:
+
+[![Focus Journal Expo Integration Guide](https://img.youtube.com/vi/TtCJswpt2ms/hqdefault.jpg)](https://www.youtube.com/watch?v=TtCJswpt2ms)
+
 ## Contributing
 
 - Feel free to open an issue, we check all of them or drop us an email at [support@adapty.io](mailto:support@adapty.io) and tell us everything you want.

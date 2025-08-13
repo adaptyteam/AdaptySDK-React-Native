@@ -13,8 +13,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { adapty, GetPlacementForDefaultAudienceParamsInput } from 'react-native-adapty';
 import adaptyVersion from 'react-native-adapty/dist/version';
 
-import { readCredentials, useJsLogs } from './src/helpers';
-import { PlacementId } from './src/constants';
+import { readCredentials, readPlacementId, useJsLogs } from './src/helpers';
 
 import HomeScreen from './src/screens/Home';
 import LogsScreen from './src/screens/Logs';
@@ -25,8 +24,14 @@ const Stack = createNativeStackNavigator();
 async function init() {
   // Check credentials (only for this example)
   // This is for demonstration purposes only
-  const token = await readCredentials();
-  if (!token) {
+  let token: string;
+  let placementId: string;
+  
+  try {
+    token = readCredentials();
+    placementId = readPlacementId();
+  } catch (error: any) {
+    console.error('[ADAPTY] Failed to read credentials:', error.message);
     return;
   }
 
@@ -43,7 +48,7 @@ async function init() {
     };
 
     // Get paywall for default audience
-    adapty.getPaywallForDefaultAudience(PlacementId.Standard, undefined, params);
+    adapty.getPaywallForDefaultAudience(placementId, undefined, params);
   } catch (error: any) {
     console.warn('[ADAPTY] Error activating Adapty SDK', error.message);
   }

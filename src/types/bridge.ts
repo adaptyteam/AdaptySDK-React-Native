@@ -1,5 +1,6 @@
 import type { EmitterSubscription } from 'react-native';
-import type { AdaptyProfile } from '@/types';
+import type { AdaptyProfile, AdaptyInstallationDetails } from '@/types';
+import type { AdaptyError } from '@/adapty-error';
 
 /**
  * Valid list of expected parameters to the handlers
@@ -60,6 +61,7 @@ export const MethodNames = [
   'adapty_ui_dismiss_onboarding_view',
   'adapty_ui_present_onboarding_view',
   'create_web_paywall_url',
+  'get_current_installation_status',
   'is_activated',
   'get_paywall',
   'get_paywall_for_default_audience',
@@ -120,6 +122,8 @@ export interface AdaptyBridgeError {
 
 interface EventMap {
   onLatestProfileLoad: string;
+  onInstallationDetailsSuccess: string;
+  onInstallationDetailsFail: string;
 }
 
 type UserEventName = keyof EventMap;
@@ -129,7 +133,10 @@ export type AddListenerGeneric<E extends UserEventName, Data> = (
   callback: (data: Data) => void | Promise<void>,
 ) => EmitterSubscription;
 
-export type AddListenerFn = AddListenerGeneric<
-  'onLatestProfileLoad',
-  AdaptyProfile
->;
+export type AddListenerFn =
+  | AddListenerGeneric<'onLatestProfileLoad', AdaptyProfile>
+  | AddListenerGeneric<
+      'onInstallationDetailsSuccess',
+      AdaptyInstallationDetails
+    >
+  | AddListenerGeneric<'onInstallationDetailsFail', AdaptyError>;
