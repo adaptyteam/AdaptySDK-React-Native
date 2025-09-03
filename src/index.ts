@@ -4,6 +4,7 @@ export * from './types/error';
 export * from './types/index';
 export * from './types/inputs';
 export { AdaptyError } from './adapty-error';
+export { AdaptyPaywallView } from './ui';
 
 export const adapty = new Adapty();
 
