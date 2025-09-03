@@ -8,18 +8,15 @@ type Serializable = Required<Def['AdaptyOnboarding']>['onboarding_builder'];
 const mocks: Serializable[] = [
   {
     config_url: 'https://config.adapty.io/onboarding',
-    lang: 'en',
   },
   {
     config_url: 'https://config.adapty.io/onboarding-v2',
-    lang: 'es',
   },
 ];
 
 function toModel(mock: (typeof mocks)[number]): Model {
   return {
     url: mock.config_url,
-    lang: mock.lang,
   };
 }
 

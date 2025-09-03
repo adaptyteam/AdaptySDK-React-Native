@@ -44,6 +44,7 @@ const mocks: Def['AdaptyPaywall'][] = [
       paywall_builder_id: 'paywallBuilder1',
       lang: 'en',
     },
+    request_locale: 'en',
   },
   {
     placement: {
@@ -62,6 +63,7 @@ const mocks: Def['AdaptyPaywall'][] = [
     remote_config: { lang: 'fr', data: '' },
     web_purchase_url: 'https://example.com/purchase',
     response_created_at: 1632458390000,
+    request_locale: 'fr',
   },
 ];
 
@@ -101,6 +103,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
       paywallBuilder: _paywallBuilder.decode(mock.paywall_builder),
     }),
     ...(mock.web_purchase_url && { webPurchaseUrl: mock.web_purchase_url }),
+    requestLocale: mock.request_locale,
     hasViewConfiguration: mock.paywall_builder !== undefined,
   };
 }

@@ -84,11 +84,11 @@ Ask questions, participate in discussions about Adapty-related topics, become a 
 yarn add react-native-adapty
 ```
 
-Read the [documentation](https://docs.adapty.io/docs/react-native-installation?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
+Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
 ## Examples
 
-Check out our [example applications](./examples) to see Adapty SDK in action. The Expo example is recommended for Adapty beginners.
+Check out our [example applications](https://github.com/adaptyteam/AdaptySDK-React-Native/tree/master/examples) to see Adapty SDK in action. The Expo example is recommended for Adapty beginners.
 
 📹 **Watch our video guide** for step-by-step integration with the Focus Journal Expo example:
 
