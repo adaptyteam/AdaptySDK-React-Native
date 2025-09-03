@@ -124,6 +124,7 @@ export interface AdaptyPaywall {
   version?: number;
   webPurchaseUrl?: string;
   payloadData?: string;
+  requestLocale: string;
   paywallBuilder?: AdaptyPaywallBuilder;
 }
 
@@ -156,6 +157,7 @@ export interface AdaptyOnboarding {
   id: string;
   version?: number;
   payloadData?: string;
+  requestLocale: string;
   onboardingBuilder?: AdaptyOnboardingBuilder;
 }
 
@@ -216,7 +218,6 @@ export interface AdaptyPaywallBuilder {
 
 export interface AdaptyOnboardingBuilder {
   readonly url: string;
-  readonly lang: string;
 }
 
 export type AdaptyPurchaseResult =

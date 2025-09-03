@@ -52,6 +52,7 @@ export class AdaptyPaywallCoder extends Coder<
       type: 'string',
     },
     payloadData: { key: 'payload_data', required: false, type: 'string' },
+    requestLocale: { key: 'request_locale', required: true, type: 'string' },
   };
 
   override decode(data: Serializable): Model {

@@ -19,13 +19,13 @@ const mocks: Def['AdaptyOnboarding'][] = [
     response_created_at: 1640995200000,
     onboarding_builder: {
       config_url: 'https://example.com',
-      lang: 'en',
     },
     remote_config: {
       lang: 'en',
       data: '{"feature": "premium", "theme": "dark"}',
     },
     payload_data: '{"custom": "payload"}',
+    request_locale: 'en',
   },
   {
     placement: {
@@ -39,6 +39,7 @@ const mocks: Def['AdaptyOnboarding'][] = [
     onboarding_name: 'Basic Onboarding',
     variation_id: 'variation_123',
     response_created_at: 1640995300000,
+    request_locale: 'en',
   },
 ];
 
@@ -62,7 +63,6 @@ function toModel(mock: (typeof mocks)[number]): Model {
     ...(mock.onboarding_builder && {
       onboardingBuilder: {
         url: mock.onboarding_builder.config_url,
-        lang: mock.onboarding_builder.lang,
       },
     }),
     ...(mock.remote_config && {
@@ -73,6 +73,7 @@ function toModel(mock: (typeof mocks)[number]): Model {
       },
     }),
     ...(mock.payload_data && { payloadData: mock.payload_data }),
+    requestLocale: mock.request_locale,
   };
 }
 

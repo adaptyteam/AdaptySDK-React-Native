@@ -39,6 +39,7 @@ export class AdaptyOnboardingCoder extends Coder<
       converter: new AdaptyOnboardingBuilderCoder(),
     },
     payloadData: { key: 'payload_data', required: false, type: 'string' },
+    requestLocale: { key: 'request_locale', required: true, type: 'string' },
   };
 
   override decode(data: Serializable): Model {

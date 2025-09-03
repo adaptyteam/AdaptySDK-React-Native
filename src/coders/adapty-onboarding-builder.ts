@@ -16,10 +16,5 @@ export class AdaptyOnboardingBuilderCoder extends SimpleCoder<
       required: true,
       type: 'string',
     },
-    lang: {
-      key: 'lang',
-      required: true,
-      type: 'string',
-    },
   };
 }

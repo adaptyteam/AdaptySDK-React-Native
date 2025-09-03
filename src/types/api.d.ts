@@ -702,6 +702,7 @@ export interface components {
       paywall_builder?: components['defs']['AdaptyPaywall.ViewConfiguration'];
       web_purchase_url?: string;
       payload_data?: string;
+      request_locale: components['defs']['AdaptyLocale'];
     };
 
     AdaptyOnboarding: {
@@ -713,9 +714,9 @@ export interface components {
       remote_config?: components['defs']['AdaptyRemoteConfig'];
       onboarding_builder?: {
         config_url: string;
-        lang: components['defs']['AdaptyLocale'];
       };
       payload_data?: string;
+      request_locale: components['defs']['AdaptyLocale'];
     };
 
     AdaptyPlacementFetchPolicy: OneOf<
