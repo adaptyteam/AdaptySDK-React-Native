@@ -32,7 +32,7 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
             },
             { value -> FileLocation.extract(value) },
         )
-        crossplatformHelper.setActivity { currentActivity }
+        crossplatformHelper.setActivity { reactApplicationContext.currentActivity }
 
     }
 
