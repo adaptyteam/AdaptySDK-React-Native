@@ -126,7 +126,7 @@ interface EventMap {
   onInstallationDetailsFail: string;
 }
 
-type UserEventName = keyof EventMap;
+export type UserEventName = keyof EventMap;
 
 export type AddListenerGeneric<E extends UserEventName, Data> = (
   event: E,
