@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, EmitterSubscription } from 'react-native';
 
 import { $bridge } from '@/bridge';
 import { LogContext, Log, LogScope } from '@/logger';
@@ -12,9 +12,14 @@ import { AdaptyConfigurationCoder } from '@/coders/adapty-configuration';
 
 import type * as Model from '@/types';
 import * as Input from '@/types/inputs';
-import { AddListenerFn, MethodName } from '@/types/bridge';
+import { MethodName, UserEventName } from '@/types/bridge';
 import { AdaptyType } from '@/coders/parse';
-import { RefundPreference } from '@/types';
+import {
+  RefundPreference,
+  AdaptyProfile,
+  AdaptyInstallationDetails,
+} from '@/types';
+import { AdaptyError } from './adapty-error';
 
 /**
  * Entry point for the Adapty SDK.
@@ -84,9 +89,33 @@ export class Adapty {
   }
 
   /**
-   * Adds a event listener for native event
+   * Adds an event listener for the latest profile load event.
    */
-  addEventListener = ((event: any, callback: any) => {
+  addEventListener(
+    event: Extract<UserEventName, 'onLatestProfileLoad'>,
+    callback: (data: AdaptyProfile) => void | Promise<void>,
+  ): EmitterSubscription;
+
+  /**
+   * Adds an event listener for successful installation details retrieval.
+   */
+  addEventListener(
+    event: Extract<UserEventName, 'onInstallationDetailsSuccess'>,
+    callback: (data: AdaptyInstallationDetails) => void | Promise<void>,
+  ): EmitterSubscription;
+
+  /**
+   * Adds an event listener for installation details retrieval failures.
+   */
+  addEventListener(
+    event: Extract<UserEventName, 'onInstallationDetailsFail'>,
+    callback: (data: AdaptyError) => void | Promise<void>,
+  ): EmitterSubscription;
+
+  addEventListener(
+    event: UserEventName,
+    callback: (data: any) => void | Promise<void>,
+  ): EmitterSubscription {
     switch (event) {
       case 'onLatestProfileLoad':
         return $bridge.addEventListener('did_load_latest_profile', callback);
@@ -103,7 +132,7 @@ export class Adapty {
       default:
         throw new Error(`Unsupported event: ${event}`);
     }
-  }) as AddListenerFn;
+  }
 
   /**
    * Removes all attached event listeners
