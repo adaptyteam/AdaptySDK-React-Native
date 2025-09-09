@@ -1,8 +1,6 @@
 import { ViewEmitter } from './view-emitter';
-import { Platform } from 'react-native';
 
 import {
-  AdaptyCustomAsset,
   AdaptyUiDialogActionType,
   AdaptyUiDialogConfig,
   AdaptyUiView,
@@ -13,12 +11,12 @@ import {
 import { AdaptyPaywall } from '@/types';
 import { LogContext, LogScope } from '@/logger';
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
-import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
+import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
-import { Def, Req } from '@/types/schema';
+import { Req } from '@/types/schema';
 import { AdaptyUiDialogConfigCoder } from '@/coders/adapty-ui-dialog-config';
 
 /**
@@ -43,195 +41,22 @@ export class ViewController {
 
     const view = new ViewController();
 
-    const coder = new AdaptyPaywallCoder();
+    const paywallCoder = new AdaptyPaywallCoder();
+    const paramsCoder = new AdaptyUICreatePaywallViewParamsCoder();
     const methodKey = 'adapty_ui_create_paywall_view';
-    const data: Req['AdaptyUICreatePaywallView.Request'] = {
-      method: methodKey,
-      paywall: coder.encode(paywall),
-      preload_products: params.prefetchProducts ?? true,
-      load_timeout: (params.loadTimeoutMs ?? 5000) / 1000,
+
+    // Set default values for required parameters
+    const paramsWithDefaults: CreatePaywallViewParamsInput = {
+      prefetchProducts: true,
+      loadTimeoutMs: 5000,
+      ...params,
     };
 
-    if (params.customTags) {
-      data['custom_tags'] = params.customTags;
-    }
-    if (params.customTimers) {
-      const convertTimerInfo = (
-        timerInfo: Record<string, Date>,
-      ): Record<string, string> => {
-        const formatDate = (date: Date): string => {
-          const pad = (num: number, digits: number = 2): string => {
-            const str = num.toString();
-            const paddingLength = digits - str.length;
-            return paddingLength > 0 ? '0'.repeat(paddingLength) + str : str;
-          };
-
-          const year = date.getUTCFullYear();
-          const month = pad(date.getUTCMonth() + 1);
-          const day = pad(date.getUTCDate());
-          const hours = pad(date.getUTCHours());
-          const minutes = pad(date.getUTCMinutes());
-          const seconds = pad(date.getUTCSeconds());
-          const millis = pad(date.getUTCMilliseconds(), 3);
-
-          return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${millis}Z`;
-        };
-
-        const result: Record<string, string> = {};
-        for (const key in timerInfo) {
-          if (timerInfo.hasOwnProperty(key)) {
-            const date = timerInfo[key];
-            if (date instanceof Date) {
-              result[key] = formatDate(date);
-            }
-          }
-        }
-        return result;
-      };
-      data['custom_timers'] = convertTimerInfo(params.customTimers);
-    }
-
-    if (params.customAssets) {
-      const argbToHex = (value: number): string => {
-        const hex = value.toString(16).padStart(8, '0');
-        return `#${hex.slice(2)}${hex.slice(0, 2)}`;
-      };
-      const rgbaToHex = (value: number): string => {
-        return `#${value.toString(16).padStart(8, '0')}`;
-      };
-      const rgbToHex = (value: number): string => {
-        return `#${value.toString(16).padStart(6, '0')}FF`;
-      };
-      const extractBase64Data = (input: string): string => {
-        const commaIndex = input.indexOf(',');
-        if (input.startsWith('data:') && commaIndex !== -1) {
-          return input.slice(commaIndex + 1);
-        }
-        return input;
-      };
-
-      const getAssetId = (asset: any): string => {
-        if ('relativeAssetPath' in asset) {
-          return Platform.select({
-            ios: asset.relativeAssetPath,
-            android: `${asset.relativeAssetPath}a`,
-          });
-        }
-
-        if ('fileLocation' in asset) {
-          const fileLocation = asset.fileLocation;
-          return Platform.select({
-            ios: fileLocation.ios.fileName,
-            android:
-              'relativeAssetPath' in fileLocation.android
-                ? `${fileLocation.android.relativeAssetPath}a`
-                : `${fileLocation.android.rawResName}r`,
-          });
-        }
-
-        return '';
-      };
-
-      const convertAssets = (
-        assets: Record<string, AdaptyCustomAsset>,
-      ): Def['AdaptyUI.CustomAssets'] => {
-        return Object.entries(assets)
-          .map(
-            ([id, asset]): Def['AdaptyUI.CustomAssets'][number] | undefined => {
-              switch (asset.type) {
-                case 'image':
-                  return 'base64' in asset
-                    ? {
-                        id,
-                        type: 'image',
-                        value: extractBase64Data(asset.base64),
-                      }
-                    : {
-                        id,
-                        type: 'image',
-                        asset_id: getAssetId(asset),
-                      };
-
-                case 'video':
-                  return {
-                    id,
-                    type: 'video',
-                    asset_id: getAssetId(asset),
-                  };
-
-                case 'color':
-                  let value: string;
-
-                  if ('argb' in asset) {
-                    value = argbToHex(asset.argb);
-                  } else if ('rgba' in asset) {
-                    value = rgbaToHex(asset.rgba);
-                  } else if ('rgb' in asset) {
-                    value = rgbToHex(asset.rgb);
-                  } else {
-                    return undefined;
-                  }
-
-                  return {
-                    id,
-                    type: 'color',
-                    value,
-                  };
-
-                case 'linear-gradient':
-                  const { values, points = {} } = asset;
-                  const { x0 = 0, y0 = 0, x1 = 1, y1 = 0 } = points;
-
-                  const colorStops = values
-                    .map(({ p, ...colorInput }) => {
-                      let color: string;
-
-                      if ('argb' in colorInput) {
-                        color = argbToHex(colorInput.argb);
-                      } else if ('rgba' in colorInput) {
-                        color = rgbaToHex(colorInput.rgba);
-                      } else if ('rgb' in colorInput) {
-                        color = rgbToHex(colorInput.rgb);
-                      } else {
-                        return undefined;
-                      }
-
-                      return { color, p };
-                    })
-                    .filter(
-                      (v): v is { color: string; p: number } => v !== undefined,
-                    );
-
-                  if (colorStops.length !== values.length) return undefined;
-
-                  return {
-                    id,
-                    type: 'linear-gradient',
-                    values: colorStops,
-                    points: { x0, y0, x1, y1 },
-                  };
-
-                default:
-                  return undefined;
-              }
-            },
-          )
-          .filter(
-            (item): item is Def['AdaptyUI.CustomAssets'][number] =>
-              item !== undefined,
-          );
-      };
-      data['custom_assets'] = convertAssets(params.customAssets);
-    }
-    if (params.productPurchaseParams) {
-      const purchaseParamsCoder = new AdaptyPurchaseParamsCoder();
-      data['product_purchase_parameters'] = Object.fromEntries(
-        params.productPurchaseParams.map(({ productId, params }) => [
-          productId.adaptyProductId,
-          purchaseParamsCoder.encode(params),
-        ]),
-      );
-    }
+    const data: Req['AdaptyUICreatePaywallView.Request'] = {
+      method: methodKey,
+      paywall: paywallCoder.encode(paywall),
+      ...paramsCoder.encode(paramsWithDefaults),
+    };
     const body = JSON.stringify(data);
 
     const result = await view.handle<AdaptyUiView>(

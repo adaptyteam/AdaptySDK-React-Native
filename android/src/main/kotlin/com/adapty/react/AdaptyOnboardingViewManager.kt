@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.adapty.internal.crossplatform.ui.Dependencies.safeInject
 import com.adapty.internal.crossplatform.ui.OnboardingUiManager
 import com.adapty.ui.onboardings.AdaptyOnboardingView
-import com.facebook.react.bridge.Arguments
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
@@ -45,26 +44,9 @@ class AdaptyOnboardingViewManager : SimpleViewManager<AdaptyOnboardingView>() {
             vmOwner,
             json,
             viewId,
-            { eventViewId, eventId, eventData ->
-                if (eventViewId != viewId) return@setupOnboardingView
-
-                val event = Arguments.createMap().apply {
-                    putString("eventId", eventId)
-                    putString("eventData", eventData)
-                }
-
-                reactContext
-                    .getJSModule(RCTEventEmitter::class.java)
-                    .receiveEvent(view.id, "onEvent", event)
-            }
+            { _, _, _ -> }
         )
     }
 
-    override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any> {
-        return mutableMapOf(
-            "onEvent" to mapOf(
-                "phasedRegistrationNames" to mapOf("bubbled" to "onEvent")
-            )
-        )
-    }
+    override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any> = mutableMapOf()
 }

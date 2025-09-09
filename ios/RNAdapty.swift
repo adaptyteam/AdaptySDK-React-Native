@@ -11,6 +11,8 @@ enum Log {
 
 @objc(RNAdapty)
 class RNAdapty: RCTEventEmitter {
+    // Keep a shared reference to forward events from native views
+    static var shared: RNAdapty?
     // UI Thread is required to properly work with StoreKit SDK
     override static func requiresMainQueueSetup() -> Bool {
         return true
@@ -18,6 +20,7 @@ class RNAdapty: RCTEventEmitter {
     
     override init() {
         super.init()
+        RNAdapty.shared = self
         Task { @MainActor in
             let assetResolver: (String) -> URL? = { @MainActor assetId in
                 return Bundle.main.url(forResource: assetId, withExtension: nil)
@@ -28,14 +31,30 @@ class RNAdapty: RCTEventEmitter {
             AdaptyPlugin.register(setFallbackRequests: assetResolver)
 
             AdaptyPlugin.register(eventHandler: SwiftAdaptyPluginEventHandler { [weak self] event in
+                Log.wrapper.info("[ADAPTY_DEBUG][RNAdapty] Event received: \(event.id)")
+                
                 guard let self = self, self.hasListeners else {
                     return
                 }
-                self.sendEvent(
-                    withName: event.id,
-                    body: try event.asAdaptyJsonData.asAdaptyJsonString
-                )
+                
+                do {
+                    let eventBody = try event.asAdaptyJsonData.asAdaptyJsonString
+                    Log.wrapper.info("[ADAPTY_DEBUG][RNAdapty] Sending to JS: \(event.id)")
+                    
+                    self.sendEvent(
+                        withName: event.id,
+                        body: eventBody
+                    )
+                } catch {
+                    Log.wrapper.error("[ADAPTY_DEBUG][RNAdapty] Serialize error \(event.id): \(error)")
+                }
             })
+        }
+    }
+    
+    deinit {
+        if RNAdapty.shared === self {
+            RNAdapty.shared = nil
         }
     }
     
@@ -85,6 +104,23 @@ class RNAdapty: RCTEventEmitter {
         self.hasListeners = false
     }
     
+    // MARK: - Static event forwarder for native UI wrappers
+    static func emitPluginEvent(_ event: AdaptyPluginEvent) {
+        Log.wrapper.info("[ADAPTY_DEBUG][RNAdapty] Forwarding event: \(event.id)")
+        guard let emitter = RNAdapty.shared, emitter.hasListeners else {
+            return
+        }
+        do {
+            let eventBody = try event.asAdaptyJsonData.asAdaptyJsonString
+            emitter.sendEvent(
+                withName: event.id,
+                body: eventBody
+            )
+        } catch {
+            Log.wrapper.error("[ADAPTY_DEBUG][RNAdapty] Serialize error \(event.id): \(error)")
+        }
+    }
+    
     // MARK: - Handle router
     
     // `handle` is the main function, that routes calls to a corresponding function
@@ -100,11 +136,14 @@ class RNAdapty: RCTEventEmitter {
         resolver: @escaping RCTPromiseResolveBlock,
         rejecter: @escaping RCTPromiseRejectBlock
     ) {
+        Log.wrapper.info("[RNAdapty] Received method call: \(method)")
+        
         Task {
             let response = await AdaptyPlugin.execute(
                 method: method as String,
                 withJson: args["args"] as? String ?? ""
             )
+            Log.wrapper.info("[RNAdapty] Method \(method) completed successfully")
             resolver(response.asAdaptyJsonString)
         }
     }
@@ -121,7 +160,7 @@ public final class SwiftAdaptyPluginEventHandler: EventHandler {
         do {
             try onEvent(event)
         } catch {
-            Log.wrapper.error("Plugin encoding error: \(error.localizedDescription)")
+            Log.wrapper.error("[ADAPTY_DEBUG][SwiftAdaptyPluginEventHandler] Error \(event.id): \(error)")
         }
     }
 }
