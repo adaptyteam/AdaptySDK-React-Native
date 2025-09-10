@@ -228,14 +228,6 @@ export interface components {
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
-    'LogShowOnboarding.Request': {
-      method: 'log_show_onboarding';
-      params: components['defs']['AdaptyOnboardingScreenParameters'];
-    };
-
-    'LogShowOnboarding.Response': OneOf<
-      [{ error: components['defs']['AdaptyError'] }, { success: true }]
-    >;
 
     'LogShowPaywall.Request': {
       method: 'log_show_paywall';
@@ -676,11 +668,6 @@ export interface components {
       localized_number_of_periods?: string;
     };
 
-    AdaptyOnboardingScreenParameters: {
-      onboarding_screen_order: number;
-      onboarding_name?: string;
-      onboarding_screen_name?: string;
-    };
 
     AdaptyPlacement: {
       developer_id: string;

@@ -678,58 +678,6 @@ export class Adapty {
   }
 
   /**
-   * Logs an onboarding screen view event.
-   *
-   * In order for you to be able to analyze user behavior
-   * at this critical stage without leaving Adapty,
-   * we have implemented the ability to send dedicated events
-   * every time a user visits yet another onboarding screen.
-   *
-   * @remarks
-   * Even though there is only one mandatory parameter in this function,
-   * we recommend that you think of names for all the screens,
-   * as this will make the work of analysts
-   * during the data examination phase much easier.
-   *
-   * @example
-   * ```ts
-   * adapty.logShowOnboarding(1, 'onboarding_name', 'screen_name');
-   * ```
-   *
-   * @param {number} screenOrder - The number of the screen that was shown to the user.
-   * @param {string} [onboardingName] - The name of the onboarding.
-   * @param {string} [screenName] - The name of the screen.
-   * @returns {Promise<void>} resolves when the event is logged
-   * @throws {@link AdaptyError}
-   */
-  public async logShowOnboarding(
-    screenOrder: number,
-    onboardingName?: string,
-    screenName?: string,
-  ): Promise<void> {
-    const ctx = new LogContext();
-
-    const log = ctx.call({ methodName: 'logShowOnboarding' });
-    log.start({ screenOrder, onboardingName, screenName });
-
-    const methodKey = 'log_show_onboarding';
-    const data: Req['LogShowOnboarding.Request'] = {
-      method: methodKey,
-      params: {
-        onboarding_screen_order: screenOrder,
-        onboarding_name: onboardingName,
-        onboarding_screen_name: screenName,
-      },
-    };
-
-    const body = JSON.stringify(data);
-
-    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
-
-    return result;
-  }
-
-  /**
    * Logs out the current user.
    * You can then login the user using {@link Adapty.identify} method.
    *
