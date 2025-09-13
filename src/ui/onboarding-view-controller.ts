@@ -29,11 +29,6 @@ export function registerEventHandlers(
   };
   const requestClose: () => Promise<void> =
     onRequestClose ?? (async () => {});
-  // DIY way to tell TS that original arg should not be used
-  const deprecateVar = (_target: unknown): _target is never => true;
-  if (!deprecateVar(eventHandlers)) {
-    return () => {};
-  }
   const viewEmitter = new OnboardingViewEmitter(viewId);
   Object.keys(finalEventHandlers).forEach(eventStr => {
     const event = eventStr as keyof OnboardingEventHandlers;
