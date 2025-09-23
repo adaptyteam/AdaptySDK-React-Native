@@ -53,6 +53,9 @@ export class OnboardingViewController {
     );
 
     view.id = result.id;
+
+    view.setEventHandlers(DEFAULT_ONBOARDING_EVENT_HANDLERS);
+
     return view;
   }
 
@@ -74,6 +77,17 @@ export class OnboardingViewController {
   private constructor() {
     this.id = null;
   }
+
+  private onRequestClose = async (): Promise<void> => {
+    try {
+      await this.dismiss();
+    } catch (error) {
+      // Log error but don't re-throw to avoid breaking event handling
+      const ctx = new LogContext();
+      const log = ctx.call({ methodName: 'onRequestClose' });
+      log.failed({ error, message: 'Failed to dismiss onboarding view' });
+    }
+  };
 
   private async handle<T>(
     method: MethodName,
@@ -158,23 +172,28 @@ export class OnboardingViewController {
   }
 
   /**
-   * Creates a set of specific view event listeners
+   * Sets event handlers for onboarding view events
    *
    * @remarks
-   * It registers only requested set of event handlers.
-   * Your config is assigned into event listeners {@link DEFAULT_ONBOARDING_EVENT_HANDLERS},
-   * that handle default closing behavior.
-   * - `onClose`
+   * Each event type can have only one handler — new handlers replace existing ones.
+   * Your config is merged with {@link DEFAULT_ONBOARDING_EVENT_HANDLERS} that provide default closing behavior:
+   * - `onClose` - closes onboarding view (returns `true`)
+   *
+   * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
+   * from your custom listener to retain default behavior.
+   *
+   * **Important**: Calling this method multiple times will re-register ALL event handlers (both default and provided ones),
+   * not just the ones you pass. This means all previous event listeners will be replaced with the new merged set.
    *
    * @param {Partial<OnboardingEventHandlers>} [eventHandlers] - set of event handling callbacks
    * @returns {() => void} unsubscribe - function to unsubscribe all listeners
    */
-  public registerEventHandlers(
-    eventHandlers: Partial<OnboardingEventHandlers> = DEFAULT_ONBOARDING_EVENT_HANDLERS,
+  public setEventHandlers(
+    eventHandlers: Partial<OnboardingEventHandlers> = {},
   ): () => void {
     const ctx = new LogContext();
 
-    const log = ctx.call({ methodName: 'registerEventHandlers' });
+    const log = ctx.call({ methodName: 'setEventHandlers' });
     log.start({ _id: this.id });
 
     if (this.id === null) {
@@ -185,13 +204,6 @@ export class OnboardingViewController {
       ...DEFAULT_ONBOARDING_EVENT_HANDLERS,
       ...eventHandlers,
     };
-
-    // DIY way to tell TS that original arg should not be used
-    const deprecateVar = (_target: unknown): _target is never => true;
-    if (!deprecateVar(eventHandlers)) {
-      return () => {};
-    }
-
     const viewEmitter = new OnboardingViewEmitter(this.id);
 
     Object.keys(finalEventHandlers).forEach(eventStr => {
@@ -205,7 +217,9 @@ export class OnboardingViewController {
         event
       ] as OnboardingEventHandlers[keyof OnboardingEventHandlers];
 
-      viewEmitter.addListener(event, handler, () => this.dismiss());
+      if (handler && typeof handler === 'function') {
+        viewEmitter.addListener(event, handler, this.onRequestClose);
+      }
     });
 
     const unsubscribe = () => viewEmitter.removeAllListeners();
