@@ -1,10 +1,10 @@
 PODS:
-  - Adapty (3.8.1)
-  - AdaptyPlugin (3.8.1):
-    - Adapty (= 3.8.1)
-    - AdaptyUI (= 3.8.1)
-  - AdaptyUI (3.8.1):
-    - Adapty (= 3.8.1)
+  - Adapty (3.11.0)
+  - AdaptyPlugin (3.11.0):
+    - Adapty (= 3.11.0)
+    - AdaptyUI (= 3.11.0)
+  - AdaptyUI (3.11.0):
+    - Adapty (= 3.11.0)
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
   - fast_float (8.0.0)
@@ -1654,10 +1654,10 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
-  - react-native-adapty-sdk (3.8.0):
-    - Adapty (= 3.8.1)
-    - AdaptyPlugin (= 3.8.1)
-    - AdaptyUI (= 3.8.1)
+  - react-native-adapty-sdk (3.11.1):
+    - Adapty (= 3.11.0)
+    - AdaptyPlugin (= 3.11.0)
+    - AdaptyUI (= 3.11.0)
     - React
   - react-native-safe-area-context (5.4.1):
     - boost
@@ -2527,9 +2527,9 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Adapty: 139245a1d0ff3da258ac35906c315c65fbd0882d
-  AdaptyPlugin: 45e97d0eb981186ca5f745ad7c595b457697ba6b
-  AdaptyUI: 715bd3535846711328a48e09a1f0424f32c24b6f
+  Adapty: ad14ab563dd945a1b0f64e1c7cddf713969c39b5
+  AdaptyPlugin: cf709bf358013e1390eabd91dae2ac99b7ee4825
+  AdaptyUI: 60f719fc79bc44dbdbe88974290669dc14dc89e0
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
@@ -2570,7 +2570,7 @@ SPEC CHECKSUMS:
   React-logger: b69e65dc60f768e5509ac0cc27a360124bf70478
   React-Mapbuffer: b48f9f3311fd0ec0f7a5dc39d707eff521fb5f38
   React-microtasksnativemodule: d8568d0485a350c720c061ae835e09fc88c28715
-  react-native-adapty-sdk: 82d1d1c6fcdf57ae508f62466425f1b99041ac5a
+  react-native-adapty-sdk: 73c2eeb7e6cb56e1679cbe93ec66cba3d37b46b6
   react-native-safe-area-context: 6775aa9089fa84b77abd7ebdcf45e224a2a2ad3e
   React-NativeModulesApple: f10596688a03af66804cfbe61792be24a7888da8
   React-oscompat: 7c0a341cc31e350da71ddf2e46de0a845d1d1626
@@ -2607,6 +2607,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 395b5d614cd7cbbfd76b05d01bd67230a6ad004e
 
-PODFILE CHECKSUM: 9529b57cb25cdf03cb070e95f1538fe9a695def4
+PODFILE CHECKSUM: cdf04106c0162565eb694a06e70f8929f0147c33
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2
