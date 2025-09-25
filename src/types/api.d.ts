@@ -228,7 +228,6 @@ export interface components {
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
-
     'LogShowPaywall.Request': {
       method: 'log_show_paywall';
       paywall: components['defs']['AdaptyPaywall'];
@@ -667,7 +666,6 @@ export interface components {
       localized_subscription_period?: string;
       localized_number_of_periods?: string;
     };
-
 
     AdaptyPlacement: {
       developer_id: string;

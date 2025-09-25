@@ -36,7 +36,7 @@ export type ProductPurchaseParams = Array<{
 /**
  * Hashmap of possible events to their callbacks
  *
- * @see {@link https://docs.adapty.io/docs/react-native-handling-events | [DOC] Handling View Events}
+ * @see {@link https://adapty.io/docs/react-native-handling-events-1 | [DOC] Handling View Events}
  */
 export interface EventHandlers {
   /**

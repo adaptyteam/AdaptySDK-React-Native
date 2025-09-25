@@ -243,6 +243,9 @@ export class ViewController {
     );
 
     view.id = result.id;
+
+    view.setEventHandlers(DEFAULT_EVENT_HANDLERS);
+
     return view;
   }
 
@@ -348,11 +351,15 @@ export class ViewController {
   }
 
   /**
-   * Presents the dialog
+   * Presents an alert dialog
    *
    * @param {AdaptyUiDialogConfig} config - A config for showing the dialog.
    *
    * @remarks
+   * Use this method instead of RN alert dialogs when paywall view is presented.
+   * On Android, built-in RN alerts appear behind the paywall view, making them invisible to users.
+   * This method ensures proper dialog presentation above the paywall on all platforms.
+   *
    * If you provide two actions in the config, be sure `primaryAction` cancels the operation
    * and leaves things unchanged.
    *
@@ -390,15 +397,25 @@ export class ViewController {
     );
   }
 
+  private onRequestClose = async (): Promise<void> => {
+    try {
+      await this.dismiss();
+    } catch (error) {
+      // Log error but don't re-throw to avoid breaking event handling
+      const ctx = new LogContext();
+      const log = ctx.call({ methodName: 'onRequestClose' });
+      log.failed({ error, message: 'Failed to dismiss paywall' });
+    }
+  };
+
   /**
-   * Creates a set of specific view event listeners
+   * Sets event handlers for paywall view events
    *
-   * @see {@link https://docs.adapty.io/docs/react-native-handling-events | [DOC] Handling View Events}
+   * @see {@link https://adapty.io/docs/react-native-handling-events-1 | [DOC] Handling View Events}
    *
    * @remarks
-   * It registers only requested set of event handlers.
-   * Your config is assigned into five event listeners {@link DEFAULT_EVENT_HANDLERS},
-   * that handle default behavior.
+   * Each event type can have only one handler — new handlers replace existing ones.
+   * Your config is merged with {@link DEFAULT_EVENT_HANDLERS} that provide default closing behavior:
    * - `onCloseButtonPress` - closes paywall (returns `true`)
    * - `onAndroidSystemBack` - closes paywall (returns `true`)
    * - `onRestoreCompleted` - closes paywall (returns `true`)
@@ -408,15 +425,18 @@ export class ViewController {
    * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
    * from your custom listener to retain default behavior.
    *
-   * @param {Partial<EventHandlers> | undefined} [eventHandlers] - set of event handling callbacks
+   * **Important**: Calling this method multiple times will re-register ALL event handlers (both default and provided ones),
+   * not just the ones you pass. This means all previous event listeners will be replaced with the new merged set.
+   *
+   * @param {Partial<EventHandlers>} [eventHandlers] - set of event handling callbacks
    * @returns {() => void} unsubscribe - function to unsubscribe all listeners
    */
-  public registerEventHandlers(
-    eventHandlers: Partial<EventHandlers> = DEFAULT_EVENT_HANDLERS,
+  public setEventHandlers(
+    eventHandlers: Partial<EventHandlers> = {},
   ): () => void {
     const ctx = new LogContext();
 
-    const log = ctx.call({ methodName: 'registerEventHandlers' });
+    const log = ctx.call({ methodName: 'setEventHandlers' });
     log.start({ _id: this.id });
 
     if (this.id === null) {
@@ -427,13 +447,6 @@ export class ViewController {
       ...DEFAULT_EVENT_HANDLERS,
       ...eventHandlers,
     };
-
-    // DIY way to tell TS that original arg should not be used
-    const deprecateVar = (_target: unknown): _target is never => true;
-    if (!deprecateVar(eventHandlers)) {
-      return () => {};
-    }
-
     const viewEmitter = new ViewEmitter(this.id);
 
     Object.keys(finalEventHandlers).forEach(eventStr => {
@@ -447,7 +460,9 @@ export class ViewController {
         event
       ] as EventHandlers[keyof EventHandlers];
 
-      viewEmitter.addListener(event, handler, () => this.dismiss());
+      if (handler && typeof handler === 'function') {
+        viewEmitter.addListener(event, handler, this.onRequestClose);
+      }
     });
 
     const unsubscribe = () => viewEmitter.removeAllListeners();

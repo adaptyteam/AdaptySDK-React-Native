@@ -10,6 +10,9 @@ type EventName = keyof OnboardingEventHandlers;
 // const KEY_VIEW = 'view_id';
 
 /**
+ * OnboardingViewEmitter manages event handlers for onboarding view events.
+ * Each event type can have only one handler - new handlers replace existing ones.
+ *
  * @remarks
  * View emitter wraps NativeEventEmitter
  * and provides several modifications:
@@ -24,12 +27,12 @@ export class OnboardingViewEmitter {
   private viewId: string;
   private eventListeners: Map<string, EmitterSubscription> = new Map();
   private handlers: Map<
-    string,
-    Array<{
-      handler: OnboardingEventHandlers[keyof OnboardingEventHandlers];
-      config: (typeof HANDLER_TO_EVENT_CONFIG)[keyof typeof HANDLER_TO_EVENT_CONFIG];
+    EventName,
+    {
+      handler: OnboardingEventHandlers[EventName];
+      config: (typeof HANDLER_TO_EVENT_CONFIG)[EventName];
       onRequestClose: () => Promise<void>;
-    }>
+    }
   > = new Map();
 
   constructor(viewId: string) {
@@ -48,13 +51,12 @@ export class OnboardingViewEmitter {
       throw new Error(`No event config found for handler: ${event}`);
     }
 
-    const handlersForEvent = this.handlers.get(config.nativeEvent) ?? [];
-    handlersForEvent.push({
+    // Replace existing handler for this event type
+    this.handlers.set(event, {
       handler: callback,
       config,
       onRequestClose,
     });
-    this.handlers.set(config.nativeEvent, handlersForEvent);
 
     if (!this.eventListeners.has(config.nativeEvent)) {
       const handlers = this.handlers; // Capture the reference
@@ -66,13 +68,22 @@ export class OnboardingViewEmitter {
             return;
           }
 
-          const eventHandlers = handlers.get(config.nativeEvent) ?? [];
-          for (const { handler, config, onRequestClose } of eventHandlers) {
+          // Get all possible handler names for this native event
+          const possibleHandlers =
+            NATIVE_EVENT_TO_HANDLERS[config.nativeEvent] || [];
+
+          for (const handlerName of possibleHandlers) {
+            const handlerData = handlers.get(handlerName);
+            if (!handlerData) {
+              continue; // Handler not registered for this view
+            }
+
+            const { handler, onRequestClose } = handlerData;
+
             const callbackArgs = extractCallbackArgs(
-              config.handlerName,
+              handlerName,
               this.rawValue as Record<string, any>,
             );
-
             const cb = handler as (...args: typeof callbackArgs) => boolean;
             const shouldClose = cb.apply(null, callbackArgs);
 
@@ -166,6 +177,23 @@ const HANDLER_TO_EVENT_CONFIG: Record<
       handlerName: keyof OnboardingEventHandlers;
     }
   >,
+);
+
+// Reverse mapping: nativeEvent -> EventName[]
+const NATIVE_EVENT_TO_HANDLERS: Record<string, EventName[]> = Object.entries(
+  HANDLER_TO_EVENT_CONFIG,
+).reduce(
+  (acc, [handlerName, config]) => {
+    if (!acc[config.nativeEvent]) {
+      acc[config.nativeEvent] = [];
+    }
+    const handlers = acc[config.nativeEvent];
+    if (handlers) {
+      handlers.push(handlerName as EventName);
+    }
+    return acc;
+  },
+  {} as Record<string, EventName[]>,
 );
 
 function extractCallbackArgs(
