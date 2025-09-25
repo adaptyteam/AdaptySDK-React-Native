@@ -39,7 +39,7 @@ body:
   attributes:
     label: System info
     description: |
-      Run `npx react-native` info in your terminal, copy and paste the results here.
+      Run `npx @react-native-community/cli info`. For Expo projects, run `npx expo-env-info` and `npx expo-doctor@latest`. Execute the commands in your terminal, then copy and paste the results here.
     render: yml
   validations:
     required: true
