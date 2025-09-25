@@ -356,8 +356,8 @@ export class ViewController {
    * @param {AdaptyUiDialogConfig} config - A config for showing the dialog.
    *
    * @remarks
-   * Use this method instead of native alert dialogs when paywall view is presented on Android.
-   * On Android, regular RN alerts appear behind the paywall view, making them invisible to users.
+   * Use this method instead of RN alert dialogs when paywall view is presented.
+   * On Android, built-in RN alerts appear behind the paywall view, making them invisible to users.
    * This method ensures proper dialog presentation above the paywall on all platforms.
    *
    * If you provide two actions in the config, be sure `primaryAction` cancels the operation
@@ -411,7 +411,7 @@ export class ViewController {
   /**
    * Sets event handlers for paywall view events
    *
-   * @see {@link https://docs.adapty.io/docs/react-native-handling-events | [DOC] Handling View Events}
+   * @see {@link https://adapty.io/docs/react-native-handling-events-1 | [DOC] Handling View Events}
    *
    * @remarks
    * Each event type can have only one handler — new handlers replace existing ones.
