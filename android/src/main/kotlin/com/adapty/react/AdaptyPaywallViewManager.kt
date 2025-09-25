@@ -7,14 +7,14 @@ import android.view.View
 import androidx.lifecycle.ViewModelStoreOwner
 import com.adapty.internal.crossplatform.ui.Dependencies.safeInject
 import com.adapty.internal.crossplatform.ui.PaywallUiManager
-import com.adapty.ui.AdaptyPaywallView
+import com.adapty.internal.crossplatform.ui.PaywallView
 import com.adapty.internal.utils.InternalAdaptyApi
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
-class AdaptyPaywallViewManager : SimpleViewManager<AdaptyPaywallView>() {
+class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
 
     companion object {
         private const val TAG_KEY_PAYWALL_JSON = 0xAD0B200
@@ -25,32 +25,32 @@ class AdaptyPaywallViewManager : SimpleViewManager<AdaptyPaywallView>() {
 
     override fun getName(): String = "AdaptyPaywallView"
 
-    override fun createViewInstance(reactContext: ThemedReactContext): AdaptyPaywallView {
-        return AdaptyPaywallView(reactContext).apply {
+    override fun createViewInstance(reactContext: ThemedReactContext): PaywallView {
+        return PaywallView(reactContext).apply {
             id = View.generateViewId()
         }
     }
 
-    override fun onDropViewInstance(view: AdaptyPaywallView) {
+    override fun onDropViewInstance(view: PaywallView) {
         // Clear internal state/listeners to prevent leaks
         paywallUiManager?.clearPaywallView(view)
         super.onDropViewInstance(view)
     }
 
     @ReactProp(name = "viewId")
-    fun setViewId(view: AdaptyPaywallView, id: String?) {
+    fun setViewId(view: PaywallView, id: String?) {
         view.tag = id
         scheduleSetup(view)
     }
 
     @ReactProp(name = "paywallJson")
-    fun setPaywallJson(view: AdaptyPaywallView, json: String?) {
+    fun setPaywallJson(view: PaywallView, json: String?) {
         if (json.isNullOrEmpty()) return
         view.setTag(TAG_KEY_PAYWALL_JSON, json)
         scheduleSetup(view)
     }
 
-    private fun scheduleSetup(view: AdaptyPaywallView) {
+    private fun scheduleSetup(view: PaywallView) {
         val scheduled = (view.getTag(TAG_KEY_SETUP_SCHEDULED) as? Boolean) == true
         if (scheduled) return
         view.setTag(TAG_KEY_SETUP_SCHEDULED, true)
@@ -60,7 +60,7 @@ class AdaptyPaywallViewManager : SimpleViewManager<AdaptyPaywallView>() {
         }
     }
 
-    private fun setupView(view: AdaptyPaywallView) {
+    private fun setupView(view: PaywallView) {
         val json = view.getTag(TAG_KEY_PAYWALL_JSON) as? String ?: return
         val viewId = view.tag as? String ?: return
         val reactContext = view.context as? ThemedReactContext ?: return
