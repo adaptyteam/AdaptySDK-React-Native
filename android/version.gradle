@@ -1,0 +1,13 @@
+def getPackageJsonVersion() {
+    def file = new File(rootDir, "../node_modules/react-native-adapty/package.json")
+
+    if (file.exists()) {
+        def json = new groovy.json.JsonSlurper().parseText(file.text)
+        return json.version
+    }
+    return "0.0.0"
+}
+
+ext {
+    packageJsonVersion = getPackageJsonVersion()
+}

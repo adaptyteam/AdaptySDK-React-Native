@@ -1,0 +1,1 @@
+export { parseMethodResult } from './parse';
