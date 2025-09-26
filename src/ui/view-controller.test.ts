@@ -147,7 +147,7 @@ describe('ViewController', () => {
         addListener: jest.fn(),
         removeAllListeners: unsubscribeMock,
       }));
-      view.registerEventHandlers({ onCloseButtonPress: () => true });
+      view.setEventHandlers({ onCloseButtonPress: () => true });
 
       await view.dismiss();
 
@@ -168,7 +168,7 @@ describe('ViewController', () => {
     });
   });
 
-  describe('registerEventHandlers', () => {
+  describe('setEventHandlers', () => {
     it('merges defaults and subscribes per provided handlers', async () => {
       const { AdaptyPaywallCoder } = jest.requireMock(
         '@/coders/adapty-paywall',
@@ -190,7 +190,7 @@ describe('ViewController', () => {
       }));
 
       const handler = jest.fn(() => true);
-      const unsubscribe = view.registerEventHandlers({
+      const unsubscribe = view.setEventHandlers({
         onCloseButtonPress: handler,
       });
       expect(typeof unsubscribe).toBe('function');
@@ -206,7 +206,7 @@ describe('ViewController', () => {
       const viewProto = (ViewController as any).prototype;
       const fresh = Object.create(viewProto) as ViewController;
       (fresh as any).id = null;
-      expect(() => fresh.registerEventHandlers()).toThrow(
+      expect(() => fresh.setEventHandlers()).toThrow(
         'View reference not found',
       );
     });

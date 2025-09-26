@@ -134,7 +134,7 @@ describe('OnboardingViewController', () => {
           removeAllListeners: unsubscribeMock,
         }),
       );
-      view.registerEventHandlers({ onClose: () => true });
+      view.setEventHandlers({ onClose: () => true });
 
       await view.dismiss();
 
@@ -155,7 +155,7 @@ describe('OnboardingViewController', () => {
     });
   });
 
-  describe('registerEventHandlers', () => {
+  describe('setEventHandlers', () => {
     it('merges defaults and subscribes per provided handlers', async () => {
       (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
         () => ({ encode: jest.fn().mockReturnValue({}) }),
@@ -175,7 +175,7 @@ describe('OnboardingViewController', () => {
       );
 
       const handler = jest.fn(() => true);
-      const unsubscribe = view.registerEventHandlers({ onClose: handler });
+      const unsubscribe = view.setEventHandlers({ onClose: handler });
       expect(typeof unsubscribe).toBe('function');
       expect(OnboardingViewEmitter).toHaveBeenCalledWith('uuid-4');
       expect(addListener).toHaveBeenCalledWith(
@@ -189,7 +189,7 @@ describe('OnboardingViewController', () => {
       const view = (OnboardingViewController as any).prototype;
       const fresh = Object.create(view) as OnboardingViewController;
       (fresh as any).id = null;
-      expect(() => fresh.registerEventHandlers()).toThrow(
+      expect(() => fresh.setEventHandlers()).toThrow(
         'View reference not found',
       );
     });
