@@ -42,6 +42,7 @@
     "lint": "eslint ./src --ext .ts",
     "test": "jest",
     "update-versions": "node ./scripts/update_versions.cjs",
+    "publish-git": "./scripts/git-package_publish.zsh",
     "prepack": "yarn format && yarn lint && yarn test && yarn update-versions && yarn build",
     "prepublishOnly": "yarn prepack",
     "doc-gen": "typedoc --out docs src/__docs__.ts"
