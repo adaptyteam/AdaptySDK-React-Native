@@ -9,5 +9,3 @@ export function generateId(): string {
   }
   return id.slice(0, 12);
 }
-
-

@@ -27,15 +27,16 @@ export function registerEventHandlers(
     ...DEFAULT_ONBOARDING_EVENT_HANDLERS,
     ...eventHandlers,
   };
-  const requestClose: () => Promise<void> =
-    onRequestClose ?? (async () => {});
+  const requestClose: () => Promise<void> = onRequestClose ?? (async () => {});
   const viewEmitter = new OnboardingViewEmitter(viewId);
   Object.keys(finalEventHandlers).forEach(eventStr => {
     const event = eventStr as keyof OnboardingEventHandlers;
     if (!finalEventHandlers.hasOwnProperty(event)) {
       return;
     }
-    const handler = finalEventHandlers[event] as OnboardingEventHandlers[keyof OnboardingEventHandlers];
+    const handler = finalEventHandlers[
+      event
+    ] as OnboardingEventHandlers[keyof OnboardingEventHandlers];
     viewEmitter.addListener(event, handler, requestClose);
   });
   return () => viewEmitter.removeAllListeners();

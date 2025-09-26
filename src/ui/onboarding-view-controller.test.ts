@@ -56,7 +56,9 @@ describe('OnboardingViewController', () => {
         () => ({ encode: jest.fn().mockReturnValue({ encoded: true }) }),
       );
 
-      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({ id: 'uuid-1' });
+      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-1',
+      });
 
       const view = await OnboardingViewController.create(onboarding);
 
@@ -126,10 +128,12 @@ describe('OnboardingViewController', () => {
 
       // register handlers to set unsubscribeAllListeners
       const unsubscribeMock = jest.fn();
-      (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
-        addListener: jest.fn(),
-        removeAllListeners: unsubscribeMock,
-      }));
+      (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(
+        () => ({
+          addListener: jest.fn(),
+          removeAllListeners: unsubscribeMock,
+        }),
+      );
       view.registerEventHandlers({ onClose: () => true });
 
       await view.dismiss();
@@ -156,30 +160,38 @@ describe('OnboardingViewController', () => {
       (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
         () => ({ encode: jest.fn().mockReturnValue({}) }),
       );
-      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({ id: 'uuid-4' });
+      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-4',
+      });
 
       const view = await OnboardingViewController.create(onboarding);
 
       const addListener = jest.fn();
-      (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
-        addListener,
-        removeAllListeners: jest.fn(),
-      }));
+      (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(
+        () => ({
+          addListener,
+          removeAllListeners: jest.fn(),
+        }),
+      );
 
       const handler = jest.fn(() => true);
       const unsubscribe = view.registerEventHandlers({ onClose: handler });
       expect(typeof unsubscribe).toBe('function');
       expect(OnboardingViewEmitter).toHaveBeenCalledWith('uuid-4');
-      expect(addListener).toHaveBeenCalledWith('onClose', handler, expect.any(Function));
+      expect(addListener).toHaveBeenCalledWith(
+        'onClose',
+        handler,
+        expect.any(Function),
+      );
     });
 
     it('throws if called before create (no id)', () => {
       const view = (OnboardingViewController as any).prototype;
       const fresh = Object.create(view) as OnboardingViewController;
       (fresh as any).id = null;
-      expect(() => fresh.registerEventHandlers()).toThrow('View reference not found');
+      expect(() => fresh.registerEventHandlers()).toThrow(
+        'View reference not found',
+      );
     });
   });
 });
-
-

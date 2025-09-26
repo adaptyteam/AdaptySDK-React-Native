@@ -33,5 +33,3 @@ describe('generateId', () => {
     expect(/^[a-z0-9]{12}$/.test(id)).toBe(true);
   });
 });
-
-

@@ -42,22 +42,26 @@ import type { FileLocation } from '@/types/inputs';
 type PlatformSelector<T> = { ios: T; android: T };
 
 export const resolveAssetId = (
-  asset:
-    | { relativeAssetPath: string }
-    | { fileLocation: FileLocation },
+  asset: { relativeAssetPath: string } | { fileLocation: FileLocation },
   select: <T>(spec: PlatformSelector<T>) => T | undefined,
 ): string => {
   if ('relativeAssetPath' in asset) {
-    return select({ ios: asset.relativeAssetPath, android: `${asset.relativeAssetPath}a` }) || '';
+    return (
+      select({
+        ios: asset.relativeAssetPath,
+        android: `${asset.relativeAssetPath}a`,
+      }) || ''
+    );
   }
 
   const fileLocation = asset.fileLocation;
   return (
     select({
       ios: fileLocation.ios.fileName,
-      android: 'relativeAssetPath' in fileLocation.android
-        ? `${fileLocation.android.relativeAssetPath}a`
-        : `${(fileLocation.android as any).rawResName}r`,
+      android:
+        'relativeAssetPath' in fileLocation.android
+          ? `${fileLocation.android.relativeAssetPath}a`
+          : `${(fileLocation.android as any).rawResName}r`,
     }) || ''
   );
 };

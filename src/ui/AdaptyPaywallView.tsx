@@ -1,8 +1,5 @@
 import React, { memo, useEffect, useMemo } from 'react';
-import {
-  requireNativeComponent,
-  ViewProps,
-} from 'react-native';
+import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyPaywall } from '@/types';
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
@@ -36,9 +33,8 @@ type NativeAdaptyPaywallViewProps = ViewProps & {
   paywallJson: string;
 };
 
-const NativeAdaptyPaywallView = requireNativeComponent<NativeAdaptyPaywallViewProps>(
-  'AdaptyPaywallView',
-);
+const NativeAdaptyPaywallView =
+  requireNativeComponent<NativeAdaptyPaywallViewProps>('AdaptyPaywallView');
 
 const AdaptyPaywallViewComponent: React.FC<Props> = ({
   paywall,
@@ -69,7 +65,9 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   const paywallJson = useMemo(() => {
     const encodedPaywall = new AdaptyPaywallCoder().encode(paywall);
     const paramsWithDefaults = { ...DEFAULT_PARAMS, ...params };
-    const encodedParams = new AdaptyUICreatePaywallViewParamsCoder().encode(paramsWithDefaults);
+    const encodedParams = new AdaptyUICreatePaywallViewParamsCoder().encode(
+      paramsWithDefaults,
+    );
     return JSON.stringify({ paywall: encodedPaywall, ...encodedParams });
   }, [paywall, params]);
 
@@ -85,11 +83,13 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
     if (onRestoreStarted) handlers.onRestoreStarted = onRestoreStarted;
     if (onPaywallClosed) handlers.onPaywallClosed = onPaywallClosed;
     if (onPaywallShown) handlers.onPaywallShown = onPaywallShown;
-    if (onWebPaymentNavigationFinished) handlers.onWebPaymentNavigationFinished = onWebPaymentNavigationFinished;
+    if (onWebPaymentNavigationFinished)
+      handlers.onWebPaymentNavigationFinished = onWebPaymentNavigationFinished;
     if (onRestoreCompleted) handlers.onRestoreCompleted = onRestoreCompleted;
     if (onRestoreFailed) handlers.onRestoreFailed = onRestoreFailed;
     if (onRenderingFailed) handlers.onRenderingFailed = onRenderingFailed;
-    if (onLoadingProductsFailed) handlers.onLoadingProductsFailed = onLoadingProductsFailed;
+    if (onLoadingProductsFailed)
+      handlers.onLoadingProductsFailed = onLoadingProductsFailed;
     if (onCustomAction) handlers.onCustomAction = onCustomAction;
     if (onUrlPress) handlers.onUrlPress = onUrlPress;
 

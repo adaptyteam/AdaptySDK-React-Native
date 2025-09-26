@@ -47,14 +47,14 @@ export function registerEventHandlers(
     if (!finalEventHandlers.hasOwnProperty(event)) {
       return;
     }
-    const handler = finalEventHandlers[event] as EventHandlers[keyof EventHandlers];
+    const handler = finalEventHandlers[
+      event
+    ] as EventHandlers[keyof EventHandlers];
     viewEmitter.addListener(event, handler, requestClose);
   });
 
   return () => viewEmitter.removeAllListeners();
 }
-
-
 
 /**
  * Provides methods to control created paywall view

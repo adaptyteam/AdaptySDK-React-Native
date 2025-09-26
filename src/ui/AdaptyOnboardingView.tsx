@@ -27,9 +27,8 @@ type NativeOnboardingViewProps = ViewProps & {
   onboardingJson: string;
 };
 
-const NativeAdaptyOnboardingView = requireNativeComponent<NativeOnboardingViewProps>(
-  'AdaptyOnboardingView',
-);
+const NativeAdaptyOnboardingView =
+  requireNativeComponent<NativeOnboardingViewProps>('AdaptyOnboardingView');
 
 const AdaptyOnboardingViewComponent: React.FC<Props> = ({
   onboarding,
@@ -53,33 +52,34 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
     [onboarding],
   );
 
-  const combinedEventHandlers = useMemo((): Partial<OnboardingEventHandlers> => {
-    const individualHandlers: Partial<OnboardingEventHandlers> = {};
+  const combinedEventHandlers =
+    useMemo((): Partial<OnboardingEventHandlers> => {
+      const individualHandlers: Partial<OnboardingEventHandlers> = {};
 
-    if (onClose) individualHandlers.onClose = onClose;
-    if (onCustom) individualHandlers.onCustom = onCustom;
-    if (onPaywall) individualHandlers.onPaywall = onPaywall;
-    if (onStateUpdated) individualHandlers.onStateUpdated = onStateUpdated;
-    if (onFinishedLoading) individualHandlers.onFinishedLoading = onFinishedLoading;
-    if (onAnalytics) individualHandlers.onAnalytics = onAnalytics;
-    if (onError) individualHandlers.onError = onError;
+      if (onClose) individualHandlers.onClose = onClose;
+      if (onCustom) individualHandlers.onCustom = onCustom;
+      if (onPaywall) individualHandlers.onPaywall = onPaywall;
+      if (onStateUpdated) individualHandlers.onStateUpdated = onStateUpdated;
+      if (onFinishedLoading)
+        individualHandlers.onFinishedLoading = onFinishedLoading;
+      if (onAnalytics) individualHandlers.onAnalytics = onAnalytics;
+      if (onError) individualHandlers.onError = onError;
 
-    // Merge legacy eventHandlers with individual props (individual props take priority)
-    return {
-      ...eventHandlers,
-      ...individualHandlers,
-    };
-  }, [
-    onClose,
-    onCustom,
-    onPaywall,
-    onStateUpdated,
-    onFinishedLoading,
-    onAnalytics,
-    onError,
-    eventHandlers,
-  ]);
-
+      // Merge legacy eventHandlers with individual props (individual props take priority)
+      return {
+        ...eventHandlers,
+        ...individualHandlers,
+      };
+    }, [
+      onClose,
+      onCustom,
+      onPaywall,
+      onStateUpdated,
+      onFinishedLoading,
+      onAnalytics,
+      onError,
+      eventHandlers,
+    ]);
 
   useEffect(() => {
     const unsubscribe = registerEventHandlers(

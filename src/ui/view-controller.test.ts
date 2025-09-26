@@ -53,12 +53,16 @@ describe('ViewController', () => {
 
   describe('create', () => {
     it('creates native view and stores id (with defaults applied)', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock('@/coders/adapty-paywall');
+      const { AdaptyPaywallCoder } = jest.requireMock(
+        '@/coders/adapty-paywall',
+      );
       (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
         encode: jest.fn().mockReturnValue({ encoded: true }),
       }));
 
-      (jest.mocked(($bridge as any).request) as jest.Mock).mockResolvedValue({ id: 'uuid-1' });
+      (jest.mocked(($bridge as any).request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-1',
+      });
 
       const view = await ViewController.create(paywall, {} as any);
 
@@ -72,7 +76,9 @@ describe('ViewController', () => {
     });
 
     it('propagates bridge errors', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock('@/coders/adapty-paywall');
+      const { AdaptyPaywallCoder } = jest.requireMock(
+        '@/coders/adapty-paywall',
+      );
       (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
         encode: jest.fn().mockReturnValue({}),
       }));
@@ -81,13 +87,17 @@ describe('ViewController', () => {
         new Error('boom'),
       );
 
-      await expect(ViewController.create(paywall, {} as any)).rejects.toThrow('boom');
+      await expect(ViewController.create(paywall, {} as any)).rejects.toThrow(
+        'boom',
+      );
     });
   });
 
   describe('present', () => {
     it('calls bridge with id', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock('@/coders/adapty-paywall');
+      const { AdaptyPaywallCoder } = jest.requireMock(
+        '@/coders/adapty-paywall',
+      );
       (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
         encode: jest.fn().mockReturnValue({}),
       }));
@@ -118,7 +128,9 @@ describe('ViewController', () => {
 
   describe('dismiss', () => {
     it('calls bridge and unsubscribes listeners', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock('@/coders/adapty-paywall');
+      const { AdaptyPaywallCoder } = jest.requireMock(
+        '@/coders/adapty-paywall',
+      );
       (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
         encode: jest.fn().mockReturnValue({}),
       }));
@@ -131,7 +143,7 @@ describe('ViewController', () => {
 
       const { ViewEmitter } = jest.requireMock('./view-emitter');
       const unsubscribeMock = jest.fn();
-      ;(ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+      (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener: jest.fn(),
         removeAllListeners: unsubscribeMock,
       }));
@@ -158,46 +170,64 @@ describe('ViewController', () => {
 
   describe('registerEventHandlers', () => {
     it('merges defaults and subscribes per provided handlers', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock('@/coders/adapty-paywall');
+      const { AdaptyPaywallCoder } = jest.requireMock(
+        '@/coders/adapty-paywall',
+      );
       (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
         encode: jest.fn().mockReturnValue({}),
       }));
-      (jest.mocked(($bridge as any).request) as jest.Mock).mockResolvedValue({ id: 'uuid-4' });
+      (jest.mocked(($bridge as any).request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-4',
+      });
 
       const view = await ViewController.create(paywall, {} as any);
 
       const { ViewEmitter } = jest.requireMock('./view-emitter');
       const addListener = jest.fn();
-      ;(ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+      (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
         removeAllListeners: jest.fn(),
       }));
 
       const handler = jest.fn(() => true);
-      const unsubscribe = view.registerEventHandlers({ onCloseButtonPress: handler });
+      const unsubscribe = view.registerEventHandlers({
+        onCloseButtonPress: handler,
+      });
       expect(typeof unsubscribe).toBe('function');
       expect(ViewEmitter).toHaveBeenCalledWith('uuid-4');
-      expect(addListener).toHaveBeenCalledWith('onCloseButtonPress', handler, expect.any(Function));
+      expect(addListener).toHaveBeenCalledWith(
+        'onCloseButtonPress',
+        handler,
+        expect.any(Function),
+      );
     });
 
     it('throws if called before create (no id)', () => {
       const viewProto = (ViewController as any).prototype;
       const fresh = Object.create(viewProto) as ViewController;
       (fresh as any).id = null;
-      expect(() => fresh.registerEventHandlers()).toThrow('View reference not found');
+      expect(() => fresh.registerEventHandlers()).toThrow(
+        'View reference not found',
+      );
     });
   });
 
   describe('showDialog', () => {
     it('encodes config and returns action', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock('@/coders/adapty-paywall');
+      const { AdaptyPaywallCoder } = jest.requireMock(
+        '@/coders/adapty-paywall',
+      );
       (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
         encode: jest.fn().mockReturnValue({}),
       }));
-      const { AdaptyUiDialogConfigCoder } = jest.requireMock('@/coders/adapty-ui-dialog-config');
-      (AdaptyUiDialogConfigCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({ cfg: true }),
-      }));
+      const { AdaptyUiDialogConfigCoder } = jest.requireMock(
+        '@/coders/adapty-ui-dialog-config',
+      );
+      (AdaptyUiDialogConfigCoder as unknown as jest.Mock).mockImplementation(
+        () => ({
+          encode: jest.fn().mockReturnValue({ cfg: true }),
+        }),
+      );
 
       (jest.mocked(($bridge as any).request) as jest.Mock)
         .mockResolvedValueOnce({ id: 'uuid-5' }) // create
@@ -205,7 +235,10 @@ describe('ViewController', () => {
 
       const view = await ViewController.create(paywall, {} as any);
 
-      const result = await view.showDialog({ primaryActionTitle: 'OK', content: 'Hi' });
+      const result = await view.showDialog({
+        primaryActionTitle: 'OK',
+        content: 'Hi',
+      });
       expect(result).toBe('primary');
 
       expect($bridge.request).toHaveBeenLastCalledWith(
@@ -226,5 +259,3 @@ describe('ViewController', () => {
     });
   });
 });
-
-

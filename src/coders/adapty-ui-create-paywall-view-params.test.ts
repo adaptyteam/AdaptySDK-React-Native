@@ -103,7 +103,8 @@ describe('AdaptyUICreatePaywallViewParamsCoder', () => {
       customAssets: {
         base64Image: {
           type: 'image',
-          base64: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+          base64:
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
         },
         assetImage: {
           type: 'image',
@@ -118,7 +119,8 @@ describe('AdaptyUICreatePaywallViewParamsCoder', () => {
       {
         id: 'base64Image',
         type: 'image',
-        value: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+        value:
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
       },
       {
         id: 'assetImage',
@@ -272,8 +274,14 @@ describe('AdaptyUICreatePaywallViewParamsCoder', () => {
       const result = coder.encode(input);
       expect(result.custom_assets).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ id: 'imgRel', asset_id: 'images/test.pnga' }),
-          expect.objectContaining({ id: 'videoRel', asset_id: 'videos/intro.mp4a' }),
+          expect.objectContaining({
+            id: 'imgRel',
+            asset_id: 'images/test.pnga',
+          }),
+          expect.objectContaining({
+            id: 'videoRel',
+            asset_id: 'videos/intro.mp4a',
+          }),
           expect.objectContaining({ id: 'imgFL', asset_id: 'images/rel.pnga' }),
           expect.objectContaining({ id: 'videoFL', asset_id: 'intror' }),
         ]),

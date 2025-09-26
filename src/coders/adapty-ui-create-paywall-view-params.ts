@@ -1,8 +1,16 @@
 import { Platform } from 'react-native';
-import type { CreatePaywallViewParamsInput, AdaptyCustomAsset } from '@/ui/types';
+import type {
+  CreatePaywallViewParamsInput,
+  AdaptyCustomAsset,
+} from '@/ui/types';
 import type { Def } from '@/types/schema';
 import { AdaptyPurchaseParamsCoder } from './adapty-purchase-params';
-import { colorToHex, extractBase64Data, formatDateUTC, resolveAssetId } from './utils';
+import {
+  colorToHex,
+  extractBase64Data,
+  formatDateUTC,
+  resolveAssetId,
+} from './utils';
 
 type Model = CreatePaywallViewParamsInput;
 type Serializable = {
@@ -70,86 +78,84 @@ export class AdaptyUICreatePaywallViewParamsCoder {
     };
 
     return Object.entries(assets)
-      .map(
-        ([id, asset]): Def['AdaptyUI.CustomAssets'][number] | undefined => {
-          switch (asset.type) {
-            case 'image':
-              return 'base64' in asset
-                ? {
-                    id,
-                    type: 'image',
-                    value: extractBase64Data(asset.base64),
-                  }
-                : {
-                    id,
-                    type: 'image',
-                    asset_id: getAssetId(asset),
-                  };
+      .map(([id, asset]): Def['AdaptyUI.CustomAssets'][number] | undefined => {
+        switch (asset.type) {
+          case 'image':
+            return 'base64' in asset
+              ? {
+                  id,
+                  type: 'image',
+                  value: extractBase64Data(asset.base64),
+                }
+              : {
+                  id,
+                  type: 'image',
+                  asset_id: getAssetId(asset),
+                };
 
-            case 'video':
-              return {
-                id,
-                type: 'video',
-                asset_id: getAssetId(asset),
-              };
+          case 'video':
+            return {
+              id,
+              type: 'video',
+              asset_id: getAssetId(asset),
+            };
 
-            case 'color':
-              let value: string;
+          case 'color':
+            let value: string;
 
-              if ('argb' in asset) {
-                value = colorToHex.fromARGB(asset.argb);
-              } else if ('rgba' in asset) {
-                value = colorToHex.fromRGBA(asset.rgba);
-              } else if ('rgb' in asset) {
-                value = colorToHex.fromRGB(asset.rgb);
-              } else {
-                return undefined;
-              }
-
-              return {
-                id,
-                type: 'color',
-                value,
-              };
-
-            case 'linear-gradient':
-              const { values, points = {} } = asset;
-              const { x0 = 0, y0 = 0, x1 = 1, y1 = 0 } = points;
-
-              const colorStops = values
-                .map(({ p, ...colorInput }) => {
-                  let color: string;
-
-                  if ('argb' in colorInput) {
-                    color = colorToHex.fromARGB(colorInput.argb);
-                  } else if ('rgba' in colorInput) {
-                    color = colorToHex.fromRGBA(colorInput.rgba);
-                  } else if ('rgb' in colorInput) {
-                    color = colorToHex.fromRGB(colorInput.rgb);
-                  } else {
-                    return undefined;
-                  }
-
-                  return { color, p };
-                })
-                .filter(
-                  (v): v is { color: string; p: number } => v !== undefined,
-                );
-
-              if (colorStops.length !== values.length) return undefined;
-
-              return {
-                id,
-                type: 'linear-gradient',
-                values: colorStops,
-                points: { x0, y0, x1, y1 },
-              };
-
-            default:
+            if ('argb' in asset) {
+              value = colorToHex.fromARGB(asset.argb);
+            } else if ('rgba' in asset) {
+              value = colorToHex.fromRGBA(asset.rgba);
+            } else if ('rgb' in asset) {
+              value = colorToHex.fromRGB(asset.rgb);
+            } else {
               return undefined;
-          }
-        },
-      )
+            }
+
+            return {
+              id,
+              type: 'color',
+              value,
+            };
+
+          case 'linear-gradient':
+            const { values, points = {} } = asset;
+            const { x0 = 0, y0 = 0, x1 = 1, y1 = 0 } = points;
+
+            const colorStops = values
+              .map(({ p, ...colorInput }) => {
+                let color: string;
+
+                if ('argb' in colorInput) {
+                  color = colorToHex.fromARGB(colorInput.argb);
+                } else if ('rgba' in colorInput) {
+                  color = colorToHex.fromRGBA(colorInput.rgba);
+                } else if ('rgb' in colorInput) {
+                  color = colorToHex.fromRGB(colorInput.rgb);
+                } else {
+                  return undefined;
+                }
+
+                return { color, p };
+              })
+              .filter(
+                (v): v is { color: string; p: number } => v !== undefined,
+              );
+
+            if (colorStops.length !== values.length) return undefined;
+
+            return {
+              id,
+              type: 'linear-gradient',
+              values: colorStops,
+              points: { x0, y0, x1, y1 },
+            };
+
+          default:
+            return undefined;
+        }
+      })
       .filter(
         (item): item is Def['AdaptyUI.CustomAssets'][number] =>
           item !== undefined,
