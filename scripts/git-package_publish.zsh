@@ -4,10 +4,19 @@ setopt null_glob
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-TARGET_BRANCH="${PACK_BRANCH:-pack-dist}"
+DEFAULT_TARGET_BRANCH="${PACK_BRANCH:-pack-dist}"
 TMP_BASE="${TMPDIR:-/tmp}"
 
 echo "🚀 Building and installing React Native Adapty SDK pack..."
+
+read "USER_TARGET_BRANCH?Enter target branch name (template: dist/3.11.2-rc.1) [${DEFAULT_TARGET_BRANCH}]: "
+if [[ -z "$USER_TARGET_BRANCH" ]]; then
+    TARGET_BRANCH="$DEFAULT_TARGET_BRANCH"
+else
+    TARGET_BRANCH="$USER_TARGET_BRANCH"
+fi
+
+echo "🎯 Target branch: $TARGET_BRANCH"
 
 # Step 1: Build the SDK (minimal steps, skip linting/formatting/tests)
 echo "📦 Building SDK..."
