@@ -43,3 +43,4 @@ export async function createOnboardingView(
 
 export { AdaptyOnboardingView } from './AdaptyOnboardingView';
 export { AdaptyPaywallView } from './AdaptyPaywallView';
+export * from './types';
