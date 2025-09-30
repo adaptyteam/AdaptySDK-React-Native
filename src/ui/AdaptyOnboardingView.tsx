@@ -4,7 +4,7 @@ import { AdaptyOnboarding } from '@/types';
 import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
 import { generateId } from '@/utils/generate-id';
 import { OnboardingEventHandlers } from './types';
-import { registerEventHandlers } from './onboarding-view-controller';
+import { setEventHandlers } from './onboarding-view-controller';
 
 export type Props = ViewProps & {
   onboarding: AdaptyOnboarding;
@@ -82,10 +82,7 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
     ]);
 
   useEffect(() => {
-    const unsubscribe = registerEventHandlers(
-      combinedEventHandlers,
-      uniqueViewId,
-    );
+    const unsubscribe = setEventHandlers(combinedEventHandlers, uniqueViewId);
     return unsubscribe;
   }, [uniqueViewId, combinedEventHandlers]);
 

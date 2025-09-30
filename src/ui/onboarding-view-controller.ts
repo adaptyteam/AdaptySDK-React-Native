@@ -18,7 +18,7 @@ import { OnboardingViewEmitter } from './onboarding-view-emitter';
  * Returns a function that unsubscribes all listeners.
  * @public
  */
-export function registerEventHandlers(
+export function setEventHandlers(
   eventHandlers: Partial<OnboardingEventHandlers>,
   viewId: string,
   onRequestClose?: () => Promise<void>,
@@ -229,7 +229,7 @@ export class OnboardingViewController {
       throw this.errNoViewReference();
     }
 
-    const unsubscribe = registerEventHandlers(
+    const unsubscribe = setEventHandlers(
       eventHandlers,
       this.id,
       this.onRequestClose,
