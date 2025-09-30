@@ -17,6 +17,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
 
     companion object {
+        private const val TAG_KEY_VIEW_ID = 0xAD0B202
         private const val TAG_KEY_PAYWALL_JSON = 0xAD0B200
         private const val TAG_KEY_SETUP_SCHEDULED = 0xAD0B201
     }
@@ -39,7 +40,7 @@ class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
 
     @ReactProp(name = "viewId")
     fun setViewId(view: PaywallView, id: String?) {
-        view.tag = id
+        view.setTag(TAG_KEY_VIEW_ID, id)
         scheduleSetup(view)
     }
 
@@ -62,15 +63,11 @@ class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
 
     private fun setupView(view: PaywallView) {
         val json = view.getTag(TAG_KEY_PAYWALL_JSON) as? String ?: return
-        val viewId = view.tag as? String ?: return
+        val viewId = view.getTag(TAG_KEY_VIEW_ID) as? String ?: return
         val reactContext = view.context as? ThemedReactContext ?: return
         val vmOwner = reactContext.currentActivity as? ViewModelStoreOwner ?: return
 
         val paywallUiManager = paywallUiManager ?: return
-
-        // Force re-create internal content to reflect latest props
-        // Don't work as expected. It breaks UI
-        // view.removeAllViews()
 
         paywallUiManager.setupPaywallView(
             view,

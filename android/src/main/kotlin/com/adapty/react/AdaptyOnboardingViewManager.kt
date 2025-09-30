@@ -15,6 +15,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 class AdaptyOnboardingViewManager : SimpleViewManager<AdaptyOnboardingView>() {
 
     companion object {
+        private const val TAG_KEY_VIEW_ID = 0xAD0B102
         private const val TAG_KEY_ONBOARDING_JSON = 0xAD0B100
         private const val TAG_KEY_SETUP_SCHEDULED = 0xAD0B101
     }
@@ -31,7 +32,7 @@ class AdaptyOnboardingViewManager : SimpleViewManager<AdaptyOnboardingView>() {
 
     @ReactProp(name = "viewId")
     fun setViewId(view: AdaptyOnboardingView, id: String?) {
-        view.tag = id
+        view.setTag(TAG_KEY_VIEW_ID, id)
         scheduleSetup(view)
     }
 
@@ -54,7 +55,7 @@ class AdaptyOnboardingViewManager : SimpleViewManager<AdaptyOnboardingView>() {
 
     private fun setupView(view: AdaptyOnboardingView) {
         val json = view.getTag(TAG_KEY_ONBOARDING_JSON) as? String ?: return
-        val viewId = view.tag as? String ?: return
+        val viewId = view.getTag(TAG_KEY_VIEW_ID) as? String ?: return
         val reactContext = view.context as? ThemedReactContext ?: return
         val vmOwner = reactContext.currentActivity as? ViewModelStoreOwner ?: return
 
