@@ -17,6 +17,11 @@ end
 target 'AdaptyRnSdkExample' do
   config = use_native_modules!
 
+  # Adapty SDK with platform view support
+  pod "AdaptyPlugin", :git => "https://github.com/adaptyteam/AdaptySDK-iOS.git", :branch => "feature/paywalls_platform_view"
+  pod "Adapty", :git => "https://github.com/adaptyteam/AdaptySDK-iOS.git", :branch => "feature/paywalls_platform_view"
+  pod "AdaptyUI", :git => "https://github.com/adaptyteam/AdaptySDK-iOS.git", :branch => "feature/paywalls_platform_view"
+
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
