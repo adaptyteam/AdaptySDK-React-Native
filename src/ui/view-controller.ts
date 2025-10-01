@@ -25,9 +25,9 @@ export const DEFAULT_PARAMS: CreatePaywallViewParamsInput = {
 };
 
 /**
- * Register paywall view event handlers without using the controller class.
+ * Set paywall view event handlers without using the controller class.
  * Returns a function that unsubscribes all listeners.
- * @public
+ * @private
  */
 export function setEventHandlers(
   eventHandlers: Partial<EventHandlers>,

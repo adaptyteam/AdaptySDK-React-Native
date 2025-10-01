@@ -14,9 +14,9 @@ import { Req } from '@/types/schema';
 import { OnboardingViewEmitter } from './onboarding-view-emitter';
 
 /**
- * Register onboarding view event handlers without using the controller class.
+ * Set onboarding view event handlers without using the controller class.
  * Returns a function that unsubscribes all listeners.
- * @public
+ * @private
  */
 export function setEventHandlers(
   eventHandlers: Partial<OnboardingEventHandlers>,
