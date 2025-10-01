@@ -30,6 +30,12 @@ class AdaptyOnboardingViewManager : SimpleViewManager<AdaptyOnboardingView>() {
         }
     }
 
+    override fun onDropViewInstance(view: AdaptyOnboardingView) {
+        // Clear internal state/listeners to prevent leaks
+        onboardingUiManager?.clearOnboardingView(view)
+        super.onDropViewInstance(view)
+    }
+
     @ReactProp(name = "viewId")
     fun setViewId(view: AdaptyOnboardingView, id: String?) {
         view.setTag(TAG_KEY_VIEW_ID, id)

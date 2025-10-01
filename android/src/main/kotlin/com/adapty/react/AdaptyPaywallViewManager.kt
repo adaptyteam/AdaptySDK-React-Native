@@ -1,5 +1,4 @@
 @file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-@file:OptIn(InternalAdaptyApi::class)
 
 package com.adapty.react
 
