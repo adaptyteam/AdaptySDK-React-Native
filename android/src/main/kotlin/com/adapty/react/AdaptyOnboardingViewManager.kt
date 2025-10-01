@@ -15,9 +15,9 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 class AdaptyOnboardingViewManager : SimpleViewManager<AdaptyOnboardingView>() {
 
     companion object {
-        private const val TAG_KEY_VIEW_ID = 0xAD0B102
-        private const val TAG_KEY_ONBOARDING_JSON = 0xAD0B100
-        private const val TAG_KEY_SETUP_SCHEDULED = 0xAD0B101
+        private const val TAG_KEY_VIEW_ID = 0xAD0B100
+        private const val TAG_KEY_ONBOARDING_JSON = 0xAD0B101
+        private const val TAG_KEY_SETUP_SCHEDULED = 0xAD0B102
     }
 
     private val onboardingUiManager: OnboardingUiManager? by safeInject<OnboardingUiManager>()

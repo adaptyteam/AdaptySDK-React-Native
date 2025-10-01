@@ -17,9 +17,9 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
 
     companion object {
-        private const val TAG_KEY_VIEW_ID = 0xAD0B202
-        private const val TAG_KEY_PAYWALL_JSON = 0xAD0B200
-        private const val TAG_KEY_SETUP_SCHEDULED = 0xAD0B201
+        private const val TAG_KEY_VIEW_ID = 0xAD0B200
+        private const val TAG_KEY_PAYWALL_JSON = 0xAD0B201
+        private const val TAG_KEY_SETUP_SCHEDULED = 0xAD0B202
     }
 
     private val paywallUiManager: PaywallUiManager? by safeInject<PaywallUiManager>()
