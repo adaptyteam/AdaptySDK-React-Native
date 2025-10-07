@@ -88,7 +88,9 @@ export class OnboardingViewEmitter {
             const shouldClose = cb.apply(null, callbackArgs);
 
             if (shouldClose) {
-              onRequestClose();
+              onRequestClose().catch(() => {
+                // Ignore errors from onRequestClose to avoid breaking event handling
+              });
             }
           }
         },
