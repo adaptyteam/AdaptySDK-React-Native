@@ -1,6 +1,7 @@
 import { ViewEmitter } from './view-emitter';
 
 import {
+  AdaptyIOSPresentationStyle,
   AdaptyUiDialogActionType,
   AdaptyUiDialogConfig,
   AdaptyUiView,
@@ -152,7 +153,12 @@ export class ViewController {
   }
 
   /**
-   * Presents a paywall view as a full-screen modal
+   * Presents a paywall view as a modal
+   *
+   * @param {Object} options - Presentation options
+   * @param {AdaptyIOSPresentationStyle} [options.iosPresentationStyle] - iOS presentation style.
+   * Available options: 'full_screen' (default) or 'page_sheet'.
+   * Only affects iOS platform.
    *
    * @remarks
    * Calling `present` upon already visible paywall view
@@ -160,11 +166,16 @@ export class ViewController {
    *
    * @throws {AdaptyError}
    */
-  public async present(): Promise<void> {
+  public async present(
+    options: { iosPresentationStyle?: AdaptyIOSPresentationStyle } = {},
+  ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'present' });
-    log.start({ _id: this.id });
+    log.start({
+      _id: this.id,
+      iosPresentationStyle: options.iosPresentationStyle,
+    });
 
     if (this.id === null) {
       log.failed({ error: 'no _id' });
@@ -175,6 +186,7 @@ export class ViewController {
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
+      ios_presentation_style: options.iosPresentationStyle,
     } satisfies Req['AdaptyUIPresentPaywallView.Request']);
 
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);

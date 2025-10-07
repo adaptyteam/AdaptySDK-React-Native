@@ -202,7 +202,9 @@ export const PaywallSection: React.FC<Props> = ({
     });
 
     try {
-      await view.present();
+      // Present paywall; for iOS you can choose a presentation style
+      // Available options: 'full_screen' (default) or 'page_sheet'
+      await view.present({ iosPresentationStyle: 'page_sheet' });
       console.log('[ADAPTY] Paywall presented successfully');
     } catch (error: any) {
       console.log('[ADAPTY] Failed to present paywall:', error.message);

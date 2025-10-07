@@ -55,6 +55,7 @@ export interface components {
     'AdaptyUIPresentPaywallView.Request': {
       method: 'adapty_ui_present_paywall_view';
       id: string;
+      ios_presentation_style?: components['defs']['AdaptyUI.IOSPresentationStyle'];
     };
 
     'AdaptyUIPresentPaywallView.Response': OneOf<
@@ -99,6 +100,7 @@ export interface components {
     'AdaptyUIPresentOnboardingView.Request': {
       method: 'adapty_ui_present_onboarding_view';
       id: string;
+      ios_presentation_style?: components['defs']['AdaptyUI.IOSPresentationStyle'];
     };
 
     'AdaptyUIPresentOnboardingView.Response': OneOf<
@@ -928,6 +930,8 @@ export interface components {
     'AdaptyUI.ProductPurchaseParameters': {
       [key: string]: components['defs']['AdaptyPurchaseParameters'];
     };
+
+    'AdaptyUI.IOSPresentationStyle': 'full_screen' | 'page_sheet';
 
     'AdaptyUI.DialogConfiguration': {
       default_action_title: string;
