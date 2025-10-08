@@ -103,7 +103,7 @@ export const PaywallSection: React.FC<Props> = ({
     }
 
     // Register event handlers
-    view.registerEventHandlers({
+    view.setEventHandlers({
       onCloseButtonPress() {
         console.log('[ADAPTY]: Close button pressed');
         return true;
