@@ -17,8 +17,7 @@
 
 <p align="center">
     <a href="https://adapty.io/?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native"><b>Website</b></a> •
-    <a href="https://go.adapty.io/subhub-community-react-rep"><b>Discord</b></a> •
-    <a href="https://twitter.com/AdaptyTeam"><b>Twitter</b></a>
+    <a href="https://x.com/AdaptyTeam"><b>Follow us on X</b></a>
 </p>
 
 ![Adapty: CRM for mobile apps with subscriptions](https://adapty-portal-media-production.s3.amazonaws.com/github/adapty-schema.png)
