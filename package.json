@@ -45,7 +45,7 @@
     "tsc": "tsc --noEmit",
     "update-versions": "node ./scripts/update_versions.cjs",
     "publish-git": "./scripts/git-package_publish.zsh",
-    "prepack": "yarn format-check && yarn lint && yarn test && yarn update-versions && yarn build",
+    "prepack": "yarn format-check && yarn tsc && yarn lint && yarn test && yarn update-versions && yarn build",
     "prepublishOnly": "yarn prepack",
     "doc-gen": "typedoc --out docs src/__docs__.ts"
   },
@@ -78,7 +78,7 @@
     "ts-jest": "^29.1.1",
     "tsc-alias": "^1.8.7",
     "tslib": "2.6.1",
-    "typedoc": "0.24.8",
+    "typedoc": "0.28.13",
     "typescript": "5.1.6"
   },
   "peerDependencies": {
