@@ -191,6 +191,7 @@ export interface components {
     'Identify.Request': {
       method: 'identify';
       customer_user_id: string;
+      parameters?: components['defs']['CustomerIdentityParameters'];
     };
 
     'Identify.Response': OneOf<
@@ -301,10 +302,7 @@ export interface components {
     };
 
     'ReportTransaction.Response': OneOf<
-      [
-        { error: components['defs']['AdaptyError'] },
-        { success: components['defs']['AdaptyProfile'] },
-      ]
+      [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
     'RestorePurchases.Request': {
@@ -587,9 +585,11 @@ export interface components {
     AdaptyConfiguration: {
       api_key: string;
       customer_user_id?: string;
+      customer_identity_parameters?: components['defs']['CustomerIdentityParameters'];
       observer_mode?: boolean;
       apple_idfa_collection_disabled?: boolean;
       google_adid_collection_disabled?: boolean;
+      google_enable_pending_prepaid_plans?: boolean;
       ip_address_collection_disabled?: boolean;
       server_cluster?: 'default' | 'eu' | 'cn';
       backend_base_url?: string;
@@ -609,9 +609,17 @@ export interface components {
       };
     };
 
+    CustomerIdentityParameters: {
+      app_account_token?: string;
+      obfuscated_account_id?: string;
+      obfuscated_profile_id?: string;
+    };
+
     'AdaptyPaywallProduct.Request': {
       vendor_product_id: string;
       adapty_product_id: string;
+      access_level_id: string;
+      product_type: string;
       paywall_product_index: number;
       subscription_offer_identifier?: components['defs']['AdaptySubscriptionOffer.Identifier'];
       paywall_variation_id: string;
@@ -624,6 +632,8 @@ export interface components {
     'AdaptyPaywallProduct.Response': {
       vendor_product_id: string;
       adapty_product_id: string;
+      access_level_id: string;
+      product_type: string;
       paywall_product_index: number;
       paywall_variation_id: string;
       paywall_ab_test_name: string;
@@ -728,6 +738,8 @@ export interface components {
     'AdaptyPaywall.ProductReference': {
       vendor_product_id: string;
       adapty_product_id: string;
+      access_level_id: string;
+      product_type: string;
       promotional_offer_id?: string;
       win_back_offer_id?: string;
       base_plan_id?: string;
@@ -871,6 +883,8 @@ export interface components {
         {
           type: 'success';
           profile: components['defs']['AdaptyProfile'];
+          apple_jws_transaction?: string;
+          google_purchase_token?: string;
         },
       ]
     >;
@@ -945,8 +959,6 @@ export interface components {
     AdaptyPurchaseParameters: {
       subscription_update_params?: components['defs']['AdaptySubscriptionUpdateParameters'];
       is_offer_personalized?: boolean;
-      obfuscated_account_id?: string;
-      obfuscated_profile_id?: string;
     };
 
     AdaptySubscriptionUpdateParameters: {
