@@ -162,6 +162,7 @@ export interface ActivateParamsInput {
      * @default false
      */
     adIdCollectionDisabled?: boolean;
+    pendingPrepaidPlansEnabled?: boolean;
     obfuscatedAccountId?: string;
   };
 }

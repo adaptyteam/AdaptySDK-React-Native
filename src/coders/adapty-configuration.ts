@@ -77,6 +77,8 @@ export class AdaptyConfigurationCoder {
     if (Platform.OS === 'android') {
       config['google_adid_collection_disabled'] =
         params.android?.adIdCollectionDisabled ?? false;
+      config['google_enable_pending_prepaid_plans'] =
+        params.android?.pendingPrepaidPlansEnabled ?? false;
       if (params.android?.obfuscatedAccountId) {
         config['customer_identity_parameters'] = {
           obfuscated_account_id: params.android.obfuscatedAccountId,

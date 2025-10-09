@@ -58,6 +58,7 @@ describe('AdaptyConfigurationCoder', () => {
       android: {
         adIdCollectionDisabled: true,
         obfuscatedAccountId: 'id123',
+        pendingPrepaidPlansEnabled: true,
       },
     };
 
@@ -118,6 +119,7 @@ describe('AdaptyConfigurationCoder', () => {
       android: {
         adIdCollectionDisabled: true,
         obfuscatedAccountId: 'id123',
+        pendingPrepaidPlansEnabled: true,
       },
     };
 
@@ -142,6 +144,7 @@ describe('AdaptyConfigurationCoder', () => {
       backend_proxy_host: 'proxy.example.com',
       backend_proxy_port: 8080,
       activate_ui: false,
+      google_enable_pending_prepaid_plans: true,
       media_cache: {
         memory_storage_total_cost_limit: 50 * 1024 * 1024,
         memory_storage_count_limit: 1000,
