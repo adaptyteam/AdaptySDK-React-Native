@@ -67,11 +67,21 @@ export class AdaptyConfigurationCoder {
     if (Platform.OS === 'ios') {
       config['apple_idfa_collection_disabled'] =
         params.ios?.idfaCollectionDisabled ?? false;
+      if (params.ios?.appAccountToken) {
+        config['customer_identity_parameters'] = {
+          app_account_token: params.ios.appAccountToken,
+        };
+      }
     }
 
     if (Platform.OS === 'android') {
       config['google_adid_collection_disabled'] =
         params.android?.adIdCollectionDisabled ?? false;
+      if (params.android?.obfuscatedAccountId) {
+        config['customer_identity_parameters'] = {
+          obfuscated_account_id: params.android.obfuscatedAccountId,
+        };
+      }
     }
 
     return config;
