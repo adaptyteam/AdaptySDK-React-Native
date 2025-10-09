@@ -227,6 +227,12 @@ export type AdaptyPurchaseResult =
   | {
       type: 'success';
       profile: AdaptyProfile;
+      ios?: {
+        jwsTransaction?: string;
+      };
+      android?: {
+        purchaseToken?: string;
+      };
     };
 
 /**
