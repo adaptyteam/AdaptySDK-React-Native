@@ -46,6 +46,8 @@ export class AdaptyPaywallProductCoder extends SimpleCoder<
       type: 'string',
     },
     paywallName: { key: 'paywall_name', required: true, type: 'string' },
+    accessLevelId: { key: 'access_level_id', required: true, type: 'string' },
+    productType: { key: 'product_type', required: true, type: 'string' },
     price: {
       key: 'price',
       required: false, // Native SDKs require this
@@ -76,6 +78,8 @@ export class AdaptyPaywallProductCoder extends SimpleCoder<
   public getInput(data: Serializable): Def['AdaptyPaywallProduct.Request'] {
     return {
       adapty_product_id: data.adapty_product_id,
+      access_level_id: data.access_level_id,
+      product_type: data.product_type,
       paywall_product_index: data.paywall_product_index,
       paywall_ab_test_name: data.paywall_ab_test_name,
       payload_data: data.payload_data,

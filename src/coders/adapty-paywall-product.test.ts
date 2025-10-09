@@ -17,6 +17,8 @@ const mocks: Def['AdaptyPaywallProduct.Response'][] = [
     payload_data: 'examplePayloadData',
     vendor_product_id: 'yearly.premium.6999',
     adapty_product_id: 'adapty_product_id',
+    access_level_id: 'access_level_id',
+    product_type: 'product_type',
     paywall_product_index: 0,
     web_purchase_url: 'https://example.com/purchase',
     price: {
@@ -71,6 +73,8 @@ const mocks: Def['AdaptyPaywallProduct.Response'][] = [
     payload_data: 'examplePayloadData',
     vendor_product_id: 'yearly.premium.6999',
     adapty_product_id: 'adapty_product_id',
+    access_level_id: 'access_level_id',
+    product_type: 'product_type',
     paywall_product_index: 1,
     price: {
       amount: 69.99,
@@ -122,6 +126,8 @@ function toModel(mock: (typeof mocks)[number]): Model {
       isFamilyShareable: mock.is_family_shareable as boolean,
     },
     adaptyId: mock.adapty_product_id,
+    accessLevelId: mock.access_level_id,
+    productType: mock.product_type,
     paywallProductIndex: mock.paywall_product_index,
     localizedDescription: mock.localized_description,
     localizedTitle: mock.localized_title,
