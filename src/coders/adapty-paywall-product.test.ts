@@ -16,7 +16,7 @@ const mocks: Def['AdaptyPaywallProduct.Response'][] = [
     region_code: 'US',
     payload_data: 'examplePayloadData',
     vendor_product_id: 'yearly.premium.6999',
-    adapty_product_id: 'adapty_prodict_id',
+    adapty_product_id: 'adapty_product_id',
     paywall_product_index: 0,
     web_purchase_url: 'https://example.com/purchase',
     price: {
@@ -70,7 +70,7 @@ const mocks: Def['AdaptyPaywallProduct.Response'][] = [
     region_code: 'US',
     payload_data: 'examplePayloadData',
     vendor_product_id: 'yearly.premium.6999',
-    adapty_product_id: 'adapty_prodict_id',
+    adapty_product_id: 'adapty_product_id',
     paywall_product_index: 1,
     price: {
       amount: 69.99,
