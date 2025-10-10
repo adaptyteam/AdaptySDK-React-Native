@@ -60,3 +60,6 @@ buck-out/
 
 .tsbuildinfo
 .jest/
+
+# Docs
+docs

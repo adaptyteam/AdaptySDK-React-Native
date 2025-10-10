@@ -8,6 +8,6 @@ export * from '@/adapty-error';
 export * from './types/error';
 export * from './types/index';
 export * from './types/inputs';
-export * from './ui/index';
 export * from './ui/types';
-export * from './ui/view-controller';
+export { ViewController } from './ui/view-controller';
+export { OnboardingViewController } from './ui/onboarding-view-controller';
