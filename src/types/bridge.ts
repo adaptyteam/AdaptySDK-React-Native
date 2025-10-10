@@ -3,48 +3,6 @@ import type { AdaptyProfile, AdaptyInstallationDetails } from '@/types';
 import type { AdaptyError } from '@/adapty-error';
 
 /**
- * Valid list of expected parameters to the handlers
- * Must be the same as
- * - iOS RNAConstants.ParamKey
- * @internal
- */
-export const ParamKeys = [
-  'attribution',
-  'enable_usage_logs',
-  'fetch_policy',
-  'file_location',
-  'load_timeout',
-  'placement_id',
-  'id',
-  'idfa_collection_disabled',
-  'ip_address_collection_disabled',
-  'is_offer_personalized',
-  'locale',
-  'log_level',
-  'network_user_id',
-  'obfuscated_account_id',
-  'obfuscated_profile_id',
-  'observer_mode',
-  'old_sub_vendor_product_id',
-  'onboarding_params',
-  'params',
-  'parameters',
-  'paywall',
-  'product',
-  'product_ids',
-  'replacement_mode',
-  'sdk_key',
-  'source',
-  'storekit2_usage',
-  'transaction_id',
-  'user_id',
-  'value',
-  'variation_id',
-  'PLIST Bridge version',
-] as const;
-export type ParamKey = (typeof ParamKeys)[number];
-
-/**
  * Valid list of callable bridge handlers
  * Must be the same as
  * - iOS RNAConstants.MethodName

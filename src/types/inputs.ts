@@ -154,6 +154,7 @@ export interface ActivateParamsInput {
      * @default false
      */
     idfaCollectionDisabled?: boolean;
+    appAccountToken?: string;
   };
   android?: {
     /**
@@ -161,6 +162,17 @@ export interface ActivateParamsInput {
      * @default false
      */
     adIdCollectionDisabled?: boolean;
+    pendingPrepaidPlansEnabled?: boolean;
+    obfuscatedAccountId?: string;
+  };
+}
+
+export interface IdentifyParamsInput {
+  ios?: {
+    appAccountToken?: string;
+  };
+  android?: {
+    obfuscatedAccountId?: string;
   };
 }
 
@@ -200,16 +212,6 @@ export interface AdaptyAndroidPurchaseParams {
    * @see {@link https://developer.android.com/google/play/billing/integrate#personalized-price}
    */
   isOfferPersonalized?: boolean;
-  /**
-   * Obfuscated account ID
-   * @platform android
-   */
-  obfuscatedAccountId?: string;
-  /**
-   * Obfuscated profile ID
-   * @platform android
-   */
-  obfuscatedProfileId?: string;
 }
 
 export interface AdaptyAndroidSubscriptionUpdateParameters {
@@ -269,8 +271,6 @@ export type MakePurchaseParamsInput =
        *       prorationMode: 'charge_prorated_price'
        *     },
        *     isOfferPersonalized: true,  // Note: moved to upper level
-       *     obfuscatedAccountId: 'account_123',
-       *     obfuscatedProfileId: 'profile_456'
        *   }
        * });
        *

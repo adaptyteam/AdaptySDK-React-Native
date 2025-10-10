@@ -9,6 +9,7 @@ import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
 import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
 import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
 import { AdaptyConfigurationCoder } from '@/coders/adapty-configuration';
+import { AdaptyIdentifyParamsCoder } from '@/coders/adapty-identify-params';
 
 import type * as Model from '@/types';
 import * as Input from '@/types/inputs';
@@ -20,6 +21,7 @@ import {
   AdaptyInstallationDetails,
 } from '@/types';
 import { AdaptyError } from './adapty-error';
+import { IdentifyParamsInput } from '@/types/inputs';
 
 /**
  * Entry point for the Adapty SDK.
@@ -563,9 +565,13 @@ export class Adapty {
    * when the user switches from being an anonymous user to an authenticated user.
    *
    * @param {string} customerUserId - unique user id
+   * @param {Input.IdentifyParamsInput} [params] - Additional parameters for identification
    * @throws {@link AdaptyError}
    */
-  public async identify(customerUserId: string): Promise<void> {
+  public async identify(
+    customerUserId: string,
+    params?: IdentifyParamsInput,
+  ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'identify' });
@@ -576,6 +582,11 @@ export class Adapty {
       method: methodKey,
       customer_user_id: customerUserId,
     };
+    const identifyParamsCoder = new AdaptyIdentifyParamsCoder();
+    const parameters = identifyParamsCoder.encode(params);
+    if (parameters) {
+      data.parameters = parameters;
+    }
     const body = JSON.stringify(data);
 
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);

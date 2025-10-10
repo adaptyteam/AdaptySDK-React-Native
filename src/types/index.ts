@@ -227,6 +227,12 @@ export type AdaptyPurchaseResult =
   | {
       type: 'success';
       profile: AdaptyProfile;
+      ios?: {
+        jwsTransaction?: string;
+      };
+      android?: {
+        purchaseToken?: string;
+      };
     };
 
 /**
@@ -604,6 +610,8 @@ export interface AdaptyPaywallProduct {
    * Same as `name` property of the parent {@link AdaptyPaywall}.
    */
   readonly paywallName: string;
+  readonly accessLevelId: string;
+  readonly productType: string;
   /**
    * The cost of the product in the local currency
    */

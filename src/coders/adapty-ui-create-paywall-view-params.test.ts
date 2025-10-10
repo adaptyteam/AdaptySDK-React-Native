@@ -172,7 +172,6 @@ describe('AdaptyUICreatePaywallViewParamsCoder', () => {
           params: {
             android: {
               isOfferPersonalized: true,
-              obfuscatedAccountId: 'account123',
             },
           },
         },
@@ -211,7 +210,6 @@ describe('AdaptyUICreatePaywallViewParamsCoder', () => {
             params: {
               android: {
                 isOfferPersonalized: true,
-                obfuscatedAccountId: 'account123',
               },
             },
           },
@@ -223,7 +221,6 @@ describe('AdaptyUICreatePaywallViewParamsCoder', () => {
       expect(result.product_purchase_parameters).toEqual({
         adapty_product_id: {
           is_offer_personalized: true,
-          obfuscated_account_id: 'account123',
         },
       });
     } finally {

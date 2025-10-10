@@ -68,7 +68,9 @@ export default function HomeScreen({ navigation }) {
               return false;
             },
           });
-          await view.present();
+          // Present paywall; for iOS you can choose a presentation style
+          // Available options: 'full_screen' (default) or 'page_sheet'
+          await view.present({ iosPresentationStyle: 'page_sheet' });
         }
       } catch (error) {
         console.error("Error loading paywall:", error);

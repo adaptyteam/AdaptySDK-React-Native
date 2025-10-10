@@ -352,3 +352,8 @@ export type AdaptyCustomGradientAsset = {
   )[];
   points?: { x0?: number; y0?: number; x1?: number; y1?: number };
 };
+
+/**
+ * iOS presentation style for paywall and onboarding views
+ */
+export type AdaptyIOSPresentationStyle = 'full_screen' | 'page_sheet';

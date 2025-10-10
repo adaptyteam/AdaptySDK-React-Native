@@ -17,7 +17,10 @@ import { OnboardingViewController } from '@/ui/onboarding-view-controller';
  * ```ts
  * const paywall = await adapty.getPaywall("MY_PAYWALL");
  * const view = await createPaywallView(paywall);
+ * // Present with default full-screen style
  * view.present();
+ * // Or present with custom style (iOS only)
+ * view.present({ iosPresentationStyle: 'page_sheet' }); // or 'full_screen'
  * ```
  *
  * @throws {AdaptyError} — If paywall is not found,
@@ -33,6 +36,27 @@ export async function createPaywallView(
   return controller;
 }
 
+/**
+ * Creates an onboarding view controller.
+ * You can use it to further configure a view or present it.
+ *
+ * @param {AdaptyOnboarding} onboarding - onboarding that you want to present.
+ * @returns {Promise<OnboardingViewController>} OnboardingViewController — A promise that resolves to an OnboardingViewController instance.
+ *
+ * @example
+ * ```ts
+ * const onboarding = await adapty.getOnboarding("MY_ONBOARDING");
+ * const view = await createOnboardingView(onboarding);
+ * // Present with default full-screen style
+ * view.present();
+ * // Or present with custom style (iOS only)
+ * view.present({ iosPresentationStyle: 'page_sheet' }); // or 'full_screen'
+ * ```
+ *
+ * @throws {AdaptyError} — If onboarding is not found,
+ * does not have a no-code view configured
+ * or if there is an error while creating a view.
+ */
 export async function createOnboardingView(
   onboarding: AdaptyOnboarding,
 ): Promise<OnboardingViewController> {

@@ -1,4 +1,5 @@
 import {
+  AdaptyIOSPresentationStyle,
   AdaptyUiView,
   DEFAULT_ONBOARDING_EVENT_HANDLERS,
   OnboardingEventHandlers,
@@ -141,7 +142,11 @@ export class OnboardingViewController {
   }
 
   /**
-   * Presents an onboarding view as a full-screen modal
+   * Presents an onboarding view as a modal
+   *
+   * @param {AdaptyIOSPresentationStyle} [iosPresentationStyle] - iOS presentation style.
+   * Available options: 'full_screen' (default) or 'page_sheet'.
+   * Only affects iOS platform.
    *
    * @remarks
    * Calling `present` upon already visible onboarding view
@@ -149,11 +154,13 @@ export class OnboardingViewController {
    *
    * @throws {AdaptyError}
    */
-  public async present(): Promise<void> {
+  public async present(
+    iosPresentationStyle?: AdaptyIOSPresentationStyle,
+  ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'present' });
-    log.start({ _id: this.id });
+    log.start({ _id: this.id, iosPresentationStyle });
 
     if (this.id === null) {
       log.failed({ error: 'no _id' });
@@ -161,10 +168,13 @@ export class OnboardingViewController {
     }
 
     const methodKey = 'adapty_ui_present_onboarding_view';
-    const body = JSON.stringify({
+    const requestData: Req['AdaptyUIPresentOnboardingView.Request'] = {
       method: methodKey,
       id: this.id,
-    } satisfies Req['AdaptyUIPresentOnboardingView.Request']);
+      ios_presentation_style: iosPresentationStyle,
+    };
+
+    const body = JSON.stringify(requestData);
 
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
     return result;

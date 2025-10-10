@@ -51,16 +51,6 @@ export class AdaptyPurchaseParamsCoder {
         purchaseParams['is_offer_personalized'] =
           data.android.isOfferPersonalized;
       }
-
-      if (data.android.obfuscatedAccountId) {
-        purchaseParams['obfuscated_account_id'] =
-          data.android.obfuscatedAccountId;
-      }
-
-      if (data.android.obfuscatedProfileId) {
-        purchaseParams['obfuscated_profile_id'] =
-          data.android.obfuscatedProfileId;
-      }
     }
 
     return purchaseParams;
