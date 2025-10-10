@@ -14,7 +14,7 @@
     "subscriptions"
   ],
   "repository": "https://github.com/adaptyteam/AdaptySDK-React-Native",
-  "homepage": "https://github.com/adaptyteam/AdaptySDK-React-Native#readme",
+  "homepage": "https://adapty.io/docs/react-native-sdk-overview",
   "bugs": {
     "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
   },
