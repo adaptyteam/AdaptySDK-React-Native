@@ -23,37 +23,70 @@ This project was created using [React Native CLI](https://reactnative.dev/docs/e
 
 ## Adapty Configuration
 
-1. This example uses an automated credential setup system. When you run `yarn start`, the app will automatically prompt you to enter:
-   - Your Adapty API token
-   - Add placement ID from your dashboard
-   - iOS Bundle ID
-   - Android Application
+This example uses an automated credential setup system. When you run `yarn start`, the app will automatically prompt you to enter:
+- Your Adapty API token
+- Placement ID from your dashboard
+- iOS Bundle ID
+- Android Application ID
    
-   Your credentials are stored in `.adapty-credentials.json` file (which is gitignored for security).
+Your credentials are stored in `.adapty-credentials.json` file (which is gitignored for security).
 
-## How to run example with production version of the library
-1. Clone this repository
-2. In the directory of this example fetch dependencies:
-   1. `yarn` to pull node_modules
-   2. `bundle exec pod install` (from the root directory) to pull iOS pods. You may need to install `bundle install` before.
-   3. For Android you can install dependencies either via Android Studio or with gradle CLI
-3. Run `yarn start` to start RN development server. It will automatically run `yarn credentials` to prompt you for your Adapty token and iOS bundle id, then patch the iOS project file with your credentials. You can also run `yarn credentials` manually if needed.
-4. Now you can run the example on a device:
-   - **For iOS**: Make sure to start the development server with `yarn start` first before running `yarn ios`
-   - **For Android**: Run `yarn android`
+To force re-enter credentials, run: `yarn credentials-force`
 
-## How to run example with local version of the library
+## Getting Started
 
-As symlinks do not work with React Native, we recommend using [wml](https://github.com/wix/wml).
+### Step 1: Install Dependencies
 
-0. `npm install -g wml` to install *wml*
-1. Clone this repository
-2. In the root directory of this library compile the library with `yarn build` or setup continuous compilation with `yarn watch` (watches your changes and compiles them to JS)
-3. In the directory of this example fetch dependencies:
-   1. `yarn` to pull node_modules
-   2. `bundle exec pod install` (from the root directory) to pull iOS pods
-   3. For Android you can install dependencies either via Android Studio or with gradle CLI
-4. In the root of the library run `wml add . examples/AdaptyRnSdkExample/node_modules/react-native-adapty` to create a *wml* link
-5. Run `wml start` to watch JS library code changes
-6. Run `yarn start` to start RN development server. It will prompt you to insert your Adapty token and iOS bundle id. If you have automated flow and you don't run `start` command, you can optionally run `yarn credentials` to provide your private data
-7. Now you can run the example on a device with your preferred method
+From the project root directory, navigate to the example folder and install dependencies:
+
+```bash
+cd examples/AdaptyRnSdkExample
+yarn install
+```
+
+### Step 2: Install iOS Dependencies (iOS only)
+
+```bash
+cd ios
+pod install
+cd ..
+```
+
+### Step 3: Start Metro Bundler
+
+```bash
+yarn start
+```
+
+> **⚠️ Important:** This will automatically trigger the credential setup if you haven't configured them yet. The app will prompt you to enter your Adapty API token, Placement ID, iOS Bundle ID, and Android Application ID.
+
+### Step 4: Run the Application
+
+Open a new terminal window and run:
+
+**For Android:**
+```bash
+yarn android
+```
+
+**For iOS:**
+```bash
+yarn ios
+```
+
+## 🔧 Troubleshooting
+
+### Credentials Issues
+- If you manually edited `.adapty-credentials.json` then run `yarn credentials-force` to re-enter credentials through the interactive setup
+
+### Android Build Issues
+- Make sure you're using an emulator with Google Play services
+- Clean the build: `cd android && ./gradlew clean && cd ..`
+- Reinstall dependencies: `rm -rf node_modules && yarn install`
+
+### iOS Build Issues
+- Clean pods: `cd ios && rm -rf Pods Podfile.lock && pod install && cd ..`
+- Clean build folder in Xcode: Product → Clean Build Folder
+
+
+
