@@ -1,97 +1,109 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+## Adapty React Native Basic Example
 
-# Getting Started
+This is a minimal example application demonstrating the core functionality of Adapty React Native SDK:
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+- SDK activation
+- Displaying free and premium content
+- Showing paywall for premium content access
+- Making purchases through Paywall Builder
+- Automatic access to premium content after successful purchase
 
-## Step 1: Start Metro
+### Features
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- **Basic Recipes** - Free content available to all users
+- **Premium Recipes** - Content requiring an active subscription
+- **Paywall Builder Integration** - Native paywall presentation
+- **Real-time Access Updates** - Automatic unlock after purchase
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### Screenshots
 
-```sh
-# Using npm
-npm start
+<p float="left">
+  <img src="screenshots/main-screen.jpeg" width="90" alt="Main Screen - Free Plan" />
+  <img src="screenshots/main-screen-premium.jpeg" width="90" alt="Main Screen - Premium Active" />
+  <img src="screenshots/paywall-shown.jpeg" width="90" alt="Paywall" />
+</p>
 
-# OR using Yarn
-yarn start
-```
+## Requirements
 
-## Step 2: Build and run your app
+- Node 20
+- JDK 21
+- Xcode (for iOS)
+- Android Studio (for Android)
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## Setup
 
-### Android
+Before running the app, make sure you have configured your Adapty credentials:
 
-```sh
-# Using npm
-npm run android
+1. Run `yarn install` to install dependencies
+2. The `yarn credentials` command will run automatically before start (prestart hook) to set up your Adapty configuration
+   - This script creates `.adapty-credentials.json` file and configures native projects (bundle IDs, application IDs)
+   - If you need to update credentials later, run `yarn credentials-force` to force update
+3. The credentials file `.adapty-credentials.json` should contain:
+   - `token` - Your Adapty public SDK key
+   - `placement_id` - Placement ID for the paywall from the dashboard
+   - `ios_bundle` - iOS bundle identifier (must match your App Store Connect configuration)
+   - `android_application_id` - Android application ID (must match your Google Play Console configuration)
+   
+   ⚠️ **Important**: Bundle IDs must match your app configuration in App Store Connect (iOS) and Google Play Console (Android). Without correct bundle IDs, you won't be able to make test purchases.
 
-# OR using Yarn
-yarn android
-```
+## Running this example
 
-### iOS
+### Running on iOS
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+To run on iOS simulator:
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
+```bash
 yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Or open Xcode:
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```bash
+npx react-native run-ios
+```
 
-## Step 3: Modify your app
+### Running on Android
 
-Now that you have successfully run the app, let's make changes!
+To run on Android device or emulator:
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+```bash
+yarn android
+```
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+Or open Android Studio and build from there.
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## How It Works
 
-## Congratulations! :tada:
+1. **SDK Activation** - The app activates Adapty SDK on startup using credentials from `.adapty-credentials.json`
+2. **Profile Loading** - User profile is fetched to check subscription status
+3. **Paywall Loading** - Paywall is preloaded for quick presentation
+4. **Content Access** - Free recipes are always accessible, premium recipes require active subscription
+5. **Purchase Flow** - When user taps a locked recipe, the paywall is presented using Paywall Builder
+6. **Access Grant** - After successful purchase, profile is updated and premium content becomes accessible
 
-You've successfully run and modified your React Native App. :partying_face:
+## Testing Purchases
 
-### Now what?
+To test the purchase flow:
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+1. Make sure you have configured test products in Adapty Dashboard
+2. Use test accounts:
+   - **iOS**: Sandbox Tester account (configured in App Store Connect)
+   - **Android**: Gmail account added to License Testers list in Google Play Console
+3. Tap on any premium recipe (🔒 icon)
+4. Complete the purchase in the presented paywall
+5. Premium content will unlock automatically
 
-# Troubleshooting
+## Development
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### Update SDK from local sources
 
-# Learn More
+If you're developing the SDK and want to test changes in this example:
 
-To learn more about React Native, take a look at the following resources:
+```bash
+yarn update-sdk-full
+```
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This script will:
+1. Build the SDK from the parent directory
+2. Create a package archive
+3. Install it directly into this example's `node_modules`
