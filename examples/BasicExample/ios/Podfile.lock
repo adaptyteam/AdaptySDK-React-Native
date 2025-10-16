@@ -1,10 +1,10 @@
 PODS:
-  - Adapty (3.11.0)
-  - AdaptyPlugin (3.11.0):
-    - Adapty (= 3.11.0)
-    - AdaptyUI (= 3.11.0)
-  - AdaptyUI (3.11.0):
-    - Adapty (= 3.11.0)
+  - Adapty (3.12.0)
+  - AdaptyPlugin (3.12.0):
+    - Adapty (= 3.12.0)
+    - AdaptyUI (= 3.12.0)
+  - AdaptyUI (3.12.0):
+    - Adapty (= 3.12.0)
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
   - fast_float (8.0.0)
@@ -1789,9 +1789,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
   - react-native-adapty-sdk (3.11.1):
-    - Adapty (= 3.11.0)
-    - AdaptyPlugin (= 3.11.0)
-    - AdaptyUI (= 3.11.0)
+    - Adapty (= 3.12.0)
+    - AdaptyPlugin (= 3.12.0)
+    - AdaptyUI (= 3.12.0)
     - React
   - react-native-safe-area-context (5.6.1):
     - boost
@@ -2423,6 +2423,9 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
+  - Adapty (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `release/3.12.0`)
+  - AdaptyPlugin (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `release/3.12.0`)
+  - AdaptyUI (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `release/3.12.0`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
@@ -2503,12 +2506,18 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - Adapty
-    - AdaptyPlugin
-    - AdaptyUI
     - SocketRocket
 
 EXTERNAL SOURCES:
+  Adapty:
+    :branch: release/3.12.0
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyPlugin:
+    :branch: release/3.12.0
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyUI:
+    :branch: release/3.12.0
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
@@ -2661,10 +2670,21 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+CHECKOUT OPTIONS:
+  Adapty:
+    :commit: 053749503f2381c2392c77d9c0fd312f3c8ba445
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyPlugin:
+    :commit: 053749503f2381c2392c77d9c0fd312f3c8ba445
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyUI:
+    :commit: 053749503f2381c2392c77d9c0fd312f3c8ba445
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+
 SPEC CHECKSUMS:
-  Adapty: ad14ab563dd945a1b0f64e1c7cddf713969c39b5
-  AdaptyPlugin: cf709bf358013e1390eabd91dae2ac99b7ee4825
-  AdaptyUI: 60f719fc79bc44dbdbe88974290669dc14dc89e0
+  Adapty: 93144ce2aa735e10bdb2b1012b9dea923a82543f
+  AdaptyPlugin: 22451b2141a877bd39fdab1f5e2d78140447e73e
+  AdaptyUI: a9fff903ead19ccf09861bc65a72e9a8eb012017
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
@@ -2705,7 +2725,7 @@ SPEC CHECKSUMS:
   React-logger: 2021eb67660b673cc654635832136fbbf2c79103
   React-Mapbuffer: 9bda44c983f9c683047546a338ebe9a21020babd
   React-microtasksnativemodule: 9b52faf56750d7e3c67d9cf96b650f14c31524c2
-  react-native-adapty-sdk: 73c2eeb7e6cb56e1679cbe93ec66cba3d37b46b6
+  react-native-adapty-sdk: aebe3ba3608397afbc4ddc781427d222a7434a23
   react-native-safe-area-context: 6d8a7b750e496e37bda47c938320bf2c734d441f
   React-NativeModulesApple: 1b4d9722d8df62e881684abadf320e7a8fa1b7f6
   React-oscompat: 80ca388c4831481cd03a6b45ecfc82739ca9a95e
@@ -2742,6 +2762,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 93bc00d78638987f9ffd928f4a9f895d3e601bc3
 
-PODFILE CHECKSUM: ef2fec9aa5635150f8f0de7295ca6d788b7d7fdd
+PODFILE CHECKSUM: 6d08eddd8337cedc84de80484b3af35b9621a7ac
 
 COCOAPODS: 1.15.2

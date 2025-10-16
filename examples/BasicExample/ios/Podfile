@@ -16,6 +16,10 @@ end
 
 target 'BasicExample' do
   config = use_native_modules!
+  # Adapty SDK with platform view support
+  pod "AdaptyPlugin", :git => "https://github.com/adaptyteam/AdaptySDK-iOS.git", :branch => "release/3.12.0"
+  pod "Adapty", :git => "https://github.com/adaptyteam/AdaptySDK-iOS.git", :branch => "release/3.12.0"
+  pod "AdaptyUI", :git => "https://github.com/adaptyteam/AdaptySDK-iOS.git", :branch => "release/3.12.0"
 
   use_react_native!(
     :path => config[:reactNativePath],
