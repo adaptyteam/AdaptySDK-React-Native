@@ -5623,10 +5623,10 @@ react-is@^19.1.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.1.0.tgz#805bce321546b7e14c084989c77022351bbdd11b"
   integrity sha512-Oe56aUPnkHyyDxxkvqtd7KkdQP5uIUfHxd5XTb3wE9d/kRnZLmKbDB0GWk919tdQ+mxxPtG6EAs6RMT6i1qtHg==
 
-react-native-adapty@3.11.1:
-  version "3.11.1"
-  resolved "https://registry.yarnpkg.com/react-native-adapty/-/react-native-adapty-3.11.1.tgz#6f90522c68921d6139456eb55060fbf65100d3f9"
-  integrity sha512-OZKjPcemCTJ0J0HxGhqnUAlwYTSZZtqG+xIQSQh42UyjPTJZ3yoRmgjLjiPyf9VqgGvtDNnFYSYL1UMwJbJPOw==
+react-native-adapty@3.11.2:
+  version "3.11.2"
+  resolved "https://registry.yarnpkg.com/react-native-adapty/-/react-native-adapty-3.11.2.tgz#c3136e08bf46b03d645d1ec0218db338865119fd"
+  integrity sha512-G0Sq8i/M9xb2ZmOK5t73M2hB/Kt2Ko+voGXHzCJewqwKM7/i9CU4xsOs5RnjAhqr6eFM48cjQ5vLLf67avS72Q==
 
 react-native-asset@^2.1.1:
   version "2.1.1"
