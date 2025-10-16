@@ -135,6 +135,12 @@ jobs:
         cd examples/AdaptyRnSdkExample
         yarn update-sdk-full
 
+    - name: Run TypeScript check
+      if: matrix.check-type == 'android'
+      run: |
+        cd examples/AdaptyRnSdkExample
+        yarn tsc
+
     - name: Run Android build (debug)
       if: matrix.check-type == 'android'
       run: |
