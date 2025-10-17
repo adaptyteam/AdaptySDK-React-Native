@@ -5186,6 +5186,13 @@ promise@^8.3.0:
   dependencies:
     asap "~2.0.6"
 
+prompt-sync@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/prompt-sync/-/prompt-sync-4.2.0.tgz#0198f73c5b70e3b03e4b9033a50540a7c9a1d7f4"
+  integrity sha512-BuEzzc5zptP5LsgV5MZETjDaKSWfchl5U9Luiu8SKp7iZWD5tZalOxvNcZRwv+d2phNFr8xlbxmFNcRKfJOzJw==
+  dependencies:
+    strip-ansi "^5.0.0"
+
 prompts@^2.0.1, prompts@^2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.4.2.tgz#7b57e73b3a48029ad10ebd44f74b01722a4cb069"
@@ -5269,6 +5276,11 @@ react-is@^19.1.1:
   version "19.2.0"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.2.0.tgz#ddc3b4a4e0f3336c3847f18b806506388d7b9973"
   integrity sha512-x3Ax3kNSMIIkyVYhWPyO09bu0uttcAIoecO/um/rKGQ4EltYWVYtyiGkS/3xMynrbVQdS69Jhlv8FXUEZehlzA==
+
+react-native-adapty@3.11.2:
+  version "3.11.2"
+  resolved "https://registry.yarnpkg.com/react-native-adapty/-/react-native-adapty-3.11.2.tgz#c3136e08bf46b03d645d1ec0218db338865119fd"
+  integrity sha512-G0Sq8i/M9xb2ZmOK5t73M2hB/Kt2Ko+voGXHzCJewqwKM7/i9CU4xsOs5RnjAhqr6eFM48cjQ5vLLf67avS72Q==
 
 react-native-safe-area-context@^5.5.2:
   version "5.6.1"
