@@ -1,0 +1,133 @@
+//file:noinspection SpellCheckingInspection
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'maven-publish'
+
+// Expose package.json version to gradle
+apply from: 'version.gradle'
+
+def isNewArchitectureEnabled() {
+  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+}
+
+if (isNewArchitectureEnabled()) {
+  apply plugin: "com.facebook.react"
+}
+
+buildscript {
+    def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['adapty_kotlinVersion']
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.3'
+
+        // noinspection DifferentKotlinGradleVersion
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+def safeExtGet(name) {
+    return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['adapty_' + name]
+}
+
+def safeExtGetInt(name) {
+    return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['adapty_' + name]).toInteger()
+}
+
+android {
+    compileSdkVersion safeExtGetInt('compileSdkVersion')
+    buildToolsVersion safeExtGet('buildToolsVersion')
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        minSdkVersion safeExtGetInt('minSdkVersion')
+        targetSdkVersion safeExtGetInt('targetSdkVersion')
+        versionCode 1
+        versionName packageJsonVersion
+        multiDexEnabled true
+        buildConfigField 'String', 'VERSION_NAME', "\"$packageJsonVersion\""
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+    }
+
+    lintOptions {
+        abortOnError false
+        disable 'GradleCompatible'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+            minifyEnabled false
+        }
+
+        // Only for library development
+        libDebug {
+            initWith buildTypes.debug
+            versionNameSuffix "-lib-debug"
+            repositories {
+                google()
+                maven { url "$rootDir/internalMaven" }
+                maven { url "$rootDir/../../node_modules/react-native/android" }
+            }
+
+            matchingFallbacks = ["debug"]
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.adapty.react'
+    }
+    buildFeatures {
+        buildConfig true
+    }
+}
+
+repositories {
+    mavenCentral()
+    google()
+    maven { url "$rootDir/../node_modules/react-native/android" }
+}
+
+def getExtOrDefault(name) {
+    return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['adapty_' + name]
+}
+
+def kotlin_version = getExtOrDefault('kotlinVersion')
+
+dependencies {
+    api 'io.adapty:android-sdk:3.11.1'
+    api 'io.adapty:android-ui:3.11.1'
+
+    //noinspection GradleDynamicVersion
+    api 'io.adapty.internal:crossplatform:3.11.2'
+
+    // Compatible with older and newer RN
+    //noinspection GradleDynamicVersion
+    implementation 'com.facebook.react:react-native:+'
+
+    //noinspection DifferentStdlibGradleVersion
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+if (isNewArchitectureEnabled()) {
+  react {
+    jsRootDir = file("../src/")
+    libraryName = "ReactNativeAdapty"
+    codegenJavaPackageName = "com.adapty.react"
+  }
+}
