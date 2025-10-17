@@ -2,12 +2,10 @@
 
 echo "🚀 Building and installing React Native Adapty SDK pack..."
 
-# Get the script directory and calculate paths
-SCRIPT_DIR="$( cd "$( dirname "$0" )" > /dev/null 2>&1 && pwd )"
-EXAMPLE_DIR="$(dirname "$SCRIPT_DIR")"
+# Get paths based on current working directory (example app directory)
+EXAMPLE_DIR="$(pwd)"
 SDK_DIR="$(dirname "$(dirname "$EXAMPLE_DIR")")"
 
-echo "📍 Script location: $SCRIPT_DIR"
 echo "📍 Example app: $EXAMPLE_DIR" 
 echo "📍 SDK directory: $SDK_DIR"
 
@@ -60,4 +58,5 @@ echo "📍 Location: $EXAMPLE_DIR/node_modules/react-native-adapty"
 
 echo "📋 Installed contents:"
 ls -la node_modules/react-native-adapty/
+
 
