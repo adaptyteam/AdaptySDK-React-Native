@@ -77,9 +77,11 @@
     "react-test-renderer": "19.1.0",
     "ts-jest": "^29.1.1",
     "tsc-alias": "^1.8.7",
-    "tslib": "2.6.1",
     "typedoc": "0.28.13",
     "typescript": "5.1.6"
+  },
+  "dependencies": {
+    "tslib": "^2.5.0"
   },
   "peerDependencies": {
     "react-native": ">= 0.73.0"
