@@ -761,6 +761,8 @@ export interface AdaptyProfileParameters {
 export interface ProductReference {
   vendorId: string;
   adaptyId: string;
+  accessLevelId: string;
+  productType: string;
 
   ios?: {
     promotionalOfferId?: string;
