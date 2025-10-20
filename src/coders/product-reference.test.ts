@@ -4,22 +4,33 @@ import { ProductReferenceCoder } from './product-reference';
 
 type Model = ProductReference;
 const mocks: Def['AdaptyPaywall.ProductReference'][] = [
-  { vendor_product_id: 'product123', adapty_product_id: 'adaptyProduct123' },
+  {
+    vendor_product_id: 'product123',
+    adapty_product_id: 'adaptyProduct123',
+    access_level_id: 'premium',
+    product_type: 'subscription',
+  },
   {
     vendor_product_id: 'product456',
     adapty_product_id: 'adaptyProduct456',
+    access_level_id: 'premium',
+    product_type: 'subscription',
     promotional_offer_id: 'offer789',
     win_back_offer_id: 'offer456',
   },
   {
     vendor_product_id: 'product111',
     adapty_product_id: 'adaptyProduct111',
+    access_level_id: 'vip',
+    product_type: 'subscription',
     base_plan_id: 'base222',
     offer_id: 'offer333',
   },
   {
     vendor_product_id: 'productXYZ',
     adapty_product_id: 'adaptyProductXYZ',
+    access_level_id: 'premium',
+    product_type: 'non_subscription',
     promotional_offer_id: 'promoOfferIOS',
     win_back_offer_id: 'winBackOfferIOS',
     base_plan_id: 'baseAndroid',
@@ -31,6 +42,8 @@ function toModel(mock: (typeof mocks)[number]): Model {
   return {
     vendorId: mock.vendor_product_id,
     adaptyId: mock.adapty_product_id,
+    accessLevelId: mock.access_level_id,
+    productType: mock.product_type,
     ios: {
       ...(mock.promotional_offer_id && {
         promotionalOfferId: mock.promotional_offer_id,
