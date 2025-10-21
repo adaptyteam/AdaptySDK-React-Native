@@ -91,7 +91,7 @@ We provide several example applications with increasing complexity:
 
 - **[BasicExample](./examples/BasicExample/)** (React Native) – Minimal setup example showing core SDK features.
 - **[FocusJournalExpo](./examples/FocusJournalExpo/)** (Expo) – Full-featured app with navigation and premium features.
-- **[AdaptyRnSdkExample](./examples/AdaptyRnSdkExample/)** (React Native) – DevTools and bug reporting tool.
+- **[AdaptyDevtools](./examples/AdaptyDevtools/)** (React Native) – DevTools and bug reporting tool.
 
 📹 **Watch our video guide** for step-by-step integration with the Focus Journal Expo example:
 

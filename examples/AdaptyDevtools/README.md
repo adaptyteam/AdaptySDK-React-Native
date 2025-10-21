@@ -40,7 +40,7 @@ To force re-enter credentials, run: `yarn credentials-force`
 From the project root directory, navigate to the example folder and install dependencies:
 
 ```bash
-cd examples/AdaptyRnSdkExample
+cd examples/AdaptyDevtools
 yarn install
 ```
 
