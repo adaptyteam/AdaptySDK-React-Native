@@ -6,7 +6,7 @@
     "credentials": "node ../../scripts/credentials.js",
     "credentials-force": "node ../../scripts/credentials.js --force-bundle",
     "prestart": "yarn credentials",
-    "update-sdk-full": "./scripts/build_and_install_pack.zsh",
+    "update-sdk-full": "../../scripts/build_and_install_pack.zsh",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",

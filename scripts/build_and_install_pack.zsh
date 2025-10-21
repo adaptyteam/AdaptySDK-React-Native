@@ -2,12 +2,10 @@
 
 echo "🚀 Building and installing React Native Adapty SDK pack..."
 
-# Get the script directory and calculate paths
-SCRIPT_DIR="$( cd "$( dirname "$0" )" > /dev/null 2>&1 && pwd )"
-EXAMPLE_DIR="$(dirname "$SCRIPT_DIR")"
+# Get paths based on current working directory (example app directory)
+EXAMPLE_DIR="$(pwd)"
 SDK_DIR="$(dirname "$(dirname "$EXAMPLE_DIR")")"
 
-echo "📍 Script location: $SCRIPT_DIR"
 echo "📍 Example app: $EXAMPLE_DIR" 
 echo "📍 SDK directory: $SDK_DIR"
 
@@ -55,9 +53,28 @@ cp -r "$TEMP_DIR/package/"* node_modules/react-native-adapty/
 rm -rf "$TEMP_DIR"
 rm "$SDK_DIR/$PACK_FILE"
 
+# Step 5: Install package dependencies
+echo "📦 Installing package dependencies..."
+SDK_TSLIB_PATH="$SDK_DIR/node_modules/tslib"
+TARGET_NODE_MODULES="$EXAMPLE_DIR/node_modules/react-native-adapty/node_modules"
+
+# Fast path: reuse tslib from the SDK build (speeds up the script)
+if [[ -d "$SDK_TSLIB_PATH" ]]; then
+    echo "⚡ Reusing tslib from SDK build cache..."
+    mkdir -p "$TARGET_NODE_MODULES"
+    rm -rf "$TARGET_NODE_MODULES/tslib"
+    cp -R "$SDK_TSLIB_PATH" "$TARGET_NODE_MODULES/"
+else
+    echo "🌐 Installing dependencies via npm (tslib cache missing)..."
+    cd node_modules/react-native-adapty
+    npm install --omit=dev --legacy-peer-deps --no-save --prefer-offline
+    cd "$EXAMPLE_DIR"
+fi
+
 echo "✅ Successfully installed React Native Adapty SDK pack!"
 echo "📍 Location: $EXAMPLE_DIR/node_modules/react-native-adapty"
 
 echo "📋 Installed contents:"
 ls -la node_modules/react-native-adapty/
+
 
