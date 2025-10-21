@@ -25,6 +25,8 @@ const mocks: Def['AdaptyPaywall'][] = [
       {
         vendor_product_id: 'product1',
         adapty_product_id: 'adaptyProduct1',
+        access_level_id: 'premium',
+        product_type: 'subscription',
         promotional_offer_id: 'offer1', // iOS Only
         win_back_offer_id: 'offer2', // iOS Only
         base_plan_id: 'base1', // Android Only
@@ -33,6 +35,8 @@ const mocks: Def['AdaptyPaywall'][] = [
       {
         vendor_product_id: 'product2',
         adapty_product_id: 'adaptyProduct2',
+        access_level_id: 'premium',
+        product_type: 'subscription',
       },
     ],
     remote_config: {
@@ -58,7 +62,12 @@ const mocks: Def['AdaptyPaywall'][] = [
     variation_id: 'var002',
     paywall_name: 'Paywall2',
     products: [
-      { vendor_product_id: 'product3', adapty_product_id: 'adaptyProduct3' },
+      {
+        vendor_product_id: 'product3',
+        adapty_product_id: 'adaptyProduct3',
+        access_level_id: 'vip',
+        product_type: 'subscription',
+      },
     ],
     remote_config: { lang: 'fr', data: '' },
     web_purchase_url: 'https://example.com/purchase',
