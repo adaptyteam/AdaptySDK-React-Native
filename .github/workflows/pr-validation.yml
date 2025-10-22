@@ -108,8 +108,8 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-          examples/AdaptyRnSdkExample/android/.gradle
-        key: gradle-${{ runner.os }}-${{ hashFiles('examples/AdaptyRnSdkExample/android/build.gradle', 'examples/AdaptyRnSdkExample/android/app/build.gradle', 'examples/AdaptyRnSdkExample/android/gradle.properties', 'examples/AdaptyRnSdkExample/android/gradle/wrapper/gradle-wrapper.properties') }}
+          examples/AdaptyDevtools/android/.gradle
+        key: gradle-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/android/build.gradle', 'examples/AdaptyDevtools/android/app/build.gradle', 'examples/AdaptyDevtools/android/gradle.properties', 'examples/AdaptyDevtools/android/gradle/wrapper/gradle-wrapper.properties') }}
         restore-keys: |
           gradle-${{ runner.os }}-
 
@@ -118,33 +118,33 @@ jobs:
       id: cache-example-node-modules
       uses: actions/cache@v4
       with:
-        path: examples/AdaptyRnSdkExample/node_modules
-        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyRnSdkExample/yarn.lock') }}
+        path: examples/AdaptyDevtools/node_modules
+        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
         restore-keys: |
           example-node-modules-${{ runner.os }}-
 
     - name: Install example app dependencies
       if: matrix.check-type == 'android' && steps.cache-example-node-modules.outputs.cache-hit != 'true'
       run: |
-        cd examples/AdaptyRnSdkExample
+        cd examples/AdaptyDevtools
         yarn install --frozen-lockfile
 
     - name: Build package and install
       if: matrix.check-type == 'android'
       run: |
-        cd examples/AdaptyRnSdkExample
+        cd examples/AdaptyDevtools
         yarn update-sdk-full
 
     - name: Run TypeScript check
       if: matrix.check-type == 'android'
       run: |
-        cd examples/AdaptyRnSdkExample
+        cd examples/AdaptyDevtools
         yarn tsc
 
     - name: Run Android build (debug)
       if: matrix.check-type == 'android'
       run: |
-        cd examples/AdaptyRnSdkExample/android
+        cd examples/AdaptyDevtools/android
         ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a
 
   build-ios:
@@ -184,20 +184,20 @@ jobs:
       uses: actions/cache@v4
       id: cache-example-node-modules
       with:
-        path: examples/AdaptyRnSdkExample/node_modules
-        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyRnSdkExample/yarn.lock') }}
+        path: examples/AdaptyDevtools/node_modules
+        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
         restore-keys: |
           example-node-modules-${{ runner.os }}-
 
     - name: Install example app dependencies
       if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
       run: |
-        cd examples/AdaptyRnSdkExample
+        cd examples/AdaptyDevtools
         yarn install --frozen-lockfile
 
     - name: Build package and install
       run: |
-        cd examples/AdaptyRnSdkExample
+        cd examples/AdaptyDevtools
         yarn update-sdk-full
 
     - name: Cache CocoaPods
@@ -205,16 +205,16 @@ jobs:
       id: cache-pods
       with:
         path: |
-          examples/AdaptyRnSdkExample/ios/Pods
+          examples/AdaptyDevtools/ios/Pods
           ~/Library/Caches/CocoaPods
           ~/.cocoapods
-        key: pods-${{ runner.os }}-${{ hashFiles('examples/AdaptyRnSdkExample/ios/Podfile.lock', 'examples/AdaptyRnSdkExample/node_modules/react-native-adapty/react-native-adapty-sdk.podspec', 'examples/AdaptyRnSdkExample/node_modules/react-native-adapty/ios/**/*') }}
+        key: pods-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock', 'examples/AdaptyDevtools/node_modules/react-native-adapty/react-native-adapty-sdk.podspec', 'examples/AdaptyDevtools/node_modules/react-native-adapty/ios/**/*') }}
         restore-keys: |
           pods-${{ runner.os }}-
 
     - name: Install CocoaPods
       run: |
-        cd examples/AdaptyRnSdkExample/ios
+        cd examples/AdaptyDevtools/ios
         pod install
 
     - name: Cache Xcode Derived Data
@@ -224,13 +224,13 @@ jobs:
         path: |
           ~/Library/Developer/Xcode/DerivedData
           ~/Library/Caches/org.swift.swiftpm
-        key: xcode-derived-${{ runner.os }}-${{ hashFiles('examples/AdaptyRnSdkExample/ios/AdaptyRnSdkExample.xcodeproj/project.pbxproj', 'examples/AdaptyRnSdkExample/ios/Podfile.lock') }}
+        key: xcode-derived-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/AdaptyRnSdkExample.xcodeproj/project.pbxproj', 'examples/AdaptyDevtools/ios/Podfile.lock') }}
         restore-keys: |
           xcode-derived-${{ runner.os }}-
 
     - name: Run iOS build (debug, no signing)
       run: |
-        cd examples/AdaptyRnSdkExample/ios
+        cd examples/AdaptyDevtools/ios
         xcodebuild -workspace AdaptyRnSdkExample.xcworkspace \
           -scheme AdaptyRnSdkExample \
           -destination "generic/platform=iOS" \
