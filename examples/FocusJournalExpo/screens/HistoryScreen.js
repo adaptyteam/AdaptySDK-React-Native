@@ -1,13 +1,14 @@
 // screens/HistoryScreen.js
 
 import React, { useContext } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import { ProfileContext } from "../context/ProfileContext";
+import { styles } from "../styles/HistoryScreen.styles";
 
 export default function HistoryScreen() {
   const { entries } = useContext(ProfileContext);
 
-  // Format Date as “Jan 1, 2025”
+  // Format Date as "Jan 1, 2025"
   function formatDate(dateString) {
     const dateObj = new Date(dateString);
     return dateObj.toLocaleDateString(undefined, {
@@ -36,35 +37,11 @@ export default function HistoryScreen() {
           data={entries}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: "#666",
-    textAlign: "center",
-    marginTop: 40,
-  },
-  itemContainer: {
-    marginBottom: 16,
-    borderBottomColor: "#ddd",
-    borderBottomWidth: 1,
-    paddingBottom: 8,
-  },
-  dateText: {
-    fontSize: 14,
-    color: "#888",
-  },
-  entryText: {
-    fontSize: 16,
-    marginTop: 4,
-  },
-});
+
