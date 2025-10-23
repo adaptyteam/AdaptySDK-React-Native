@@ -1,4 +1,4 @@
-package io.adapty.focusjournalrn
+package com.adaptytest
 
 import android.os.Build
 import android.os.Bundle
