@@ -1,0 +1,89 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Perform a dry run (no actual publish)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  id-token: write  # Required for OIDC trusted publishing
+  contents: read
+
+jobs:
+  validation:
+    name: Run validation checks
+    uses: ./.github/workflows/pr-validation.yml
+
+  publish:
+    runs-on: ubuntu-24.04
+    environment: publish
+    name: Publish package to npm
+    needs: validation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Update npm to latest version
+        run: npm install -g npm@latest
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --prefer-offline
+
+      - name: Update versions
+        run: yarn update-versions
+
+      - name: Generate documentation (verification only)
+        run: yarn doc-gen
+
+      - name: Build package
+        run: yarn build
+
+      - name: Verify build outputs
+        run: |
+          echo "Checking dist directory..."
+          ls -la dist/
+          echo "Checking package files..."
+          npm pack --dry-run
+
+      - name: Publish to npm (dry-run)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
+        run: npm publish --provenance --tag latest --dry-run --ignore-scripts
+
+      - name: Publish to npm
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run != 'true')
+        run: npm publish --provenance --tag latest --ignore-scripts
+
+      - name: Output published version
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run != 'true')
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "✅ Successfully published react-native-adapty@${PACKAGE_VERSION}"
+          echo "📦 Package URL: https://www.npmjs.com/package/react-native-adapty/v/${PACKAGE_VERSION}"
+
+

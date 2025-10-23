@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [ master, dev ]
     types: [opened, synchronize, reopened]
+  workflow_call:  # Allow this workflow to be called by other workflows
 
 jobs:
   setup:
@@ -244,7 +245,7 @@ jobs:
   auto-assign-reviewers:
     runs-on: ubuntu-24.04
     name: Auto-assign reviewers
-    if: github.event.action == 'opened'
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
 
     steps:
     - name: Auto-assign reviewers based on CODEOWNERS
