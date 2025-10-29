@@ -1,19 +1,20 @@
 // screens/HomeScreen.js
 
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, FlatList } from "react-native";
 import { ProfileContext } from "../context/ProfileContext";
 import { adapty } from "react-native-adapty";
 import { createPaywallView } from "react-native-adapty/dist/ui";
 import AdaptyConstants from "../AdaptyConstants";
 import { activationPromise } from "../AdaptyService";
+import { styles } from "../styles/HomeScreen.styles";
 
 export default function HomeScreen({ navigation }) {
   // Local state to hold the text input
   const [entryText, setEntryText] = useState("");
 
   // Pull context values
-  const { addEntry, isPremium, purchasePremium } = useContext(ProfileContext);
+  const { addEntry, isPremium, purchasePremium, entries } = useContext(ProfileContext);
 
   // Called when user taps "Save Entry"
   function handleSave() {
@@ -78,6 +79,29 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
+  // Format Date as "Jan 1, 2025"
+  function formatDate(dateString) {
+    const dateObj = new Date(dateString);
+    return dateObj.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  // Render masked entry preview
+  function renderMaskedEntry({ item }) {
+    return (
+      <View style={styles.maskedItemContainer}>
+        <Text style={styles.maskedDateText}>{formatDate(item.date)}</Text>
+        <View style={styles.maskedContentContainer}>
+          <View style={styles.maskedLine} />
+          <View style={[styles.maskedLine, styles.maskedLineShort]} />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>What was your focus today?</Text>
@@ -85,40 +109,43 @@ export default function HomeScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Enter your thoughts..."
+        placeholderTextColor="#BDC3C7"
         value={entryText}
         onChangeText={setEntryText}
+        multiline
       />
 
       <View style={styles.buttonContainer}>
-        <Button title="Save Entry" onPress={handleSave} />
+        <TouchableOpacity style={styles.button} onPress={handleSave}>
+          <Text style={styles.buttonText}>Save Entry</Text>
+        </TouchableOpacity>
       </View>
+
+      {entries.length > 0 && (
+        <>
+          <View style={styles.previewHeader}>
+            <Text style={styles.previewTitle}>Recent Entries</Text>
+            <Text style={styles.previewSubtitle}>
+              Tap "View History" to see full content
+            </Text>
+          </View>
+
+          <FlatList
+            data={entries.slice(0, 3)}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMaskedEntry}
+            style={styles.previewList}
+            scrollEnabled={false}
+          />
+        </>
+      )}
 
       <View style={styles.spacer} />
 
-      <Button title="View History" onPress={handleViewHistory} />
+      <TouchableOpacity style={styles.secondaryButton} onPress={handleViewHistory}>
+        <Text style={styles.secondaryButtonText}>View History</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  label: {
-    fontSize: 18,
-    marginBottom: 12,
-  },
-  input: {
-    borderColor: "#ccc",
-    borderWidth: 1,
-    padding: 8,
-    borderRadius: 4,
-  },
-  buttonContainer: {
-    marginTop: 12,
-  },
-  spacer: {
-    flex: 1,
-  },
-});

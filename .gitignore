@@ -50,6 +50,7 @@ project.xcworkspace
 buck-out/
 \.buckd/
 *.keystore
+!debug.keystore
 
 
 .env

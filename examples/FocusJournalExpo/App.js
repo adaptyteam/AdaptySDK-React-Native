@@ -11,8 +11,27 @@ import PaywallScreen from "./screens/PaywallScreen";
 // Import the ProfileProvider
 import { ProfileProvider } from "./context/ProfileContext";
 
+// Import theme colors
+import { colors } from "./styles/theme";
+
 // Create a Stack Navigator
 const Stack = createNativeStackNavigator();
+
+// Common screen options for consistent styling
+const screenOptions = {
+  headerStyle: {
+    backgroundColor: colors.surface,
+  },
+  headerTintColor: colors.primary,
+  headerTitleStyle: {
+    fontWeight: '600',
+    fontSize: 18,
+  },
+  headerShadowVisible: true,
+  contentStyle: {
+    backgroundColor: colors.background,
+  },
+};
 
 export default function App() {
   return (
@@ -20,7 +39,10 @@ export default function App() {
     <ProfileProvider>
       {/* 2) Wrap screens in NavigationContainer for React Navigation */}
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
+        <Stack.Navigator 
+          initialRouteName="Home"
+          screenOptions={screenOptions}
+        >
           <Stack.Screen
             name="Home"
             component={HomeScreen}

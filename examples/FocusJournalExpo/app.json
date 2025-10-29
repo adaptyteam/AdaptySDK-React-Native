@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "io.adapty.Focus-Journal",
+      "bundleIdentifier": "com.adapty.adaptydemoapp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -25,15 +25,10 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "io.adapty.Focus-Journal"
+      "package": "com.adaptytest"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "cd2d950f-d343-48c6-9a5a-f49a7eea2a29"
-      }
     }
   }
 }
