@@ -80,3 +80,5 @@ export function ProfileProvider({ children }) {
     <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
   );
 }
+
+
