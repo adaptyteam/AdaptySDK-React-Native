@@ -69,7 +69,7 @@ jobs:
           echo "Checking dist directory..."
           ls -la dist/
           echo "Checking package files..."
-          npm pack --dry-run
+          npm pack --dry-run --ignore-scripts
 
       - name: Publish to npm (dry-run)
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
