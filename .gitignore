@@ -12,7 +12,6 @@ dist
 src/version.ts
 
 node_modules
-package-lock.json
 .yarn
 
 ios/build/
