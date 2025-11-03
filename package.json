@@ -31,6 +31,8 @@
     "!android/gradle",
     "!android/gradlew*",
     "!android/local.properties",
+    "plugin/",
+    "app.plugin.js",
     "!**/.*"
   ],
   "main": "dist/index.js",

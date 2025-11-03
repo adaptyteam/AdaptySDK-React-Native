@@ -21,7 +21,13 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 prepare_react_native_project!
 
 target 'FocusJournalExpo' do
+# @generated begin AppsFlyer Strict Mode - expo prebuild (DO NOT MODIFY) sync-b29372208dd0dbd1274e957795cd756926086c3a
+$RNAppsFlyerStrictMode=false
+# @generated end AppsFlyer Strict Mode
   use_expo_modules!
+# @generated begin AppsFlyer Purchase Connector - expo prebuild (DO NOT MODIFY) sync-40d043aa4472dc51990344aee6329be6fe164eba
+$AppsFlyerPurchaseConnector=false
+# @generated end AppsFlyer Purchase Connector
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];

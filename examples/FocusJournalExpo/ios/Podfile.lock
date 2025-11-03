@@ -1,10 +1,13 @@
 PODS:
-  - Adapty (3.11.0)
-  - AdaptyPlugin (3.11.0):
-    - Adapty (= 3.11.0)
-    - AdaptyUI (= 3.11.0)
-  - AdaptyUI (3.11.0):
-    - Adapty (= 3.11.0)
+  - Adapty (3.12.0)
+  - AdaptyPlugin (3.12.0):
+    - Adapty (= 3.12.0)
+    - AdaptyUI (= 3.12.0)
+  - AdaptyUI (3.12.0):
+    - Adapty (= 3.12.0)
+  - AppsFlyerFramework (6.17.7):
+    - AppsFlyerFramework/Main (= 6.17.7)
+  - AppsFlyerFramework/Main (6.17.7)
   - EXConstants (18.0.10):
     - ExpoModulesCore
   - EXJSONUtils (0.15.0)
@@ -237,6 +240,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - ExpoSecureStore (15.0.7):
+    - ExpoModulesCore
   - EXUpdatesInterface (2.0.0):
     - ExpoModulesCore
   - FBLazyVector (0.81.5)
@@ -1522,10 +1527,13 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-  - react-native-adapty-sdk (3.11.3):
-    - Adapty (= 3.11.0)
-    - AdaptyPlugin (= 3.11.0)
-    - AdaptyUI (= 3.11.0)
+  - react-native-adapty-sdk (3.11.4):
+    - Adapty (= 3.12.0)
+    - AdaptyPlugin (= 3.12.0)
+    - AdaptyUI (= 3.12.0)
+    - React
+  - react-native-appsflyer (6.17.7):
+    - AppsFlyerFramework (= 6.17.7)
     - React
   - react-native-safe-area-context (5.4.0):
     - hermes-engine
@@ -2009,6 +2017,7 @@ DEPENDENCIES:
   - ExpoFont (from `../node_modules/expo/node_modules/expo-font/ios`)
   - ExpoKeepAwake (from `../node_modules/expo/node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
+  - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
@@ -2047,6 +2056,7 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-adapty-sdk (from `../node_modules/react-native-adapty`)
+  - react-native-appsflyer (from `../node_modules/react-native-appsflyer`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
@@ -2087,6 +2097,7 @@ SPEC REPOS:
     - Adapty
     - AdaptyPlugin
     - AdaptyUI
+    - AppsFlyerFramework
 
 EXTERNAL SOURCES:
   EXConstants:
@@ -2115,6 +2126,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo/node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
+  ExpoSecureStore:
+    :path: "../node_modules/expo-secure-store/ios"
   EXUpdatesInterface:
     :path: "../node_modules/expo-updates-interface/ios"
   FBLazyVector:
@@ -2190,6 +2203,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-adapty-sdk:
     :path: "../node_modules/react-native-adapty"
+  react-native-appsflyer:
+    :path: "../node_modules/react-native-appsflyer"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
@@ -2260,9 +2275,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Adapty: ad14ab563dd945a1b0f64e1c7cddf713969c39b5
-  AdaptyPlugin: cf709bf358013e1390eabd91dae2ac99b7ee4825
-  AdaptyUI: 60f719fc79bc44dbdbe88974290669dc14dc89e0
+  Adapty: 93144ce2aa735e10bdb2b1012b9dea923a82543f
+  AdaptyPlugin: 22451b2141a877bd39fdab1f5e2d78140447e73e
+  AdaptyUI: a9fff903ead19ccf09861bc65a72e9a8eb012017
+  AppsFlyerFramework: ae7caf1688348f2d7a742037bd4fc6966d39d362
   EXConstants: e6e50cdfcb4524f40121d1fdcff24e97b7dcd2fd
   EXJSONUtils: 1d3e4590438c3ee593684186007028a14b3686cd
   EXManifests: 7469efed75d694ce3c43a6da9c6f3886f66d3c26
@@ -2276,6 +2292,7 @@ SPEC CHECKSUMS:
   ExpoFont: b881d43057dceb7b31ff767b24f612609e80f60f
   ExpoKeepAwake: 3f5e3ac53627849174f3603271df8e08f174ed4a
   ExpoModulesCore: 08a1e47dfb85e295c67ecc98da58317d66f64818
+  ExpoSecureStore: f44dee1354536bdb3d7fab8cc451ee737c41beca
   EXUpdatesInterface: 1436757deb0d574b84bba063bd024c315e0ec08b
   FBLazyVector: e95a291ad2dadb88e42b06e0c5fb8262de53ec12
   hermes-engine: 9f4dfe93326146a1c99eb535b1cb0b857a3cd172
@@ -2312,7 +2329,8 @@ SPEC CHECKSUMS:
   React-logger: c3e2f8a2e284341205f61eef3d4677ab5a309dfd
   React-Mapbuffer: 603c18db65844bb81dbe62fee8fcc976eaeb7108
   React-microtasksnativemodule: d77e0c426fce34c23227394c96ca1033b30c813c
-  react-native-adapty-sdk: 5b256a4e1d4eff879986dc357178090c0be60681
+  react-native-adapty-sdk: 19d0fc49db46fa2c00e6a16f1d5771d6cfbe02cc
+  react-native-appsflyer: 0193e2b671b78146197c052cf98ca33fcddbd3c1
   react-native-safe-area-context: 15ec3cd5916d6270e22a86336ff771afa8c7d641
   React-NativeModulesApple: 1664340b8750d64e0ef3907c5e53d9481f74bcbd
   React-oscompat: ce47230ed20185e91de62d8c6d139ae61763d09c
@@ -2348,6 +2366,6 @@ SPEC CHECKSUMS:
   RNScreens: 448161bce0b7d670222bf4ac967b0c3449cdcefa
   Yoga: 3fd22c2cae22d7a2b0f0b538f55f7c2a17dc94d5
 
-PODFILE CHECKSUM: 823f7823fec1ee3d5d9b5540f3348010e90c5304
+PODFILE CHECKSUM: 5502cef7ca29c189b6e92acd40371add0edac8f0
 
 COCOAPODS: 1.15.2

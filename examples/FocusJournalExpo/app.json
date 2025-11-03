@@ -29,6 +29,21 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": false
+        }
+      ],
+      [
+        "react-native-adapty",
+        {
+          "replaceAndroidBackupConfig": true
+        }
+      ],
+      "react-native-appsflyer"
+    ]
   }
 }
