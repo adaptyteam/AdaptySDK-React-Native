@@ -114,7 +114,7 @@ dependencies {
     api 'io.adapty:android-ui:3.11.1'
 
     //noinspection GradleDynamicVersion
-    api 'io.adapty.internal:crossplatform:3.11.2'
+    api 'io.adapty.internal:crossplatform:3.11.4'
 
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion
