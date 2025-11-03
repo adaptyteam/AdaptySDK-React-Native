@@ -36,13 +36,16 @@
   "main": "dist/index.js",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "yarn run tsc -p tsconfig.build.json && yarn run tsc-alias -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && yarn run tsc-alias -p tsconfig.build.json",
     "clean": "./scripts/clean.sh",
     "format": "prettier ./src -w --plugin=prettier-plugin-sort-json",
+    "format-check": "prettier ./src --check --plugin=prettier-plugin-sort-json",
     "lint": "eslint ./src --ext .ts",
     "test": "jest",
+    "tsc": "tsc --noEmit",
     "update-versions": "node ./scripts/update_versions.cjs",
-    "prepack": "yarn format && yarn lint && yarn test && yarn update-versions && yarn build",
+    "publish-git": "./scripts/git-package_publish.zsh",
+    "prepack": "yarn update-versions && yarn format-check && yarn tsc && yarn lint && yarn test && yarn build",
     "prepublishOnly": "yarn prepack",
     "doc-gen": "typedoc --out docs src/__docs__.ts"
   },
