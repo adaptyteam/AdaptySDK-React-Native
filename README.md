@@ -81,9 +81,19 @@ Ask questions, participate in discussions about Adapty-related topics, become a 
 
 ## Getting Started
 
-```sh
-yarn add react-native-adapty
+### For React Native projects:
 
+```sh
+# using npm
+npm install react-native-adapty 
+
+# or using yarn
+yarn add react-native-adapty
+```
+
+### For Expo projects:
+
+```sh
 npx expo install react-native-adapty
 npx expo prebuild
 ```
