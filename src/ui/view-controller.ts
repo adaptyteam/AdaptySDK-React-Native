@@ -186,7 +186,7 @@ export class ViewController {
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
-      ios_presentation_style: options.iosPresentationStyle,
+      ios_presentation_style: options.iosPresentationStyle ?? 'full_screen',
     } satisfies Req['AdaptyUIPresentPaywallView.Request']);
 
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);

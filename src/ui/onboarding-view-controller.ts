@@ -171,7 +171,7 @@ export class OnboardingViewController {
     const requestData: Req['AdaptyUIPresentOnboardingView.Request'] = {
       method: methodKey,
       id: this.id,
-      ios_presentation_style: iosPresentationStyle,
+      ios_presentation_style: iosPresentationStyle ?? 'full_screen',
     };
 
     const body = JSON.stringify(requestData);
