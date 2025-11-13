@@ -78,7 +78,7 @@ body:
     attributes:
       label: Adapty SDK Version
       description: What version of `react-native-adapty` are you running?
-      placeholder: v1.0.0
+      placeholder: 1.0.0
     validations:
       required: true
   - type: input
