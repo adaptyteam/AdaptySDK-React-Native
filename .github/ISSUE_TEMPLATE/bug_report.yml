@@ -1,45 +1,126 @@
-name: 🐛 Bug Report
-description: Report a reproducible bug or regression in Adapty SDK.
+name: 🐞 Bug Report
+description: Report a reproducible bug or regression in the Adapty SDK.
 labels: ["bug"]
 body:
-- type: markdown
-  attributes:
-    value: |
-      Please provide all the requested information. It will help us to resolve this issue faster
-- type: textarea
-  id: what-happened
-  attributes:
-    label: Description
-    description: |
-      Please provide a clear and concise description of what the bug is. Include screenshots and logs if needed
-    placeholder: Tell us what you see!
-    value: "A bug happened!"
-  validations:
-    required: true
-- type: input
-  id: version
-  attributes:
-    label: Version
-    description: What version of `react-native-adapty` are you running?
-    placeholder: v2.3.11
-  validations:
-    required: true
-- type: dropdown
-  id: browsers
-  attributes:
-    label: What platforms are you seeing the problem on?
-    multiple: true
-    options:
-      - iOS
-      - Android
-  validations:
-    required: true
-- type: textarea
-  id: logs
-  attributes:
-    label: System info
-    description: |
-      Run `npx @react-native-community/cli info`. For Expo projects, run `npx expo-env-info` and `npx expo-doctor@latest`. Execute the commands in your terminal, then copy and paste the results here.
-    render: yml
-  validations:
-    required: true
+  - type: markdown
+    attributes:
+      value: |     
+        For backend, dashboard, store integration, and other non-SDK issues, please contact
+        support@adapty.io for assistance.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Description
+      description: |
+        Please provide a clear and concise description of the bug. Include screenshots if applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Please provide clear step-by-step instructions to reproduce the issue. For build-related issues, please include your package.json file.
+      value: |
+        1. Call `await adapty.activate(...)`
+        2. Call `await adapty.getPaywall(...)`
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: |
+        Please provide a clear and concise description of the expected behavior.
+      placeholder: |
+        The paywall should load successfully without errors.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction-code
+    attributes:
+      label: Minimal reproduction code
+      description: |
+        Please provide a minimal code example that reproduces the issue
+      value: |
+        import { adapty } from 'react-native-adapty';
+        
+        // Enable verbose logging before activation
+        adapty.setLogLevel('verbose');
+        
+        // Activate SDK
+        await adapty.activate('YOUR_API_KEY');
+        
+        // Your code that reproduces the issue
+
+      render: typescript
+    validations:
+      required: false
+  - type: textarea
+    id: verbose-logs
+    attributes:
+      label: Verbose Logs
+      description: |
+        Logs are very helpful for troubleshooting issues. To enable Adapty debug logging, use `adapty.setLogLevel('verbose')` before SDK activation. Filter for `adapty` logs in DevTools, then right click and save as. You may need to remove sensitive information.
+        If logs are too large or contain sensitive information, you can send them to support@adapty.io and include a link to this GitHub issue.
+      placeholder: |
+        App.tsx:31 [2025-11-12T18:38:20.883Z] [adapty@3.11.1] "activate": Calling method... 
+        App.tsx:31 [2025-11-12T18:38:20.898Z] [adapty@3.11.1] "isActivated": Calling method... Object[[Prototype]]: Object
+        App.tsx:31 [2025-11-12T18:38:20.905Z] [adapty@3.11.1] "fetch/is_activated": Calling bridge function... 
+        Home.tsx:74 [2025-11-12T18:38:21.303Z] [adapty@3.11.1] "isActivated": Calling method... Object
+        Home.tsx:74 [2025-11-12T18:38:21.303Z] [adapty@3.11.1] "fetch/is_activated": Calling bridge function... Object
+      render: shell
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Adapty SDK Version
+      description: What version of `react-native-adapty` are you running?
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: rn-version
+    attributes:
+      label: React Native Version
+      description: What version of React Native are you using?
+      placeholder: 0.70.0
+    validations:
+      required: true
+  - type: input
+    id: expo-version
+    attributes:
+      label: Expo Version
+      description: What version of Expo are you using? (Leave empty if not using Expo)
+      placeholder: 50.0.0
+    validations:
+      required: false
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: What platforms are you seeing the problem on?
+      multiple: false
+      options:
+        - iOS
+        - Android
+        - Both
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device/Simulator
+      placeholder: iPhone 15 / Pixel 7 / iOS Simulator
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: System info
+      description: |
+        Run `npx @react-native-community/cli info`. For Expo projects, run `npx expo-env-info` and `npx expo-doctor@latest`. Execute the commands in your terminal, then copy and paste the results here.
+      render: shell
+    validations:
+      required: true
