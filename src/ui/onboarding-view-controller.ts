@@ -144,7 +144,8 @@ export class OnboardingViewController {
   /**
    * Presents an onboarding view as a modal
    *
-   * @param {AdaptyIOSPresentationStyle} [iosPresentationStyle] - iOS presentation style.
+   * @param {Object} options - Presentation options
+   * @param {AdaptyIOSPresentationStyle} [options.iosPresentationStyle] - iOS presentation style.
    * Available options: 'full_screen' (default) or 'page_sheet'.
    * Only affects iOS platform.
    *
@@ -155,12 +156,15 @@ export class OnboardingViewController {
    * @throws {AdaptyError}
    */
   public async present(
-    iosPresentationStyle?: AdaptyIOSPresentationStyle,
+    options: { iosPresentationStyle?: AdaptyIOSPresentationStyle } = {},
   ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'present' });
-    log.start({ _id: this.id, iosPresentationStyle });
+    log.start({
+      _id: this.id,
+      iosPresentationStyle: options.iosPresentationStyle,
+    });
 
     if (this.id === null) {
       log.failed({ error: 'no _id' });
@@ -171,7 +175,7 @@ export class OnboardingViewController {
     const requestData: Req['AdaptyUIPresentOnboardingView.Request'] = {
       method: methodKey,
       id: this.id,
-      ios_presentation_style: iosPresentationStyle ?? 'full_screen',
+      ios_presentation_style: options.iosPresentationStyle ?? 'full_screen',
     };
 
     const body = JSON.stringify(requestData);
