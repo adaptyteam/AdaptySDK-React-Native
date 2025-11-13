@@ -1,10 +1,10 @@
 PODS:
-  - Adapty (3.12.0)
-  - AdaptyPlugin (3.12.0):
-    - Adapty (= 3.12.0)
-    - AdaptyUI (= 3.12.0)
-  - AdaptyUI (3.12.0):
-    - Adapty (= 3.12.0)
+  - Adapty (3.12.1)
+  - AdaptyPlugin (3.12.1):
+    - Adapty (= 3.12.1)
+    - AdaptyUI (= 3.12.1)
+  - AdaptyUI (3.12.1):
+    - Adapty (= 3.12.1)
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
   - fast_float (8.0.0)
@@ -1654,10 +1654,10 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
-  - react-native-adapty-sdk (3.11.1):
-    - Adapty (= 3.12.0)
-    - AdaptyPlugin (= 3.12.0)
-    - AdaptyUI (= 3.12.0)
+  - react-native-adapty-sdk (3.12.0):
+    - Adapty (= 3.12.1)
+    - AdaptyPlugin (= 3.12.1)
+    - AdaptyUI (= 3.12.1)
     - React
   - react-native-safe-area-context (5.4.1):
     - boost
@@ -2527,9 +2527,9 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Adapty: 93144ce2aa735e10bdb2b1012b9dea923a82543f
-  AdaptyPlugin: 22451b2141a877bd39fdab1f5e2d78140447e73e
-  AdaptyUI: a9fff903ead19ccf09861bc65a72e9a8eb012017
+  Adapty: c167ab592afef68b615dc6d87d6c4e9c44d2029c
+  AdaptyPlugin: 7d1b2c358d4d8d4c380cc019bf80a329abd10799
+  AdaptyUI: 6afd269252b0210cb5295483e8c0158b70dbefda
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
@@ -2570,7 +2570,7 @@ SPEC CHECKSUMS:
   React-logger: b69e65dc60f768e5509ac0cc27a360124bf70478
   React-Mapbuffer: b48f9f3311fd0ec0f7a5dc39d707eff521fb5f38
   React-microtasksnativemodule: d8568d0485a350c720c061ae835e09fc88c28715
-  react-native-adapty-sdk: aebe3ba3608397afbc4ddc781427d222a7434a23
+  react-native-adapty-sdk: 76cdf2e56cf85fb1a1bdd299280af504a7ac535d
   react-native-safe-area-context: 6775aa9089fa84b77abd7ebdcf45e224a2a2ad3e
   React-NativeModulesApple: f10596688a03af66804cfbe61792be24a7888da8
   React-oscompat: 7c0a341cc31e350da71ddf2e46de0a845d1d1626
