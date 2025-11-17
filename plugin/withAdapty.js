@@ -28,7 +28,17 @@ const withAdapty = (config, { replaceAndroidBackupConfig = false } = {}) => {
     // Apply backup rules with tools:replace to override any existing rules
     mainApplication.$['android:fullBackupContent'] = BACKUP_RULES_PATH;
     mainApplication.$['android:dataExtractionRules'] = EXTRACTION_RULES_PATH;
-    mainApplication.$['tools:replace'] = 'android:fullBackupContent,android:dataExtractionRules';
+    
+    // Merge tools:replace with existing values to avoid overwriting other attributes
+    const requiredReplaceAttrs = ['android:fullBackupContent', 'android:dataExtractionRules'];
+    const existingReplace = mainApplication.$['tools:replace'];
+    if (existingReplace) {
+      const existingAttrs = existingReplace.split(',').map(attr => attr.trim());
+      const mergedAttrs = [...new Set([...existingAttrs, ...requiredReplaceAttrs])];
+      mainApplication.$['tools:replace'] = mergedAttrs.join(',');
+    } else {
+      mainApplication.$['tools:replace'] = requiredReplaceAttrs.join(',');
+    }
     
     console.log('[react-native-adapty] Successfully applied Android backup rules');
     return config;
