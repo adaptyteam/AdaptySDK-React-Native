@@ -29,22 +29,6 @@ export class AdaptyConfigurationCoder {
 
     config['server_cluster'] = params.serverCluster ?? 'default';
 
-    if (params.backendBaseUrl) {
-      config['backend_base_url'] = params.backendBaseUrl;
-    }
-
-    if (params.backendFallbackBaseUrl) {
-      config['backend_fallback_base_url'] = params.backendFallbackBaseUrl;
-    }
-
-    if (params.backendConfigsBaseUrl) {
-      config['backend_configs_base_url'] = params.backendConfigsBaseUrl;
-    }
-
-    if (params.backendUABaseUrl) {
-      config['backend_ua_base_url'] = params.backendUABaseUrl;
-    }
-
     if (params.backendProxyHost) {
       config['backend_proxy_host'] = params.backendProxyHost;
     }

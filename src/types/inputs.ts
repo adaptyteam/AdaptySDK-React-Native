@@ -118,10 +118,6 @@ export interface ActivateParamsInput {
   logLevel?: LogLevel;
 
   serverCluster?: 'default' | 'eu' | 'cn';
-  backendBaseUrl?: string;
-  backendFallbackBaseUrl?: string;
-  backendConfigsBaseUrl?: string;
-  backendUABaseUrl?: string;
   backendProxyHost?: string;
   backendProxyPort?: number;
   activateUi?: boolean;
