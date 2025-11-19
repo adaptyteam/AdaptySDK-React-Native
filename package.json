@@ -90,5 +90,9 @@
   "peerDependencies": {
     "react-native": ">= 0.73.0"
   },
-  "peerDependenciesMeta": {}
+  "peerDependenciesMeta": {},
+  "resolutions": {
+    "@jest/reporters/strip-ansi": "6.0.1",
+    "string-length/strip-ansi": "6.0.1"
+  }
 }
