@@ -29,7 +29,7 @@ const withAdapty = (config, { replaceAndroidBackupConfig = false } = {}) => {
     mainApplication.$['android:fullBackupContent'] = BACKUP_RULES_PATH;
     mainApplication.$['android:dataExtractionRules'] = EXTRACTION_RULES_PATH;
     
-    // Merge tools:replace with existing values to avoid overwriting other attributes
+    // Merge tools:replace with existing values from other plugins to avoid overwriting other attributes
     const requiredReplaceAttrs = ['android:fullBackupContent', 'android:dataExtractionRules'];
     const existingReplace = mainApplication.$['tools:replace'];
     if (existingReplace) {

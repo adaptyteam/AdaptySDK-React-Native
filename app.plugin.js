@@ -1,2 +1,2 @@
-module.exports = require('./plugin/withAdapty');
+module.exports = require('./plugin/with-adapty');
 
