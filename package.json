@@ -31,6 +31,8 @@
     "!android/gradle",
     "!android/gradlew*",
     "!android/local.properties",
+    "plugin/",
+    "app.plugin.js",
     "!**/.*"
   ],
   "main": "dist/index.js",
@@ -56,6 +58,8 @@
     "@babel/plugin-proposal-export-namespace-from": "7.10.4",
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-typescript": "^7.22.5",
+    "@expo/config-plugins": "^54.0.2",
+    "@react-native/babel-preset": "^0.80.0",
     "@types/jest": "^29.5.3",
     "@types/node": "^18.10.0",
     "@types/react": "^19.1.0",
@@ -65,9 +69,9 @@
     "bun-types": "^0.5.7",
     "eslint": "8.46.0",
     "eslint-config-prettier": "8.8.0",
+    "expo": "^54.0.25",
     "husky": "^8.0.1",
     "jest": "^29.3.1",
-    "@react-native/babel-preset": "^0.80.0",
     "prettier": "3.0.0",
     "prettier-plugin-sort-json": "^1.0.0",
     "prompt-sync": "^4.2.0",
@@ -86,5 +90,9 @@
   "peerDependencies": {
     "react-native": ">= 0.73.0"
   },
-  "peerDependenciesMeta": {}
+  "peerDependenciesMeta": {},
+  "resolutions": {
+    "@jest/reporters/strip-ansi": "6.0.1",
+    "string-length/strip-ansi": "6.0.1"
+  }
 }
