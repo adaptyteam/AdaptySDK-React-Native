@@ -590,6 +590,7 @@ export interface components {
       apple_idfa_collection_disabled?: boolean;
       google_adid_collection_disabled?: boolean;
       google_enable_pending_prepaid_plans?: boolean;
+      google_local_access_level_allowed?: boolean;
       ip_address_collection_disabled?: boolean;
       server_cluster?: 'default' | 'eu' | 'cn';
       backend_proxy_host?: string;
