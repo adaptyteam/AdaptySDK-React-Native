@@ -216,7 +216,7 @@ jobs:
     - name: Install CocoaPods
       run: |
         cd examples/AdaptyDevtools/ios
-        pod install
+        pod install --repo-update
 
     - name: Cache Xcode Derived Data
       uses: actions/cache@v4
