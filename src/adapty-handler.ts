@@ -1,6 +1,6 @@
 import { Platform, EmitterSubscription } from 'react-native';
 
-import { $bridge } from '@/bridge';
+import { $bridge, initBridge } from '@/bridge';
 import { LogContext, Log, LogScope } from '@/logger';
 import type { Def, Req } from '@/types/schema';
 
@@ -22,6 +22,7 @@ import {
 } from '@/types';
 import { AdaptyError } from './adapty-error';
 import { IdentifyParamsInput } from '@/types/inputs';
+import { shouldEnableMock } from '@/utils';
 
 /**
  * Entry point for the Adapty SDK.
@@ -176,6 +177,13 @@ export class Adapty {
     apiKey: string,
     params: Input.ActivateParamsInput = {},
   ): Promise<void> {
+    // Initialize bridge with mock or native handler based on __enableMock flag
+    // If __enableMock is not provided, use shouldEnableMock() detection
+    const enableMock = params.__enableMock ?? shouldEnableMock();
+    if (enableMock) {
+      initBridge(enableMock, params.__mockConfig);
+    }
+
     // call before log ctx calls, so no logs are lost
     const logLevel = params.logLevel;
     Log.logLevel = logLevel || null;

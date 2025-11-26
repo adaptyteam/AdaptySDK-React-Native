@@ -3,8 +3,13 @@ import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyOnboarding } from '@/types';
 import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
 import { generateId } from '@/utils/generate-id';
-import { OnboardingEventHandlers } from './types';
+import { shouldEnableMock } from '@/utils';
+import {
+  OnboardingEventHandlers,
+  NativeAdaptyOnboardingViewProps,
+} from './types';
 import { setEventHandlers } from './onboarding-view-controller';
+import { AdaptyOnboardingViewMock } from './AdaptyOnboardingView.mock';
 
 export type Props = ViewProps & {
   onboarding: AdaptyOnboarding;
@@ -22,13 +27,9 @@ export type Props = ViewProps & {
   eventHandlers?: Partial<OnboardingEventHandlers>;
 };
 
-type NativeOnboardingViewProps = ViewProps & {
-  viewId: string;
-  onboardingJson: string;
-};
-
-const NativeAdaptyOnboardingView =
-  requireNativeComponent<NativeOnboardingViewProps>('AdaptyOnboardingView');
+const NativeAdaptyOnboardingView = shouldEnableMock()
+  ? AdaptyOnboardingViewMock
+  : requireNativeComponent<NativeAdaptyOnboardingViewProps>('AdaptyOnboardingView');
 
 const AdaptyOnboardingViewComponent: React.FC<Props> = ({
   onboarding,

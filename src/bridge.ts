@@ -1,5 +1,7 @@
+import { EmitterSubscription } from 'react-native';
 import { NativeRequestHandler } from '@/native-request-handler';
-
+import { MockRequestHandler } from '@/mock';
+import type { AdaptyMockConfig } from '@/mock/types';
 import type { MethodName } from '@/types/bridge';
 
 /**
@@ -13,6 +15,55 @@ import type { MethodName } from '@/types/bridge';
  */
 export const MODULE_NAME = 'RNAdapty';
 
-export const $bridge = new NativeRequestHandler<MethodName, string>(
-  MODULE_NAME,
-);
+/**
+ * Internal bridge handler - can be either Native or Mock depending on configuration
+ */
+let _bridge:
+  | NativeRequestHandler<MethodName, string>
+  | MockRequestHandler<MethodName, string>
+  | null = null;
+
+/**
+ * Initialize bridge with either native or mock handler
+ * @param enableMock - Whether to use mock mode
+ * @param mockConfig - Configuration for mock mode
+ */
+export function initBridge(
+  enableMock: boolean = false,
+  mockConfig?: AdaptyMockConfig,
+): void {
+  if (enableMock) {
+    _bridge = new MockRequestHandler<MethodName, string>(mockConfig);
+  } else {
+    _bridge = new NativeRequestHandler<MethodName, string>(MODULE_NAME);
+  }
+}
+
+/**
+ * Bridge handler - automatically initializes with native handler if not yet initialized
+ * For mock mode, call initBridge(true) in activate() before using
+ */
+export const $bridge = {
+  get request() {
+    if (!_bridge) initBridge(false);
+    return _bridge!.request.bind(_bridge);
+  },
+  addEventListener<Event extends string, CallbackData>(
+    event: Event,
+    cb: (this: { rawValue: any }, data: CallbackData) => void | Promise<void>,
+  ): EmitterSubscription {
+    if (!_bridge) initBridge(false);
+    return _bridge!.addEventListener(event, cb);
+  },
+  addRawEventListener<
+    Event extends string,
+    Cb extends (event: any) => void | Promise<void>,
+  >(event: Event, cb: Cb): EmitterSubscription {
+    if (!_bridge) initBridge(false);
+    return _bridge!.addRawEventListener(event, cb);
+  },
+  removeAllEventListeners(): void {
+    if (!_bridge) initBridge(false);
+    return _bridge!.removeAllEventListeners();
+  },
+};
