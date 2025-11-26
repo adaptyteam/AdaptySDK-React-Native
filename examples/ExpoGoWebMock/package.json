@@ -3,17 +3,25 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "expo start --go",
+    "web": "expo start --web",
+    "local-build-client": "expo start --dev-client",
+    "local-build-ios": "expo run:ios",
+    "local-build-android": "expo run:android",
+    "preview-ios": "expo run:ios --configuration Release",
+    "preview-android": "expo run:android --variant release",
+    "tsc": "tsc --noEmit",
+    "update-sdk-full": "../../scripts/build_and_install_pack.zsh"
   },
   "dependencies": {
     "expo": "~54.0.25",
+    "expo-dev-client": "^6.0.18",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-adapty": "^3.11.4",
+    "react-native-safe-area-context": "^5.5.2",
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {
