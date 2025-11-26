@@ -590,12 +590,9 @@ export interface components {
       apple_idfa_collection_disabled?: boolean;
       google_adid_collection_disabled?: boolean;
       google_enable_pending_prepaid_plans?: boolean;
+      google_local_access_level_allowed?: boolean;
       ip_address_collection_disabled?: boolean;
       server_cluster?: 'default' | 'eu' | 'cn';
-      backend_base_url?: string;
-      backend_fallback_base_url?: string;
-      backend_configs_base_url?: string;
-      backend_ua_base_url?: string;
       backend_proxy_host?: string;
       backend_proxy_port?: number;
       log_level?: components['defs']['AdaptyLog.Level'];
