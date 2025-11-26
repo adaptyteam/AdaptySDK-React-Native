@@ -20,7 +20,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
-    "react-native-adapty": "^3.11.4",
+    "react-native-adapty": "git+https://github.com/adaptyteam/AdaptySDK-React-Native#404ed66db39b5f46724d9c67b40377769428280c",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-web": "^0.21.0"
   },
