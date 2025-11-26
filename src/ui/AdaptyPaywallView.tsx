@@ -4,8 +4,14 @@ import { AdaptyPaywall } from '@/types';
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
 import { generateId } from '@/utils/generate-id';
-import { CreatePaywallViewParamsInput, EventHandlers } from './types';
+import { shouldEnableMock } from '@/utils';
+import {
+  CreatePaywallViewParamsInput,
+  EventHandlers,
+  NativeAdaptyPaywallViewProps,
+} from './types';
 import { setEventHandlers, DEFAULT_PARAMS } from './view-controller';
+import { AdaptyPaywallViewMock } from './AdaptyPaywallView.mock';
 
 export type Props = ViewProps & {
   paywall: AdaptyPaywall;
@@ -28,13 +34,9 @@ export type Props = ViewProps & {
   onUrlPress?: EventHandlers['onUrlPress'];
 };
 
-type NativeAdaptyPaywallViewProps = ViewProps & {
-  viewId: string;
-  paywallJson: string;
-};
-
-const NativeAdaptyPaywallView =
-  requireNativeComponent<NativeAdaptyPaywallViewProps>('AdaptyPaywallView');
+const NativeAdaptyPaywallView = shouldEnableMock()
+  ? AdaptyPaywallViewMock
+  : requireNativeComponent<NativeAdaptyPaywallViewProps>('AdaptyPaywallView');
 
 const AdaptyPaywallViewComponent: React.FC<Props> = ({
   paywall,

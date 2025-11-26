@@ -1,4 +1,5 @@
 import { AdaptyUiMediaCache } from '@/ui/types';
+import type { AdaptyMockConfig } from '@/mock/types';
 /**
  * Log levels for the SDK
  *
@@ -144,6 +145,20 @@ export interface ActivateParamsInput {
    * @defaultValue `false`
    */
   ipAddressCollectionDisabled?: boolean;
+  /**
+   * Enables mock mode for web platform
+   * @remarks
+   * When enabled, SDK will use mock implementations instead of native modules.
+   * Useful for Expo Web and testing.
+   * @defaultValue `false`
+   */
+  __enableMock?: boolean;
+  /**
+   * Configuration for mock mode
+   * @remarks
+   * Allows customization of mock data returned by the SDK.
+   */
+  __mockConfig?: AdaptyMockConfig;
   ios?: {
     /**
      * Disables IDFA collection
