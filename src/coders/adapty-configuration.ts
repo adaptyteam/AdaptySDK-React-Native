@@ -63,6 +63,8 @@ export class AdaptyConfigurationCoder {
         params.android?.adIdCollectionDisabled ?? false;
       config['google_enable_pending_prepaid_plans'] =
         params.android?.pendingPrepaidPlansEnabled ?? false;
+      config['google_local_access_level_allowed'] =
+        params.android?.localAccessLevelAllowed ?? false;
       if (params.android?.obfuscatedAccountId) {
         config['customer_identity_parameters'] = {
           obfuscated_account_id: params.android.obfuscatedAccountId,

@@ -55,6 +55,7 @@ describe('AdaptyConfigurationCoder', () => {
         adIdCollectionDisabled: true,
         obfuscatedAccountId: 'id123',
         pendingPrepaidPlansEnabled: true,
+        localAccessLevelAllowed: true,
       },
     };
 
@@ -108,6 +109,7 @@ describe('AdaptyConfigurationCoder', () => {
         adIdCollectionDisabled: true,
         obfuscatedAccountId: 'id123',
         pendingPrepaidPlansEnabled: true,
+        localAccessLevelAllowed: true,
       },
     };
 
@@ -129,6 +131,7 @@ describe('AdaptyConfigurationCoder', () => {
       backend_proxy_port: 8080,
       activate_ui: false,
       google_enable_pending_prepaid_plans: true,
+      google_local_access_level_allowed: true,
       media_cache: {
         memory_storage_total_cost_limit: 50 * 1024 * 1024,
         memory_storage_count_limit: 1000,
