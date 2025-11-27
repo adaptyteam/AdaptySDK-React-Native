@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+  <cloud-backup>
+    <!-- Exclude Adapty data (from adapty android-sdk) -->
+    <exclude domain="sharedpref" path="AdaptySDKPrefs.xml"/>
+    <!-- Exclude SecureStore data (from expo-secure-store) -->
+    <exclude domain="sharedpref" path="SecureStore"/>
+    <!-- Exclude AppsFlyer data -->
+    <exclude domain="sharedpref" path="appsflyer-data"/>
+  </cloud-backup>
+  
+  <device-transfer>
+    <!-- Exclude Adapty data (from adapty android-sdk) -->
+    <exclude domain="sharedpref" path="AdaptySDKPrefs.xml"/>
+    <!-- Exclude SecureStore data (from expo-secure-store) -->
+    <exclude domain="sharedpref" path="SecureStore"/>
+    <!-- Exclude AppsFlyer data -->
+    <exclude domain="sharedpref" path="appsflyer-data"/>
+  </device-transfer>
+</data-extraction-rules>
+

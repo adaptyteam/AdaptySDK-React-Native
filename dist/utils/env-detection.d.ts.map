@@ -1,0 +1,1 @@
+{"version":3,"file":"env-detection.d.ts","sourceRoot":"","sources":["../../src/utils/env-detection.ts"],"names":[],"mappings":"AAEA,OAAO,CAAC,MAAM,CAAC;IACb,IAAI,IAAI,EAAE;QACR,OAAO,CAAC,EAAE;YACR,MAAM,CAAC,EAAE,OAAO,CAAC;SAClB,CAAC;KACH,CAAC;CACH;AAED;;GAEG;AACH,wBAAgB,iBAAiB,IAAI,OAAO,CAE3C;AAED;;;;;;GAMG;AACH,wBAAgB,gBAAgB,IAAI,OAAO,CAE1C"}

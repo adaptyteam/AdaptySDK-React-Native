@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json.schemastore.org/package",
+  "name": "react-native-adapty",
+  "version": "3.14.1-rc.1",
+  "description": "Adapty React Native SDK",
+  "license": "MIT",
+  "author": "Adapty team <support@adapty.io>",
+  "packageManager": "yarn@1.22.19",
+  "keywords": [
+    "react-native",
+    "adapty",
+    "purchases",
+    "in-apps",
+    "subscriptions"
+  ],
+  "repository": "https://github.com/adaptyteam/AdaptySDK-React-Native",
+  "homepage": "https://adapty.io/docs/react-native-sdk-overview",
+  "bugs": {
+    "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
+  },
+  "files": [
+    "src/",
+    "dist/",
+    "ios/",
+    "!ios/build",
+    "!ios/RNAdapty.xcodeproj/project.xcworkspace",
+    "!ios/RNAdapty.xcodeproj/xcuserdata",
+    "*.podspec",
+    "android/",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew*",
+    "!android/local.properties",
+    "plugin/",
+    "app.plugin.js",
+    "!**/.*"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc -p tsconfig.build.json && yarn run tsc-alias -p tsconfig.build.json",
+    "clean": "./scripts/clean.sh",
+    "format": "prettier ./src -w --plugin=prettier-plugin-sort-json",
+    "format-check": "prettier ./src --check --plugin=prettier-plugin-sort-json",
+    "lint": "eslint ./src --ext .ts",
+    "test": "jest",
+    "tsc": "tsc --noEmit",
+    "update-versions": "node ./scripts/update_versions.cjs",
+    "publish-git": "./scripts/git-package_publish.zsh",
+    "prepack": "yarn update-versions && yarn format-check && yarn tsc && yarn lint && yarn test && yarn build",
+    "prepublishOnly": "yarn prepack",
+    "doc-gen": "typedoc --out docs src/__docs__.ts"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.9",
+    "@babel/helper-explode-assignable-expression": "^7.18.6",
+    "@babel/plugin-proposal-export-default-from": "7.10.4",
+    "@babel/plugin-proposal-export-namespace-from": "7.10.4",
+    "@babel/preset-env": "^7.22.9",
+    "@babel/preset-typescript": "^7.22.5",
+    "@expo/config-plugins": "^54.0.2",
+    "@react-native/babel-preset": "^0.80.0",
+    "@types/jest": "^29.5.3",
+    "@types/node": "^18.10.0",
+    "@types/react": "^19.1.0",
+    "@typescript-eslint/eslint-plugin": "5.59.6",
+    "@typescript-eslint/parser": "5.59.6",
+    "babel-jest": "^29.6.2",
+    "bun-types": "^0.5.7",
+    "eslint": "8.46.0",
+    "eslint-config-prettier": "8.8.0",
+    "expo": "^54.0.25",
+    "husky": "^8.0.1",
+    "jest": "^29.3.1",
+    "prettier": "3.0.0",
+    "prettier-plugin-sort-json": "^1.0.0",
+    "prompt-sync": "^4.2.0",
+    "react": "19.1.0",
+    "react-native": "0.80.0",
+    "react-native-testing-library": "^6.0.0",
+    "react-test-renderer": "19.1.0",
+    "ts-jest": "^29.1.1",
+    "tsc-alias": "^1.8.7",
+    "typedoc": "0.28.13",
+    "typescript": "5.1.6"
+  },
+  "dependencies": {
+    "tslib": "^2.5.0"
+  },
+  "peerDependencies": {
+    "react-native": ">= 0.73.0"
+  },
+  "peerDependenciesMeta": {},
+  "resolutions": {
+    "@jest/reporters/strip-ansi": "6.0.1",
+    "string-length/strip-ansi": "6.0.1"
+  }
+}
