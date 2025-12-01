@@ -1,5 +1,3 @@
-import { ViewEmitter } from './view-emitter';
-
 import {
   AdaptyIOSPresentationStyle,
   AdaptyUiDialogActionType,
@@ -9,6 +7,7 @@ import {
   DEFAULT_EVENT_HANDLERS,
   EventHandlers,
 } from './types';
+import { ViewEmitter } from './view-emitter';
 import { AdaptyPaywall } from '@/types';
 import { LogContext, LogScope } from '@/logger';
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
@@ -24,38 +23,6 @@ export const DEFAULT_PARAMS: CreatePaywallViewParamsInput = {
   prefetchProducts: true,
   loadTimeoutMs: 5000,
 };
-
-/**
- * Set paywall view event handlers without using the controller class.
- * Returns a function that unsubscribes all listeners.
- * @private
- */
-export function setEventHandlers(
-  eventHandlers: Partial<EventHandlers>,
-  viewId: string,
-  onRequestClose?: () => Promise<void>,
-): () => void {
-  const finalEventHandlers: Partial<EventHandlers> = {
-    ...DEFAULT_EVENT_HANDLERS,
-    ...eventHandlers,
-  };
-
-  const requestClose: () => Promise<void> = onRequestClose ?? (async () => {});
-  const viewEmitter = new ViewEmitter(viewId);
-
-  Object.keys(finalEventHandlers).forEach(eventStr => {
-    const event = eventStr as keyof EventHandlers;
-    if (!finalEventHandlers.hasOwnProperty(event)) {
-      return;
-    }
-    const handler = finalEventHandlers[
-      event
-    ] as EventHandlers[keyof EventHandlers];
-    viewEmitter.addListener(event, handler, requestClose);
-  });
-
-  return () => viewEmitter.removeAllListeners();
-}
 
 /**
  * Provides methods to control created paywall view
@@ -112,7 +79,7 @@ export class ViewController {
   }
 
   private id: string | null; // reference to a native view. UUID
-  private unsubscribeAllListeners: null | (() => void) = null;
+  private viewEmitter: ViewEmitter | null = null;
 
   /**
    * Since constructors in JS cannot be async, it is not
@@ -218,8 +185,8 @@ export class ViewController {
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
-    if (this.unsubscribeAllListeners) {
-      this.unsubscribeAllListeners();
+    if (this.viewEmitter) {
+      this.viewEmitter.removeAllListeners();
     }
   }
 
@@ -288,7 +255,7 @@ export class ViewController {
    *
    * @remarks
    * Each event type can have only one handler — new handlers replace existing ones.
-   * Your config is merged with {@link DEFAULT_EVENT_HANDLERS} that provide default closing behavior:
+   * Default handlers are set during view creation: {@link DEFAULT_EVENT_HANDLERS}
    * - `onCloseButtonPress` - closes paywall (returns `true`)
    * - `onAndroidSystemBack` - closes paywall (returns `true`)
    * - `onRestoreCompleted` - closes paywall (returns `true`)
@@ -298,8 +265,8 @@ export class ViewController {
    * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
    * from your custom listener to retain default behavior.
    *
-   * **Important**: Calling this method multiple times will re-register ALL event handlers (both default and provided ones),
-   * not just the ones you pass. This means all previous event listeners will be replaced with the new merged set.
+   * **Important**: Calling this method multiple times will override only the handlers you provide,
+   * keeping previously set handlers intact.
    *
    * @param {Partial<EventHandlers>} [eventHandlers] - set of event handling callbacks
    * @returns {() => void} unsubscribe - function to unsubscribe all listeners
@@ -316,16 +283,24 @@ export class ViewController {
       throw this.errNoViewReference();
     }
 
-    const unsubscribe = setEventHandlers(
-      eventHandlers,
-      this.id,
-      this.onRequestClose,
-    );
+    // Create viewEmitter on first call
+    if (!this.viewEmitter) {
+      this.viewEmitter = new ViewEmitter(this.id);
+    }
 
-    // expose to class to be able to unsubscribe on dismiss
-    this.unsubscribeAllListeners = unsubscribe;
+    // Register only provided handlers (they will replace existing ones for same events)
+    Object.keys(eventHandlers).forEach(eventStr => {
+      const event = eventStr as keyof EventHandlers;
+      if (!eventHandlers.hasOwnProperty(event)) {
+        return;
+      }
+      const handler = eventHandlers[
+        event
+      ] as EventHandlers[keyof EventHandlers];
+      this.viewEmitter!.addListener(event, handler, this.onRequestClose);
+    });
 
-    return unsubscribe;
+    return () => this.viewEmitter?.removeAllListeners();
   }
 
   private errNoViewReference(): AdaptyError {
