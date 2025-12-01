@@ -8,6 +8,7 @@
   "packageManager": "yarn@1.22.19",
   "keywords": [
     "react-native",
+    "expo",
     "adapty",
     "purchases",
     "in-apps",
