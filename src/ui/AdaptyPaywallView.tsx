@@ -5,7 +5,8 @@ import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
 import { generateId } from '@/utils/generate-id';
 import { CreatePaywallViewParamsInput, EventHandlers } from './types';
-import { setEventHandlers, DEFAULT_PARAMS } from './view-controller';
+import { createPaywallEventHandlers } from './create-paywall-event-handlers';
+import { DEFAULT_PARAMS } from './view-controller';
 
 export type Props = ViewProps & {
   paywall: AdaptyPaywall;
@@ -114,7 +115,7 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   ]);
 
   useEffect(() => {
-    const unsubscribe = setEventHandlers(eventHandlers, uniqueViewId);
+    const unsubscribe = createPaywallEventHandlers(eventHandlers, uniqueViewId);
     return unsubscribe;
   }, [uniqueViewId, eventHandlers]);
 
