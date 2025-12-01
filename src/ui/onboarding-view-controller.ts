@@ -15,35 +15,6 @@ import { Req } from '@/types/schema';
 import { OnboardingViewEmitter } from './onboarding-view-emitter';
 
 /**
- * Set onboarding view event handlers without using the controller class.
- * Returns a function that unsubscribes all listeners.
- * @private
- */
-export function setEventHandlers(
-  eventHandlers: Partial<OnboardingEventHandlers>,
-  viewId: string,
-  onRequestClose?: () => Promise<void>,
-): () => void {
-  const finalEventHandlers: Partial<OnboardingEventHandlers> = {
-    ...DEFAULT_ONBOARDING_EVENT_HANDLERS,
-    ...eventHandlers,
-  };
-  const requestClose: () => Promise<void> = onRequestClose ?? (async () => {});
-  const viewEmitter = new OnboardingViewEmitter(viewId);
-  Object.keys(finalEventHandlers).forEach(eventStr => {
-    const event = eventStr as keyof OnboardingEventHandlers;
-    if (!finalEventHandlers.hasOwnProperty(event)) {
-      return;
-    }
-    const handler = finalEventHandlers[
-      event
-    ] as OnboardingEventHandlers[keyof OnboardingEventHandlers];
-    viewEmitter.addListener(event, handler, requestClose);
-  });
-  return () => viewEmitter.removeAllListeners();
-}
-
-/**
  * Provides methods to control created onboarding view
  * @public
  */
@@ -90,7 +61,7 @@ export class OnboardingViewController {
   }
 
   private id: string | null; // reference to a native view. UUID
-  private unsubscribeAllListeners: null | (() => void) = null;
+  private viewEmitter: OnboardingViewEmitter | null = null;
 
   /**
    * Since constructors in JS cannot be async, it is not
@@ -209,8 +180,8 @@ export class OnboardingViewController {
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
-    if (this.unsubscribeAllListeners) {
-      this.unsubscribeAllListeners();
+    if (this.viewEmitter) {
+      this.viewEmitter.removeAllListeners();
     }
   }
 
@@ -219,14 +190,14 @@ export class OnboardingViewController {
    *
    * @remarks
    * Each event type can have only one handler — new handlers replace existing ones.
-   * Your config is merged with {@link DEFAULT_ONBOARDING_EVENT_HANDLERS} that provide default closing behavior:
+   * Default handlers are set during view creation: {@link DEFAULT_ONBOARDING_EVENT_HANDLERS}
    * - `onClose` - closes onboarding view (returns `true`)
    *
    * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
    * from your custom listener to retain default behavior.
    *
-   * **Important**: Calling this method multiple times will re-register ALL event handlers (both default and provided ones),
-   * not just the ones you pass. This means all previous event listeners will be replaced with the new merged set.
+   * **Important**: Calling this method multiple times will override only the handlers you provide,
+   * keeping previously set handlers intact.
    *
    * @param {Partial<OnboardingEventHandlers>} [eventHandlers] - set of event handling callbacks
    * @returns {() => void} unsubscribe - function to unsubscribe all listeners
@@ -243,16 +214,24 @@ export class OnboardingViewController {
       throw this.errNoViewReference();
     }
 
-    const unsubscribe = setEventHandlers(
-      eventHandlers,
-      this.id,
-      this.onRequestClose,
-    );
+    // Create viewEmitter on first call
+    if (!this.viewEmitter) {
+      this.viewEmitter = new OnboardingViewEmitter(this.id);
+    }
 
-    // expose to class to be able to unsubscribe on dismiss
-    this.unsubscribeAllListeners = unsubscribe;
+    // Register only provided handlers (they will replace existing ones for same events)
+    Object.keys(eventHandlers).forEach(eventStr => {
+      const event = eventStr as keyof OnboardingEventHandlers;
+      if (!eventHandlers.hasOwnProperty(event)) {
+        return;
+      }
+      const handler = eventHandlers[
+        event
+      ] as OnboardingEventHandlers[keyof OnboardingEventHandlers];
+      this.viewEmitter!.addListener(event, handler, this.onRequestClose);
+    });
 
-    return unsubscribe;
+    return () => this.viewEmitter?.removeAllListeners();
   }
 
   private errNoViewReference(): AdaptyError {

@@ -124,16 +124,15 @@ describe('OnboardingViewController', () => {
         .mockResolvedValueOnce({ id: 'uuid-3' }) // create
         .mockResolvedValueOnce(undefined); // dismiss
 
-      const view = await OnboardingViewController.create(onboarding);
-
-      // register handlers to set unsubscribeAllListeners
-      const unsubscribeMock = jest.fn();
+      const removeAllListenersMock = jest.fn();
       (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(
         () => ({
           addListener: jest.fn(),
-          removeAllListeners: unsubscribeMock,
+          removeAllListeners: removeAllListenersMock,
         }),
       );
+
+      const view = await OnboardingViewController.create(onboarding);
       view.setEventHandlers({ onClose: () => true });
 
       await view.dismiss();
@@ -144,7 +143,7 @@ describe('OnboardingViewController', () => {
         'Void',
         expect.any(Object),
       );
-      expect(unsubscribeMock).toHaveBeenCalled();
+      expect(removeAllListenersMock).toHaveBeenCalled();
     });
 
     it('throws if id is null', async () => {
@@ -156,15 +155,10 @@ describe('OnboardingViewController', () => {
   });
 
   describe('setEventHandlers', () => {
-    it('merges defaults and subscribes per provided handlers', async () => {
+    it('registers provided handlers', async () => {
       (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
         () => ({ encode: jest.fn().mockReturnValue({}) }),
       );
-      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
-        id: 'uuid-4',
-      });
-
-      const view = await OnboardingViewController.create(onboarding);
 
       const addListener = jest.fn();
       (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(
@@ -174,10 +168,21 @@ describe('OnboardingViewController', () => {
         }),
       );
 
+      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-4',
+      });
+
+      const view = await OnboardingViewController.create(onboarding);
+
+      // OnboardingViewEmitter is created during create() with DEFAULT_ONBOARDING_EVENT_HANDLERS
+      expect(OnboardingViewEmitter).toHaveBeenCalledWith('uuid-4');
+
+      // Clear addListener calls from DEFAULT_ONBOARDING_EVENT_HANDLERS registration
+      addListener.mockClear();
+
       const handler = jest.fn(() => true);
       const unsubscribe = view.setEventHandlers({ onClose: handler });
       expect(typeof unsubscribe).toBe('function');
-      expect(OnboardingViewEmitter).toHaveBeenCalledWith('uuid-4');
       expect(addListener).toHaveBeenCalledWith(
         'onClose',
         handler,
@@ -192,6 +197,179 @@ describe('OnboardingViewController', () => {
       expect(() => fresh.setEventHandlers()).toThrow(
         'View reference not found',
       );
+    });
+
+    it('reuses same OnboardingViewEmitter and overrides handlers when called multiple times', async () => {
+      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
+        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      );
+
+      const addListener = jest.fn();
+      const removeAllListeners = jest.fn();
+
+      (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(
+        () => ({
+          addListener,
+          removeAllListeners,
+        }),
+      );
+
+      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-5',
+      });
+
+      const view = await OnboardingViewController.create(onboarding);
+
+      // OnboardingViewEmitter created once during create()
+      expect(OnboardingViewEmitter).toHaveBeenCalledTimes(1);
+      expect(OnboardingViewEmitter).toHaveBeenCalledWith('uuid-5');
+
+      // Clear for tracking subsequent calls
+      (OnboardingViewEmitter as unknown as jest.Mock).mockClear();
+      addListener.mockClear();
+
+      const firstHandler = jest.fn(() => true);
+      view.setEventHandlers({ onClose: firstHandler });
+
+      // Should NOT have created new OnboardingViewEmitter
+      expect(OnboardingViewEmitter).toHaveBeenCalledTimes(0);
+
+      // Should have called addListener for the first handler
+      expect(addListener).toHaveBeenCalledWith(
+        'onClose',
+        firstHandler,
+        expect.any(Function),
+      );
+
+      // Clear addListener call count
+      addListener.mockClear();
+
+      const secondHandler = jest.fn(() => false);
+      view.setEventHandlers({ onClose: secondHandler });
+
+      // Should still NOT have created new OnboardingViewEmitter
+      expect(OnboardingViewEmitter).toHaveBeenCalledTimes(0);
+
+      // Should have called addListener for the second handler
+      expect(addListener).toHaveBeenCalledWith(
+        'onClose',
+        secondHandler,
+        expect.any(Function),
+      );
+    });
+
+    it('replaces handler when same event is registered multiple times', async () => {
+      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
+        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      );
+
+      const handlers = new Map();
+      const addListener = jest.fn((event, callback) => {
+        handlers.set(event, callback);
+      });
+      (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(
+        () => ({
+          addListener,
+          removeAllListeners: jest.fn(),
+        }),
+      );
+
+      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-6',
+      });
+
+      const view = await OnboardingViewController.create(onboarding);
+
+      handlers.clear();
+      addListener.mockClear();
+
+      const firstHandler = jest.fn(() => true);
+      view.setEventHandlers({ onClose: firstHandler });
+
+      const secondHandler = jest.fn(() => false);
+      view.setEventHandlers({ onClose: secondHandler });
+
+      const thirdHandler = jest.fn(() => true);
+      view.setEventHandlers({ onClose: thirdHandler });
+
+      expect(addListener).toHaveBeenCalledTimes(3);
+      expect(handlers.get('onClose')).toBe(thirdHandler);
+      expect(handlers.get('onClose')).not.toBe(firstHandler);
+      expect(handlers.get('onClose')).not.toBe(secondHandler);
+
+      const currentHandler = handlers.get('onClose');
+      currentHandler();
+
+      expect(thirdHandler).toHaveBeenCalledTimes(1);
+      expect(secondHandler).not.toHaveBeenCalled();
+      expect(firstHandler).not.toHaveBeenCalled();
+    });
+
+    it('preserves default handlers when setting custom handlers for different events', async () => {
+      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
+        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      );
+
+      const handlers = new Map();
+      const addListener = jest.fn((event, callback) => {
+        handlers.set(event, callback);
+      });
+      (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(
+        () => ({
+          addListener,
+          removeAllListeners: jest.fn(),
+        }),
+      );
+
+      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-7',
+      });
+
+      const view = await OnboardingViewController.create(onboarding);
+
+      expect(handlers.has('onClose')).toBe(true);
+      const defaultOnClose = handlers.get('onClose');
+
+      addListener.mockClear();
+
+      const customCustomHandler = jest.fn();
+      view.setEventHandlers({ onCustom: customCustomHandler });
+
+      expect(handlers.get('onCustom')).toBe(customCustomHandler);
+      expect(handlers.get('onClose')).toBe(defaultOnClose);
+    });
+
+    it('registers only provided handlers without merging defaults', async () => {
+      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
+        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      );
+
+      const addListener = jest.fn();
+      (OnboardingViewEmitter as unknown as jest.Mock).mockImplementation(
+        () => ({
+          addListener,
+          removeAllListeners: jest.fn(),
+        }),
+      );
+
+      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-8',
+      });
+
+      const view = await OnboardingViewController.create(onboarding);
+
+      addListener.mockClear();
+
+      const customHandler = jest.fn(() => false);
+      view.setEventHandlers({ onClose: customHandler });
+
+      expect(addListener).toHaveBeenCalledWith(
+        'onClose',
+        customHandler,
+        expect.any(Function),
+      );
+
+      expect(addListener).toHaveBeenCalledTimes(1);
     });
   });
 });
