@@ -10,6 +10,7 @@ import { parseMethodResult } from '@/coders';
 import {
   AdaptyType,
   parseCommonEvent,
+  parseOnboardingEvent,
   parsePaywallEvent,
 } from '@/coders/parse';
 
@@ -115,11 +116,16 @@ export class NativeRequestHandler<
           const commonEvent = parseCommonEvent(event, arg, ctx);
           if (commonEvent) return commonEvent;
 
-          const paywallEvent = parsePaywallEvent(arg, ctx);
-
           try {
             rawValue = JSON.parse(arg);
           } catch {}
+
+          const onboardingEvent = parseOnboardingEvent(arg, ctx);
+          if (onboardingEvent) {
+            return onboardingEvent;
+          }
+
+          const paywallEvent = parsePaywallEvent(arg, ctx);
           return paywallEvent;
         } catch (error) {
           log.failed({ error });
