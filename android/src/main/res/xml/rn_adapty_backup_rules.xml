@@ -8,5 +8,7 @@
   
   <!-- Exclude AppsFlyer data -->
   <exclude domain="sharedpref" path="appsflyer-data"/>
+  <exclude domain="sharedpref" path="appsflyer-purchase-data"/>
+  <exclude domain="database" path="afpurchases.db"/>
 </full-backup-content>
 

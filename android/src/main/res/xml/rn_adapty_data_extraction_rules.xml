@@ -7,6 +7,8 @@
     <exclude domain="sharedpref" path="SecureStore"/>
     <!-- Exclude AppsFlyer data -->
     <exclude domain="sharedpref" path="appsflyer-data"/>
+    <exclude domain="sharedpref" path="appsflyer-purchase-data"/>
+    <exclude domain="database" path="afpurchases.db"/>
   </cloud-backup>
   
   <device-transfer>
@@ -16,6 +18,8 @@
     <exclude domain="sharedpref" path="SecureStore"/>
     <!-- Exclude AppsFlyer data -->
     <exclude domain="sharedpref" path="appsflyer-data"/>
+    <exclude domain="sharedpref" path="appsflyer-purchase-data"/>
+    <exclude domain="database" path="afpurchases.db"/>
   </device-transfer>
 </data-extraction-rules>
 
