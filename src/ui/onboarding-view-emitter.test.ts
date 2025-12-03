@@ -251,7 +251,7 @@ describe('OnboardingViewEmitter', () => {
 
         simulateNativeEvent({
           view: { id: TEST_VIEW_ID },
-          id: testActionId,
+          action_id: testActionId,
           meta: testMeta,
         });
 
@@ -273,7 +273,7 @@ describe('OnboardingViewEmitter', () => {
 
         simulateNativeEvent({
           view: { id: TEST_VIEW_ID },
-          id: testActionId,
+          action_id: testActionId,
           meta: testMeta,
         });
 
@@ -295,7 +295,7 @@ describe('OnboardingViewEmitter', () => {
 
         simulateNativeEvent({
           view: { id: TEST_VIEW_ID },
-          id: testActionId,
+          action_id: testActionId,
           meta: testMeta,
         });
 
@@ -342,7 +342,7 @@ describe('OnboardingViewEmitter', () => {
 
         simulateNativeEvent({
           view: { id: TEST_VIEW_ID },
-          id: testActionId,
+          action_id: testActionId,
           action: null, // No action object
           meta: testMeta,
         });
@@ -458,7 +458,8 @@ describe('OnboardingViewEmitter', () => {
 
       const mockData = {
         view: { id: TEST_VIEW_ID },
-        id: 'test_action',
+        id: 'onboarding_on_paywall_action', // Event type
+        action_id: 'test_action', // Custom action ID
         meta: {
           onboardingId: 'test',
           screenClientId: 'screen1',
@@ -497,7 +498,10 @@ describe('OnboardingViewEmitter', () => {
             case 'onboarding_on_close_action':
             case 'onboarding_on_custom_action':
             case 'onboarding_on_paywall_action':
-              expect(handler).toHaveBeenCalledWith(mockData.id, mockData.meta);
+              expect(handler).toHaveBeenCalledWith(
+                mockData.action_id,
+                mockData.meta,
+              );
               break;
             case 'onboarding_on_state_updated_action':
               expect(handler).toHaveBeenCalledWith(

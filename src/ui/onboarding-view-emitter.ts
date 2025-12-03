@@ -202,7 +202,7 @@ function extractCallbackArgs(
   handlerName: keyof OnboardingEventHandlers,
   eventArg: Record<string, any>,
 ): any[] {
-  const actionId = eventArg['id'] || '';
+  const actionId = eventArg['action_id'] || '';
   const meta = eventArg['meta'] || {};
   const event = eventArg['event'] || {};
   const action = eventArg['action'] || {};
