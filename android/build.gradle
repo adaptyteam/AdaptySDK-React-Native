@@ -110,7 +110,7 @@ def getExtOrDefault(name) {
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
-    api 'io.adapty:android-sdk:3.14.0'
+    api 'io.adapty:android-sdk:3.14.1'
     api 'io.adapty:android-ui:3.14.0'
     api 'io.adapty.internal:crossplatform:3.14.0'
 
