@@ -11,8 +11,15 @@ enum Log {
 
 @objc(RNAdapty)
 class RNAdapty: RCTEventEmitter {
-    // Keep a shared reference to forward events from native views
-    static var shared: RNAdapty?
+    // Thread-safe weak reference to avoid simultaneous access crashes during reload
+    private static weak var _shared: RNAdapty?
+    private static let sharedQueue = DispatchQueue(label: "io.adapty.react.shared", attributes: .concurrent)
+
+    static var shared: RNAdapty? {
+        get { sharedQueue.sync { _shared } }
+        set { sharedQueue.sync(flags: .barrier) { _shared = newValue } }
+    }
+
     // UI Thread is required to properly work with StoreKit SDK
     override static func requiresMainQueueSetup() -> Bool {
         return true
@@ -21,6 +28,7 @@ class RNAdapty: RCTEventEmitter {
     override init() {
         super.init()
         RNAdapty.shared = self
+
         Task { @MainActor in
             let assetResolver: (String) -> URL? = { @MainActor assetId in
                 return Bundle.main.url(forResource: assetId, withExtension: nil)
@@ -30,15 +38,9 @@ class RNAdapty: RCTEventEmitter {
             }
             AdaptyPlugin.register(setFallbackRequests: assetResolver)
 
-            AdaptyPlugin.register(eventHandler: SwiftAdaptyPluginEventHandler { event in
-                RNAdapty.emitPluginEvent(event)
+            AdaptyPlugin.register(eventHandler: SwiftAdaptyPluginEventHandler { [weak self] event in
+                self?.handlePluginEvent(event)
             })
-        }
-    }
-
-    deinit {
-        if RNAdapty.shared === self {
-            RNAdapty.shared = nil
         }
     }
 
@@ -90,13 +92,17 @@ class RNAdapty: RCTEventEmitter {
 
     // MARK: - Static event forwarder for native UI wrappers
     static func emitPluginEvent(_ event: AdaptyPluginEvent) {
+        shared?.handlePluginEvent(event)
+    }
+
+    private func handlePluginEvent(_ event: AdaptyPluginEvent) {
         Log.wrapper.info("[RNAdapty] Forwarding event: \(event.id)")
-        guard let emitter = RNAdapty.shared, emitter.hasListeners else {
+        guard self.hasListeners else {
             return
         }
         do {
             let eventBody = try event.asAdaptyJsonData.asAdaptyJsonString
-            emitter.sendEvent(
+            self.sendEvent(
                 withName: event.id,
                 body: eventBody
             )
