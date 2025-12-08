@@ -17,7 +17,7 @@
     "react-native": "0.82.0",
     "@react-native/new-app-screen": "0.82.0",
     "react-native-safe-area-context": "^5.5.2",
-    "react-native-adapty": "3.12.0"
+    "react-native-adapty": "3.14.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
