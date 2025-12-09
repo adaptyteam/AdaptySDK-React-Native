@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.version      = package["version"]
   s.summary      = package["description"]
   s.description  = <<-DESC
-  Pod for @adapty/react-native-sdk (previously react-native-adapty)
+                  react-native-adapty
                    DESC
   s.homepage     = "https://github.com/adaptyteam/AdaptySDK-React-Native"
   s.license      = { :type => "MIT", :file => "LICENSE" }
@@ -19,9 +19,9 @@ Pod::Spec.new do |s|
   s.resources = "ios/**/*.{plist}"
   s.requires_arc = true
 
-  s.dependency "Adapty", "3.11.0"
-  s.dependency "AdaptyUI", "3.11.0"
-  s.dependency "AdaptyPlugin", "3.11.0"
+  s.dependency "Adapty", "3.14.1"
+  s.dependency "AdaptyUI", "3.14.1"
+  s.dependency "AdaptyPlugin", "3.14.1"
   s.dependency "React"
 end
 

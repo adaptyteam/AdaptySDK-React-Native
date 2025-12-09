@@ -1,8 +1,5 @@
-import { ViewEmitter } from './view-emitter';
-import { Platform } from 'react-native';
-
 import {
-  AdaptyCustomAsset,
+  AdaptyIOSPresentationStyle,
   AdaptyUiDialogActionType,
   AdaptyUiDialogConfig,
   AdaptyUiView,
@@ -10,16 +7,22 @@ import {
   DEFAULT_EVENT_HANDLERS,
   EventHandlers,
 } from './types';
+import { ViewEmitter } from './view-emitter';
 import { AdaptyPaywall } from '@/types';
 import { LogContext, LogScope } from '@/logger';
 import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
-import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
+import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
-import { Def, Req } from '@/types/schema';
+import { Req } from '@/types/schema';
 import { AdaptyUiDialogConfigCoder } from '@/coders/adapty-ui-dialog-config';
+
+export const DEFAULT_PARAMS: CreatePaywallViewParamsInput = {
+  prefetchProducts: true,
+  loadTimeoutMs: 5000,
+};
 
 /**
  * Provides methods to control created paywall view
@@ -43,195 +46,21 @@ export class ViewController {
 
     const view = new ViewController();
 
-    const coder = new AdaptyPaywallCoder();
+    const paywallCoder = new AdaptyPaywallCoder();
+    const paramsCoder = new AdaptyUICreatePaywallViewParamsCoder();
     const methodKey = 'adapty_ui_create_paywall_view';
-    const data: Req['AdaptyUICreatePaywallView.Request'] = {
-      method: methodKey,
-      paywall: coder.encode(paywall),
-      preload_products: params.prefetchProducts ?? true,
-      load_timeout: (params.loadTimeoutMs ?? 5000) / 1000,
+
+    // Set default values for required parameters
+    const paramsWithDefaults: CreatePaywallViewParamsInput = {
+      ...DEFAULT_PARAMS,
+      ...params,
     };
 
-    if (params.customTags) {
-      data['custom_tags'] = params.customTags;
-    }
-    if (params.customTimers) {
-      const convertTimerInfo = (
-        timerInfo: Record<string, Date>,
-      ): Record<string, string> => {
-        const formatDate = (date: Date): string => {
-          const pad = (num: number, digits: number = 2): string => {
-            const str = num.toString();
-            const paddingLength = digits - str.length;
-            return paddingLength > 0 ? '0'.repeat(paddingLength) + str : str;
-          };
-
-          const year = date.getUTCFullYear();
-          const month = pad(date.getUTCMonth() + 1);
-          const day = pad(date.getUTCDate());
-          const hours = pad(date.getUTCHours());
-          const minutes = pad(date.getUTCMinutes());
-          const seconds = pad(date.getUTCSeconds());
-          const millis = pad(date.getUTCMilliseconds(), 3);
-
-          return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${millis}Z`;
-        };
-
-        const result: Record<string, string> = {};
-        for (const key in timerInfo) {
-          if (timerInfo.hasOwnProperty(key)) {
-            const date = timerInfo[key];
-            if (date instanceof Date) {
-              result[key] = formatDate(date);
-            }
-          }
-        }
-        return result;
-      };
-      data['custom_timers'] = convertTimerInfo(params.customTimers);
-    }
-
-    if (params.customAssets) {
-      const argbToHex = (value: number): string => {
-        const hex = value.toString(16).padStart(8, '0');
-        return `#${hex.slice(2)}${hex.slice(0, 2)}`;
-      };
-      const rgbaToHex = (value: number): string => {
-        return `#${value.toString(16).padStart(8, '0')}`;
-      };
-      const rgbToHex = (value: number): string => {
-        return `#${value.toString(16).padStart(6, '0')}FF`;
-      };
-      const extractBase64Data = (input: string): string => {
-        const commaIndex = input.indexOf(',');
-        if (input.startsWith('data:') && commaIndex !== -1) {
-          return input.slice(commaIndex + 1);
-        }
-        return input;
-      };
-
-      const getAssetId = (asset: any): string => {
-        if ('relativeAssetPath' in asset) {
-          return Platform.select({
-            ios: asset.relativeAssetPath,
-            android: `${asset.relativeAssetPath}a`,
-          });
-        }
-
-        if ('fileLocation' in asset) {
-          const fileLocation = asset.fileLocation;
-          return Platform.select({
-            ios: fileLocation.ios.fileName,
-            android:
-              'relativeAssetPath' in fileLocation.android
-                ? `${fileLocation.android.relativeAssetPath}a`
-                : `${fileLocation.android.rawResName}r`,
-          });
-        }
-
-        return '';
-      };
-
-      const convertAssets = (
-        assets: Record<string, AdaptyCustomAsset>,
-      ): Def['AdaptyUI.CustomAssets'] => {
-        return Object.entries(assets)
-          .map(
-            ([id, asset]): Def['AdaptyUI.CustomAssets'][number] | undefined => {
-              switch (asset.type) {
-                case 'image':
-                  return 'base64' in asset
-                    ? {
-                        id,
-                        type: 'image',
-                        value: extractBase64Data(asset.base64),
-                      }
-                    : {
-                        id,
-                        type: 'image',
-                        asset_id: getAssetId(asset),
-                      };
-
-                case 'video':
-                  return {
-                    id,
-                    type: 'video',
-                    asset_id: getAssetId(asset),
-                  };
-
-                case 'color':
-                  let value: string;
-
-                  if ('argb' in asset) {
-                    value = argbToHex(asset.argb);
-                  } else if ('rgba' in asset) {
-                    value = rgbaToHex(asset.rgba);
-                  } else if ('rgb' in asset) {
-                    value = rgbToHex(asset.rgb);
-                  } else {
-                    return undefined;
-                  }
-
-                  return {
-                    id,
-                    type: 'color',
-                    value,
-                  };
-
-                case 'linear-gradient':
-                  const { values, points = {} } = asset;
-                  const { x0 = 0, y0 = 0, x1 = 1, y1 = 0 } = points;
-
-                  const colorStops = values
-                    .map(({ p, ...colorInput }) => {
-                      let color: string;
-
-                      if ('argb' in colorInput) {
-                        color = argbToHex(colorInput.argb);
-                      } else if ('rgba' in colorInput) {
-                        color = rgbaToHex(colorInput.rgba);
-                      } else if ('rgb' in colorInput) {
-                        color = rgbToHex(colorInput.rgb);
-                      } else {
-                        return undefined;
-                      }
-
-                      return { color, p };
-                    })
-                    .filter(
-                      (v): v is { color: string; p: number } => v !== undefined,
-                    );
-
-                  if (colorStops.length !== values.length) return undefined;
-
-                  return {
-                    id,
-                    type: 'linear-gradient',
-                    values: colorStops,
-                    points: { x0, y0, x1, y1 },
-                  };
-
-                default:
-                  return undefined;
-              }
-            },
-          )
-          .filter(
-            (item): item is Def['AdaptyUI.CustomAssets'][number] =>
-              item !== undefined,
-          );
-      };
-      data['custom_assets'] = convertAssets(params.customAssets);
-    }
-    if (params.productPurchaseParams) {
-      const purchaseParamsCoder = new AdaptyPurchaseParamsCoder();
-      data['product_purchase_parameters'] = Object.fromEntries(
-        params.productPurchaseParams.map(({ productId, params }) => [
-          productId.adaptyProductId,
-          purchaseParamsCoder.encode(params),
-        ]),
-      );
-    }
+    const data: Req['AdaptyUICreatePaywallView.Request'] = {
+      method: methodKey,
+      paywall: paywallCoder.encode(paywall),
+      ...paramsCoder.encode(paramsWithDefaults),
+    };
     const body = JSON.stringify(data);
 
     const result = await view.handle<AdaptyUiView>(
@@ -243,11 +72,14 @@ export class ViewController {
     );
 
     view.id = result.id;
+
+    view.setEventHandlers(DEFAULT_EVENT_HANDLERS);
+
     return view;
   }
 
   private id: string | null; // reference to a native view. UUID
-  private unsubscribeAllListeners: null | (() => void) = null;
+  private viewEmitter: ViewEmitter | null = null;
 
   /**
    * Since constructors in JS cannot be async, it is not
@@ -288,7 +120,12 @@ export class ViewController {
   }
 
   /**
-   * Presents a paywall view as a full-screen modal
+   * Presents a paywall view as a modal
+   *
+   * @param {Object} options - Presentation options
+   * @param {AdaptyIOSPresentationStyle} [options.iosPresentationStyle] - iOS presentation style.
+   * Available options: 'full_screen' (default) or 'page_sheet'.
+   * Only affects iOS platform.
    *
    * @remarks
    * Calling `present` upon already visible paywall view
@@ -296,11 +133,16 @@ export class ViewController {
    *
    * @throws {AdaptyError}
    */
-  public async present(): Promise<void> {
+  public async present(
+    options: { iosPresentationStyle?: AdaptyIOSPresentationStyle } = {},
+  ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'present' });
-    log.start({ _id: this.id });
+    log.start({
+      _id: this.id,
+      iosPresentationStyle: options.iosPresentationStyle,
+    });
 
     if (this.id === null) {
       log.failed({ error: 'no _id' });
@@ -311,6 +153,7 @@ export class ViewController {
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
+      ios_presentation_style: options.iosPresentationStyle ?? 'full_screen',
     } satisfies Req['AdaptyUIPresentPaywallView.Request']);
 
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
@@ -342,17 +185,21 @@ export class ViewController {
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
-    if (this.unsubscribeAllListeners) {
-      this.unsubscribeAllListeners();
+    if (this.viewEmitter) {
+      this.viewEmitter.removeAllListeners();
     }
   }
 
   /**
-   * Presents the dialog
+   * Presents an alert dialog
    *
    * @param {AdaptyUiDialogConfig} config - A config for showing the dialog.
    *
    * @remarks
+   * Use this method instead of RN alert dialogs when paywall view is presented.
+   * On Android, built-in RN alerts appear behind the paywall view, making them invisible to users.
+   * This method ensures proper dialog presentation above the paywall on all platforms.
+   *
    * If you provide two actions in the config, be sure `primaryAction` cancels the operation
    * and leaves things unchanged.
    *
@@ -390,15 +237,25 @@ export class ViewController {
     );
   }
 
+  private onRequestClose = async (): Promise<void> => {
+    try {
+      await this.dismiss();
+    } catch (error) {
+      // Log error but don't re-throw to avoid breaking event handling
+      const ctx = new LogContext();
+      const log = ctx.call({ methodName: 'onRequestClose' });
+      log.failed({ error, message: 'Failed to dismiss paywall' });
+    }
+  };
+
   /**
-   * Creates a set of specific view event listeners
+   * Sets event handlers for paywall view events
    *
-   * @see {@link https://docs.adapty.io/docs/react-native-handling-events | [DOC] Handling View Events}
+   * @see {@link https://adapty.io/docs/react-native-handling-events-1 | [DOC] Handling View Events}
    *
    * @remarks
-   * It registers only requested set of event handlers.
-   * Your config is assigned into five event listeners {@link DEFAULT_EVENT_HANDLERS},
-   * that handle default behavior.
+   * Each event type can have only one handler — new handlers replace existing ones.
+   * Default handlers are set during view creation: {@link DEFAULT_EVENT_HANDLERS}
    * - `onCloseButtonPress` - closes paywall (returns `true`)
    * - `onAndroidSystemBack` - closes paywall (returns `true`)
    * - `onRestoreCompleted` - closes paywall (returns `true`)
@@ -408,54 +265,42 @@ export class ViewController {
    * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
    * from your custom listener to retain default behavior.
    *
-   * @param {Partial<EventHandlers> | undefined} [eventHandlers] - set of event handling callbacks
+   * **Important**: Calling this method multiple times will override only the handlers you provide,
+   * keeping previously set handlers intact.
+   *
+   * @param {Partial<EventHandlers>} [eventHandlers] - set of event handling callbacks
    * @returns {() => void} unsubscribe - function to unsubscribe all listeners
    */
-  public registerEventHandlers(
-    eventHandlers: Partial<EventHandlers> = DEFAULT_EVENT_HANDLERS,
+  public setEventHandlers(
+    eventHandlers: Partial<EventHandlers> = {},
   ): () => void {
     const ctx = new LogContext();
 
-    const log = ctx.call({ methodName: 'registerEventHandlers' });
+    const log = ctx.call({ methodName: 'setEventHandlers' });
     log.start({ _id: this.id });
 
     if (this.id === null) {
       throw this.errNoViewReference();
     }
 
-    const finalEventHandlers: Partial<EventHandlers> = {
-      ...DEFAULT_EVENT_HANDLERS,
-      ...eventHandlers,
-    };
-
-    // DIY way to tell TS that original arg should not be used
-    const deprecateVar = (_target: unknown): _target is never => true;
-    if (!deprecateVar(eventHandlers)) {
-      return () => {};
+    // Create viewEmitter on first call
+    if (!this.viewEmitter) {
+      this.viewEmitter = new ViewEmitter(this.id);
     }
 
-    const viewEmitter = new ViewEmitter(this.id);
-
-    Object.keys(finalEventHandlers).forEach(eventStr => {
+    // Register only provided handlers (they will replace existing ones for same events)
+    Object.keys(eventHandlers).forEach(eventStr => {
       const event = eventStr as keyof EventHandlers;
-
-      if (!finalEventHandlers.hasOwnProperty(event)) {
+      if (!eventHandlers.hasOwnProperty(event)) {
         return;
       }
-
-      const handler = finalEventHandlers[
+      const handler = eventHandlers[
         event
       ] as EventHandlers[keyof EventHandlers];
-
-      viewEmitter.addListener(event, handler, () => this.dismiss());
+      this.viewEmitter!.addListener(event, handler, this.onRequestClose);
     });
 
-    const unsubscribe = () => viewEmitter.removeAllListeners();
-
-    // expose to class to be able to unsubscribe on dismiss
-    this.unsubscribeAllListeners = unsubscribe;
-
-    return unsubscribe;
+    return () => this.viewEmitter?.removeAllListeners();
   }
 
   private errNoViewReference(): AdaptyError {

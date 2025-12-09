@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+  <!-- Exclude Adapty data (from adapty android-sdk) -->
+  <exclude domain="sharedpref" path="AdaptySDKPrefs.xml"/>
+  
+  <!-- Exclude SecureStore data (from expo-secure-store) -->
+  <exclude domain="sharedpref" path="SecureStore"/>
+  
+  <!-- Exclude AppsFlyer data -->
+  <exclude domain="sharedpref" path="appsflyer-data"/>
+  <exclude domain="sharedpref" path="appsflyer-purchase-data"/>
+  <exclude domain="database" path="afpurchases.db"/>
+</full-backup-content>
+

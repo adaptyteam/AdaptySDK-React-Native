@@ -46,8 +46,6 @@ describe('AdaptyPurchaseParamsCoder', () => {
                 .ChargeProratedPrice,
           },
           isOfferPersonalized: true,
-          obfuscatedAccountId: 'account_123',
-          obfuscatedProfileId: 'profile_456',
         },
       };
 
@@ -58,8 +56,6 @@ describe('AdaptyPurchaseParamsCoder', () => {
           old_sub_vendor_product_id: 'old_product_id',
         },
         is_offer_personalized: true,
-        obfuscated_account_id: 'account_123',
-        obfuscated_profile_id: 'profile_456',
       });
     });
 
@@ -83,7 +79,6 @@ describe('AdaptyPurchaseParamsCoder', () => {
                 .ChargeProratedPrice,
           },
           isOfferPersonalized: true,
-          obfuscatedAccountId: 'account_123',
         },
       };
 

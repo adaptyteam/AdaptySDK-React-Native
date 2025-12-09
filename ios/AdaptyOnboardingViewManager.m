@@ -4,6 +4,5 @@
 
 RCT_EXPORT_VIEW_PROPERTY(viewId, NSString)
 RCT_EXPORT_VIEW_PROPERTY(onboardingJson, NSString)
-RCT_EXPORT_VIEW_PROPERTY(onEvent, RCTDirectEventBlock)
 
 @end

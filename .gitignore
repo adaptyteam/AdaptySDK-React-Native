@@ -12,7 +12,6 @@ dist
 src/version.ts
 
 node_modules
-package-lock.json
 .yarn
 
 ios/build/
@@ -26,9 +25,9 @@ ios/Pods/
 android/bin/
 android/gen/
 android/out/
-gradlew*
-gradle/
-local.properties
+android/gradlew*
+android/gradle/
+android/local.properties
 build/
 *.pbxuser
 !default.pbxuser
@@ -61,3 +60,6 @@ buck-out/
 
 .tsbuildinfo
 .jest/
+
+# Docs
+docs

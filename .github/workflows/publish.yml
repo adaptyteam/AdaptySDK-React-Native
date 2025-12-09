@@ -20,10 +20,15 @@ permissions:
   contents: read
 
 jobs:
+  validation:
+    name: Run validation checks
+    uses: ./.github/workflows/pr-validation.yml
+
   publish:
     runs-on: ubuntu-24.04
     environment: publish
     name: Publish package to npm
+    needs: validation
 
     steps:
       - name: Checkout code

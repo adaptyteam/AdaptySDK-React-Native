@@ -55,6 +55,7 @@ export interface components {
     'AdaptyUIPresentPaywallView.Request': {
       method: 'adapty_ui_present_paywall_view';
       id: string;
+      ios_presentation_style?: components['defs']['AdaptyUI.IOSPresentationStyle'];
     };
 
     'AdaptyUIPresentPaywallView.Response': OneOf<
@@ -99,6 +100,7 @@ export interface components {
     'AdaptyUIPresentOnboardingView.Request': {
       method: 'adapty_ui_present_onboarding_view';
       id: string;
+      ios_presentation_style?: components['defs']['AdaptyUI.IOSPresentationStyle'];
     };
 
     'AdaptyUIPresentOnboardingView.Response': OneOf<
@@ -189,6 +191,7 @@ export interface components {
     'Identify.Request': {
       method: 'identify';
       customer_user_id: string;
+      parameters?: components['defs']['CustomerIdentityParameters'];
     };
 
     'Identify.Response': OneOf<
@@ -225,15 +228,6 @@ export interface components {
     };
 
     'Logout.Response': OneOf<
-      [{ error: components['defs']['AdaptyError'] }, { success: true }]
-    >;
-
-    'LogShowOnboarding.Request': {
-      method: 'log_show_onboarding';
-      params: components['defs']['AdaptyOnboardingScreenParameters'];
-    };
-
-    'LogShowOnboarding.Response': OneOf<
       [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
@@ -308,10 +302,7 @@ export interface components {
     };
 
     'ReportTransaction.Response': OneOf<
-      [
-        { error: components['defs']['AdaptyError'] },
-        { success: components['defs']['AdaptyProfile'] },
-      ]
+      [{ error: components['defs']['AdaptyError'] }, { success: true }]
     >;
 
     'RestorePurchases.Request': {
@@ -594,15 +585,14 @@ export interface components {
     AdaptyConfiguration: {
       api_key: string;
       customer_user_id?: string;
+      customer_identity_parameters?: components['defs']['CustomerIdentityParameters'];
       observer_mode?: boolean;
       apple_idfa_collection_disabled?: boolean;
       google_adid_collection_disabled?: boolean;
+      google_enable_pending_prepaid_plans?: boolean;
+      google_local_access_level_allowed?: boolean;
       ip_address_collection_disabled?: boolean;
       server_cluster?: 'default' | 'eu' | 'cn';
-      backend_base_url?: string;
-      backend_fallback_base_url?: string;
-      backend_configs_base_url?: string;
-      backend_ua_base_url?: string;
       backend_proxy_host?: string;
       backend_proxy_port?: number;
       log_level?: components['defs']['AdaptyLog.Level'];
@@ -616,9 +606,17 @@ export interface components {
       };
     };
 
+    CustomerIdentityParameters: {
+      app_account_token?: string;
+      obfuscated_account_id?: string;
+      obfuscated_profile_id?: string;
+    };
+
     'AdaptyPaywallProduct.Request': {
       vendor_product_id: string;
       adapty_product_id: string;
+      access_level_id: string;
+      product_type: string;
       paywall_product_index: number;
       subscription_offer_identifier?: components['defs']['AdaptySubscriptionOffer.Identifier'];
       paywall_variation_id: string;
@@ -631,6 +629,8 @@ export interface components {
     'AdaptyPaywallProduct.Response': {
       vendor_product_id: string;
       adapty_product_id: string;
+      access_level_id: string;
+      product_type: string;
       paywall_product_index: number;
       paywall_variation_id: string;
       paywall_ab_test_name: string;
@@ -674,12 +674,6 @@ export interface components {
       payment_mode: components['defs']['AdaptySubscriptionOffer.PaymentMode'];
       localized_subscription_period?: string;
       localized_number_of_periods?: string;
-    };
-
-    AdaptyOnboardingScreenParameters: {
-      onboarding_screen_order: number;
-      onboarding_name?: string;
-      onboarding_screen_name?: string;
     };
 
     AdaptyPlacement: {
@@ -741,6 +735,8 @@ export interface components {
     'AdaptyPaywall.ProductReference': {
       vendor_product_id: string;
       adapty_product_id: string;
+      access_level_id: string;
+      product_type: string;
       promotional_offer_id?: string;
       win_back_offer_id?: string;
       base_plan_id?: string;
@@ -884,6 +880,8 @@ export interface components {
         {
           type: 'success';
           profile: components['defs']['AdaptyProfile'];
+          apple_jws_transaction?: string;
+          google_purchase_token?: string;
         },
       ]
     >;
@@ -944,6 +942,8 @@ export interface components {
       [key: string]: components['defs']['AdaptyPurchaseParameters'];
     };
 
+    'AdaptyUI.IOSPresentationStyle': 'full_screen' | 'page_sheet';
+
     'AdaptyUI.DialogConfiguration': {
       default_action_title: string;
       secondary_action_title?: string;
@@ -956,8 +956,6 @@ export interface components {
     AdaptyPurchaseParameters: {
       subscription_update_params?: components['defs']['AdaptySubscriptionUpdateParameters'];
       is_offer_personalized?: boolean;
-      obfuscated_account_id?: string;
-      obfuscated_profile_id?: string;
     };
 
     AdaptySubscriptionUpdateParameters: {

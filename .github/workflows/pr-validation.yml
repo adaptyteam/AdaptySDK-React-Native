@@ -1,0 +1,280 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [ master, dev ]
+    types: [opened, synchronize, reopened]
+  workflow_call:  # Allow this workflow to be called by other workflows
+
+jobs:
+  setup:
+    runs-on: ubuntu-24.04
+    name: Setup
+    outputs:
+      cache-hit: ${{ steps.cache-node-modules.outputs.cache-hit }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Cache node_modules
+      uses: actions/cache@v4
+      id: cache-node-modules
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: yarn install --frozen-lockfile --prefer-offline
+
+  validate-pr:
+    runs-on: ubuntu-24.04
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check-type: js-checks
+            name: "JS Checks"
+          - check-type: android
+            name: "Android Build"
+    name: ${{ matrix.name }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Restore node_modules cache
+      uses: actions/cache/restore@v4
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+
+    - name: Update versions
+      if: matrix.check-type == 'js-checks'
+      run: yarn update-versions
+
+    - name: Run Prettier check
+      if: matrix.check-type == 'js-checks'
+      run: yarn format-check
+
+    - name: Run TypeScript build
+      if: matrix.check-type == 'js-checks'
+      run: yarn build
+
+    - name: Run ESLint
+      if: matrix.check-type == 'js-checks'
+      run: yarn lint
+
+    - name: Run unit tests
+      if: matrix.check-type == 'js-checks'
+      run: yarn test
+
+    - name: Setup Java
+      if: matrix.check-type == 'android'
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    # - name: Setup Android SDK
+    #   if: matrix.check-type == 'android'
+    #   uses: android-actions/setup-android@v3
+
+#    - name: Setup NDK
+#      if: matrix.check-type == 'android'
+#      uses: nttld/setup-ndk@v1
+#      with:
+#        ndk-version: r27b
+#        link-to-sdk: true
+
+    - name: Cache Gradle dependencies
+      if: matrix.check-type == 'android'
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          examples/AdaptyDevtools/android/.gradle
+        key: gradle-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/android/build.gradle', 'examples/AdaptyDevtools/android/app/build.gradle', 'examples/AdaptyDevtools/android/gradle.properties', 'examples/AdaptyDevtools/android/gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: |
+          gradle-${{ runner.os }}-
+
+    - name: Cache example app node_modules
+      if: matrix.check-type == 'android'
+      id: cache-example-node-modules
+      uses: actions/cache@v4
+      with:
+        path: examples/AdaptyDevtools/node_modules
+        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
+        restore-keys: |
+          example-node-modules-${{ runner.os }}-
+
+    - name: Install example app dependencies
+      if: matrix.check-type == 'android' && steps.cache-example-node-modules.outputs.cache-hit != 'true'
+      run: |
+        cd examples/AdaptyDevtools
+        yarn install --frozen-lockfile
+
+    - name: Build package and install
+      if: matrix.check-type == 'android'
+      run: |
+        cd examples/AdaptyDevtools
+        yarn update-sdk-full
+
+    - name: Run TypeScript check
+      if: matrix.check-type == 'android'
+      run: |
+        cd examples/AdaptyDevtools
+        yarn tsc
+
+    - name: Run Android build (debug)
+      if: matrix.check-type == 'android'
+      run: |
+        cd examples/AdaptyDevtools/android
+        ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a
+
+  build-ios:
+    runs-on: macos-15
+    name: iOS Build
+    needs: validate-pr
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Select Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+
+    - name: Cache node_modules
+      uses: actions/cache@v4
+      id: cache-node-modules
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: yarn install --frozen-lockfile --prefer-offline
+
+
+    - name: Cache example app node_modules
+      uses: actions/cache@v4
+      id: cache-example-node-modules
+      with:
+        path: examples/AdaptyDevtools/node_modules
+        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
+        restore-keys: |
+          example-node-modules-${{ runner.os }}-
+
+    - name: Install example app dependencies
+      if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
+      run: |
+        cd examples/AdaptyDevtools
+        yarn install --frozen-lockfile
+
+    - name: Build package and install
+      run: |
+        cd examples/AdaptyDevtools
+        yarn update-sdk-full
+
+    - name: Cache CocoaPods
+      uses: actions/cache@v4
+      id: cache-pods
+      with:
+        path: |
+          examples/AdaptyDevtools/ios/Pods
+          ~/Library/Caches/CocoaPods
+          ~/.cocoapods
+        key: pods-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock', 'examples/AdaptyDevtools/node_modules/react-native-adapty/react-native-adapty-sdk.podspec', 'examples/AdaptyDevtools/node_modules/react-native-adapty/ios/**/*') }}
+        restore-keys: |
+          pods-${{ runner.os }}-
+
+    - name: Install CocoaPods
+      run: |
+        cd examples/AdaptyDevtools/ios
+        pod install --repo-update
+
+    - name: Cache Xcode Derived Data
+      uses: actions/cache@v4
+      id: cache-derived-data
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          ~/Library/Caches/org.swift.swiftpm
+        key: xcode-derived-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/AdaptyRnSdkExample.xcodeproj/project.pbxproj', 'examples/AdaptyDevtools/ios/Podfile.lock') }}
+        restore-keys: |
+          xcode-derived-${{ runner.os }}-
+
+    - name: Run iOS build (debug, no signing)
+      run: |
+        cd examples/AdaptyDevtools/ios
+        xcodebuild -workspace AdaptyRnSdkExample.xcworkspace \
+          -scheme AdaptyRnSdkExample \
+          -destination "generic/platform=iOS" \
+          -skipPackagePluginValidation \
+          -configuration Debug \
+          -derivedDataPath $HOME/Library/Developer/Xcode/DerivedData \
+          ONLY_ACTIVE_ARCH=YES \
+          CODE_SIGNING_ALLOWED=NO \
+          build
+
+  auto-assign-reviewers:
+    runs-on: ubuntu-24.04
+    name: Auto-assign reviewers
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+
+    steps:
+    - name: Auto-assign reviewers based on CODEOWNERS
+      uses: actions/github-script@v7
+      with:
+        script: |
+          try {
+            const { data: codeowners } = await github.rest.repos.getContent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: '.github/CODEOWNERS'
+            });
+            
+            // Parse CODEOWNERS and extract usernames
+            const content = Buffer.from(codeowners.content, 'base64').toString();
+            const usernames = content.match(/@[\w-]+/g)?.map(u => u.substring(1)) || [];
+            
+            if (usernames.length > 0) {
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                reviewers: usernames.slice(0, 3) // Assign max 3 reviewers
+              });
+              console.log(`Assigned reviewers: ${usernames.slice(0, 3).join(', ')}`);
+            } else {
+              console.log('No reviewers found in CODEOWNERS');
+            }
+          } catch (error) {
+            console.error('Failed to assign reviewers:', error.message);
+            // Don't fail the job if reviewer assignment fails
+          }

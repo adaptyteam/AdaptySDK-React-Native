@@ -36,7 +36,7 @@ export type ProductPurchaseParams = Array<{
 /**
  * Hashmap of possible events to their callbacks
  *
- * @see {@link https://docs.adapty.io/docs/react-native-handling-events | [DOC] Handling View Events}
+ * @see {@link https://adapty.io/docs/react-native-handling-events-1 | [DOC] Handling View Events}
  */
 export interface EventHandlers {
   /**
@@ -352,3 +352,8 @@ export type AdaptyCustomGradientAsset = {
   )[];
   points?: { x0?: number; y0?: number; x1?: number; y1?: number };
 };
+
+/**
+ * iOS presentation style for paywall and onboarding views
+ */
+export type AdaptyIOSPresentationStyle = 'full_screen' | 'page_sheet';
