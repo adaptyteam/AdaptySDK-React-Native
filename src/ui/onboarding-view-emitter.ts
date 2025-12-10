@@ -62,7 +62,7 @@ export class OnboardingViewEmitter {
       const handlers = this.handlers; // Capture the reference
       const subscription = $bridge.addEventListener(
         config.nativeEvent,
-        function () {
+        function (data: Record<string, any>) {
           const eventViewId = this.rawValue['view']?.['id'] ?? null;
           if (viewId !== eventViewId) {
             return;
@@ -80,10 +80,7 @@ export class OnboardingViewEmitter {
 
             const { handler, onRequestClose } = handlerData;
 
-            const callbackArgs = extractCallbackArgs(
-              handlerName,
-              this.rawValue as Record<string, any>,
-            );
+            const callbackArgs = extractCallbackArgs(handlerName, data);
             const cb = handler as (...args: typeof callbackArgs) => boolean;
             const shouldClose = cb.apply(null, callbackArgs);
 
@@ -202,10 +199,10 @@ function extractCallbackArgs(
   handlerName: keyof OnboardingEventHandlers,
   eventArg: Record<string, any>,
 ): any[] {
-  const actionId = eventArg['action_id'] || '';
-  const meta = eventArg['meta'] || {};
-  const event = eventArg['event'] || {};
-  const action = eventArg['action'] || {};
+  const actionId: string = eventArg['action_id'] || '';
+  const meta: Record<string, any> = eventArg['meta'] || {};
+  const event: Record<string, any> = eventArg['event'] || {};
+  const action: Record<string, any> = eventArg['action'] || {};
 
   switch (handlerName) {
     case 'onClose':
@@ -213,7 +210,7 @@ function extractCallbackArgs(
     case 'onPaywall':
       return [actionId, meta];
     case 'onStateUpdated':
-      return [action.element_id ? action : { element_id: actionId }, meta];
+      return [action['elementId'] ? action : { elementId: actionId }, meta];
     case 'onFinishedLoading':
       return [meta];
     case 'onAnalytics':

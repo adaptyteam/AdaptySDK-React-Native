@@ -164,8 +164,8 @@ describe('OnboardingViewEmitter', () => {
         const nativeListener = mockBridge.addEventListener.mock.calls[0]?.[1];
         expect(nativeListener).toBeDefined();
 
-        // Call the listener with proper this context
-        (nativeListener! as any).call({ rawValue: eventData });
+        // Call the listener with proper this context and data parameter
+        (nativeListener! as any).call({ rawValue: eventData }, eventData);
       }
 
       it('should filter events by viewId', () => {
@@ -308,7 +308,7 @@ describe('OnboardingViewEmitter', () => {
         emitter.addListener('onStateUpdated', handler, mockOnRequestClose);
 
         const testAction = {
-          element_id: 'input1',
+          elementId: 'input1',
           value: { type: 'text', value: 'test' },
         };
         const testMeta = {
@@ -328,7 +328,7 @@ describe('OnboardingViewEmitter', () => {
         expect(mockOnRequestClose).not.toHaveBeenCalled();
       });
 
-      it('should handle onStateUpdated with element_id from action', () => {
+      it('should handle onStateUpdated with elementId from action_id', () => {
         const handler = jest.fn().mockReturnValue(false);
         emitter.addListener('onStateUpdated', handler, mockOnRequestClose);
 
@@ -348,7 +348,7 @@ describe('OnboardingViewEmitter', () => {
         });
 
         expect(handler).toHaveBeenCalledWith(
-          { element_id: testActionId },
+          { elementId: testActionId },
           testMeta,
         );
       });
@@ -468,7 +468,7 @@ describe('OnboardingViewEmitter', () => {
         },
         event: { name: 'screen_view', element_id: 'btn1' },
         action: {
-          element_id: 'input1',
+          elementId: 'input1',
           value: { type: 'text', value: 'test' },
         },
         error: { message: 'Test error', code: 'test_code' },
@@ -477,7 +477,7 @@ describe('OnboardingViewEmitter', () => {
       // Test each event type
       mockBridge.addEventListener.mock.calls.forEach(
         ([eventName, callback], index) => {
-          (callback as any).call({ rawValue: mockData });
+          (callback as any).call({ rawValue: mockData }, mockData);
 
           const handler = Object.values(handlers)[index];
           expect(handler).toHaveBeenCalled();
@@ -520,7 +520,7 @@ describe('OnboardingViewEmitter', () => {
       const nativeListener = mockBridge.addEventListener.mock.calls[0]?.[1];
       expect(nativeListener).toBeDefined();
 
-      (nativeListener! as any).call({ rawValue: eventData });
+      (nativeListener! as any).call({ rawValue: eventData }, eventData);
     }
 
     it('should handle missing event data gracefully', () => {
