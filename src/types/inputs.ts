@@ -141,11 +141,6 @@ export interface ActivateParamsInput {
    */
   __ignoreActivationOnFastRefresh?: boolean;
   /**
-   * Disables IP address collection
-   * @defaultValue `false`
-   */
-  ipAddressCollectionDisabled?: boolean;
-  /**
    * Enables mock mode for web platform
    * @remarks
    * When enabled, SDK will use mock implementations instead of native modules.
@@ -159,6 +154,11 @@ export interface ActivateParamsInput {
    * Allows customization of mock data returned by the SDK.
    */
   __mockConfig?: AdaptyMockConfig;
+  /**
+   * Disables IP address collection
+   * @defaultValue `false`
+   */
+  ipAddressCollectionDisabled?: boolean;
   ios?: {
     /**
      * Disables IDFA collection
