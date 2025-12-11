@@ -2,8 +2,8 @@
 
 import React, { createContext, useState, useEffect } from "react";
 import { adapty } from "react-native-adapty";
-import AdaptyConstants from "../AdaptyConstants";
-import { activationPromise } from "../AdaptyService";
+import adaptyCredentials from "../adaptyCredentials";
+import { activationPromise } from "../adaptyService";
 
 export const ProfileContext = createContext({});
 
@@ -34,7 +34,7 @@ export function ProfileProvider({ children }) {
         const profile = await adapty.getProfile();
 
         if (profile && profile.accessLevels) {
-          const level = profile.accessLevels[AdaptyConstants.ACCESS_LEVEL_ID];
+          const level = profile.accessLevels[adaptyCredentials.ACCESS_LEVEL_ID];
           if (mounted) {
             setIsPremium(
               !!(level?.isActive || level?.isInGracePeriod || level?.isLifetime)
@@ -62,7 +62,7 @@ export function ProfileProvider({ children }) {
   }
 
   function purchasePremium(updatedProfile) {
-    const level = updatedProfile.accessLevels[AdaptyConstants.ACCESS_LEVEL_ID];
+    const level = updatedProfile.accessLevels[adaptyCredentials.ACCESS_LEVEL_ID];
     setIsPremium(
       !!(level?.isActive || level?.isInGracePeriod || level?.isLifetime)
     );

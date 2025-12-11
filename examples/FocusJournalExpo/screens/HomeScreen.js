@@ -5,8 +5,8 @@ import { View, Text, TextInput, TouchableOpacity, Alert, FlatList } from "react-
 import { ProfileContext } from "../context/ProfileContext";
 import { adapty } from "react-native-adapty";
 import { createPaywallView } from "react-native-adapty/dist/ui";
-import AdaptyConstants from "../AdaptyConstants";
-import { activationPromise } from "../AdaptyService";
+import adaptyCredentials from "../adaptyCredentials";
+import { activationPromise } from "../adaptyService";
 import { styles } from "../styles/HomeScreen.styles";
 
 export default function HomeScreen({ navigation }) {
@@ -34,7 +34,7 @@ export default function HomeScreen({ navigation }) {
     } else {
       try {
         const paywall = await adapty.getPaywall(
-          AdaptyConstants.PLACEMENT_ID,
+          adaptyCredentials.PLACEMENT_ID,
           "en"
         );
         if (paywall.hasViewConfiguration) {

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FocusJournalExpo",
-    "slug": "FocusJournalExpo",
+    "name": "ExpoGoWebMock",
+    "slug": "ExpoGoWebMock",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,10 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.adapty.adaptydemoapp",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+      "bundleIdentifier": "com.adapty.adaptydemoapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,24 +22,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
       "package": "com.adaptytest"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      [
-        "expo-secure-store",
-        {
-          "configureAndroidBackup": false
-        }
-      ],
-      [
-        "react-native-adapty",
-        {
-          "replaceAndroidBackupConfig": true
-        }
-      ]
-    ]
+    }
   }
 }

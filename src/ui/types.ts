@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import { Linking, ViewProps } from 'react-native';
 import { AdaptyError } from '@/adapty-error';
 import {
   AdaptyPaywallProduct,
@@ -357,3 +357,13 @@ export type AdaptyCustomGradientAsset = {
  * iOS presentation style for paywall and onboarding views
  */
 export type AdaptyIOSPresentationStyle = 'full_screen' | 'page_sheet';
+
+export type NativeAdaptyPaywallViewProps = ViewProps & {
+  viewId: string;
+  paywallJson: string;
+};
+
+export type NativeAdaptyOnboardingViewProps = ViewProps & {
+  viewId: string;
+  onboardingJson: string;
+};
