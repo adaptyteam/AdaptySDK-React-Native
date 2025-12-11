@@ -37,12 +37,12 @@ npm run local-build-client
 
 ### iOS Local Build
 ```bash
-npm run local-build-ios
+npm run ios
 ```
 
 ### Android Local Build
 ```bash
-npm run local-build-android
+npm run android
 ```
 
 ## Mock Mechanism
