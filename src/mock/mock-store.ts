@@ -3,6 +3,7 @@ import type {
   AdaptyPaywall,
   AdaptyPaywallProduct,
   AdaptyOnboarding,
+  AdaptyProfileParameters,
 } from '@/types';
 import type { AdaptyMockConfig } from './types';
 import {
@@ -36,12 +37,27 @@ export class MockStore {
 
   /**
    * Update profile with custom data
+   * 
+   * Note: In real Adapty, updateProfile() sends user attributes (firstName, lastName, email, etc.)
+   * to the server for CRM and segmentation, but these fields are NOT returned by getProfile().
+   * Only customAttributes are stored in the profile and returned by getProfile().
    */
-  updateProfile(updates: Partial<AdaptyProfile>): void {
-    this.profile = {
-      ...this.profile,
-      ...updates,
-    };
+  updateProfile(updates: AdaptyProfileParameters): void {
+    // Only codableCustomAttributes are stored in the profile and returned by getProfile()
+    if (updates.codableCustomAttributes) {
+      const updatedProfile: AdaptyProfile = {
+        ...this.profile,
+        customAttributes: {
+          ...this.profile.customAttributes,
+          ...updates.codableCustomAttributes,
+        },
+      };
+      this.profile = updatedProfile;
+    }
+    
+    // Other fields (firstName, lastName, email, phoneNumber, etc.) are sent to Adapty server
+    // for CRM and segmentation purposes, but are NOT stored in the profile object
+    // and NOT returned by getProfile()
   }
 
   /**

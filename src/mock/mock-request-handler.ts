@@ -5,6 +5,7 @@ import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
 import { generateId } from '@/utils/generate-id';
+import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
 
 type EventCallback = (...args: any[]) => void | Promise<void>;
 
@@ -64,6 +65,19 @@ export class MockRequestHandler<Method extends string, Params extends string> {
 
   /**
    * Mock request handler that returns appropriate mock data
+   *
+   * @param method - The SDK method name (e.g., 'make_purchase', 'get_paywall_products')
+   * @param params - JSON string containing request parameters in cross_platform.yaml format
+   * @param _resultType - Expected result type (not used in mock)
+   * @param ctx - Log context for debugging
+   *
+   * @remarks
+   * The `params` argument contains JSON-stringified data that follows the request format
+   * defined in `cross_platform.yaml`. For example, for 'make_purchase' method, it contains
+   * `MakePurchase.Request` structure with `product` field in `AdaptyPaywallProduct.Request`
+   * format (snake_case, minimal field set).
+   *
+   * @returns Promise resolving to mock data in the expected format
    */
   async request<T>(
     method: Method,
@@ -76,6 +90,8 @@ export class MockRequestHandler<Method extends string, Params extends string> {
 
     try {
       let result: any;
+      // Parse params from cross_platform.yaml format (e.g., MakePurchase.Request, GetPaywallProducts.Request)
+      // All fields are in snake_case as defined in the cross-platform specification
       const parsedParams = JSON.parse(params as string);
 
       switch (method) {
@@ -144,7 +160,8 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           break;
 
         case 'update_profile':
-          const profileParams = parsedParams.params;
+          const profileParamsCoder = new AdaptyProfileParametersCoder();
+          const profileParams = profileParamsCoder.decode(parsedParams.params);
           this.store.updateProfile(profileParams);
           result = undefined; // void
           break;
