@@ -182,6 +182,8 @@ export class Adapty {
     const enableMock = params.__enableMock ?? shouldEnableMock();
     if (enableMock) {
       initBridge(enableMock, params.__mockConfig);
+    } else {
+      initBridge(false);
     }
 
     // call before log ctx calls, so no logs are lost

@@ -4,7 +4,6 @@ import type { AdaptyType } from '@/coders/parse';
 import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
-import type { AdaptyPaywallProduct } from '@/types';
 import { generateId } from '@/utils/generate-id';
 
 type EventCallback = (...args: any[]) => void | Promise<void>;
@@ -115,8 +114,9 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           break;
 
         case 'make_purchase':
-          const product = parsedParams.product as AdaptyPaywallProduct;
-          const updatedProfile = this.store.makePurchase(product);
+          // Extract accessLevelId from Request format (snake_case)
+          const productAccessLevelId = parsedParams.product.access_level_id;
+          const updatedProfile = this.store.makePurchase(productAccessLevelId);
           result = createMockPurchaseResult(updatedProfile);
 
           // Emit profile update event

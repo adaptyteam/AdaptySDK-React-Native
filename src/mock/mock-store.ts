@@ -47,18 +47,14 @@ export class MockStore {
   /**
    * Grant premium access level
    */
-  grantPremiumAccess(
-    product: AdaptyPaywallProduct,
-    accessLevelId?: string,
-  ): AdaptyProfile {
-    const levelId = accessLevelId || product.accessLevelId || 'premium';
-    const premiumAccessLevel = createMockPremiumAccessLevel(levelId);
+  grantPremiumAccess(accessLevelId: string): AdaptyProfile {
+    const premiumAccessLevel = createMockPremiumAccessLevel(accessLevelId);
 
     this.profile = {
       ...this.profile,
       accessLevels: {
         ...this.profile.accessLevels,
-        [levelId]: premiumAccessLevel,
+        [accessLevelId]: premiumAccessLevel,
       },
     };
 
@@ -67,14 +63,16 @@ export class MockStore {
 
   /**
    * Simulate a purchase and update profile accordingly
+   * 
+   * @param productAccessLevelId - Access level ID from the product, or undefined if not available
    */
-  makePurchase(product: AdaptyPaywallProduct): AdaptyProfile {
+  makePurchase(productAccessLevelId?: string): AdaptyProfile {
     const shouldGrantPremium = this.config.autoGrantPremium !== false; // default true
 
     if (shouldGrantPremium) {
       const accessLevelId =
-        this.config.premiumAccessLevelId || product.accessLevelId || 'premium';
-      return this.grantPremiumAccess(product, accessLevelId);
+        this.config.premiumAccessLevelId || productAccessLevelId || 'premium';
+      return this.grantPremiumAccess(accessLevelId);
     }
 
     return this.getProfile();
