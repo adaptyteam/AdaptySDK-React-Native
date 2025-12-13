@@ -37,7 +37,7 @@ export class MockStore {
 
   /**
    * Update profile with custom data
-   * 
+   *
    * Note: In real Adapty, updateProfile() sends user attributes (firstName, lastName, email, etc.)
    * to the server for CRM and segmentation, but these fields are NOT returned by getProfile().
    * Only customAttributes are stored in the profile and returned by getProfile().
@@ -54,7 +54,7 @@ export class MockStore {
       };
       this.profile = updatedProfile;
     }
-    
+
     // Other fields (firstName, lastName, email, phoneNumber, etc.) are sent to Adapty server
     // for CRM and segmentation purposes, but are NOT stored in the profile object
     // and NOT returned by getProfile()
@@ -79,7 +79,7 @@ export class MockStore {
 
   /**
    * Simulate a purchase and update profile accordingly
-   * 
+   *
    * @param productAccessLevelId - Access level ID from the product, or undefined if not available
    */
   makePurchase(productAccessLevelId?: string): AdaptyProfile {

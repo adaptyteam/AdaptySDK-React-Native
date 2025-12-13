@@ -1,6 +1,6 @@
 import { Platform, EmitterSubscription } from 'react-native';
 
-import { $bridge, initBridge } from '@/bridge';
+import { $bridge, initBridge, isBridgeInitialized } from '@/bridge';
 import { LogContext, Log, LogScope } from '@/logger';
 import type { Def, Req } from '@/types/schema';
 
@@ -23,6 +23,7 @@ import {
 import { AdaptyError } from './adapty-error';
 import { IdentifyParamsInput } from '@/types/inputs';
 import { shouldEnableMock } from '@/utils';
+import type { AdaptyMockConfig } from '@/mock/types';
 
 /**
  * Entry point for the Adapty SDK.
@@ -145,6 +146,32 @@ export class Adapty {
   }
 
   /**
+   * Enables mock mode.
+   *
+   * @remarks
+   * This method should be called before activate() if you want to test
+   * SDK methods without full activation (e.g., isActivated()).
+   * If bridge is already initialized, this method does nothing.
+   *
+   * **Important**: Mock mode cannot be disabled at runtime.
+   * To switch back to production mode, you need to restart the app.
+   *
+   * @param {AdaptyMockConfig} [mockConfig] - Optional mock configuration
+   *
+   * @example
+   * ```ts
+   * adapty.enableMock({ profile: { ... } });
+   * const isActivated = await adapty.isActivated(); // false
+   * await adapty.activate('api_key');
+   * ```
+   */
+  public enableMock(mockConfig?: AdaptyMockConfig): void {
+    if (!isBridgeInitialized()) {
+      initBridge(true, mockConfig);
+    }
+  }
+
+  /**
    * Initializes the Adapty SDK.
    *
    * @remarks
@@ -179,11 +206,13 @@ export class Adapty {
   ): Promise<void> {
     // Initialize bridge with mock or native handler based on __enableMock flag
     // If __enableMock is not provided, use shouldEnableMock() detection
-    const enableMock = params.__enableMock ?? shouldEnableMock();
-    if (enableMock) {
-      initBridge(enableMock, params.__mockConfig);
-    } else {
-      initBridge(false);
+    if (!isBridgeInitialized()) {
+      const enableMock = params.__enableMock ?? shouldEnableMock();
+      if (enableMock) {
+        initBridge(enableMock, params.__mockConfig);
+      } else {
+        initBridge(false);
+      }
     }
 
     // call before log ctx calls, so no logs are lost

@@ -38,15 +38,15 @@ export interface AdaptyMockConfig {
 
   /**
    * Access level ID to grant after purchase.
-   * 
+   *
    * This setting allows you to override the access level granted in mock mode,
    * which is useful for testing specific scenarios.
-   * 
+   *
    * **Priority order:**
    * 1. `config.premiumAccessLevelId` (if set) - highest priority, overrides everything
    * 2. `product.accessLevelId` (if available and config not set) - uses product's access level
    * 3. `'premium'` (fallback) - default when neither of above is available
-   * 
+   *
    * @example
    * ```ts
    * // Override to always grant 'vip' access in tests
@@ -54,7 +54,7 @@ export interface AdaptyMockConfig {
    *   premiumAccessLevelId: 'vip'
    * }
    * ```
-   * 
+   *
    * @example
    * ```ts
    * // Use product's accessLevelId (normal behavior)
@@ -62,7 +62,7 @@ export interface AdaptyMockConfig {
    *   // premiumAccessLevelId not set - will use product.accessLevelId
    * }
    * ```
-   * 
+   *
    * @default undefined (uses product.accessLevelId, or 'premium' as final fallback)
    */
   premiumAccessLevelId?: string;

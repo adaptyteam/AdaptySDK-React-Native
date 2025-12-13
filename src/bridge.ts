@@ -40,6 +40,25 @@ export function initBridge(
 }
 
 /**
+ * Check if bridge has been initialized
+ * @returns true if bridge is initialized, false otherwise
+ */
+export function isBridgeInitialized(): boolean {
+  return _bridge !== null;
+}
+
+/**
+ * Reset bridge to null (for testing purposes only)
+ * @internal
+ */
+export function resetBridge(): void {
+  if (_bridge) {
+    _bridge.removeAllEventListeners();
+  }
+  _bridge = null;
+}
+
+/**
  * Bridge handler - automatically initializes with native handler if not yet initialized
  * For mock mode, call initBridge(true) in activate() before using
  */

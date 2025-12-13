@@ -12,6 +12,7 @@ module.exports = {
   setupFiles: ['./jest/jest.setup.js'],
   transformIgnorePatterns: ['node_modules/(?!@react-native|react-native)'],
   testPathIgnorePatterns: ['/dist'],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.spec.ts', '**/*.test.ts', '**/*.spec.ts'],
   transform: {
     '^.+\\.jsx$': 'babel-jest',
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.spec.json' }],
