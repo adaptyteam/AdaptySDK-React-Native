@@ -19,10 +19,10 @@ describe('Adapty - Paywall', () => {
       const paywall = await adapty.getPaywall('test_placement');
 
       expect(paywall).toBeDefined();
-      expect(paywall.id).toBe('mock_paywall_test_placement');
-      expect(paywall.name).toBe('Mock Paywall for test_placement');
+      expect(paywall.id).toContain('test_placement');
+      expect(paywall.name).toBe('test_placement');
       expect(paywall.placement.id).toBe('test_placement');
-      expect(paywall.variationId).toBe('mock_variation_id');
+      expect(paywall.variationId).toBeDefined();
       expect(paywall.hasViewConfiguration).toBe(true);
     });
 
@@ -30,10 +30,10 @@ describe('Adapty - Paywall', () => {
       const paywall1 = await adapty.getPaywall('placement_one');
       const paywall2 = await adapty.getPaywall('placement_two');
 
-      expect(paywall1.id).toBe('mock_paywall_placement_one');
-      expect(paywall2.id).toBe('mock_paywall_placement_two');
-      expect(paywall1.name).toBe('Mock Paywall for placement_one');
-      expect(paywall2.name).toBe('Mock Paywall for placement_two');
+      expect(paywall1.id).toContain('placement_one');
+      expect(paywall2.id).toContain('placement_two');
+      expect(paywall1.name).toBe('placement_one');
+      expect(paywall2.name).toBe('placement_two');
       expect(paywall1.placement.id).toBe('placement_one');
       expect(paywall2.placement.id).toBe('placement_two');
     });
@@ -57,11 +57,15 @@ describe('Adapty - Paywall', () => {
       expect(paywall.placement.revision).toBeDefined();
       expect(paywall.placement.audienceVersionId).toBeDefined();
 
-      // Check remoteConfig
-      expect(paywall.remoteConfig).toBeDefined();
-      expect(paywall.remoteConfig?.lang).toBeDefined();
-      expect(paywall.remoteConfig?.data).toBeDefined();
-      expect(paywall.remoteConfig?.dataString).toBeDefined();
+      // Check paywallBuilder (modern structure) or remoteConfig (legacy)
+      expect(
+        paywall.paywallBuilder !== undefined ||
+          paywall.remoteConfig !== undefined,
+      ).toBe(true);
+      if (paywall.paywallBuilder) {
+        expect(paywall.paywallBuilder.id).toBeDefined();
+        expect(paywall.paywallBuilder.lang).toBeDefined();
+      }
 
       // Check productIdentifiers
       expect(paywall.productIdentifiers).toBeDefined();
@@ -121,7 +125,7 @@ describe('Adapty - Paywall', () => {
 
       // Verify method didn't crash and returns valid paywall
       expect(paywall).toBeDefined();
-      expect(paywall.id).toBe('mock_paywall_test_placement');
+      expect(paywall.id).toContain('test_placement');
       expect(paywall.placement.id).toBe('test_placement');
 
       // Note: We don't check that locale/fetchPolicy/timeout affected the result

@@ -8,6 +8,54 @@ import type {
   VendorStore,
 } from '@/types';
 
+// Mock Product IDs
+export const MOCK_VENDOR_PRODUCT_ID_ANNUAL = 'mock.product.annual';
+export const MOCK_VENDOR_PRODUCT_ID_MONTHLY = 'mock.product.monthly';
+
+export const MOCK_ADAPTY_PRODUCT_ID_ANNUAL = 'mock.adapty.annual';
+export const MOCK_ADAPTY_PRODUCT_ID_MONTHLY = 'mock.adapty.monthly';
+
+// Access Levels
+export const MOCK_ACCESS_LEVEL_PREMIUM = 'premium';
+
+// Profile IDs
+export const MOCK_PROFILE_ID = 'mock.profile.id';
+export const MOCK_CUSTOMER_USER_ID = 'mock.customer.user.id';
+
+// Time periods in milliseconds
+/** Default subscription duration: 1 year */
+export const MOCK_SUBSCRIPTION_DURATION_MS = 365 * 24 * 60 * 60 * 1000;
+/** Time until unsubscribe after activation: 1 day */
+export const MOCK_UNSUBSCRIBE_DELAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Helper functions for date calculations
+ */
+
+/**
+ * Adds milliseconds to a date
+ */
+export function addMilliseconds(date: Date, ms: number): Date {
+  return new Date(date.getTime() + ms);
+}
+
+/**
+ * Creates subscription date set with default values
+ * @returns Object containing now, expiresAt, and unsubscribedAt dates
+ */
+export function createSubscriptionDates(): {
+  now: Date;
+  expiresAt: Date;
+  unsubscribedAt: Date;
+} {
+  const now = new Date();
+  return {
+    now,
+    expiresAt: addMilliseconds(now, MOCK_SUBSCRIPTION_DURATION_MS),
+    unsubscribedAt: addMilliseconds(now, MOCK_UNSUBSCRIBE_DELAY_MS),
+  };
+}
+
 /**
  * Creates a default mock profile without subscriptions
  */
@@ -15,8 +63,8 @@ export function createMockProfile(
   overrides?: Partial<AdaptyProfile>,
 ): AdaptyProfile {
   return {
-    profileId: 'mock_profile_id',
-    customerUserId: 'mock_customer_user_id',
+    profileId: MOCK_PROFILE_ID,
+    customerUserId: MOCK_CUSTOMER_USER_ID,
     accessLevels: {},
     subscriptions: {},
     nonSubscriptions: {},
@@ -29,24 +77,25 @@ export function createMockProfile(
  * Creates a premium access level for mock profile
  */
 export function createMockPremiumAccessLevel(
-  accessLevelId: string = 'premium',
+  accessLevelId: string = MOCK_ACCESS_LEVEL_PREMIUM,
 ): AdaptyAccessLevel {
-  const now = new Date();
-  const futureDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
+  const { now, expiresAt, unsubscribedAt } = createSubscriptionDates();
 
   return {
     id: accessLevelId,
     isActive: true,
-    vendorProductId: 'mock_premium_product',
+    vendorProductId: MOCK_VENDOR_PRODUCT_ID_ANNUAL,
     store: 'adapty' as VendorStore,
     activatedAt: now,
     renewedAt: now,
-    expiresAt: futureDate,
+    expiresAt,
+    unsubscribedAt,
     isLifetime: false,
     isInGracePeriod: false,
     isRefund: false,
-    willRenew: true,
+    willRenew: false,
     startsAt: now,
+    android: {},
   };
 }
 
@@ -58,52 +107,52 @@ export function createMockPaywall(
   overrides?: Partial<AdaptyPaywall>,
 ): AdaptyPaywall {
   return {
-    id: `mock_paywall_${placementId}`,
+    id: `mock-paywall-${placementId}`,
     placement: {
       id: placementId,
-      abTestName: 'Mock A/B Test',
+      abTestName: placementId,
       audienceName: 'All Users',
-      revision: 1,
-      audienceVersionId: 'mock_audience_v1',
+      revision: 0,
+      audienceVersionId: 'b7f6a19e-4384-4732-815d-5ad6610b695f',
       isTrackingPurchases: true,
     },
     hasViewConfiguration: true,
-    name: `Mock Paywall for ${placementId}`,
+    name: placementId,
     variationId: 'mock_variation_id',
     products: [
       {
-        vendorId: 'mock_product_monthly',
-        adaptyId: 'mock_adapty_monthly',
-        accessLevelId: 'premium',
-        productType: 'subscription',
+        vendorId: MOCK_VENDOR_PRODUCT_ID_ANNUAL,
+        adaptyId: MOCK_ADAPTY_PRODUCT_ID_ANNUAL,
+        accessLevelId: MOCK_ACCESS_LEVEL_PREMIUM,
+        productType: 'annual',
+        ios: {},
+        android: {},
       },
       {
-        vendorId: 'mock_product_annual',
-        adaptyId: 'mock_adapty_annual',
-        accessLevelId: 'premium',
+        vendorId: MOCK_VENDOR_PRODUCT_ID_MONTHLY,
+        adaptyId: MOCK_ADAPTY_PRODUCT_ID_MONTHLY,
+        accessLevelId: MOCK_ACCESS_LEVEL_PREMIUM,
         productType: 'subscription',
+        ios: {},
+        android: {},
       },
     ],
     productIdentifiers: [
       {
-        vendorProductId: 'mock_product_monthly',
-        adaptyProductId: 'mock_adapty_monthly',
+        vendorProductId: MOCK_VENDOR_PRODUCT_ID_ANNUAL,
+        adaptyProductId: MOCK_ADAPTY_PRODUCT_ID_ANNUAL,
       },
       {
-        vendorProductId: 'mock_product_annual',
-        adaptyProductId: 'mock_adapty_annual',
+        vendorProductId: MOCK_VENDOR_PRODUCT_ID_MONTHLY,
+        adaptyProductId: MOCK_ADAPTY_PRODUCT_ID_MONTHLY,
       },
     ],
-    remoteConfig: {
+    paywallBuilder: {
+      id: 'mock.paywall.builder.id',
       lang: 'en',
-      data: {
-        title: 'Get Premium Access',
-        features: ['Feature 1', 'Feature 2'],
-      },
-      dataString:
-        '{"title":"Get Premium Access","features":["Feature 1","Feature 2"]}',
     },
-    version: 1,
+    webPurchaseUrl: `http://paywalls-mock.adapty.io/${placementId}`,
+    version: Date.now(),
     requestLocale: 'en',
     ...overrides,
   };
@@ -117,39 +166,15 @@ export function createMockProducts(
 ): AdaptyPaywallProduct[] {
   return [
     {
-      vendorProductId: 'mock_product_monthly',
-      adaptyId: 'mock_adapty_monthly',
-      localizedTitle: 'Premium Monthly',
-      localizedDescription: 'Get premium access for 1 month',
-      paywallName: paywall.name,
-      paywallABTestName: paywall.placement.abTestName,
-      variationId: paywall.variationId,
-      accessLevelId: 'premium',
-      productType: 'subscription',
-      price: {
-        amount: 9.99,
-        currencyCode: 'USD',
-        currencySymbol: '$',
-        localizedString: '$9.99',
-      },
-      paywallProductIndex: 0,
-      subscription: {
-        subscriptionPeriod: {
-          numberOfUnits: 1,
-          unit: 'month',
-        },
-        localizedSubscriptionPeriod: '1 month',
-      },
-    },
-    {
-      vendorProductId: 'mock_product_annual',
-      adaptyId: 'mock_adapty_annual',
+      vendorProductId: MOCK_VENDOR_PRODUCT_ID_ANNUAL,
+      adaptyId: MOCK_ADAPTY_PRODUCT_ID_ANNUAL,
       localizedTitle: 'Premium Annual',
       localizedDescription: 'Get premium access for 1 year',
+      regionCode: 'US',
       paywallName: paywall.name,
       paywallABTestName: paywall.placement.abTestName,
       variationId: paywall.variationId,
-      accessLevelId: 'premium',
+      accessLevelId: MOCK_ACCESS_LEVEL_PREMIUM,
       productType: 'subscription',
       price: {
         amount: 99.99,
@@ -157,13 +182,97 @@ export function createMockProducts(
         currencySymbol: '$',
         localizedString: '$99.99',
       },
-      paywallProductIndex: 1,
+      webPurchaseUrl: paywall.webPurchaseUrl,
+      paywallProductIndex: 0,
       subscription: {
         subscriptionPeriod: {
           numberOfUnits: 1,
           unit: 'year',
         },
         localizedSubscriptionPeriod: '1 year',
+        offer: {
+          identifier: {
+            type: 'introductory',
+          },
+          phases: [
+            {
+              localizedNumberOfPeriods: '1 month',
+              localizedSubscriptionPeriod: '1 month',
+              numberOfPeriods: 1,
+              paymentMode: 'free_trial',
+              price: {
+                amount: 0,
+                currencyCode: 'USD',
+                localizedString: '$0.00',
+              },
+              subscriptionPeriod: {
+                unit: 'month',
+                numberOfUnits: 1,
+              },
+            },
+          ],
+        },
+        ios: {
+          subscriptionGroupIdentifier: '20770576',
+        },
+      },
+      ios: {
+        isFamilyShareable: false,
+      },
+    },
+    {
+      vendorProductId: MOCK_VENDOR_PRODUCT_ID_MONTHLY,
+      adaptyId: MOCK_ADAPTY_PRODUCT_ID_MONTHLY,
+      localizedTitle: 'Premium Monthly',
+      localizedDescription: 'Get premium access for 1 month',
+      regionCode: 'US',
+      paywallName: paywall.name,
+      paywallABTestName: paywall.placement.abTestName,
+      variationId: paywall.variationId,
+      accessLevelId: MOCK_ACCESS_LEVEL_PREMIUM,
+      productType: 'subscription',
+      price: {
+        amount: 9.99,
+        currencyCode: 'USD',
+        currencySymbol: '$',
+        localizedString: '$9.99',
+      },
+      webPurchaseUrl: paywall.webPurchaseUrl,
+      paywallProductIndex: 1,
+      subscription: {
+        subscriptionPeriod: {
+          numberOfUnits: 1,
+          unit: 'month',
+        },
+        localizedSubscriptionPeriod: '1 month',
+        offer: {
+          identifier: {
+            type: 'introductory',
+          },
+          phases: [
+            {
+              localizedNumberOfPeriods: '1 month',
+              localizedSubscriptionPeriod: '1 month',
+              numberOfPeriods: 1,
+              paymentMode: 'pay_up_front',
+              price: {
+                amount: 1.99,
+                currencyCode: 'USD',
+                localizedString: '$1.99',
+              },
+              subscriptionPeriod: {
+                unit: 'month',
+                numberOfUnits: 1,
+              },
+            },
+          ],
+        },
+        ios: {
+          subscriptionGroupIdentifier: '20770576',
+        },
+      },
+      ios: {
+        isFamilyShareable: false,
       },
     },
   ];

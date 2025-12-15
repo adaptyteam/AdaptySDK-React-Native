@@ -12,6 +12,9 @@ import {
   createMockPaywall,
   createMockProducts,
   createMockOnboarding,
+  createSubscriptionDates,
+  MOCK_VENDOR_PRODUCT_ID_ANNUAL,
+  MOCK_ACCESS_LEVEL_PREMIUM,
 } from './mock-data';
 
 /**
@@ -65,14 +68,35 @@ export class MockStore {
    */
   grantPremiumAccess(accessLevelId: string): AdaptyProfile {
     const premiumAccessLevel = createMockPremiumAccessLevel(accessLevelId);
+    const { now, expiresAt, unsubscribedAt } = createSubscriptionDates();
 
-    this.profile = {
+    const updatedProfile: AdaptyProfile = {
       ...this.profile,
       accessLevels: {
         ...this.profile.accessLevels,
         [accessLevelId]: premiumAccessLevel,
       },
+      subscriptions: {
+        ...this.profile.subscriptions,
+        [MOCK_VENDOR_PRODUCT_ID_ANNUAL]: {
+          isActive: true,
+          isLifetime: false,
+          vendorProductId: MOCK_VENDOR_PRODUCT_ID_ANNUAL,
+          store: 'adapty',
+          vendorTransactionId: '2000001082537697',
+          vendorOriginalTransactionId: '2000000971279249',
+          activatedAt: now,
+          renewedAt: now,
+          expiresAt,
+          unsubscribedAt,
+          willRenew: false,
+          isInGracePeriod: false,
+          isRefund: false,
+          isSandbox: true,
+        },
+      },
     };
+    this.profile = updatedProfile;
 
     return this.getProfile();
   }
@@ -87,7 +111,9 @@ export class MockStore {
 
     if (shouldGrantPremium) {
       const accessLevelId =
-        this.config.premiumAccessLevelId || productAccessLevelId || 'premium';
+        this.config.premiumAccessLevelId ||
+        productAccessLevelId ||
+        MOCK_ACCESS_LEVEL_PREMIUM;
       return this.grantPremiumAccess(accessLevelId);
     }
 
@@ -153,9 +179,10 @@ export class MockStore {
    * Update customer user ID
    */
   identify(customerUserId: string): void {
-    this.profile = {
+    const updatedProfile: AdaptyProfile = {
       ...this.profile,
       customerUserId,
     };
+    this.profile = updatedProfile;
   }
 }
