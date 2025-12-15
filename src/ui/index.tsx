@@ -1,5 +1,8 @@
 import { AdaptyOnboarding, AdaptyPaywall } from '@/types';
-import { CreatePaywallViewParamsInput } from './types';
+import {
+  CreateOnboardingViewParamsInput,
+  CreatePaywallViewParamsInput,
+} from './types';
 import { ViewController } from './view-controller';
 import { OnboardingViewController } from '@/ui/onboarding-view-controller';
 
@@ -41,6 +44,7 @@ export async function createPaywallView(
  * You can use it to further configure a view or present it.
  *
  * @param {AdaptyOnboarding} onboarding - onboarding that you want to present.
+ * @param {CreateOnboardingViewParamsInput | undefined} [params] - additional params.
  * @returns {Promise<OnboardingViewController>} OnboardingViewController — A promise that resolves to an OnboardingViewController instance.
  *
  * @example
@@ -59,8 +63,9 @@ export async function createPaywallView(
  */
 export async function createOnboardingView(
   onboarding: AdaptyOnboarding,
+  params: CreateOnboardingViewParamsInput = {},
 ): Promise<OnboardingViewController> {
-  const controller = await OnboardingViewController.create(onboarding);
+  const controller = await OnboardingViewController.create(onboarding, params);
 
   return controller;
 }

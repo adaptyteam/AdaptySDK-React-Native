@@ -1,18 +1,24 @@
 import {
   AdaptyIOSPresentationStyle,
   AdaptyUiView,
+  CreateOnboardingViewParamsInput,
   DEFAULT_ONBOARDING_EVENT_HANDLERS,
   OnboardingEventHandlers,
 } from './types';
-import { AdaptyOnboarding } from '@/types';
+import { AdaptyOnboarding, WebPresentation } from '@/types';
 import { LogContext, LogScope } from '@/logger';
 import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
+import { AdaptyUICreateOnboardingViewParamsCoder } from '@/coders';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
 import { Req } from '@/types/schema';
 import { OnboardingViewEmitter } from './onboarding-view-emitter';
+
+export const DEFAULT_ONBOARDING_PARAMS: CreateOnboardingViewParamsInput = {
+  externalUrlsPresentation: WebPresentation.BrowserInApp,
+};
 
 /**
  * Provides methods to control created onboarding view
@@ -28,19 +34,27 @@ export class OnboardingViewController {
 
   static async create(
     onboarding: AdaptyOnboarding,
+    params: CreateOnboardingViewParamsInput,
   ): Promise<OnboardingViewController> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'createOnboardingView' });
-    log.start({ onboarding });
+    log.start({ onboarding, params });
 
     const view = new OnboardingViewController();
 
     const coder = new AdaptyOnboardingCoder();
     const methodKey = 'adapty_ui_create_onboarding_view';
+
+    const paramsWithDefaults = { ...DEFAULT_ONBOARDING_PARAMS, ...params };
+    const encodedParams = new AdaptyUICreateOnboardingViewParamsCoder().encode(
+      paramsWithDefaults,
+    );
+
     const data: Req['AdaptyUICreateOnboardingView.Request'] = {
       method: methodKey,
       onboarding: coder.encode(onboarding),
+      ...(encodedParams as any),
     };
 
     const body = JSON.stringify(data);

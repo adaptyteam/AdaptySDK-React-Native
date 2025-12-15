@@ -111,8 +111,8 @@ def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
     api 'io.adapty:android-sdk:3.15.0'
-    api 'io.adapty:android-ui:3.15.0'
-    api 'io.adapty.internal:crossplatform:3.15.0'
+    api 'io.adapty:android-ui:3.15.1'
+    api 'io.adapty.internal:crossplatform:3.15.1'
 
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion

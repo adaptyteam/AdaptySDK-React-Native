@@ -2,17 +2,21 @@ import React, { memo, useEffect, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyOnboarding } from '@/types';
 import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
+import { AdaptyUICreateOnboardingViewParamsCoder } from '@/coders';
 import { generateId } from '@/utils/generate-id';
 import { shouldEnableMock } from '@/utils';
 import {
+  CreateOnboardingViewParamsInput,
   OnboardingEventHandlers,
   NativeAdaptyOnboardingViewProps,
 } from './types';
 import { createOnboardingEventHandlers } from './create-onboarding-event-handlers';
+import { DEFAULT_ONBOARDING_PARAMS } from './onboarding-view-controller';
 import { AdaptyOnboardingViewMock } from './AdaptyOnboardingView.mock';
 
 export type Props = ViewProps & {
   onboarding: AdaptyOnboarding;
+  params?: CreateOnboardingViewParamsInput;
   onClose?: OnboardingEventHandlers['onClose'];
   onCustom?: OnboardingEventHandlers['onCustom'];
   onPaywall?: OnboardingEventHandlers['onPaywall'];
@@ -35,6 +39,7 @@ const NativeAdaptyOnboardingView = shouldEnableMock()
 
 const AdaptyOnboardingViewComponent: React.FC<Props> = ({
   onboarding,
+  params,
   eventHandlers,
   onClose,
   onCustom,
@@ -50,10 +55,20 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
     [onboarding.id],
   );
 
-  const onboardingJson = useMemo(
-    () => JSON.stringify(new AdaptyOnboardingCoder().encode(onboarding)),
-    [onboarding],
-  );
+  const onboardingJson = useMemo(() => {
+    const encodedOnboarding = new AdaptyOnboardingCoder().encode(onboarding);
+
+    const paramsWithDefaults = { ...DEFAULT_ONBOARDING_PARAMS, ...params };
+
+    const encodedParams = new AdaptyUICreateOnboardingViewParamsCoder().encode(
+      paramsWithDefaults,
+    );
+
+    return JSON.stringify({
+      onboarding: encodedOnboarding,
+      ...encodedParams,
+    });
+  }, [onboarding, params]);
 
   const combinedEventHandlers =
     useMemo((): Partial<OnboardingEventHandlers> => {
