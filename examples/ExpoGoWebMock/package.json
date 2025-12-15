@@ -1,0 +1,32 @@
+{
+  "name": "expogowebmock",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start --go",
+    "web": "expo start --web",
+    "local-build-client": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "preview-ios": "expo run:ios --configuration Release",
+    "preview-android": "expo run:android --variant release",
+    "tsc": "tsc --noEmit",
+    "update-sdk-full": "../../scripts/build_and_install_pack.zsh"
+  },
+  "dependencies": {
+    "expo": "~54.0.25",
+    "expo-dev-client": "^6.0.18",
+    "expo-status-bar": "~3.0.8",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-adapty": "git+https://github.com/adaptyteam/AdaptySDK-React-Native#5e9f468d6eafde16cc31156b8b43d42764dce484",
+    "react-native-safe-area-context": "^5.5.2",
+    "react-native-web": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
+  },
+  "private": true
+}

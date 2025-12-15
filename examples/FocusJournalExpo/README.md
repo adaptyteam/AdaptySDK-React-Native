@@ -126,7 +126,7 @@ To test in-app purchases with your own Apple/Google accounts, you need to config
    ```
    
 
-4. **Add your Adapty API key and PLACEMENT_ID** to `AdaptyConstants.js`:
+4. **Add your Adapty API key and PLACEMENT_ID** to `adaptyCredentials.js`:
    ```javascript
    export default {
      API_KEY: "public_live_YOUR_KEY_HERE",
