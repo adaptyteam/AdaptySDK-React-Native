@@ -799,6 +799,13 @@ export interface AdaptyProductIdentifier {
   readonly adaptyProductId: string;
 }
 
+export const WebPresentation = Object.freeze({
+  BrowserOutApp: 'browser_out_app',
+  BrowserInApp: 'browser_in_app',
+});
+export type WebPresentation =
+  (typeof WebPresentation)[keyof typeof WebPresentation];
+
 export const RefundPreference = Object.freeze({
   NoPreference: 'no_preference',
   Grant: 'grant',

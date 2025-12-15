@@ -258,10 +258,12 @@ export interface components {
         {
           method: 'open_web_paywall';
           product: components['defs']['AdaptyPaywallProduct.Request'];
+          open_in?: 'browser_out_app' | 'browser_in_app';
         },
         {
           method: 'open_web_paywall';
           paywall: components['defs']['AdaptyPaywall'];
+          open_in?: 'browser_out_app' | 'browser_in_app';
         },
       ]
     >;
