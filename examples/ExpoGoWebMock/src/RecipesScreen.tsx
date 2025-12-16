@@ -47,15 +47,17 @@ export default function RecipesScreen() {
       setIsLoading(true);
       setError(null);
 
-      // Step 0: Set log level (NOTE: This is for debugging in example app only. Don't use VERBOSE in production.)
-     // await adapty.setLogLevel(LogLevel.VERBOSE);
+      // Step 0: Enable mock mode for development
+      if (enableMock){
+        adapty.enableMock(mockConfig);
+      }
 
-      // Step 1: Activate SDK with mock mode enabled
+      // Step 1: Set log level (NOTE: This is for debugging in example app only. Don't use VERBOSE in production.)
+      await adapty.setLogLevel(LogLevel.VERBOSE);
+
+      // Step 2: Activate SDK with mock mode enabled
       await adapty.activate(readCredentials(), {
-        logLevel: LogLevel.VERBOSE,
         __ignoreActivationOnFastRefresh: __DEV__,
-        enableMock: enableMock,
-        mockConfig: mockConfig,
       });
 
       // Step 2: Get user profile
