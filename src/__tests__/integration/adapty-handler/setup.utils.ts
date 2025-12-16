@@ -35,8 +35,8 @@ export async function createAdaptyInstance(
   }
 
   await adapty.activate('test_api_key', {
-    __enableMock: true,
-    __mockConfig: mergedConfig,
+    enableMock: true,
+    mockConfig: mergedConfig,
     logLevel: 'error', // Suppress logs during test
   });
 

@@ -50,7 +50,7 @@ export interface AdaptyMockConfig {
    * @example
    * ```ts
    * // Override to always grant 'vip' access in tests
-   * __mockConfig: {
+   * mockConfig: {
    *   premiumAccessLevelId: 'vip'
    * }
    * ```
@@ -58,7 +58,7 @@ export interface AdaptyMockConfig {
    * @example
    * ```ts
    * // Use product's accessLevelId (normal behavior)
-   * __mockConfig: {
+   * mockConfig: {
    *   // premiumAccessLevelId not set - will use product.accessLevelId
    * }
    * ```

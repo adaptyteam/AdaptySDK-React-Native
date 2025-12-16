@@ -147,13 +147,13 @@ export interface ActivateParamsInput {
    * Useful for Expo Web and testing.
    * @defaultValue `false`
    */
-  __enableMock?: boolean;
+  enableMock?: boolean;
   /**
    * Configuration for mock mode
    * @remarks
    * Allows customization of mock data returned by the SDK.
    */
-  __mockConfig?: AdaptyMockConfig;
+  mockConfig?: AdaptyMockConfig;
   /**
    * Disables IP address collection
    * @defaultValue `false`

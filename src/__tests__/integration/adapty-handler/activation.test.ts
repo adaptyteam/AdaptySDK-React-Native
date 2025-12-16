@@ -8,10 +8,10 @@ import { cleanupAdapty } from './setup.utils';
  *
  * Note: These are integration tests running on mock implementation.
  * Mock ignores most activation parameters (customerUserId, observerMode, serverCluster, etc.)
- * and only uses __mockConfig settings. Tests focus on:
+ * and only uses mockConfig settings. Tests focus on:
  * 1. Basic activation flow
  * 2. isActivated state (before/after activation)
- * 3. Mock configuration (__mockConfig) - actually used by MockStore
+ * 3. Mock configuration (mockConfig) - actually used by MockStore
  * 4. __ignoreActivationOnFastRefresh - real logic in Adapty class
  *
  * Parameters like customerUserId, observerMode, serverCluster are validated
@@ -100,7 +100,7 @@ describe('Adapty - Activation', () => {
       adapty = new Adapty();
 
       await adapty.activate('test_api_key', {
-        __enableMock: true,
+        enableMock: true,
         logLevel: 'error',
       });
 
@@ -110,14 +110,14 @@ describe('Adapty - Activation', () => {
   });
 
   describe('Mock configuration', () => {
-    // These tests validate that __mockConfig is properly passed to MockStore
+    // These tests validate that mockConfig is properly passed to MockStore
     // and affects behavior (premiumAccessLevelId, autoGrantPremium, profile)
     it('should activate with custom premiumAccessLevelId', async () => {
       adapty = new Adapty();
 
       await adapty.activate('test_api_key', {
-        __enableMock: true,
-        __mockConfig: {
+        enableMock: true,
+        mockConfig: {
           premiumAccessLevelId: 'custom_premium',
           autoGrantPremium: true,
         },
@@ -132,8 +132,8 @@ describe('Adapty - Activation', () => {
       adapty = new Adapty();
 
       await adapty.activate('test_api_key', {
-        __enableMock: true,
-        __mockConfig: {
+        enableMock: true,
+        mockConfig: {
           autoGrantPremium: false,
         },
         logLevel: 'error',
@@ -147,8 +147,8 @@ describe('Adapty - Activation', () => {
       adapty = new Adapty();
 
       await adapty.activate('test_api_key', {
-        __enableMock: true,
-        __mockConfig: {
+        enableMock: true,
+        mockConfig: {
           profile: {
             customAttributes: {
               customKey: 'customValue',
@@ -171,7 +171,7 @@ describe('Adapty - Activation', () => {
 
       // First activation
       await adapty.activate('test_api_key', {
-        __enableMock: true,
+        enableMock: true,
         __ignoreActivationOnFastRefresh: true,
         logLevel: 'error',
       });
@@ -185,7 +185,7 @@ describe('Adapty - Activation', () => {
 
       // Second activation should be skipped - setActivated should NOT be called
       await adapty.activate('test_api_key', {
-        __enableMock: true,
+        enableMock: true,
         __ignoreActivationOnFastRefresh: true,
         logLevel: 'error',
       });
@@ -200,7 +200,7 @@ describe('Adapty - Activation', () => {
       adapty = new Adapty();
 
       await adapty.activate('test_api_key', {
-        __enableMock: true,
+        enableMock: true,
         logLevel: 'error',
       });
 

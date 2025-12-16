@@ -204,12 +204,12 @@ export class Adapty {
     apiKey: string,
     params: Input.ActivateParamsInput = {},
   ): Promise<void> {
-    // Initialize bridge with mock or native handler based on __enableMock flag
-    // If __enableMock is not provided, use shouldEnableMock() detection
+    // Initialize bridge with mock or native handler based on enableMock flag
+    // If enableMock is not provided, use shouldEnableMock() detection
     if (!isBridgeInitialized()) {
-      const enableMock = params.__enableMock ?? shouldEnableMock();
+      const enableMock = params.enableMock ?? shouldEnableMock();
       if (enableMock) {
-        initBridge(enableMock, params.__mockConfig);
+        initBridge(enableMock, params.mockConfig);
       } else {
         initBridge(false);
       }
