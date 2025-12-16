@@ -7,6 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "update-sdk-full": "../../scripts/build_and_install_pack.zsh",
+    "update-native-modules": "cd ./ios && pod update Adapty AdaptyUI AdaptyPlugin",
     "ios:preview": "expo run:ios --configuration Release",
     "android:preview": "expo run:android --variant release"
   },
@@ -20,7 +21,6 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-adapty": "3.11.4",
-    "react-native-appsflyer": "^6.17.7",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "4.18.0"
   },
