@@ -54,8 +54,8 @@ export default function RecipesScreen() {
       await adapty.activate(readCredentials(), {
         logLevel: LogLevel.VERBOSE,
         __ignoreActivationOnFastRefresh: __DEV__,
-        __enableMock: enableMock,
-        __mockConfig: mockConfig,
+        enableMock: enableMock,
+        mockConfig: mockConfig,
       });
 
       // Step 2: Get user profile

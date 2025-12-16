@@ -74,7 +74,7 @@ describe('Adapty - Paywall', () => {
     });
   });
 
-  describe('Custom paywall via __mockConfig', () => {
+  describe('Custom paywall via mockConfig', () => {
     it('should return custom paywall when provided in config', async () => {
       const customPaywall: Partial<AdaptyPaywall> = {
         name: 'Custom Premium Paywall',
