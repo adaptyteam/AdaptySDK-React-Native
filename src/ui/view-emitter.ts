@@ -117,7 +117,6 @@ export class ViewEmitter {
     this.eventListeners.forEach(subscription => subscription.remove());
     this.eventListeners.clear();
     this.handlers.clear();
-    $bridge.removeAllEventListeners();
   }
 }
 
