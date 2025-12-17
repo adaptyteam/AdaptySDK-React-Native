@@ -113,7 +113,7 @@ dependencies {
     implementation platform('io.adapty:adapty-bom:3.15.1')
     implementation 'io.adapty:android-sdk'
     implementation 'io.adapty:android-ui'
-    implementation 'io.adapty.internal:crossplatform:3.15.1'
+    implementation 'io.adapty.internal:crossplatform:3.15.2'
 
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion
