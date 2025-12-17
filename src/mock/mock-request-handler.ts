@@ -1,6 +1,11 @@
 import { EmitterSubscription } from 'react-native';
 import { LogContext } from '@/logger';
 import type { AdaptyType } from '@/coders/parse';
+import {
+  parseCommonEvent,
+  parseOnboardingEvent,
+  parsePaywallEvent,
+} from '@/coders/parse';
 import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
@@ -61,6 +66,14 @@ export class MockRequestHandler<Method extends string, Params extends string> {
     this.store = new MockStore(config);
     this.emitter = new SimpleEventEmitter();
     this.listeners = new Set();
+  }
+
+  /**
+   * Provides access to internal emitter for testing purposes only
+   * @internal
+   */
+  get testEmitter() {
+    return this.emitter;
   }
 
   /**
@@ -248,9 +261,31 @@ export class MockRequestHandler<Method extends string, Params extends string> {
       const log = ctx.event({ methodName: `mock/${event}` });
       log.start({ data });
 
+      let rawValue = null;
+
       try {
-        const parsed = JSON.parse(data);
-        cb.call({ rawValue: parsed }, parsed);
+        // Try to parse as common event (did_load_latest_profile, etc.)
+        const commonEvent = parseCommonEvent(event, data, ctx);
+        if (commonEvent) {
+          cb.call({ rawValue: commonEvent }, commonEvent as CallbackData);
+          return;
+        }
+
+        // Try to parse raw JSON for rawValue
+        try {
+          rawValue = JSON.parse(data);
+        } catch {}
+
+        // Try to parse as onboarding event
+        const onboardingEvent = parseOnboardingEvent(data, ctx);
+        if (onboardingEvent) {
+          cb.call({ rawValue: onboardingEvent }, onboardingEvent as CallbackData);
+          return;
+        }
+
+        // Parse as paywall event (default fallback)
+        const paywallEvent = parsePaywallEvent(data, ctx);
+        cb.call({ rawValue: rawValue || paywallEvent }, paywallEvent as CallbackData);
       } catch (error) {
         log.failed({ error });
         cb.call({ rawValue: data }, data as any);

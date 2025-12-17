@@ -85,4 +85,11 @@ export const $bridge = {
     if (!_bridge) initBridge(false);
     return _bridge!.removeAllEventListeners();
   },
+  /**
+   * Provides access to internal bridge for testing purposes only
+   * @internal
+   */
+  get testBridge() {
+    return _bridge;
+  },
 };
