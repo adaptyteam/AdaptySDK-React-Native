@@ -5,10 +5,12 @@ This directory contains integration tests for UI view controllers event handling
 ## Overview
 
 These tests verify that view controller event handlers work correctly with the mock bridge, ensuring that:
-- Events are emitted properly through the mock infrastructure
-- Event handlers receive correctly formatted data
+- Events are emitted properly through the mock infrastructure in native format (snake_case)
+- Event handlers receive correctly formatted data (camelCase)
 - Meta information is properly decoded from snake_case to camelCase
 - Events are filtered by view ID
+
+Event samples in [`bridge-event-samples.ts`](/Users/stanislavmayorov/projects/AdaptySDK-React-Native/src/__tests__/integration/ui/bridge-event-samples.ts) use native format (snake_case) to match real bridge events.
 
 ## Architecture
 
@@ -195,29 +197,21 @@ yarn test --watch src/__tests__/integration/ui
 
 To test additional event types:
 
-1. Create a new emit function in `event-emitter.utils.ts`:
+1. Add event sample in `bridge-event-samples.ts` (use snake_case for native format):
 ```typescript
-export function emitOnboardingAnalyticsEvent(
-  viewId: string,
-  event: { name: string; element_id?: string },
-  meta: AdaptyUiOnboardingMeta,
-): void {
-  // Implementation
-}
+export const NEW_EVENT_SAMPLES = {
+  exampleEvent: {
+    id: 'event_name',
+    view: { id: '...', variation_id: '...', placement_id: '...' },
+    meta: { onboardingId: '...', screenClientId: '...', ... },
+    // event-specific fields in snake_case
+  },
+};
 ```
 
-2. Add test cases in `onboarding-view-controller-events.test.ts`:
-```typescript
-it('should call onAnalytics handler', async () => {
-  const handler = jest.fn();
-  view.setEventHandlers({ onAnalytics: handler });
-  
-  emitOnboardingAnalyticsEvent(viewId, { name: 'screen_view' }, meta);
-  
-  await new Promise(resolve => setTimeout(resolve, 50));
-  expect(handler).toHaveBeenCalled();
-});
-```
+2. Create emit function in `event-emitter.utils.ts` that formats payload in native format
+
+3. Add test cases in `onboarding-view-controller-events.test.ts` that verify handler receives camelCase data
 
 ### Adding Paywall Event Tests
 
@@ -272,12 +266,35 @@ If tests time out:
 2. Check for infinite loops in event handlers
 3. Verify cleanup is happening properly
 
+## Test Coverage
+
+### Onboarding Events
+
+All 7 onboarding event types are covered:
+
+1. **onClose** - 2 tests (basic + filtering)
+2. **onAnalytics** - 1 test
+3. **onStateUpdated** - 9 tests covering all input types:
+   - Text input
+   - Email input
+   - Number input
+   - Select (single option)
+   - Multi-select (single item)
+   - Multi-select (multiple items)
+   - Multi-select (empty)
+   - Date picker (full date)
+   - Date picker (partial date)
+4. **onFinishedLoading** - 1 test
+5. **onPaywall** - 1 test
+6. **onCustom** - 1 test
+7. **onError** - 1 test
+
+Total: **16 tests** covering all onboarding event types and their variations.
+
 ## Future Improvements
 
-- [ ] Add tests for all onboarding event types
 - [ ] Create similar test suite for paywall events
 - [ ] Add tests for error scenarios
 - [ ] Add tests for multiple handlers on the same view
 - [ ] Add tests for unsubscribe functionality
-- [ ] Add integration with real event payloads from logs
 
