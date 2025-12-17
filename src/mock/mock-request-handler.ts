@@ -256,43 +256,41 @@ export class MockRequestHandler<Method extends string, Params extends string> {
     event: Event,
     cb: (this: { rawValue: any }, data: CallbackData) => void | Promise<void>,
   ): EmitterSubscription {
-    const wrappedCallback = (data: string) => {
+    const consumeNativeCallback = (...data: string[]) => {
       const ctx = new LogContext();
+
       const log = ctx.event({ methodName: `mock/${event}` });
-      log.start({ data });
+      log.start(data);
 
       let rawValue = null;
 
-      try {
-        // Try to parse as common event (did_load_latest_profile, etc.)
-        const commonEvent = parseCommonEvent(event, data, ctx);
-        if (commonEvent) {
-          cb.call({ rawValue: commonEvent }, commonEvent as CallbackData);
-          return;
-        }
-
-        // Try to parse raw JSON for rawValue
+      const args = data.map(arg => {
         try {
-          rawValue = JSON.parse(data);
-        } catch {}
+          const commonEvent = parseCommonEvent(event, arg, ctx);
+          if (commonEvent) return commonEvent;
 
-        // Try to parse as onboarding event
-        const onboardingEvent = parseOnboardingEvent(data, ctx);
-        if (onboardingEvent) {
-          cb.call({ rawValue: onboardingEvent }, onboardingEvent as CallbackData);
-          return;
+          try {
+            rawValue = JSON.parse(arg);
+          } catch {}
+
+          const onboardingEvent = parseOnboardingEvent(arg, ctx);
+          if (onboardingEvent) {
+            return onboardingEvent;
+          }
+
+          const paywallEvent = parsePaywallEvent(arg, ctx);
+          return paywallEvent;
+        } catch (error) {
+          log.failed({ error });
+
+          throw error;
         }
+      });
 
-        // Parse as paywall event (default fallback)
-        const paywallEvent = parsePaywallEvent(data, ctx);
-        cb.call({ rawValue: rawValue || paywallEvent }, paywallEvent as CallbackData);
-      } catch (error) {
-        log.failed({ error });
-        cb.call({ rawValue: data }, data as any);
-      }
+      cb.apply({ rawValue }, args as any);
     };
 
-    const subscription = this.emitter.addListener(event, wrappedCallback);
+    const subscription = this.emitter.addListener(event, consumeNativeCallback);
     this.listeners.add(subscription);
     return subscription;
   }
