@@ -1,4 +1,5 @@
 import { Adapty } from '@/adapty-handler';
+import { AdaptyError } from '@/adapty-error';
 import { OnboardingViewController } from '@/ui/onboarding-view-controller';
 import { OnboardingEventHandlers } from '@/ui/types';
 import {
@@ -655,14 +656,13 @@ describe('OnboardingViewController - onError event', () => {
     emitOnboardingErrorEvent(viewId, sample.error);
 
     expect(onErrorHandler).toHaveBeenCalledTimes(1);
-    // Handler receives AdaptyError instance
-    expect(onErrorHandler).toHaveBeenCalledWith(
-      expect.objectContaining({
-        adaptyCode: sample.error.adaptyCode,
-        message: sample.error.message,
-        detail: sample.error.detail,
-      }),
-    );
+    const firstCall = onErrorHandler.mock.calls[0];
+    expect(firstCall).toBeDefined();
+    const [errorArg] = firstCall as [AdaptyError];
+    expect(errorArg).toBeInstanceOf(AdaptyError);
+    expect(errorArg.adaptyCode).toBe(sample.error.adaptyCode);
+    expect(errorArg.message).toContain(sample.error.message);
+    expect(errorArg.detail).toBe(sample.error.detail);
   });
 });
 
