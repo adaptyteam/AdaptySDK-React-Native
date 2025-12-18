@@ -30,4 +30,3 @@ export function cleanupOnboardingViewController(
   void view; // Suppress unused variable warning
   cleanupAdapty(adapty);
 }
-

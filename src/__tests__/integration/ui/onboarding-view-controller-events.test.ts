@@ -1,4 +1,5 @@
 import { Adapty } from '@/adapty-handler';
+import { AdaptyError } from '@/adapty-error';
 import { OnboardingViewController } from '@/ui/onboarding-view-controller';
 import { OnboardingEventHandlers } from '@/ui/types';
 import {
@@ -86,7 +87,10 @@ describe('OnboardingViewController - onClose event', () => {
 
     // Verify handler was called with correct arguments (camelCase after decoding)
     expect(onCloseHandler).toHaveBeenCalledTimes(1);
-    expect(onCloseHandler).toHaveBeenCalledWith('close_button_1', expectMetaToBe(testMeta));
+    expect(onCloseHandler).toHaveBeenCalledWith(
+      'close_button_1',
+      expectMetaToBe(testMeta),
+    );
   });
 
   it('should filter events by viewId', async () => {
@@ -140,11 +144,7 @@ describe('OnboardingViewController - onAnalytics event', () => {
     const viewId = (view as any).id;
     const sample = ONBOARDING_ANALYTICS_ONBOARDING_STARTED;
 
-    emitOnboardingAnalyticsEvent(
-      viewId,
-      sample.event,
-      sample.meta,
-    );
+    emitOnboardingAnalyticsEvent(viewId, sample.event, sample.meta);
 
     expect(onAnalyticsHandler).toHaveBeenCalledTimes(1);
     expect(onAnalyticsHandler).toHaveBeenCalledWith(
@@ -542,7 +542,9 @@ describe('OnboardingViewController - onFinishedLoading event', () => {
 
     expect(onFinishedLoadingHandler).toHaveBeenCalledTimes(1);
     // Handler receives decoded meta (camelCase)
-    expect(onFinishedLoadingHandler).toHaveBeenCalledWith(expectMetaToBe(sample.meta));
+    expect(onFinishedLoadingHandler).toHaveBeenCalledWith(
+      expectMetaToBe(sample.meta),
+    );
   });
 });
 
@@ -572,11 +574,7 @@ describe('OnboardingViewController - onPaywall event', () => {
     const viewId = (view as any).id;
     const sample = ONBOARDING_PAYWALL_ACTION;
 
-    emitOnboardingPaywallEvent(
-      viewId,
-      sample.action_id,
-      sample.meta,
-    );
+    emitOnboardingPaywallEvent(viewId, sample.action_id, sample.meta);
 
     expect(onPaywallHandler).toHaveBeenCalledTimes(1);
     expect(onPaywallHandler).toHaveBeenCalledWith(
@@ -612,11 +610,7 @@ describe('OnboardingViewController - onCustom event', () => {
     const viewId = (view as any).id;
     const sample = ONBOARDING_CUSTOM_ACTION;
 
-    emitOnboardingCustomEvent(
-      viewId,
-      sample.action_id,
-      sample.meta,
-    );
+    emitOnboardingCustomEvent(viewId, sample.action_id, sample.meta);
 
     expect(onCustomHandler).toHaveBeenCalledTimes(1);
     expect(onCustomHandler).toHaveBeenCalledWith(
@@ -655,14 +649,13 @@ describe('OnboardingViewController - onError event', () => {
     emitOnboardingErrorEvent(viewId, sample.error);
 
     expect(onErrorHandler).toHaveBeenCalledTimes(1);
-    // Handler receives AdaptyError instance
-    expect(onErrorHandler).toHaveBeenCalledWith(
-      expect.objectContaining({
-        adaptyCode: sample.error.adaptyCode,
-        message: sample.error.message,
-        detail: sample.error.detail,
-      }),
-    );
+    const firstCall = onErrorHandler.mock.calls[0];
+    expect(firstCall).toBeDefined();
+    const [errorArg] = firstCall as [AdaptyError];
+    expect(errorArg).toBeInstanceOf(AdaptyError);
+    expect(errorArg.adaptyCode).toBe(sample.error.adaptyCode);
+    expect(errorArg.message).toContain(sample.error.message);
+    expect(errorArg.detail).toBe(sample.error.detail);
   });
 });
 
@@ -1069,7 +1062,10 @@ describe('OnboardingViewController - setEventHandlers merge behavior', () => {
 
     // Both handlers should have been called
     expect(onCloseHandler).toHaveBeenCalledTimes(1);
-    expect(onCloseHandler).toHaveBeenCalledWith('close_action', expectMetaToBe(testMeta));
+    expect(onCloseHandler).toHaveBeenCalledWith(
+      'close_action',
+      expectMetaToBe(testMeta),
+    );
     expect(onAnalyticsHandler).toHaveBeenCalledTimes(1);
     expect(onAnalyticsHandler).toHaveBeenCalledWith(
       ONBOARDING_ANALYTICS_ONBOARDING_STARTED.event,
@@ -1100,7 +1096,10 @@ describe('OnboardingViewController - setEventHandlers merge behavior', () => {
     // Only the second handler should be called
     expect(onCloseHandler1).not.toHaveBeenCalled();
     expect(onCloseHandler2).toHaveBeenCalledTimes(1);
-    expect(onCloseHandler2).toHaveBeenCalledWith('close_action', expectMetaToBe(testMeta));
+    expect(onCloseHandler2).toHaveBeenCalledWith(
+      'close_action',
+      expectMetaToBe(testMeta),
+    );
   });
 
   it('should preserve multiple handlers across successive setEventHandlers calls', async () => {
@@ -1203,7 +1202,10 @@ describe('OnboardingViewController - multiple views isolation', () => {
       expect(handler1).not.toHaveBeenCalled();
       // Second view should still receive (not affected by first view's unsubscribe)
       expect(handler2).toHaveBeenCalledTimes(1);
-      expect(handler2).toHaveBeenCalledWith('action4', expectMetaToBe(testMeta));
+      expect(handler2).toHaveBeenCalledWith(
+        'action4',
+        expectMetaToBe(testMeta),
+      );
     } finally {
       // Cleanup second view (no need to cleanup adapty, it's shared)
       // view2 cleanup happens in afterEach through adapty.removeAllListeners
@@ -1267,7 +1269,10 @@ describe('OnboardingViewController - default event handlers', () => {
 
     // Custom handler should be called
     expect(customHandler).toHaveBeenCalledTimes(1);
-    expect(customHandler).toHaveBeenCalledWith('close_action', expectMetaToBe(testMeta));
+    expect(customHandler).toHaveBeenCalledWith(
+      'close_action',
+      expectMetaToBe(testMeta),
+    );
 
     // Dismiss should NOT be called because custom handler returned false
     expect(dismissSpy).not.toHaveBeenCalled();
@@ -1489,4 +1494,3 @@ describe('OnboardingViewController - unsubscribe functionality', () => {
     expect(onCloseHandler2).toHaveBeenCalledTimes(1); // New handler called
   });
 });
-

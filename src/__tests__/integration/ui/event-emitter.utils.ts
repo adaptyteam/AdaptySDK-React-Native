@@ -25,9 +25,7 @@ export function emitOnboardingCloseEvent(
   const emitter = (bridge as any).testEmitter;
 
   if (!emitter) {
-    throw new Error(
-      'Mock emitter not available. Ensure mock mode is enabled.',
-    );
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
   }
 
   const payload = {
@@ -72,9 +70,7 @@ export function emitOnboardingAnalyticsEvent(
   const emitter = (bridge as any).testEmitter;
 
   if (!emitter) {
-    throw new Error(
-      'Mock emitter not available. Ensure mock mode is enabled.',
-    );
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
   }
 
   const payload: Record<string, any> = {
@@ -124,9 +120,7 @@ export function emitOnboardingStateUpdatedEvent(
   const emitter = (bridge as any).testEmitter;
 
   if (!emitter) {
-    throw new Error(
-      'Mock emitter not available. Ensure mock mode is enabled.',
-    );
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
   }
 
   // Encode action to native format (snake_case) manually
@@ -161,10 +155,7 @@ export function emitOnboardingStateUpdatedEvent(
     },
   };
 
-  emitter.emit(
-    'onboarding_on_state_updated_action',
-    JSON.stringify(payload),
-  );
+  emitter.emit('onboarding_on_state_updated_action', JSON.stringify(payload));
 }
 
 /**
@@ -188,9 +179,7 @@ export function emitOnboardingFinishedLoadingEvent(
   const emitter = (bridge as any).testEmitter;
 
   if (!emitter) {
-    throw new Error(
-      'Mock emitter not available. Ensure mock mode is enabled.',
-    );
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
   }
 
   const payload = {
@@ -229,9 +218,7 @@ export function emitOnboardingPaywallEvent(
   const emitter = (bridge as any).testEmitter;
 
   if (!emitter) {
-    throw new Error(
-      'Mock emitter not available. Ensure mock mode is enabled.',
-    );
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
   }
 
   const payload = {
@@ -261,7 +248,7 @@ export function emitOnboardingCustomEvent(
     screen_index: number;
     total_screens: number;
   },
-): void{
+): void {
   const bridge = $bridge.testBridge;
 
   if (!bridge) {
@@ -271,9 +258,7 @@ export function emitOnboardingCustomEvent(
   const emitter = (bridge as any).testEmitter;
 
   if (!emitter) {
-    throw new Error(
-      'Mock emitter not available. Ensure mock mode is enabled.',
-    );
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
   }
 
   const payload = {
@@ -311,9 +296,7 @@ export function emitOnboardingErrorEvent(
   const emitter = (bridge as any).testEmitter;
 
   if (!emitter) {
-    throw new Error(
-      'Mock emitter not available. Ensure mock mode is enabled.',
-    );
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
   }
 
   const errorCoder = new AdaptyNativeErrorCoder();
@@ -331,4 +314,3 @@ export function emitOnboardingErrorEvent(
 
   emitter.emit('onboarding_did_fail_with_error', JSON.stringify(payload));
 }
-

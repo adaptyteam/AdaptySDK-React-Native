@@ -393,7 +393,11 @@ describe('OnboardingViewEmitter', () => {
 
         // Add handlers for different events
         emitter.addListener('onError', errorHandler, mockOnRequestClose);
-        emitter.addListener('onAnalytics', analyticsHandler, mockOnRequestClose);
+        emitter.addListener(
+          'onAnalytics',
+          analyticsHandler,
+          mockOnRequestClose,
+        );
         emitter.addListener('onClose', closeHandler, mockOnRequestClose);
 
         // Simulate event for onError
@@ -412,7 +416,7 @@ describe('OnboardingViewEmitter', () => {
         const analyticsListener = mockBridge.addEventListener.mock.calls.find(
           call => call[0] === 'onboarding_on_analytics_action',
         )?.[1];
-        
+
         (analyticsListener as any)?.call(
           {
             rawValue: {
@@ -489,19 +493,42 @@ describe('OnboardingViewEmitter', () => {
 
         // Emit all events
         (errorListener as any)?.call(
-          { rawValue: { view: { id: TEST_VIEW_ID }, error: { message: 'error' } } },
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              error: { message: 'error' },
+            },
+          },
           { view: { id: TEST_VIEW_ID }, error: { message: 'error' } },
         );
         (closeListener as any)?.call(
-          { rawValue: { view: { id: TEST_VIEW_ID }, action_id: 'close', meta: testMeta } },
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              action_id: 'close',
+              meta: testMeta,
+            },
+          },
           { view: { id: TEST_VIEW_ID }, action_id: 'close', meta: testMeta },
         );
         (paywallListener as any)?.call(
-          { rawValue: { view: { id: TEST_VIEW_ID }, action_id: 'paywall', meta: testMeta } },
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              action_id: 'paywall',
+              meta: testMeta,
+            },
+          },
           { view: { id: TEST_VIEW_ID }, action_id: 'paywall', meta: testMeta },
         );
         (customListener as any)?.call(
-          { rawValue: { view: { id: TEST_VIEW_ID }, action_id: 'custom', meta: testMeta } },
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              action_id: 'custom',
+              meta: testMeta,
+            },
+          },
           { view: { id: TEST_VIEW_ID }, action_id: 'custom', meta: testMeta },
         );
 

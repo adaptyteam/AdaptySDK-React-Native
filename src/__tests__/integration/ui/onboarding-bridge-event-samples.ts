@@ -1,15 +1,15 @@
 /**
  * Bridge event samples in native format (snake_case)
- * 
+ *
  * These samples represent events as they come from the native module.
  * Real examples collected from device logs in:
  * - native-event-data.json (session 1)
  * - native-event-data-2.json (session 2)
  * - native-event-data-3.json (session 3 - includes onClose and onCustom events)
  * - native-event-data-4.json (session 4 - includes onError event)
- * 
+ *
  * Synthetic examples created based on cross_platform.yaml schema for types not present in logs.
- * 
+ *
  * Use these samples for integration tests to verify event handling.
  */
 
@@ -461,7 +461,8 @@ export const PROFILE_DID_LOAD_LATEST_PROFILE = {
   profile: {
     profile_id: '8b79ec26-3f3d-482c-99e8-ec745710ef59',
     customer_user_id: null,
-    segment_hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    segment_hash:
+      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
     paid_access_levels: {},
     subscriptions: {},
     non_subscriptions: {},
@@ -513,4 +514,3 @@ export const COMMON_ONBOARDING_META = {
   onboardingId: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
   totalScreens: 18,
 } as const;
-
