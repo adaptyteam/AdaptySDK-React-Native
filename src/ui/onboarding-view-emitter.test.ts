@@ -164,8 +164,8 @@ describe('OnboardingViewEmitter', () => {
         const nativeListener = mockBridge.addEventListener.mock.calls[0]?.[1];
         expect(nativeListener).toBeDefined();
 
-        // Call the listener with proper this context
-        (nativeListener! as any).call({ rawValue: eventData });
+        // Call the listener with proper this context and data parameter
+        (nativeListener! as any).call({ rawValue: eventData }, eventData);
       }
 
       it('should filter events by viewId', () => {
@@ -308,7 +308,7 @@ describe('OnboardingViewEmitter', () => {
         emitter.addListener('onStateUpdated', handler, mockOnRequestClose);
 
         const testAction = {
-          element_id: 'input1',
+          elementId: 'input1',
           value: { type: 'text', value: 'test' },
         };
         const testMeta = {
@@ -328,7 +328,7 @@ describe('OnboardingViewEmitter', () => {
         expect(mockOnRequestClose).not.toHaveBeenCalled();
       });
 
-      it('should handle onStateUpdated with element_id from action', () => {
+      it('should handle onStateUpdated with elementId from action_id', () => {
         const handler = jest.fn().mockReturnValue(false);
         emitter.addListener('onStateUpdated', handler, mockOnRequestClose);
 
@@ -348,7 +348,7 @@ describe('OnboardingViewEmitter', () => {
         });
 
         expect(handler).toHaveBeenCalledWith(
-          { element_id: testActionId },
+          { elementId: testActionId },
           testMeta,
         );
       });
@@ -386,6 +386,159 @@ describe('OnboardingViewEmitter', () => {
         expect(onRequestClose2).toHaveBeenCalled(); // handler2 returned true
       });
 
+      it('should preserve handlers for different events (merge behavior)', () => {
+        const errorHandler = jest.fn().mockReturnValue(false);
+        const analyticsHandler = jest.fn().mockReturnValue(false);
+        const closeHandler = jest.fn().mockReturnValue(false);
+
+        // Add handlers for different events
+        emitter.addListener('onError', errorHandler, mockOnRequestClose);
+        emitter.addListener(
+          'onAnalytics',
+          analyticsHandler,
+          mockOnRequestClose,
+        );
+        emitter.addListener('onClose', closeHandler, mockOnRequestClose);
+
+        // Simulate event for onError
+        simulateNativeEvent({
+          view: { id: TEST_VIEW_ID },
+          error: { message: 'Test error' },
+        });
+
+        expect(errorHandler).toHaveBeenCalledTimes(1);
+        expect(analyticsHandler).not.toHaveBeenCalled();
+        expect(closeHandler).not.toHaveBeenCalled();
+
+        errorHandler.mockClear();
+
+        // Simulate event for onAnalytics - should not affect onError handler
+        const analyticsListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_analytics_action',
+        )?.[1];
+
+        (analyticsListener as any)?.call(
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              event: { name: 'test_event' },
+              meta: { onboardingId: 'test' },
+            },
+          },
+          {
+            view: { id: TEST_VIEW_ID },
+            event: { name: 'test_event' },
+            meta: { onboardingId: 'test' },
+          },
+        );
+
+        expect(errorHandler).not.toHaveBeenCalled();
+        expect(analyticsHandler).toHaveBeenCalledTimes(1);
+        expect(closeHandler).not.toHaveBeenCalled();
+
+        analyticsHandler.mockClear();
+
+        // Simulate event for onClose - both previous handlers should still be active
+        const closeListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_close_action',
+        )?.[1];
+
+        (closeListener as any)?.call(
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              action_id: 'close_action',
+              meta: { onboardingId: 'test' },
+            },
+          },
+          {
+            view: { id: TEST_VIEW_ID },
+            action_id: 'close_action',
+            meta: { onboardingId: 'test' },
+          },
+        );
+
+        expect(errorHandler).not.toHaveBeenCalled();
+        expect(analyticsHandler).not.toHaveBeenCalled();
+        expect(closeHandler).toHaveBeenCalledTimes(1);
+      });
+
+      it('should preserve multiple handlers across successive addListener calls', () => {
+        const errorHandler = jest.fn().mockReturnValue(false);
+        const closeHandler = jest.fn().mockReturnValue(false);
+        const paywallHandler = jest.fn().mockReturnValue(false);
+        const customHandler = jest.fn().mockReturnValue(false);
+
+        // Add handlers one by one
+        emitter.addListener('onError', errorHandler, mockOnRequestClose);
+        emitter.addListener('onClose', closeHandler, mockOnRequestClose);
+        emitter.addListener('onPaywall', paywallHandler, mockOnRequestClose);
+        emitter.addListener('onCustom', customHandler, mockOnRequestClose);
+
+        // Get all listeners
+        const errorListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_did_fail_with_error',
+        )?.[1];
+        const closeListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_close_action',
+        )?.[1];
+        const paywallListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_paywall_action',
+        )?.[1];
+        const customListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_custom_action',
+        )?.[1];
+
+        const testMeta = { onboardingId: 'test' };
+
+        // Emit all events
+        (errorListener as any)?.call(
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              error: { message: 'error' },
+            },
+          },
+          { view: { id: TEST_VIEW_ID }, error: { message: 'error' } },
+        );
+        (closeListener as any)?.call(
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              action_id: 'close',
+              meta: testMeta,
+            },
+          },
+          { view: { id: TEST_VIEW_ID }, action_id: 'close', meta: testMeta },
+        );
+        (paywallListener as any)?.call(
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              action_id: 'paywall',
+              meta: testMeta,
+            },
+          },
+          { view: { id: TEST_VIEW_ID }, action_id: 'paywall', meta: testMeta },
+        );
+        (customListener as any)?.call(
+          {
+            rawValue: {
+              view: { id: TEST_VIEW_ID },
+              action_id: 'custom',
+              meta: testMeta,
+            },
+          },
+          { view: { id: TEST_VIEW_ID }, action_id: 'custom', meta: testMeta },
+        );
+
+        // All handlers should have been called
+        expect(errorHandler).toHaveBeenCalledTimes(1);
+        expect(closeHandler).toHaveBeenCalledTimes(1);
+        expect(paywallHandler).toHaveBeenCalledTimes(1);
+        expect(customHandler).toHaveBeenCalledTimes(1);
+      });
+
       it('should handle missing view id gracefully', () => {
         const handler = jest.fn();
         emitter.addListener('onError', handler, mockOnRequestClose);
@@ -411,7 +564,6 @@ describe('OnboardingViewEmitter', () => {
       emitter.removeAllListeners();
 
       expect(mockSubscription.remove).toHaveBeenCalledTimes(2);
-      expect(mockBridge.removeAllEventListeners).toHaveBeenCalled();
     });
 
     it('should clear internal state after removing listeners', () => {
@@ -430,8 +582,6 @@ describe('OnboardingViewEmitter', () => {
       expect(() => {
         emitter.removeAllListeners();
       }).not.toThrow();
-
-      expect(mockBridge.removeAllEventListeners).toHaveBeenCalled();
     });
   });
 
@@ -468,7 +618,7 @@ describe('OnboardingViewEmitter', () => {
         },
         event: { name: 'screen_view', element_id: 'btn1' },
         action: {
-          element_id: 'input1',
+          elementId: 'input1',
           value: { type: 'text', value: 'test' },
         },
         error: { message: 'Test error', code: 'test_code' },
@@ -477,7 +627,7 @@ describe('OnboardingViewEmitter', () => {
       // Test each event type
       mockBridge.addEventListener.mock.calls.forEach(
         ([eventName, callback], index) => {
-          (callback as any).call({ rawValue: mockData });
+          (callback as any).call({ rawValue: mockData }, mockData);
 
           const handler = Object.values(handlers)[index];
           expect(handler).toHaveBeenCalled();
@@ -520,7 +670,7 @@ describe('OnboardingViewEmitter', () => {
       const nativeListener = mockBridge.addEventListener.mock.calls[0]?.[1];
       expect(nativeListener).toBeDefined();
 
-      (nativeListener! as any).call({ rawValue: eventData });
+      (nativeListener! as any).call({ rawValue: eventData }, eventData);
     }
 
     it('should handle missing event data gracefully', () => {
