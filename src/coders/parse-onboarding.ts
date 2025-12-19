@@ -58,7 +58,7 @@ export function parseOnboardingEvent(
       return {
         id: eventId,
         view,
-        action_id: (obj['action_id'] as string) ?? '',
+        actionId: (obj['action_id'] as string) ?? '',
         meta: decodeMeta(),
       };
 

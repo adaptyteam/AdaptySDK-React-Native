@@ -34,19 +34,19 @@ interface BaseOnboardingEvent {
 // Event Types
 export interface OnboardingCloseEvent extends BaseOnboardingEvent {
   id: typeof OnboardingEventId.Close;
-  action_id: string;
+  actionId: string;
   meta: AdaptyUiOnboardingMeta;
 }
 
 export interface OnboardingCustomEvent extends BaseOnboardingEvent {
   id: typeof OnboardingEventId.Custom;
-  action_id: string;
+  actionId: string;
   meta: AdaptyUiOnboardingMeta;
 }
 
 export interface OnboardingPaywallEvent extends BaseOnboardingEvent {
   id: typeof OnboardingEventId.Paywall;
-  action_id: string;
+  actionId: string;
   meta: AdaptyUiOnboardingMeta;
 }
 

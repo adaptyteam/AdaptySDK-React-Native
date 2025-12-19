@@ -210,7 +210,7 @@ function extractCallbackArgs<T extends keyof OnboardingEventHandlers>(
     case OnboardingEventId.Close:
     case OnboardingEventId.Custom:
     case OnboardingEventId.Paywall:
-      return [event.action_id, event.meta] as ExtractedArgs<T>;
+      return [event.actionId, event.meta] as ExtractedArgs<T>;
 
     case OnboardingEventId.StateUpdated:
       return [event.action, event.meta] as ExtractedArgs<T>;

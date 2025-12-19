@@ -166,7 +166,13 @@ describe('OnboardingViewEmitter', () => {
 
         // Call the listener with parsed event data (first parameter)
         // In real scenario, native-request-handler parses the event before passing it
-        (nativeListener! as any).call({ rawValue: eventData }, eventData);
+        // Convert action_id to actionId for parsed event data
+        const parsedEventData = { ...eventData };
+        if ('action_id' in parsedEventData) {
+          parsedEventData.actionId = parsedEventData.action_id;
+          delete parsedEventData.action_id;
+        }
+        (nativeListener! as any).call({ rawValue: eventData }, parsedEventData);
       }
 
       it('should filter events by viewId', () => {
@@ -448,7 +454,7 @@ describe('OnboardingViewEmitter', () => {
           {
             id: 'onboarding_on_close_action',
             view: { id: TEST_VIEW_ID },
-            action_id: 'close_action',
+            actionId: 'close_action',
             meta: { onboardingId: 'test' },
           },
         );
@@ -506,7 +512,7 @@ describe('OnboardingViewEmitter', () => {
               meta: testMeta,
             },
           },
-          { id: 'onboarding_on_close_action', view: { id: TEST_VIEW_ID }, action_id: 'close', meta: testMeta },
+          { id: 'onboarding_on_close_action', view: { id: TEST_VIEW_ID }, actionId: 'close', meta: testMeta },
         );
         (paywallListener as any)?.call(
           {
@@ -517,7 +523,7 @@ describe('OnboardingViewEmitter', () => {
               meta: testMeta,
             },
           },
-          { id: 'onboarding_on_paywall_action', view: { id: TEST_VIEW_ID }, action_id: 'paywall', meta: testMeta },
+          { id: 'onboarding_on_paywall_action', view: { id: TEST_VIEW_ID }, actionId: 'paywall', meta: testMeta },
         );
         (customListener as any)?.call(
           {
@@ -528,7 +534,7 @@ describe('OnboardingViewEmitter', () => {
               meta: testMeta,
             },
           },
-          { id: 'onboarding_on_custom_action', view: { id: TEST_VIEW_ID }, action_id: 'custom', meta: testMeta },
+          { id: 'onboarding_on_custom_action', view: { id: TEST_VIEW_ID }, actionId: 'custom', meta: testMeta },
         );
 
         // All handlers should have been called
@@ -651,7 +657,7 @@ describe('OnboardingViewEmitter', () => {
               mockData = {
                 id: eventName,
                 view: { id: TEST_VIEW_ID },
-                action_id: 'test_action',
+                actionId: 'test_action',
                 meta: baseMeta,
               };
               break;
@@ -693,7 +699,7 @@ describe('OnboardingViewEmitter', () => {
             case 'onboarding_on_custom_action':
             case 'onboarding_on_paywall_action':
               expect(handler).toHaveBeenCalledWith(
-                mockData.action_id,
+                mockData.actionId,
                 mockData.meta,
               );
               break;
@@ -714,7 +720,13 @@ describe('OnboardingViewEmitter', () => {
       const nativeListener = mockBridge.addEventListener.mock.calls[0]?.[1];
       expect(nativeListener).toBeDefined();
 
-      (nativeListener! as any).call({ rawValue: eventData }, eventData);
+      // Convert action_id to actionId for parsed event data
+      const parsedEventData = { ...eventData };
+      if ('action_id' in parsedEventData) {
+        parsedEventData.actionId = parsedEventData.action_id;
+        delete parsedEventData.action_id;
+      }
+      (nativeListener! as any).call({ rawValue: eventData }, parsedEventData);
     }
 
     it('should handle missing event data gracefully', () => {
