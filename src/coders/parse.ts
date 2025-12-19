@@ -183,64 +183,6 @@ export function parsePaywallEvent(
   return result;
 }
 
-export function parseOnboardingEvent(
-  input: string,
-  ctx?: LogContext,
-): Record<string, any> | null {
-  let obj: Record<string, unknown>;
-  try {
-    obj = JSON.parse(input);
-  } catch (error) {
-    throw AdaptyError.failedToDecode(
-      `Failed to decode event: ${(error as Error)?.message}`,
-    );
-  }
-
-  const eventId = obj['id'] as string;
-  if (!eventId || !eventId.startsWith('onboarding_')) {
-    return null;
-  }
-
-  const result: Record<string, any> = {};
-
-  if (obj.hasOwnProperty('id')) {
-    result['id'] = obj['id'];
-  }
-
-  if (obj.hasOwnProperty('view')) {
-    result['view'] = obj['view'];
-  }
-
-  if (obj.hasOwnProperty('meta')) {
-    result['meta'] = getCoder('AdaptyUiOnboardingMeta', ctx)?.decode(
-      obj['meta'],
-    );
-  }
-
-  if (obj.hasOwnProperty('action')) {
-    result['action'] = getCoder(
-      'AdaptyUiOnboardingStateUpdatedAction',
-      ctx,
-    )?.decode(obj['action']);
-  }
-
-  if (obj.hasOwnProperty('action_id')) {
-    result['action_id'] = obj['action_id'];
-  }
-
-  if (obj.hasOwnProperty('event')) {
-    result['event'] = obj['event'];
-  }
-
-  if (obj.hasOwnProperty('error')) {
-    const errorCoder = getCoder('AdaptyError', ctx) as ErrorConverter<any>;
-    const decodedError = errorCoder?.decode(obj['error']);
-    result['error'] = errorCoder?.getError(decodedError as any);
-  }
-
-  return result;
-}
-
 function getCoder(
   type: AdaptyType,
   ctx?: LogContext,

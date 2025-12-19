@@ -164,7 +164,8 @@ describe('OnboardingViewEmitter', () => {
         const nativeListener = mockBridge.addEventListener.mock.calls[0]?.[1];
         expect(nativeListener).toBeDefined();
 
-        // Call the listener with proper this context and data parameter
+        // Call the listener with parsed event data (first parameter)
+        // In real scenario, native-request-handler parses the event before passing it
         (nativeListener! as any).call({ rawValue: eventData }, eventData);
       }
 
@@ -173,6 +174,7 @@ describe('OnboardingViewEmitter', () => {
         emitter.addListener('onError', handler, mockOnRequestClose);
 
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: DIFFERENT_VIEW_ID },
           error: { message: 'Test error' },
         });
@@ -187,6 +189,7 @@ describe('OnboardingViewEmitter', () => {
         const testError = { message: 'Test error', code: 'test_code' };
 
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: testError,
         });
@@ -208,6 +211,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_analytics_action',
           view: { id: TEST_VIEW_ID },
           event: testEvent,
           meta: testMeta,
@@ -229,6 +233,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_did_finish_loading',
           view: { id: TEST_VIEW_ID },
           meta: testMeta,
         });
@@ -250,6 +255,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_close_action',
           view: { id: TEST_VIEW_ID },
           action_id: testActionId,
           meta: testMeta,
@@ -272,6 +278,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_custom_action',
           view: { id: TEST_VIEW_ID },
           action_id: testActionId,
           meta: testMeta,
@@ -294,6 +301,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_paywall_action',
           view: { id: TEST_VIEW_ID },
           action_id: testActionId,
           meta: testMeta,
@@ -319,6 +327,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_state_updated_action',
           view: { id: TEST_VIEW_ID },
           action: testAction,
           meta: testMeta,
@@ -328,36 +337,13 @@ describe('OnboardingViewEmitter', () => {
         expect(mockOnRequestClose).not.toHaveBeenCalled();
       });
 
-      it('should handle onStateUpdated with elementId from action_id', () => {
-        const handler = jest.fn().mockReturnValue(false);
-        emitter.addListener('onStateUpdated', handler, mockOnRequestClose);
-
-        const testActionId = 'state_action';
-        const testMeta = {
-          onboardingId: 'test',
-          screenClientId: 'screen1',
-          screenIndex: 0,
-          totalScreens: 3,
-        };
-
-        simulateNativeEvent({
-          view: { id: TEST_VIEW_ID },
-          action_id: testActionId,
-          action: null, // No action object
-          meta: testMeta,
-        });
-
-        expect(handler).toHaveBeenCalledWith(
-          { elementId: testActionId },
-          testMeta,
-        );
-      });
 
       it('should call onRequestClose when handler returns true', () => {
         const handler = jest.fn().mockReturnValue(true);
         emitter.addListener('onError', handler, mockOnRequestClose);
 
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: { message: 'Test error' },
         });
@@ -376,6 +362,7 @@ describe('OnboardingViewEmitter', () => {
         emitter.addListener('onError', handler2, onRequestClose2);
 
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: { message: 'Test error' },
         });
@@ -402,6 +389,7 @@ describe('OnboardingViewEmitter', () => {
 
         // Simulate event for onError
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: { message: 'Test error' },
         });
@@ -420,12 +408,14 @@ describe('OnboardingViewEmitter', () => {
         (analyticsListener as any)?.call(
           {
             rawValue: {
+              id: 'onboarding_on_analytics_action',
               view: { id: TEST_VIEW_ID },
               event: { name: 'test_event' },
               meta: { onboardingId: 'test' },
             },
           },
           {
+            id: 'onboarding_on_analytics_action',
             view: { id: TEST_VIEW_ID },
             event: { name: 'test_event' },
             meta: { onboardingId: 'test' },
@@ -446,12 +436,14 @@ describe('OnboardingViewEmitter', () => {
         (closeListener as any)?.call(
           {
             rawValue: {
+              id: 'onboarding_on_close_action',
               view: { id: TEST_VIEW_ID },
               action_id: 'close_action',
               meta: { onboardingId: 'test' },
             },
           },
           {
+            id: 'onboarding_on_close_action',
             view: { id: TEST_VIEW_ID },
             action_id: 'close_action',
             meta: { onboardingId: 'test' },
@@ -495,41 +487,45 @@ describe('OnboardingViewEmitter', () => {
         (errorListener as any)?.call(
           {
             rawValue: {
+              id: 'onboarding_did_fail_with_error',
               view: { id: TEST_VIEW_ID },
               error: { message: 'error' },
             },
           },
-          { view: { id: TEST_VIEW_ID }, error: { message: 'error' } },
+          { id: 'onboarding_did_fail_with_error', view: { id: TEST_VIEW_ID }, error: { message: 'error' } },
         );
         (closeListener as any)?.call(
           {
             rawValue: {
+              id: 'onboarding_on_close_action',
               view: { id: TEST_VIEW_ID },
               action_id: 'close',
               meta: testMeta,
             },
           },
-          { view: { id: TEST_VIEW_ID }, action_id: 'close', meta: testMeta },
+          { id: 'onboarding_on_close_action', view: { id: TEST_VIEW_ID }, action_id: 'close', meta: testMeta },
         );
         (paywallListener as any)?.call(
           {
             rawValue: {
+              id: 'onboarding_on_paywall_action',
               view: { id: TEST_VIEW_ID },
               action_id: 'paywall',
               meta: testMeta,
             },
           },
-          { view: { id: TEST_VIEW_ID }, action_id: 'paywall', meta: testMeta },
+          { id: 'onboarding_on_paywall_action', view: { id: TEST_VIEW_ID }, action_id: 'paywall', meta: testMeta },
         );
         (customListener as any)?.call(
           {
             rawValue: {
+              id: 'onboarding_on_custom_action',
               view: { id: TEST_VIEW_ID },
               action_id: 'custom',
               meta: testMeta,
             },
           },
-          { view: { id: TEST_VIEW_ID }, action_id: 'custom', meta: testMeta },
+          { id: 'onboarding_on_custom_action', view: { id: TEST_VIEW_ID }, action_id: 'custom', meta: testMeta },
         );
 
         // All handlers should have been called
@@ -543,10 +539,15 @@ describe('OnboardingViewEmitter', () => {
         const handler = jest.fn();
         emitter.addListener('onError', handler, mockOnRequestClose);
 
-        simulateNativeEvent({
-          // No view object
-          error: { message: 'Test error' },
-        });
+        // In real scenario, parser would reject events without view
+        // But for unit test, we simulate malformed event
+        expect(() => {
+          simulateNativeEvent({
+            id: 'onboarding_did_fail_with_error',
+            view: undefined as any, // Malformed event
+            error: { message: 'Test error' },
+          });
+        }).toThrow();
 
         expect(handler).not.toHaveBeenCalled();
       });
@@ -606,27 +607,64 @@ describe('OnboardingViewEmitter', () => {
         );
       });
 
-      const mockData = {
-        view: { id: TEST_VIEW_ID },
-        id: 'onboarding_on_paywall_action', // Event type
-        action_id: 'test_action', // Custom action ID
-        meta: {
-          onboardingId: 'test',
-          screenClientId: 'screen1',
-          screenIndex: 0,
-          totalScreens: 3,
-        },
-        event: { name: 'screen_view', element_id: 'btn1' },
-        action: {
-          elementId: 'input1',
-          value: { type: 'text', value: 'test' },
-        },
-        error: { message: 'Test error', code: 'test_code' },
+      const baseMeta = {
+        onboardingId: 'test',
+        screenClientId: 'screen1',
+        screenIndex: 0,
+        totalScreens: 3,
       };
 
-      // Test each event type
+      // Test each event type with correct event structure
       mockBridge.addEventListener.mock.calls.forEach(
         ([eventName, callback], index) => {
+          let mockData: any;
+          
+          switch (eventName) {
+            case 'onboarding_did_fail_with_error':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                error: { message: 'Test error', code: 'test_code' },
+              };
+              break;
+            case 'onboarding_on_analytics_action':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                event: { name: 'screen_view', element_id: 'btn1' },
+                meta: baseMeta,
+              };
+              break;
+            case 'onboarding_did_finish_loading':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                meta: baseMeta,
+              };
+              break;
+            case 'onboarding_on_close_action':
+            case 'onboarding_on_custom_action':
+            case 'onboarding_on_paywall_action':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                action_id: 'test_action',
+                meta: baseMeta,
+              };
+              break;
+            case 'onboarding_on_state_updated_action':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                action: {
+                  elementId: 'input1',
+                  value: { type: 'text', value: 'test' },
+                },
+                meta: baseMeta,
+              };
+              break;
+          }
+
           (callback as any).call({ rawValue: mockData }, mockData);
 
           const handler = Object.values(handlers)[index];
@@ -679,8 +717,9 @@ describe('OnboardingViewEmitter', () => {
 
       expect(() => {
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
-          // Missing error field
+          error: undefined, // Missing error field
         });
       }).not.toThrow();
 
@@ -697,6 +736,7 @@ describe('OnboardingViewEmitter', () => {
 
       expect(() => {
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: { message: 'Test error' },
         });

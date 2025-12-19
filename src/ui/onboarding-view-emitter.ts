@@ -1,6 +1,10 @@
 import type { OnboardingEventHandlers } from './types';
 import { $bridge } from '@/bridge';
 import { EmitterSubscription } from 'react-native';
+import {
+  ParsedOnboardingEvent,
+  OnboardingEventId,
+} from '@/types/onboarding-events';
 
 type EventName = keyof OnboardingEventHandlers;
 
@@ -62,8 +66,8 @@ export class OnboardingViewEmitter {
       const handlers = this.handlers; // Capture the reference
       const subscription = $bridge.addEventListener(
         config.nativeEvent,
-        function (data: Record<string, any>) {
-          const eventViewId = this.rawValue['view']?.['id'] ?? null;
+        function (parsedEvent: ParsedOnboardingEvent) {
+          const eventViewId = parsedEvent.view.id;
           if (viewId !== eventViewId) {
             return;
           }
@@ -80,7 +84,7 @@ export class OnboardingViewEmitter {
 
             const { handler, onRequestClose } = handlerData;
 
-            const callbackArgs = extractCallbackArgs(handlerName, data);
+            const callbackArgs = extractCallbackArgs(handlerName, parsedEvent);
             const cb = handler as (...args: typeof callbackArgs) => boolean;
             const shouldClose = cb.apply(null, callbackArgs);
 
@@ -194,29 +198,30 @@ const NATIVE_EVENT_TO_HANDLERS: Record<string, EventName[]> = Object.entries(
   {} as Record<string, EventName[]>,
 );
 
-function extractCallbackArgs(
-  handlerName: keyof OnboardingEventHandlers,
-  eventArg: Record<string, any>,
-): any[] {
-  const actionId: string = eventArg['action_id'] || '';
-  const meta: Record<string, any> = eventArg['meta'] || {};
-  const event: Record<string, any> = eventArg['event'] || {};
-  const action: Record<string, any> = eventArg['action'] || {};
+type ExtractedArgs<T extends keyof OnboardingEventHandlers> = Parameters<
+  OnboardingEventHandlers[T]
+>;
 
-  switch (handlerName) {
-    case 'onClose':
-    case 'onCustom':
-    case 'onPaywall':
-      return [actionId, meta];
-    case 'onStateUpdated':
-      return [action['elementId'] ? action : { elementId: actionId }, meta];
-    case 'onFinishedLoading':
-      return [meta];
-    case 'onAnalytics':
-      return [event, meta];
-    case 'onError':
-      return [eventArg['error']];
-    default:
-      return [];
+function extractCallbackArgs<T extends keyof OnboardingEventHandlers>(
+  _handlerName: T,
+  event: ParsedOnboardingEvent,
+): ExtractedArgs<T> {
+  switch (event.id) {
+    case OnboardingEventId.Close:
+    case OnboardingEventId.Custom:
+    case OnboardingEventId.Paywall:
+      return [event.action_id, event.meta] as ExtractedArgs<T>;
+
+    case OnboardingEventId.StateUpdated:
+      return [event.action, event.meta] as ExtractedArgs<T>;
+
+    case OnboardingEventId.FinishedLoading:
+      return [event.meta] as ExtractedArgs<T>;
+
+    case OnboardingEventId.Analytics:
+      return [event.event, event.meta] as ExtractedArgs<T>;
+
+    case OnboardingEventId.Error:
+      return [event.error] as ExtractedArgs<T>;
   }
 }
