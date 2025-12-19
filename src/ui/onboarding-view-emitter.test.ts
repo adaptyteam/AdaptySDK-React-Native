@@ -202,7 +202,6 @@ describe('OnboardingViewEmitter', () => {
         const handler = jest.fn().mockReturnValue(false);
         emitter.addListener('onAnalytics', handler, mockOnRequestClose);
 
-        const testEvent = { name: 'screen_view', element_id: 'btn1' };
         const testMeta = {
           onboardingId: 'test',
           screenClientId: 'screen1',
@@ -213,11 +212,15 @@ describe('OnboardingViewEmitter', () => {
         simulateNativeEvent({
           id: 'onboarding_on_analytics_action',
           view: { id: TEST_VIEW_ID },
-          event: testEvent,
+          event: { name: 'screen_view', elementId: 'btn1' },
           meta: testMeta,
         });
 
-        expect(handler).toHaveBeenCalledWith(testEvent, testMeta);
+        // Handler receives both elementId and element_id for backward compatibility
+        expect(handler).toHaveBeenCalledWith(
+          { name: 'screen_view', elementId: 'btn1', element_id: 'btn1' },
+          testMeta,
+        );
         expect(mockOnRequestClose).not.toHaveBeenCalled();
       });
 
@@ -631,7 +634,7 @@ describe('OnboardingViewEmitter', () => {
               mockData = {
                 id: eventName,
                 view: { id: TEST_VIEW_ID },
-                event: { name: 'screen_view', element_id: 'btn1' },
+                event: { name: 'screen_view', elementId: 'btn1' },
                 meta: baseMeta,
               };
               break;
@@ -676,7 +679,10 @@ describe('OnboardingViewEmitter', () => {
               break;
             case 'onboarding_on_analytics_action':
               expect(handler).toHaveBeenCalledWith(
-                mockData.event,
+                {
+                  ...mockData.event,
+                  element_id: mockData.event.elementId, // Backward compatibility
+                },
                 mockData.meta,
               );
               break;

@@ -63,7 +63,7 @@ export interface OnboardingFinishedLoadingEvent extends BaseOnboardingEvent {
 
 export interface OnboardingAnalyticsEvent extends BaseOnboardingEvent {
   id: typeof OnboardingEventId.Analytics;
-  event: { name: string; element_id?: string; reply?: string };
+  event: { name: string; elementId?: string; reply?: string };
   meta: AdaptyUiOnboardingMeta;
 }
 

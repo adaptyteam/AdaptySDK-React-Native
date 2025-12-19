@@ -79,13 +79,19 @@ export function parseOnboardingEvent(
         meta: decodeMeta(),
       };
 
-    case OnboardingEventId.Analytics:
+    case OnboardingEventId.Analytics: {
+      const eventObj = obj['event'] as Record<string, any>;
       return {
         id: eventId,
         view,
-        event: obj['event'] as { name: string },
+        event: {
+          name: eventObj['name'] as string,
+          elementId: eventObj['element_id'] as string | undefined,
+          reply: eventObj['reply'] as string | undefined,
+        },
         meta: decodeMeta(),
       };
+    }
 
     case OnboardingEventId.Error: {
       const errorCoder = getOnboardingCoder('error', ctx) as ErrorConverter<any>;

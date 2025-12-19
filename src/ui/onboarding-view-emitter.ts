@@ -219,7 +219,14 @@ function extractCallbackArgs<T extends keyof OnboardingEventHandlers>(
       return [event.meta] as ExtractedArgs<T>;
 
     case OnboardingEventId.Analytics:
-      return [event.event, event.meta] as ExtractedArgs<T>;
+      // Add backward compatibility: populate element_id from elementId
+      return [
+        {
+          ...event.event,
+          element_id: event.event.elementId,
+        },
+        event.meta,
+      ] as ExtractedArgs<T>;
 
     case OnboardingEventId.Error:
       return [event.error] as ExtractedArgs<T>;
