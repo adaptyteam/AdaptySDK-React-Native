@@ -5,6 +5,7 @@ import {
   ParsedOnboardingEvent,
   OnboardingEventId,
 } from '@/types/onboarding-events';
+import { LogContext } from '@/logger';
 
 type EventName = keyof OnboardingEventHandlers;
 
@@ -72,10 +73,15 @@ export class OnboardingViewEmitter {
             return;
           }
 
+          const ctx = new LogContext();
+          const log = ctx.event({ methodName: config.nativeEvent });
+          log.start({ viewId: eventViewId, eventId: parsedEvent.id });
+
           // Get all possible handler names for this native event
           const possibleHandlers =
             NATIVE_EVENT_TO_HANDLERS[config.nativeEvent] || [];
 
+          let hasError = false;
           for (const handlerName of possibleHandlers) {
             const handlerData = handlers.get(handlerName);
             if (!handlerData) {
@@ -85,14 +91,39 @@ export class OnboardingViewEmitter {
             const { handler, onRequestClose } = handlerData;
 
             const callbackArgs = extractCallbackArgs(handlerName, parsedEvent);
-            const cb = handler as (...args: typeof callbackArgs) => boolean;
-            const shouldClose = cb.apply(null, callbackArgs);
-
-            if (shouldClose) {
-              onRequestClose().catch(() => {
-                // Ignore errors from onRequestClose to avoid breaking event handling
+            const callback = handler as (
+              ...args: ExtractedArgs<typeof handlerName>
+            ) => boolean;
+            let shouldClose = false;
+            try {
+              shouldClose = callback(...callbackArgs);
+            } catch (error) {
+              hasError = true;
+              shouldClose = true;
+              log.failed({
+                error,
+                handlerName,
+                viewId: eventViewId,
+                eventId: parsedEvent.id,
+                reason: 'user_handler_failed',
               });
             }
+
+            if (shouldClose) {
+              onRequestClose().catch(error => {
+                log.failed({
+                  error,
+                  handlerName,
+                  viewId: eventViewId,
+                  eventId: parsedEvent.id,
+                  reason: 'on_request_close_failed',
+                });
+              });
+            }
+          }
+
+          if (!hasError) {
+            log.success({ viewId: eventViewId, eventId: parsedEvent.id });
           }
         },
       );
