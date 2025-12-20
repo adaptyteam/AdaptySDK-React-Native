@@ -47,7 +47,12 @@ export function parseOnboardingEvent(
     return null;
   }
 
-  const view = obj['view'] as OnboardingEventView;
+  const viewObj = obj['view'] as Record<string, unknown>;
+  const view: OnboardingEventView = {
+    id: viewObj['id'] as string,
+    placementId: viewObj['placement_id'] as string | undefined,
+    variationId: viewObj['variation_id'] as string | undefined,
+  };
   const decodeMeta = () =>
     getOnboardingCoder('meta', ctx)!.decode(obj['meta']) as AdaptyUiOnboardingMeta;
 

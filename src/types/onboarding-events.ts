@@ -21,8 +21,8 @@ export type OnboardingEventIdType =
 // Event View
 export interface OnboardingEventView {
   id: string;
-  placement_id?: string;
-  variation_id?: string;
+  placementId?: string;
+  variationId?: string;
 }
 
 // Base Event
