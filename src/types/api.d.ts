@@ -78,6 +78,7 @@ export interface components {
     'AdaptyUICreateOnboardingView.Request': {
       method: 'adapty_ui_create_onboarding_view';
       onboarding: components['defs']['AdaptyOnboarding'];
+      external_urls_presentation?: components['defs']['AdaptyWebPresentation'];
     };
 
     'AdaptyUICreateOnboardingView.Response': OneOf<
@@ -258,10 +259,12 @@ export interface components {
         {
           method: 'open_web_paywall';
           product: components['defs']['AdaptyPaywallProduct.Request'];
+          open_in?: components['defs']['AdaptyWebPresentation'];
         },
         {
           method: 'open_web_paywall';
           paywall: components['defs']['AdaptyPaywall'];
+          open_in?: components['defs']['AdaptyWebPresentation'];
         },
       ]
     >;
@@ -943,6 +946,8 @@ export interface components {
     };
 
     'AdaptyUI.IOSPresentationStyle': 'full_screen' | 'page_sheet';
+
+    AdaptyWebPresentation: 'browser_out_app' | 'browser_in_app';
 
     'AdaptyUI.DialogConfiguration': {
       default_action_title: string;
