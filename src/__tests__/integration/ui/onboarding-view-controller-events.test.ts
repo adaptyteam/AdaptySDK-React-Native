@@ -1,6 +1,7 @@
 import { Adapty } from '@/adapty-handler';
 import { AdaptyError } from '@/adapty-error';
 import { OnboardingViewController } from '@/ui/onboarding-view-controller';
+import { createOnboardingView } from '@/ui/create-onboarding-view';
 import { OnboardingEventHandlers } from '@/ui/types';
 import {
   createOnboardingViewController,
@@ -1185,7 +1186,7 @@ describe('OnboardingViewController - multiple views isolation', () => {
   it('should isolate event handlers between view instances', async () => {
     // Create a second view using the SAME adapty instance
     const onboarding2 = await adapty.getOnboarding('test_placement');
-    const view2 = await OnboardingViewController.create(onboarding2);
+    const view2 = await createOnboardingView(onboarding2);
 
     try {
       const viewId1 = (view as any).id;

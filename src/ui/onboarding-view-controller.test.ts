@@ -88,7 +88,7 @@ describe('OnboardingViewController', () => {
         id: 'uuid-custom',
       });
 
-      const view = await OnboardingViewController.create(onboarding, {
+      await OnboardingViewController.create(onboarding, {
         externalUrlsPresentation: 'browser_out_app' as any,
       });
 

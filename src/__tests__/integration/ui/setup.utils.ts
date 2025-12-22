@@ -1,4 +1,5 @@
 import { Adapty } from '@/adapty-handler';
+import { createOnboardingView } from '@/ui/create-onboarding-view';
 import { OnboardingViewController } from '@/ui/onboarding-view-controller';
 import {
   createAdaptyInstance,
@@ -14,7 +15,7 @@ export async function createOnboardingViewController(): Promise<{
 }> {
   const adapty = await createAdaptyInstance();
   const onboarding = await adapty.getOnboarding('test_placement');
-  const view = await OnboardingViewController.create(onboarding);
+  const view = await createOnboardingView(onboarding);
 
   return { adapty, view };
 }
