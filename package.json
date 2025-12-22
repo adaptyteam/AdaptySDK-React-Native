@@ -21,6 +21,12 @@
   },
   "files": [
     "src/",
+    "!src/__tests__",
+    "!src/mock",
+    "!**/*.test.ts",
+    "!**/*.test.tsx",
+    "!**/*.spec.ts",
+    "!**/*.spec.tsx",
     "dist/",
     "ios/",
     "!ios/build",
