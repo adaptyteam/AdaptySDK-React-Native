@@ -43,9 +43,11 @@ class AdaptyOnboardingWrapperView: UIView {
         guard id != "NO_ID" else { return }
 
         Task { @MainActor in
-            guard let onboarding = await AdaptyPlugin.executeCreateNativeOnboardingView(withJson: json),
-                  let config = try? AdaptyUI.getOnboardingConfiguration(forOnboarding: onboarding)
-            else { return }
+            guard let config = try? await AdaptyPlugin.getOnboardingViewConfiguration(withJson: json)
+            else {
+                print("AdaptyOnboardingWrapperView: Failed to get onboarding configuration")
+                return
+            }
 
             let handler = SwiftAdaptyPluginEventHandler { event in
                 RNAdapty.emitPluginEvent(event)
