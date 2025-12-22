@@ -7,7 +7,11 @@ import {
 import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '@/logger';
 import { parseMethodResult } from '@/coders';
-import { AdaptyType, parseCommonEvent, parsePaywallEvent } from '@/coders/parse';
+import {
+  AdaptyType,
+  parseCommonEvent,
+  parsePaywallEvent,
+} from '@/coders/parse';
 import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 
 const KEY_HANDLER_NAME = 'HANDLER';

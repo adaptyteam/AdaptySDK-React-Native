@@ -54,7 +54,9 @@ export function parseOnboardingEvent(
     variationId: viewObj['variation_id'] as string | undefined,
   };
   const decodeMeta = () =>
-    getOnboardingCoder('meta', ctx)!.decode(obj['meta']) as AdaptyUiOnboardingMeta;
+    getOnboardingCoder('meta', ctx)!.decode(
+      obj['meta'],
+    ) as AdaptyUiOnboardingMeta;
 
   switch (eventId) {
     case OnboardingEventId.Close:
@@ -99,7 +101,10 @@ export function parseOnboardingEvent(
     }
 
     case OnboardingEventId.Error: {
-      const errorCoder = getOnboardingCoder('error', ctx) as ErrorConverter<any>;
+      const errorCoder = getOnboardingCoder(
+        'error',
+        ctx,
+      ) as ErrorConverter<any>;
       const decodedError = errorCoder.decode(obj['error']);
       return {
         id: eventId,
@@ -128,4 +133,3 @@ function getOnboardingCoder(
       return new AdaptyNativeErrorCoder();
   }
 }
-

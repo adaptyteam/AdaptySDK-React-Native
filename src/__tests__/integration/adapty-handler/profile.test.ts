@@ -53,5 +53,3 @@ describe('Adapty - Profile', () => {
     });
   });
 });
-
-

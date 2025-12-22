@@ -346,7 +346,6 @@ describe('OnboardingViewEmitter', () => {
         expect(mockOnRequestClose).not.toHaveBeenCalled();
       });
 
-
       it('should call onRequestClose when handler returns true', () => {
         const handler = jest.fn().mockReturnValue(true);
         emitter.addListener('onError', handler, mockOnRequestClose);
@@ -501,7 +500,11 @@ describe('OnboardingViewEmitter', () => {
               error: { message: 'error' },
             },
           },
-          { id: 'onboarding_did_fail_with_error', view: { id: TEST_VIEW_ID }, error: { message: 'error' } },
+          {
+            id: 'onboarding_did_fail_with_error',
+            view: { id: TEST_VIEW_ID },
+            error: { message: 'error' },
+          },
         );
         (closeListener as any)?.call(
           {
@@ -512,7 +515,12 @@ describe('OnboardingViewEmitter', () => {
               meta: testMeta,
             },
           },
-          { id: 'onboarding_on_close_action', view: { id: TEST_VIEW_ID }, actionId: 'close', meta: testMeta },
+          {
+            id: 'onboarding_on_close_action',
+            view: { id: TEST_VIEW_ID },
+            actionId: 'close',
+            meta: testMeta,
+          },
         );
         (paywallListener as any)?.call(
           {
@@ -523,7 +531,12 @@ describe('OnboardingViewEmitter', () => {
               meta: testMeta,
             },
           },
-          { id: 'onboarding_on_paywall_action', view: { id: TEST_VIEW_ID }, actionId: 'paywall', meta: testMeta },
+          {
+            id: 'onboarding_on_paywall_action',
+            view: { id: TEST_VIEW_ID },
+            actionId: 'paywall',
+            meta: testMeta,
+          },
         );
         (customListener as any)?.call(
           {
@@ -534,7 +547,12 @@ describe('OnboardingViewEmitter', () => {
               meta: testMeta,
             },
           },
-          { id: 'onboarding_on_custom_action', view: { id: TEST_VIEW_ID }, actionId: 'custom', meta: testMeta },
+          {
+            id: 'onboarding_on_custom_action',
+            view: { id: TEST_VIEW_ID },
+            actionId: 'custom',
+            meta: testMeta,
+          },
         );
 
         // All handlers should have been called
@@ -627,7 +645,7 @@ describe('OnboardingViewEmitter', () => {
       mockBridge.addEventListener.mock.calls.forEach(
         ([eventName, callback], index) => {
           let mockData: any;
-          
+
           switch (eventName) {
             case 'onboarding_did_fail_with_error':
               mockData = {
