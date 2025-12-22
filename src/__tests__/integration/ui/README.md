@@ -205,6 +205,7 @@ export const NEW_EVENT_SAMPLES = {
     view: { id: '...', variation_id: '...', placement_id: '...' },
     meta: { onboardingId: '...', screenClientId: '...', ... },
     // event-specific fields in snake_case
+    // Note: view fields are parsed to camelCase (variationId, placementId) by parseOnboardingEvent
   },
 };
 ```

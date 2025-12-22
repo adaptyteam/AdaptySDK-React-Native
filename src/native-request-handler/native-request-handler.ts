@@ -10,9 +10,9 @@ import { parseMethodResult } from '@/coders';
 import {
   AdaptyType,
   parseCommonEvent,
-  parseOnboardingEvent,
   parsePaywallEvent,
 } from '@/coders/parse';
+import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 
 const KEY_HANDLER_NAME = 'HANDLER';
 

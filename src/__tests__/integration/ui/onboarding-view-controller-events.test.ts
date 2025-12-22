@@ -17,6 +17,7 @@ import {
 } from './event-emitter.utils';
 import {
   ONBOARDING_ANALYTICS_ONBOARDING_STARTED,
+  ONBOARDING_ANALYTICS_WITH_ELEMENT_ID,
   ONBOARDING_STATE_UPDATED_TEXT_INPUT,
   ONBOARDING_STATE_UPDATED_EMAIL_INPUT,
   ONBOARDING_STATE_UPDATED_NUMBER_INPUT,
@@ -149,6 +150,31 @@ describe('OnboardingViewController - onAnalytics event', () => {
     expect(onAnalyticsHandler).toHaveBeenCalledTimes(1);
     expect(onAnalyticsHandler).toHaveBeenCalledWith(
       sample.event,
+      expectMetaToBe(sample.meta),
+    );
+  });
+
+  it('should call onAnalytics handler with elementId when element_id is present', async () => {
+    const onAnalyticsHandler: jest.MockedFunction<
+      OnboardingEventHandlers['onAnalytics']
+    > = jest.fn().mockReturnValue(false);
+
+    view.setEventHandlers({
+      onAnalytics: onAnalyticsHandler,
+    });
+
+    const viewId = (view as any).id;
+    const sample = ONBOARDING_ANALYTICS_WITH_ELEMENT_ID;
+
+    emitOnboardingAnalyticsEvent(viewId, sample.event, sample.meta);
+
+    expect(onAnalyticsHandler).toHaveBeenCalledTimes(1);
+    expect(onAnalyticsHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: sample.event.name,
+        elementId: sample.event.element_id,
+        element_id: sample.event.element_id, // Backward compatibility
+      }),
       expectMetaToBe(sample.meta),
     );
   });

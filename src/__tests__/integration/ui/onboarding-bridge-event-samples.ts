@@ -58,6 +58,29 @@ export const ONBOARDING_ANALYTICS_SCREEN_PRESENTED = {
 } as const;
 
 /**
+ * Sample for OnboardingViewEvent.OnAnalyticsEvent with element_id
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnAnalyticsEvent
+ */
+export const ONBOARDING_ANALYTICS_WITH_ELEMENT_ID = {
+  id: 'onboarding_on_analytics_action',
+  view: {
+    id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
+    variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
+    placement_id: 'test_stas0',
+  },
+  meta: {
+    onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
+    screen_cid: 'bGn6r0Fo',
+    screen_index: 0,
+    total_screens: 18,
+  },
+  event: {
+    name: 'button_clicked',
+    element_id: 'continue_button',
+  },
+} as const;
+
+/**
  * Sample for OnboardingViewEvent.OnAnalyticsEvent with event.name = 'second_screen_presented'
  * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnAnalyticsEvent
  */
