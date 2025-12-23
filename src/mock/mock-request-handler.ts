@@ -8,6 +8,7 @@ import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
 import { generateId } from '@/utils/generate-id';
 import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
+import { AdaptyProfileCoder } from '@/coders/adapty-profile';
 
 type EventCallback = (...args: any[]) => void | Promise<void>;
 
@@ -146,12 +147,15 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = createMockPurchaseResult(updatedProfile);
 
           // Emit profile update event
+          // Event format must match cross_platform.yaml: { profile: <encoded_profile> }
           setTimeout(() => {
+            const profileCoder = new AdaptyProfileCoder();
+            const encodedProfile = profileCoder.encode(updatedProfile);
             this.emitter.emit(
               'did_load_latest_profile',
-              JSON.stringify(updatedProfile),
+              JSON.stringify({ profile: encodedProfile }),
             );
-          }, 100);
+          }, 50);
           break;
 
         case 'restore_purchases':
