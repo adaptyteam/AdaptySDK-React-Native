@@ -1663,7 +1663,7 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
-  - react-native-adapty-sdk (3.14.1):
+  - react-native-adapty-sdk (3.15.0):
     - Adapty (= 3.15.1)
     - AdaptyPlugin (= 3.15.1)
     - AdaptyUI (= 3.15.1)
@@ -2583,7 +2583,7 @@ SPEC CHECKSUMS:
   React-logger: b69e65dc60f768e5509ac0cc27a360124bf70478
   React-Mapbuffer: b48f9f3311fd0ec0f7a5dc39d707eff521fb5f38
   React-microtasksnativemodule: d8568d0485a350c720c061ae835e09fc88c28715
-  react-native-adapty-sdk: f2167552e8ac5acfec03224c7b154d4cdf9291b4
+  react-native-adapty-sdk: 39e2fb1607910e7d719e291281516864846792f1
   react-native-safe-area-context: 6775aa9089fa84b77abd7ebdcf45e224a2a2ad3e
   React-NativeModulesApple: f10596688a03af66804cfbe61792be24a7888da8
   React-oscompat: 7c0a341cc31e350da71ddf2e46de0a845d1d1626
