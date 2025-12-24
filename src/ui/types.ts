@@ -5,6 +5,7 @@ import {
   AdaptyProductIdentifier,
   AdaptyProfile,
   AdaptyPurchaseResult,
+  WebPresentation,
 } from '@/types';
 import { FileLocation, MakePurchaseParamsInput } from '@/types/inputs';
 
@@ -168,7 +169,11 @@ export interface OnboardingEventHandlers {
   onAnalytics: (
     event: {
       name: OnboardingAnalyticsEventName;
+      /**
+       * @deprecated Use `elementId` instead
+       */
       element_id?: string;
+      elementId?: string;
       reply?: string;
     },
     meta: AdaptyUiOnboardingMeta,
@@ -261,6 +266,20 @@ export interface CreatePaywallViewParamsInput {
   customAssets?: Record<string, AdaptyCustomAsset>;
 
   productPurchaseParams?: ProductPurchaseParams;
+}
+
+/**
+ * Additional options for creating an onboarding view
+ *
+ * @see {@link https://adapty.io/docs/react-native-get-onboardings | [DOC] Creating Onboarding View}
+ */
+export interface CreateOnboardingViewParamsInput {
+  /**
+   * If you want to change the presentation behavior of external URLs, pass a preferred value.
+   *
+   * @default {@link WebPresentation.BrowserInApp}
+   */
+  externalUrlsPresentation?: WebPresentation;
 }
 
 export interface AdaptyUiView {

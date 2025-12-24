@@ -1,11 +1,14 @@
 import { EmitterSubscription } from 'react-native';
 import { LogContext } from '@/logger';
 import type { AdaptyType } from '@/coders/parse';
+import { parseCommonEvent, parsePaywallEvent } from '@/coders/parse';
+import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
 import { generateId } from '@/utils/generate-id';
 import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
+import { AdaptyProfileCoder } from '@/coders/adapty-profile';
 
 type EventCallback = (...args: any[]) => void | Promise<void>;
 
@@ -61,6 +64,14 @@ export class MockRequestHandler<Method extends string, Params extends string> {
     this.store = new MockStore(config);
     this.emitter = new SimpleEventEmitter();
     this.listeners = new Set();
+  }
+
+  /**
+   * Provides access to internal emitter for testing purposes only
+   * @internal
+   */
+  get testEmitter() {
+    return this.emitter;
   }
 
   /**
@@ -136,12 +147,15 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = createMockPurchaseResult(updatedProfile);
 
           // Emit profile update event
+          // Event format must match cross_platform.yaml: { profile: <encoded_profile> }
           setTimeout(() => {
+            const profileCoder = new AdaptyProfileCoder();
+            const encodedProfile = profileCoder.encode(updatedProfile);
             this.emitter.emit(
               'did_load_latest_profile',
-              JSON.stringify(updatedProfile),
+              JSON.stringify({ profile: encodedProfile }),
             );
-          }, 100);
+          }, 50);
           break;
 
         case 'restore_purchases':
@@ -243,21 +257,41 @@ export class MockRequestHandler<Method extends string, Params extends string> {
     event: Event,
     cb: (this: { rawValue: any }, data: CallbackData) => void | Promise<void>,
   ): EmitterSubscription {
-    const wrappedCallback = (data: string) => {
+    const consumeNativeCallback = (...data: string[]) => {
       const ctx = new LogContext();
-      const log = ctx.event({ methodName: `mock/${event}` });
-      log.start({ data });
 
-      try {
-        const parsed = JSON.parse(data);
-        cb.call({ rawValue: parsed }, parsed);
-      } catch (error) {
-        log.failed({ error });
-        cb.call({ rawValue: data }, data as any);
-      }
+      const log = ctx.event({ methodName: `mock/${event}` });
+      log.start(data);
+
+      let rawValue = null;
+
+      const args = data.map(arg => {
+        try {
+          const commonEvent = parseCommonEvent(event, arg, ctx);
+          if (commonEvent) return commonEvent;
+
+          try {
+            rawValue = JSON.parse(arg);
+          } catch {}
+
+          const onboardingEvent = parseOnboardingEvent(arg, ctx);
+          if (onboardingEvent) {
+            return onboardingEvent;
+          }
+
+          const paywallEvent = parsePaywallEvent(arg, ctx);
+          return paywallEvent;
+        } catch (error) {
+          log.failed({ error });
+
+          throw error;
+        }
+      });
+
+      cb.apply({ rawValue }, args as any);
     };
 
-    const subscription = this.emitter.addListener(event, wrappedCallback);
+    const subscription = this.emitter.addListener(event, consumeNativeCallback);
     this.listeners.add(subscription);
     return subscription;
   }

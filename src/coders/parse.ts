@@ -161,7 +161,9 @@ export function parsePaywallEvent(
     );
   }
   if (obj.hasOwnProperty('error')) {
-    result['error'] = getCoder('AdaptyError', ctx)?.decode(obj['error']);
+    const errorCoder = getCoder('AdaptyError', ctx) as ErrorConverter<any>;
+    const decodedError = errorCoder?.decode(obj['error']);
+    result['error'] = errorCoder?.getError(decodedError as any);
   }
   if (obj.hasOwnProperty('action')) {
     result['action'] = obj['action'];

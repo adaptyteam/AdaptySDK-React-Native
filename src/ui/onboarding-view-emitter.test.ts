@@ -164,8 +164,15 @@ describe('OnboardingViewEmitter', () => {
         const nativeListener = mockBridge.addEventListener.mock.calls[0]?.[1];
         expect(nativeListener).toBeDefined();
 
-        // Call the listener with proper this context
-        (nativeListener! as any).call({ rawValue: eventData });
+        // Call the listener with parsed event data (first parameter)
+        // In real scenario, native-request-handler parses the event before passing it
+        // Convert action_id to actionId for parsed event data
+        const parsedEventData = { ...eventData };
+        if ('action_id' in parsedEventData) {
+          parsedEventData.actionId = parsedEventData.action_id;
+          delete parsedEventData.action_id;
+        }
+        (nativeListener! as any).call({ rawValue: eventData }, parsedEventData);
       }
 
       it('should filter events by viewId', () => {
@@ -173,6 +180,7 @@ describe('OnboardingViewEmitter', () => {
         emitter.addListener('onError', handler, mockOnRequestClose);
 
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: DIFFERENT_VIEW_ID },
           error: { message: 'Test error' },
         });
@@ -187,6 +195,7 @@ describe('OnboardingViewEmitter', () => {
         const testError = { message: 'Test error', code: 'test_code' };
 
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: testError,
         });
@@ -199,7 +208,6 @@ describe('OnboardingViewEmitter', () => {
         const handler = jest.fn().mockReturnValue(false);
         emitter.addListener('onAnalytics', handler, mockOnRequestClose);
 
-        const testEvent = { name: 'screen_view', element_id: 'btn1' };
         const testMeta = {
           onboardingId: 'test',
           screenClientId: 'screen1',
@@ -208,12 +216,17 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_analytics_action',
           view: { id: TEST_VIEW_ID },
-          event: testEvent,
+          event: { name: 'screen_view', elementId: 'btn1' },
           meta: testMeta,
         });
 
-        expect(handler).toHaveBeenCalledWith(testEvent, testMeta);
+        // Handler receives both elementId and element_id for backward compatibility
+        expect(handler).toHaveBeenCalledWith(
+          { name: 'screen_view', elementId: 'btn1', element_id: 'btn1' },
+          testMeta,
+        );
         expect(mockOnRequestClose).not.toHaveBeenCalled();
       });
 
@@ -229,6 +242,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_did_finish_loading',
           view: { id: TEST_VIEW_ID },
           meta: testMeta,
         });
@@ -250,6 +264,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_close_action',
           view: { id: TEST_VIEW_ID },
           action_id: testActionId,
           meta: testMeta,
@@ -272,6 +287,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_custom_action',
           view: { id: TEST_VIEW_ID },
           action_id: testActionId,
           meta: testMeta,
@@ -294,6 +310,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_paywall_action',
           view: { id: TEST_VIEW_ID },
           action_id: testActionId,
           meta: testMeta,
@@ -308,7 +325,7 @@ describe('OnboardingViewEmitter', () => {
         emitter.addListener('onStateUpdated', handler, mockOnRequestClose);
 
         const testAction = {
-          element_id: 'input1',
+          elementId: 'input1',
           value: { type: 'text', value: 'test' },
         };
         const testMeta = {
@@ -319,6 +336,7 @@ describe('OnboardingViewEmitter', () => {
         };
 
         simulateNativeEvent({
+          id: 'onboarding_on_state_updated_action',
           view: { id: TEST_VIEW_ID },
           action: testAction,
           meta: testMeta,
@@ -328,36 +346,12 @@ describe('OnboardingViewEmitter', () => {
         expect(mockOnRequestClose).not.toHaveBeenCalled();
       });
 
-      it('should handle onStateUpdated with element_id from action', () => {
-        const handler = jest.fn().mockReturnValue(false);
-        emitter.addListener('onStateUpdated', handler, mockOnRequestClose);
-
-        const testActionId = 'state_action';
-        const testMeta = {
-          onboardingId: 'test',
-          screenClientId: 'screen1',
-          screenIndex: 0,
-          totalScreens: 3,
-        };
-
-        simulateNativeEvent({
-          view: { id: TEST_VIEW_ID },
-          action_id: testActionId,
-          action: null, // No action object
-          meta: testMeta,
-        });
-
-        expect(handler).toHaveBeenCalledWith(
-          { element_id: testActionId },
-          testMeta,
-        );
-      });
-
       it('should call onRequestClose when handler returns true', () => {
         const handler = jest.fn().mockReturnValue(true);
         emitter.addListener('onError', handler, mockOnRequestClose);
 
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: { message: 'Test error' },
         });
@@ -376,6 +370,7 @@ describe('OnboardingViewEmitter', () => {
         emitter.addListener('onError', handler2, onRequestClose2);
 
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: { message: 'Test error' },
         });
@@ -386,14 +381,200 @@ describe('OnboardingViewEmitter', () => {
         expect(onRequestClose2).toHaveBeenCalled(); // handler2 returned true
       });
 
+      it('should preserve handlers for different events (merge behavior)', () => {
+        const errorHandler = jest.fn().mockReturnValue(false);
+        const analyticsHandler = jest.fn().mockReturnValue(false);
+        const closeHandler = jest.fn().mockReturnValue(false);
+
+        // Add handlers for different events
+        emitter.addListener('onError', errorHandler, mockOnRequestClose);
+        emitter.addListener(
+          'onAnalytics',
+          analyticsHandler,
+          mockOnRequestClose,
+        );
+        emitter.addListener('onClose', closeHandler, mockOnRequestClose);
+
+        // Simulate event for onError
+        simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
+          view: { id: TEST_VIEW_ID },
+          error: { message: 'Test error' },
+        });
+
+        expect(errorHandler).toHaveBeenCalledTimes(1);
+        expect(analyticsHandler).not.toHaveBeenCalled();
+        expect(closeHandler).not.toHaveBeenCalled();
+
+        errorHandler.mockClear();
+
+        // Simulate event for onAnalytics - should not affect onError handler
+        const analyticsListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_analytics_action',
+        )?.[1];
+
+        (analyticsListener as any)?.call(
+          {
+            rawValue: {
+              id: 'onboarding_on_analytics_action',
+              view: { id: TEST_VIEW_ID },
+              event: { name: 'test_event' },
+              meta: { onboardingId: 'test' },
+            },
+          },
+          {
+            id: 'onboarding_on_analytics_action',
+            view: { id: TEST_VIEW_ID },
+            event: { name: 'test_event' },
+            meta: { onboardingId: 'test' },
+          },
+        );
+
+        expect(errorHandler).not.toHaveBeenCalled();
+        expect(analyticsHandler).toHaveBeenCalledTimes(1);
+        expect(closeHandler).not.toHaveBeenCalled();
+
+        analyticsHandler.mockClear();
+
+        // Simulate event for onClose - both previous handlers should still be active
+        const closeListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_close_action',
+        )?.[1];
+
+        (closeListener as any)?.call(
+          {
+            rawValue: {
+              id: 'onboarding_on_close_action',
+              view: { id: TEST_VIEW_ID },
+              action_id: 'close_action',
+              meta: { onboardingId: 'test' },
+            },
+          },
+          {
+            id: 'onboarding_on_close_action',
+            view: { id: TEST_VIEW_ID },
+            actionId: 'close_action',
+            meta: { onboardingId: 'test' },
+          },
+        );
+
+        expect(errorHandler).not.toHaveBeenCalled();
+        expect(analyticsHandler).not.toHaveBeenCalled();
+        expect(closeHandler).toHaveBeenCalledTimes(1);
+      });
+
+      it('should preserve multiple handlers across successive addListener calls', () => {
+        const errorHandler = jest.fn().mockReturnValue(false);
+        const closeHandler = jest.fn().mockReturnValue(false);
+        const paywallHandler = jest.fn().mockReturnValue(false);
+        const customHandler = jest.fn().mockReturnValue(false);
+
+        // Add handlers one by one
+        emitter.addListener('onError', errorHandler, mockOnRequestClose);
+        emitter.addListener('onClose', closeHandler, mockOnRequestClose);
+        emitter.addListener('onPaywall', paywallHandler, mockOnRequestClose);
+        emitter.addListener('onCustom', customHandler, mockOnRequestClose);
+
+        // Get all listeners
+        const errorListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_did_fail_with_error',
+        )?.[1];
+        const closeListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_close_action',
+        )?.[1];
+        const paywallListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_paywall_action',
+        )?.[1];
+        const customListener = mockBridge.addEventListener.mock.calls.find(
+          call => call[0] === 'onboarding_on_custom_action',
+        )?.[1];
+
+        const testMeta = { onboardingId: 'test' };
+
+        // Emit all events
+        (errorListener as any)?.call(
+          {
+            rawValue: {
+              id: 'onboarding_did_fail_with_error',
+              view: { id: TEST_VIEW_ID },
+              error: { message: 'error' },
+            },
+          },
+          {
+            id: 'onboarding_did_fail_with_error',
+            view: { id: TEST_VIEW_ID },
+            error: { message: 'error' },
+          },
+        );
+        (closeListener as any)?.call(
+          {
+            rawValue: {
+              id: 'onboarding_on_close_action',
+              view: { id: TEST_VIEW_ID },
+              action_id: 'close',
+              meta: testMeta,
+            },
+          },
+          {
+            id: 'onboarding_on_close_action',
+            view: { id: TEST_VIEW_ID },
+            actionId: 'close',
+            meta: testMeta,
+          },
+        );
+        (paywallListener as any)?.call(
+          {
+            rawValue: {
+              id: 'onboarding_on_paywall_action',
+              view: { id: TEST_VIEW_ID },
+              action_id: 'paywall',
+              meta: testMeta,
+            },
+          },
+          {
+            id: 'onboarding_on_paywall_action',
+            view: { id: TEST_VIEW_ID },
+            actionId: 'paywall',
+            meta: testMeta,
+          },
+        );
+        (customListener as any)?.call(
+          {
+            rawValue: {
+              id: 'onboarding_on_custom_action',
+              view: { id: TEST_VIEW_ID },
+              action_id: 'custom',
+              meta: testMeta,
+            },
+          },
+          {
+            id: 'onboarding_on_custom_action',
+            view: { id: TEST_VIEW_ID },
+            actionId: 'custom',
+            meta: testMeta,
+          },
+        );
+
+        // All handlers should have been called
+        expect(errorHandler).toHaveBeenCalledTimes(1);
+        expect(closeHandler).toHaveBeenCalledTimes(1);
+        expect(paywallHandler).toHaveBeenCalledTimes(1);
+        expect(customHandler).toHaveBeenCalledTimes(1);
+      });
+
       it('should handle missing view id gracefully', () => {
         const handler = jest.fn();
         emitter.addListener('onError', handler, mockOnRequestClose);
 
-        simulateNativeEvent({
-          // No view object
-          error: { message: 'Test error' },
-        });
+        // In real scenario, parser would reject events without view
+        // But for unit test, we simulate malformed event
+        expect(() => {
+          simulateNativeEvent({
+            id: 'onboarding_did_fail_with_error',
+            view: undefined as any, // Malformed event
+            error: { message: 'Test error' },
+          });
+        }).toThrow();
 
         expect(handler).not.toHaveBeenCalled();
       });
@@ -411,7 +592,6 @@ describe('OnboardingViewEmitter', () => {
       emitter.removeAllListeners();
 
       expect(mockSubscription.remove).toHaveBeenCalledTimes(2);
-      expect(mockBridge.removeAllEventListeners).toHaveBeenCalled();
     });
 
     it('should clear internal state after removing listeners', () => {
@@ -430,8 +610,6 @@ describe('OnboardingViewEmitter', () => {
       expect(() => {
         emitter.removeAllListeners();
       }).not.toThrow();
-
-      expect(mockBridge.removeAllEventListeners).toHaveBeenCalled();
     });
   });
 
@@ -456,28 +634,65 @@ describe('OnboardingViewEmitter', () => {
         );
       });
 
-      const mockData = {
-        view: { id: TEST_VIEW_ID },
-        id: 'onboarding_on_paywall_action', // Event type
-        action_id: 'test_action', // Custom action ID
-        meta: {
-          onboardingId: 'test',
-          screenClientId: 'screen1',
-          screenIndex: 0,
-          totalScreens: 3,
-        },
-        event: { name: 'screen_view', element_id: 'btn1' },
-        action: {
-          element_id: 'input1',
-          value: { type: 'text', value: 'test' },
-        },
-        error: { message: 'Test error', code: 'test_code' },
+      const baseMeta = {
+        onboardingId: 'test',
+        screenClientId: 'screen1',
+        screenIndex: 0,
+        totalScreens: 3,
       };
 
-      // Test each event type
+      // Test each event type with correct event structure
       mockBridge.addEventListener.mock.calls.forEach(
         ([eventName, callback], index) => {
-          (callback as any).call({ rawValue: mockData });
+          let mockData: any;
+
+          switch (eventName) {
+            case 'onboarding_did_fail_with_error':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                error: { message: 'Test error', code: 'test_code' },
+              };
+              break;
+            case 'onboarding_on_analytics_action':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                event: { name: 'screen_view', elementId: 'btn1' },
+                meta: baseMeta,
+              };
+              break;
+            case 'onboarding_did_finish_loading':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                meta: baseMeta,
+              };
+              break;
+            case 'onboarding_on_close_action':
+            case 'onboarding_on_custom_action':
+            case 'onboarding_on_paywall_action':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                actionId: 'test_action',
+                meta: baseMeta,
+              };
+              break;
+            case 'onboarding_on_state_updated_action':
+              mockData = {
+                id: eventName,
+                view: { id: TEST_VIEW_ID },
+                action: {
+                  elementId: 'input1',
+                  value: { type: 'text', value: 'test' },
+                },
+                meta: baseMeta,
+              };
+              break;
+          }
+
+          (callback as any).call({ rawValue: mockData }, mockData);
 
           const handler = Object.values(handlers)[index];
           expect(handler).toHaveBeenCalled();
@@ -488,7 +703,10 @@ describe('OnboardingViewEmitter', () => {
               break;
             case 'onboarding_on_analytics_action':
               expect(handler).toHaveBeenCalledWith(
-                mockData.event,
+                {
+                  ...mockData.event,
+                  element_id: mockData.event.elementId, // Backward compatibility
+                },
                 mockData.meta,
               );
               break;
@@ -499,7 +717,7 @@ describe('OnboardingViewEmitter', () => {
             case 'onboarding_on_custom_action':
             case 'onboarding_on_paywall_action':
               expect(handler).toHaveBeenCalledWith(
-                mockData.action_id,
+                mockData.actionId,
                 mockData.meta,
               );
               break;
@@ -520,7 +738,13 @@ describe('OnboardingViewEmitter', () => {
       const nativeListener = mockBridge.addEventListener.mock.calls[0]?.[1];
       expect(nativeListener).toBeDefined();
 
-      (nativeListener! as any).call({ rawValue: eventData });
+      // Convert action_id to actionId for parsed event data
+      const parsedEventData = { ...eventData };
+      if ('action_id' in parsedEventData) {
+        parsedEventData.actionId = parsedEventData.action_id;
+        delete parsedEventData.action_id;
+      }
+      (nativeListener! as any).call({ rawValue: eventData }, parsedEventData);
     }
 
     it('should handle missing event data gracefully', () => {
@@ -529,8 +753,9 @@ describe('OnboardingViewEmitter', () => {
 
       expect(() => {
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
-          // Missing error field
+          error: undefined, // Missing error field
         });
       }).not.toThrow();
 
@@ -547,6 +772,7 @@ describe('OnboardingViewEmitter', () => {
 
       expect(() => {
         simulateNativeEvent({
+          id: 'onboarding_did_fail_with_error',
           view: { id: TEST_VIEW_ID },
           error: { message: 'Test error' },
         });

@@ -19,6 +19,7 @@ import {
   RefundPreference,
   AdaptyProfile,
   AdaptyInstallationDetails,
+  WebPresentation,
 } from '@/types';
 import { AdaptyError } from './adapty-error';
 import { IdentifyParamsInput } from '@/types/inputs';
@@ -677,6 +678,7 @@ export class Adapty {
 
   public async openWebPaywall(
     paywallOrProduct: Model.AdaptyPaywall | Model.AdaptyPaywallProduct,
+    openIn: WebPresentation = WebPresentation.BrowserOutApp,
   ): Promise<void> {
     const ctx = new LogContext();
 
@@ -686,6 +688,7 @@ export class Adapty {
     const methodKey = 'open_web_paywall';
     const data: Req['OpenWebPaywall.Request'] = {
       method: methodKey,
+      open_in: openIn,
       ...('vendorProductId' in paywallOrProduct
         ? { product: new AdaptyPaywallProductCoder().encode(paywallOrProduct) }
         : { paywall: new AdaptyPaywallCoder().encode(paywallOrProduct) }),

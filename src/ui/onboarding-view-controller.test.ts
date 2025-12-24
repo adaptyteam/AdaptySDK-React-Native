@@ -60,7 +60,7 @@ describe('OnboardingViewController', () => {
         id: 'uuid-1',
       });
 
-      const view = await OnboardingViewController.create(onboarding);
+      const view = await OnboardingViewController.create(onboarding, {});
 
       expect($bridge.request).toHaveBeenCalledWith(
         'adapty_ui_create_onboarding_view',
@@ -68,7 +68,38 @@ describe('OnboardingViewController', () => {
         'AdaptyUiView',
         expect.any(Object),
       );
+      expect($bridge.request).toHaveBeenCalledWith(
+        'adapty_ui_create_onboarding_view',
+        expect.stringContaining(
+          '"external_urls_presentation":"browser_in_app"',
+        ),
+        'AdaptyUiView',
+        expect.any(Object),
+      );
       expect((view as any).id).toBe('uuid-1');
+    });
+
+    it('passes custom externalUrlsPresentation', async () => {
+      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
+        () => ({ encode: jest.fn().mockReturnValue({ encoded: true }) }),
+      );
+
+      (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-custom',
+      });
+
+      await OnboardingViewController.create(onboarding, {
+        externalUrlsPresentation: 'browser_out_app' as any,
+      });
+
+      expect($bridge.request).toHaveBeenCalledWith(
+        'adapty_ui_create_onboarding_view',
+        expect.stringContaining(
+          '"external_urls_presentation":"browser_out_app"',
+        ),
+        'AdaptyUiView',
+        expect.any(Object),
+      );
     });
 
     it('propagates bridge errors', async () => {
@@ -80,9 +111,9 @@ describe('OnboardingViewController', () => {
         new Error('boom'),
       );
 
-      await expect(OnboardingViewController.create(onboarding)).rejects.toThrow(
-        'boom',
-      );
+      await expect(
+        OnboardingViewController.create(onboarding, {}),
+      ).rejects.toThrow('boom');
     });
   });
 
@@ -95,7 +126,7 @@ describe('OnboardingViewController', () => {
         .mockResolvedValueOnce({ id: 'uuid-2' }) // create
         .mockResolvedValueOnce(undefined); // present
 
-      const view = await OnboardingViewController.create(onboarding);
+      const view = await OnboardingViewController.create(onboarding, {});
       await expect(view.present()).resolves.toBeUndefined();
 
       expect($bridge.request).toHaveBeenLastCalledWith(
@@ -132,7 +163,7 @@ describe('OnboardingViewController', () => {
         }),
       );
 
-      const view = await OnboardingViewController.create(onboarding);
+      const view = await OnboardingViewController.create(onboarding, {});
       view.setEventHandlers({ onClose: () => true });
 
       await view.dismiss();
@@ -172,7 +203,7 @@ describe('OnboardingViewController', () => {
         id: 'uuid-4',
       });
 
-      const view = await OnboardingViewController.create(onboarding);
+      const view = await OnboardingViewController.create(onboarding, {});
 
       // OnboardingViewEmitter is created during create() with DEFAULT_ONBOARDING_EVENT_HANDLERS
       expect(OnboardingViewEmitter).toHaveBeenCalledWith('uuid-4');
@@ -218,7 +249,7 @@ describe('OnboardingViewController', () => {
         id: 'uuid-5',
       });
 
-      const view = await OnboardingViewController.create(onboarding);
+      const view = await OnboardingViewController.create(onboarding, {});
 
       // OnboardingViewEmitter created once during create()
       expect(OnboardingViewEmitter).toHaveBeenCalledTimes(1);
@@ -278,7 +309,7 @@ describe('OnboardingViewController', () => {
         id: 'uuid-6',
       });
 
-      const view = await OnboardingViewController.create(onboarding);
+      const view = await OnboardingViewController.create(onboarding, {});
 
       handlers.clear();
       addListener.mockClear();
@@ -325,7 +356,7 @@ describe('OnboardingViewController', () => {
         id: 'uuid-7',
       });
 
-      const view = await OnboardingViewController.create(onboarding);
+      const view = await OnboardingViewController.create(onboarding, {});
 
       expect(handlers.has('onClose')).toBe(true);
       const defaultOnClose = handlers.get('onClose');
@@ -356,7 +387,7 @@ describe('OnboardingViewController', () => {
         id: 'uuid-8',
       });
 
-      const view = await OnboardingViewController.create(onboarding);
+      const view = await OnboardingViewController.create(onboarding, {});
 
       addListener.mockClear();
 

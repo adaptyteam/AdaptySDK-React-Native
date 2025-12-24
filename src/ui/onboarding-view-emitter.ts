@@ -1,6 +1,11 @@
 import type { OnboardingEventHandlers } from './types';
 import { $bridge } from '@/bridge';
 import { EmitterSubscription } from 'react-native';
+import {
+  ParsedOnboardingEvent,
+  OnboardingEventId,
+} from '@/types/onboarding-events';
+import { LogContext } from '@/logger';
 
 type EventName = keyof OnboardingEventHandlers;
 
@@ -44,7 +49,6 @@ export class OnboardingViewEmitter {
     callback: OnboardingEventHandlers[EventName],
     onRequestClose: () => Promise<void>,
   ): EmitterSubscription {
-    const viewId = this.viewId;
     const config = HANDLER_TO_EVENT_CONFIG[event];
 
     if (!config) {
@@ -59,41 +63,9 @@ export class OnboardingViewEmitter {
     });
 
     if (!this.eventListeners.has(config.nativeEvent)) {
-      const handlers = this.handlers; // Capture the reference
       const subscription = $bridge.addEventListener(
         config.nativeEvent,
-        function () {
-          const eventViewId = this.rawValue['view']?.['id'] ?? null;
-          if (viewId !== eventViewId) {
-            return;
-          }
-
-          // Get all possible handler names for this native event
-          const possibleHandlers =
-            NATIVE_EVENT_TO_HANDLERS[config.nativeEvent] || [];
-
-          for (const handlerName of possibleHandlers) {
-            const handlerData = handlers.get(handlerName);
-            if (!handlerData) {
-              continue; // Handler not registered for this view
-            }
-
-            const { handler, onRequestClose } = handlerData;
-
-            const callbackArgs = extractCallbackArgs(
-              handlerName,
-              this.rawValue as Record<string, any>,
-            );
-            const cb = handler as (...args: typeof callbackArgs) => boolean;
-            const shouldClose = cb.apply(null, callbackArgs);
-
-            if (shouldClose) {
-              onRequestClose().catch(() => {
-                // Ignore errors from onRequestClose to avoid breaking event handling
-              });
-            }
-          }
-        },
+        this.createEventHandler(config),
       );
       this.eventListeners.set(config.nativeEvent, subscription);
     }
@@ -101,11 +73,74 @@ export class OnboardingViewEmitter {
     return this.eventListeners.get(config.nativeEvent)!;
   }
 
+  private createEventHandler(
+    config: (typeof HANDLER_TO_EVENT_CONFIG)[EventName],
+  ) {
+    return (parsedEvent: ParsedOnboardingEvent) => {
+      const eventViewId = parsedEvent.view.id;
+      if (this.viewId !== eventViewId) {
+        return;
+      }
+
+      const ctx = new LogContext();
+      const log = ctx.event({ methodName: config.nativeEvent });
+      log.start({ viewId: eventViewId, eventId: parsedEvent.id });
+
+      // Get all possible handler names for this native event
+      const possibleHandlers =
+        NATIVE_EVENT_TO_HANDLERS[config.nativeEvent] || [];
+
+      let hasError = false;
+      for (const handlerName of possibleHandlers) {
+        const handlerData = this.handlers.get(handlerName);
+        if (!handlerData) {
+          continue; // Handler not registered for this view
+        }
+
+        const { handler, onRequestClose } = handlerData;
+
+        const callbackArgs = extractCallbackArgs(handlerName, parsedEvent);
+        const callback = handler as (
+          ...args: ExtractedArgs<typeof handlerName>
+        ) => boolean;
+        let shouldClose = false;
+        try {
+          shouldClose = callback(...callbackArgs);
+        } catch (error) {
+          hasError = true;
+          shouldClose = true;
+          log.failed({
+            error,
+            handlerName,
+            viewId: eventViewId,
+            eventId: parsedEvent.id,
+            reason: 'user_handler_failed',
+          });
+        }
+
+        if (shouldClose) {
+          onRequestClose().catch(error => {
+            log.failed({
+              error,
+              handlerName,
+              viewId: eventViewId,
+              eventId: parsedEvent.id,
+              reason: 'on_request_close_failed',
+            });
+          });
+        }
+      }
+
+      if (!hasError) {
+        log.success({ viewId: eventViewId, eventId: parsedEvent.id });
+      }
+    };
+  }
+
   public removeAllListeners() {
     this.eventListeners.forEach(subscription => subscription.remove());
     this.eventListeners.clear();
     this.handlers.clear();
-    $bridge.removeAllEventListeners();
   }
 }
 
@@ -198,29 +233,37 @@ const NATIVE_EVENT_TO_HANDLERS: Record<string, EventName[]> = Object.entries(
   {} as Record<string, EventName[]>,
 );
 
-function extractCallbackArgs(
-  handlerName: keyof OnboardingEventHandlers,
-  eventArg: Record<string, any>,
-): any[] {
-  const actionId = eventArg['action_id'] || '';
-  const meta = eventArg['meta'] || {};
-  const event = eventArg['event'] || {};
-  const action = eventArg['action'] || {};
+type ExtractedArgs<T extends keyof OnboardingEventHandlers> = Parameters<
+  OnboardingEventHandlers[T]
+>;
 
-  switch (handlerName) {
-    case 'onClose':
-    case 'onCustom':
-    case 'onPaywall':
-      return [actionId, meta];
-    case 'onStateUpdated':
-      return [action.element_id ? action : { element_id: actionId }, meta];
-    case 'onFinishedLoading':
-      return [meta];
-    case 'onAnalytics':
-      return [event, meta];
-    case 'onError':
-      return [eventArg['error']];
-    default:
-      return [];
+function extractCallbackArgs<T extends keyof OnboardingEventHandlers>(
+  _handlerName: T,
+  event: ParsedOnboardingEvent,
+): ExtractedArgs<T> {
+  switch (event.id) {
+    case OnboardingEventId.Close:
+    case OnboardingEventId.Custom:
+    case OnboardingEventId.Paywall:
+      return [event.actionId, event.meta] as ExtractedArgs<T>;
+
+    case OnboardingEventId.StateUpdated:
+      return [event.action, event.meta] as ExtractedArgs<T>;
+
+    case OnboardingEventId.FinishedLoading:
+      return [event.meta] as ExtractedArgs<T>;
+
+    case OnboardingEventId.Analytics:
+      return [
+        {
+          ...event.event,
+          // Add backward compatibility: populate element_id from elementId
+          element_id: event.event.elementId,
+        },
+        event.meta,
+      ] as ExtractedArgs<T>;
+
+    case OnboardingEventId.Error:
+      return [event.error] as ExtractedArgs<T>;
   }
 }
