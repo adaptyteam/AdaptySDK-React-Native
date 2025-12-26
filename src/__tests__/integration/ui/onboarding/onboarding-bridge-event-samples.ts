@@ -468,34 +468,4 @@ export const ONBOARDING_ERROR_EVENT = {
   },
 } as const;
 
-/**
- * Sample for Event.DidLoadLatestProfile
- * @see cross_platform.yaml#/$events/Event.DidLoadLatestProfile
- */
-export const PROFILE_DID_LOAD_LATEST_PROFILE = {
-  id: 'did_load_latest_profile',
-  profile: {
-    profile_id: '8b79ec26-3f3d-482c-99e8-ec745710ef59',
-    customer_user_id: null,
-    segment_hash:
-      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    paid_access_levels: {},
-    subscriptions: {},
-    non_subscriptions: {},
-  },
-} as const;
-
-/**
- * Sample for Event.OnInstallationDetailsSuccess
- * @see cross_platform.yaml#/$events/Event.OnInstallationDetailsSuccess
- */
-export const INSTALLATION_DETAILS_SUCCESS = {
-  id: 'on_installation_details_success',
-  details: {
-    app_launch_count: 8,
-    payload: '{}',
-    install_time: '2025-12-16T12:08:41.041Z',
-    install_id: 'some-install-id',
-  },
-} as const;
 
