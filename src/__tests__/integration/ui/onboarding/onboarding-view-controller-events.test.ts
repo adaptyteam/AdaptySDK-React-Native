@@ -6,7 +6,7 @@ import { OnboardingEventHandlers } from '@/ui/types';
 import {
   createOnboardingViewController,
   cleanupOnboardingViewController,
-} from './setup.utils';
+} from '../setup.utils';
 import {
   emitOnboardingCloseEvent,
   emitOnboardingAnalyticsEvent,
@@ -15,7 +15,7 @@ import {
   emitOnboardingPaywallEvent,
   emitOnboardingCustomEvent,
   emitOnboardingErrorEvent,
-} from './event-emitter.utils';
+} from '../event-emitter.utils';
 import {
   ONBOARDING_ANALYTICS_ONBOARDING_STARTED,
   ONBOARDING_ANALYTICS_WITH_ELEMENT_ID,
