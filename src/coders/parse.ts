@@ -131,58 +131,6 @@ export function parseCommonEvent(
   }
 }
 
-export function parsePaywallEvent(
-  input: string,
-  ctx?: LogContext,
-): Record<string, any> {
-  const log = ctx?.decode({ methodName: 'parsePaywallEvent' });
-  log?.start({ input });
-
-  let obj: Record<string, unknown>;
-  try {
-    obj = JSON.parse(input);
-  } catch (error) {
-    throw AdaptyError.failedToDecode(
-      `Failed to decode event: ${(error as Error)?.message}`,
-    );
-  }
-
-  const result: Record<string, any> = {};
-
-  if (obj.hasOwnProperty('id')) {
-    result['id'] = obj['id'];
-  }
-  if (obj.hasOwnProperty('profile')) {
-    result['profile'] = getCoder('AdaptyProfile', ctx)?.decode(obj['profile']);
-  }
-  if (obj.hasOwnProperty('product')) {
-    result['product'] = getCoder('AdaptyPaywallProduct', ctx)?.decode(
-      obj['product'],
-    );
-  }
-  if (obj.hasOwnProperty('error')) {
-    const errorCoder = getCoder('AdaptyError', ctx) as ErrorConverter<any>;
-    const decodedError = errorCoder?.decode(obj['error']);
-    result['error'] = errorCoder?.getError(decodedError as any);
-  }
-  if (obj.hasOwnProperty('action')) {
-    result['action'] = obj['action'];
-  }
-  if (obj.hasOwnProperty('view')) {
-    result['view'] = obj['view'];
-  }
-  if (obj.hasOwnProperty('product_id')) {
-    result['product_id'] = obj['product_id'];
-  }
-  if (obj.hasOwnProperty('purchased_result')) {
-    result['purchased_result'] = getCoder('AdaptyPurchaseResult', ctx)?.decode(
-      obj['purchased_result'],
-    );
-  }
-
-  return result;
-}
-
 function getCoder(
   type: AdaptyType,
   ctx?: LogContext,
