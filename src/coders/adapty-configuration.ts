@@ -23,10 +23,6 @@ export class AdaptyConfigurationCoder {
     config['ip_address_collection_disabled'] =
       params.ipAddressCollectionDisabled ?? false;
 
-    if (params.clearDataOnBackup !== undefined) {
-      config['clear_data_on_backup'] = params.clearDataOnBackup;
-    }
-
     if (params.logLevel) {
       config['log_level'] = params.logLevel;
     }
@@ -59,6 +55,9 @@ export class AdaptyConfigurationCoder {
         config['customer_identity_parameters'] = {
           app_account_token: params.ios.appAccountToken,
         };
+      }
+      if (params.ios?.clearDataOnBackup !== undefined) {
+        config['clear_data_on_backup'] = params.ios.clearDataOnBackup;
       }
     }
 
