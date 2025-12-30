@@ -457,4 +457,3 @@ export function emitPaywallLoadingProductsFailedEvent(
     JSON.stringify(payload),
   );
 }
-

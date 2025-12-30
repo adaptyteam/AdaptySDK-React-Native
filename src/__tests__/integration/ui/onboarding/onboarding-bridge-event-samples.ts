@@ -467,5 +467,3 @@ export const ONBOARDING_ERROR_EVENT = {
       'An internal WebKit error occurred: Error Domain=NSURLErrorDomain Code=-1005 "The network connection was lost."',
   },
 } as const;
-
-

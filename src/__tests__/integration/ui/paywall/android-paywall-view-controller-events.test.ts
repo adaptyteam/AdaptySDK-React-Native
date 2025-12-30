@@ -133,7 +133,9 @@ describe('ViewController - onPurchaseStarted event (Android fields)', () => {
       expect(product.subscription.android).toBeDefined();
       if (product.subscription.android) {
         expect(product.subscription.android.renewalType).toBe('autorenewable');
-        expect(product.subscription.android.basePlanId).toBe('yearly-premium-6999-base');
+        expect(product.subscription.android.basePlanId).toBe(
+          'yearly-premium-6999-base',
+        );
       }
 
       // Verify iOS-specific fields are NOT present
@@ -214,7 +216,9 @@ describe('ViewController - onPurchaseCompleted event (Android fields)', () => {
     // Verify Android-specific product subscription fields
     if (product.subscription?.android) {
       expect(product.subscription.android.renewalType).toBe('autorenewable');
-      expect(product.subscription.android.basePlanId).toBe('weekly-premium-599-base');
+      expect(product.subscription.android.basePlanId).toBe(
+        'weekly-premium-599-base',
+      );
       if (product.subscription.offer?.android) {
         expect(product.subscription.offer.android.offerTags).toEqual([]);
       }
@@ -237,8 +241,9 @@ describe('ViewController - onPurchaseFailed event (Android fields)', () => {
   });
 
   it('should call onPurchaseFailed handler with Android-specific product fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> = jest
+      .fn()
+      .mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
@@ -262,7 +267,9 @@ describe('ViewController - onPurchaseFailed event (Android fields)', () => {
     expect(product.subscription).toBeDefined();
     if (product.subscription?.android) {
       expect(product.subscription.android.renewalType).toBe('autorenewable');
-      expect(product.subscription.android.basePlanId).toBe('monthly-premium-999-base');
+      expect(product.subscription.android.basePlanId).toBe(
+        'monthly-premium-999-base',
+      );
     }
 
     // Verify iOS-specific fields are NOT present
@@ -308,9 +315,11 @@ describe('ViewController - onRestoreCompleted event (Android fields)', () => {
 
     // Verify Android store in subscriptions
     if (profile.subscriptions) {
-      const subscriptions = Object.values(profile.subscriptions) as AdaptySubscription[];
+      const subscriptions = Object.values(
+        profile.subscriptions,
+      ) as AdaptySubscription[];
       expect(subscriptions.length).toBeGreaterThan(0);
-      subscriptions.forEach((subscription) => {
+      subscriptions.forEach(subscription => {
         expect(subscription.store).toBe('play_store');
         expect(subscription.vendorTransactionId).toMatch(/^GPA\./);
         expect(subscription.vendorOriginalTransactionId).toMatch(/^GPA\./);
@@ -319,9 +328,11 @@ describe('ViewController - onRestoreCompleted event (Android fields)', () => {
 
     // Verify Android store in access levels
     if (profile.accessLevels) {
-      const accessLevels = Object.values(profile.accessLevels) as AdaptyAccessLevel[];
+      const accessLevels = Object.values(
+        profile.accessLevels,
+      ) as AdaptyAccessLevel[];
       expect(accessLevels.length).toBeGreaterThan(0);
-      accessLevels.forEach((accessLevel) => {
+      accessLevels.forEach(accessLevel => {
         expect(accessLevel.store).toBe('play_store');
       });
     }
@@ -369,7 +380,9 @@ describe('ViewController - onWebPaymentNavigationFinished event (Android fields)
       // Verify Android-specific subscription fields
       if (product.subscription?.android) {
         expect(product.subscription.android.renewalType).toBe('autorenewable');
-        expect(product.subscription.android.basePlanId).toBe('sixmonth-premium-999-base');
+        expect(product.subscription.android.basePlanId).toBe(
+          'sixmonth-premium-999-base',
+        );
       }
 
       // Verify iOS-specific fields are NOT present
@@ -383,4 +396,3 @@ describe('ViewController - onWebPaymentNavigationFinished event (Android fields)
     }
   });
 });
-
