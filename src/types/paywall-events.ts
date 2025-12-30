@@ -19,7 +19,8 @@ export const PaywallEventId = {
   DidFailRestore: 'paywall_view_did_fail_restore',
   DidFailRendering: 'paywall_view_did_fail_rendering',
   DidFailLoadingProducts: 'paywall_view_did_fail_loading_products',
-  DidFinishWebPaymentNavigation: 'paywall_view_did_finish_web_payment_navigation',
+  DidFinishWebPaymentNavigation:
+    'paywall_view_did_finish_web_payment_navigation',
 } as const;
 
 export type PaywallEventIdType =
@@ -122,4 +123,3 @@ export type ParsedPaywallEvent =
   | PaywallDidFailRenderingEvent
   | PaywallDidFailLoadingProductsEvent
   | PaywallDidFinishWebPaymentNavigationEvent;
-

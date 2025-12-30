@@ -71,8 +71,12 @@ describe('ViewController - onPurchaseStarted event (iOS fields)', () => {
     if (product.subscription) {
       expect(product.subscription.ios).toBeDefined();
       if (product.subscription.ios) {
-        expect(product.subscription.ios.subscriptionGroupIdentifier).toBe('20770576');
-        expect(typeof product.subscription.ios.subscriptionGroupIdentifier).toBe('string');
+        expect(product.subscription.ios.subscriptionGroupIdentifier).toBe(
+          '20770576',
+        );
+        expect(
+          typeof product.subscription.ios.subscriptionGroupIdentifier,
+        ).toBe('string');
       }
 
       // Verify Android-specific fields are NOT present
@@ -108,8 +112,12 @@ describe('ViewController - onPurchaseStarted event (iOS fields)', () => {
       expect(typeof product.ios.isFamilyShareable).toBe('boolean');
     }
 
-    expect(product.subscription?.ios?.subscriptionGroupIdentifier).toBe('20770576'); // camelCase
-    expect(typeof product.subscription?.ios?.subscriptionGroupIdentifier).toBe('string');
+    expect(product.subscription?.ios?.subscriptionGroupIdentifier).toBe(
+      '20770576',
+    ); // camelCase
+    expect(typeof product.subscription?.ios?.subscriptionGroupIdentifier).toBe(
+      'string',
+    );
 
     // Android-specific fields should NOT be present
     expect(product.subscription).not.toHaveProperty('android');
@@ -133,9 +141,15 @@ describe('ViewController - onPurchaseStarted event (iOS fields)', () => {
     const [product] = handler.mock.calls[0]!;
 
     // Verify group_identifier format
-    expect(product.subscription?.ios?.subscriptionGroupIdentifier).toBeDefined();
-    expect(typeof product.subscription?.ios?.subscriptionGroupIdentifier).toBe('string');
-    expect(product.subscription?.ios?.subscriptionGroupIdentifier).toBe('20770576');
+    expect(
+      product.subscription?.ios?.subscriptionGroupIdentifier,
+    ).toBeDefined();
+    expect(typeof product.subscription?.ios?.subscriptionGroupIdentifier).toBe(
+      'string',
+    );
+    expect(product.subscription?.ios?.subscriptionGroupIdentifier).toBe(
+      '20770576',
+    );
   });
 });
 
@@ -178,9 +192,7 @@ describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
       expect(purchaseResult.ios).toBeDefined();
       if (purchaseResult.ios?.jwsTransaction) {
         expect(typeof purchaseResult.ios.jwsTransaction).toBe('string');
-        expect(purchaseResult.ios.jwsTransaction.startsWith('eyJ')).toBe(
-          true,
-        ); // JWT format
+        expect(purchaseResult.ios.jwsTransaction.startsWith('eyJ')).toBe(true); // JWT format
       }
 
       // Verify Android-specific field is NOT present
@@ -200,7 +212,9 @@ describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
 
     // Verify iOS-specific product subscription fields
     if (product.subscription?.ios) {
-      expect(product.subscription.ios.subscriptionGroupIdentifier).toBe('20770576');
+      expect(product.subscription.ios.subscriptionGroupIdentifier).toBe(
+        '20770576',
+      );
     }
     if (product.ios) {
       expect(product.ios.isFamilyShareable).toBe(false);
@@ -234,9 +248,7 @@ describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
       expect(purchaseResult.ios).toBeDefined();
       if (purchaseResult.ios?.jwsTransaction) {
         expect(typeof purchaseResult.ios.jwsTransaction).toBe('string');
-        expect(
-          purchaseResult.ios.jwsTransaction.startsWith('eyJ'),
-        ).toBe(true); // JWT format
+        expect(purchaseResult.ios.jwsTransaction.startsWith('eyJ')).toBe(true); // JWT format
       }
 
       // Android-specific field should NOT be present
@@ -297,7 +309,9 @@ describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
       expect(product.ios.isFamilyShareable).toBe(false);
     }
     if (product?.subscription?.ios) {
-      expect(product.subscription.ios.subscriptionGroupIdentifier).toBe('20770576');
+      expect(product.subscription.ios.subscriptionGroupIdentifier).toBe(
+        '20770576',
+      );
     }
   });
 });
@@ -317,8 +331,9 @@ describe('ViewController - onPurchaseFailed event (iOS fields)', () => {
   });
 
   it('should call onPurchaseFailed handler with iOS-specific product fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> = jest
+      .fn()
+      .mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
@@ -341,7 +356,9 @@ describe('ViewController - onPurchaseFailed event (iOS fields)', () => {
     // Verify iOS-specific subscription fields
     expect(product.subscription).toBeDefined();
     if (product.subscription?.ios) {
-      expect(product.subscription.ios.subscriptionGroupIdentifier).toBe('20770576');
+      expect(product.subscription.ios.subscriptionGroupIdentifier).toBe(
+        '20770576',
+      );
     }
 
     // Verify iOS-specific product fields
@@ -392,7 +409,7 @@ describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
         profile.subscriptions,
       ) as AdaptySubscription[];
       expect(subscriptions.length).toBeGreaterThan(0);
-      subscriptions.forEach((subscription) => {
+      subscriptions.forEach(subscription => {
         expect(subscription.store).toBe('app_store');
         // iOS transaction IDs are numeric strings
         if (subscription.vendorTransactionId) {
@@ -410,7 +427,7 @@ describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
         profile.accessLevels,
       ) as AdaptyAccessLevel[];
       expect(accessLevels.length).toBeGreaterThan(0);
-      accessLevels.forEach((accessLevel) => {
+      accessLevels.forEach(accessLevel => {
         expect(accessLevel.store).toBe('app_store');
       });
     }
@@ -435,7 +452,7 @@ describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
     const subscriptionKeys = Object.keys(receivedProfile.subscriptions || {});
     expect(subscriptionKeys.length).toBeGreaterThan(0);
 
-    subscriptionKeys.forEach((key) => {
+    subscriptionKeys.forEach(key => {
       const subscription = receivedProfile.subscriptions![key];
       if (subscription) {
         expect(subscription.store).toBe('app_store'); // iOS store
@@ -443,12 +460,10 @@ describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
     });
 
     // Check paid access levels store field
-    const accessLevelKeys = Object.keys(
-      receivedProfile.accessLevels || {},
-    );
+    const accessLevelKeys = Object.keys(receivedProfile.accessLevels || {});
     expect(accessLevelKeys.length).toBeGreaterThan(0);
 
-    accessLevelKeys.forEach((key) => {
+    accessLevelKeys.forEach(key => {
       const accessLevel = receivedProfile.accessLevels![key];
       if (accessLevel) {
         expect(accessLevel.store).toBe('app_store'); // iOS store
@@ -475,7 +490,7 @@ describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
       const subscriptions = Object.values(
         profile.subscriptions,
       ) as AdaptySubscription[];
-      subscriptions.forEach((subscription) => {
+      subscriptions.forEach(subscription => {
         // iOS transaction IDs are numeric strings (not GPA.xxx format)
         expect(subscription.vendorTransactionId).toMatch(/^\d+$/);
         expect(subscription.vendorOriginalTransactionId).toMatch(/^\d+$/);
@@ -524,7 +539,9 @@ describe('ViewController - onWebPaymentNavigationFinished event (iOS fields)', (
 
       // Verify iOS-specific subscription fields
       if (product.subscription?.ios) {
-        expect(product.subscription.ios.subscriptionGroupIdentifier).toBe('20770576');
+        expect(product.subscription.ios.subscriptionGroupIdentifier).toBe(
+          '20770576',
+        );
       }
 
       // Verify iOS-specific product fields
@@ -623,4 +640,3 @@ describe('ViewController - Android fields absence in iOS events', () => {
     }
   });
 });
-

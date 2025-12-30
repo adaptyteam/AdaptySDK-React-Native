@@ -83,7 +83,11 @@ export function parsePaywallEvent(
         id: eventId,
         view,
         action: {
-          type: actionObj['type'] as 'close' | 'system_back' | 'open_url' | 'custom',
+          type: actionObj['type'] as
+            | 'close'
+            | 'system_back'
+            | 'open_url'
+            | 'custom',
           value: actionObj['value'] as string | undefined,
         },
       };
@@ -118,10 +122,7 @@ export function parsePaywallEvent(
       };
 
     case PaywallEventId.DidFailPurchase: {
-      const errorCoder = getPaywallCoder(
-        'error',
-        ctx,
-      ) as ErrorConverter<any>;
+      const errorCoder = getPaywallCoder('error', ctx) as ErrorConverter<any>;
       const decodedError = errorCoder.decode(obj['error']);
       return {
         id: eventId,
@@ -149,10 +150,7 @@ export function parsePaywallEvent(
       };
 
     case PaywallEventId.DidFailRestore: {
-      const errorCoder = getPaywallCoder(
-        'error',
-        ctx,
-      ) as ErrorConverter<any>;
+      const errorCoder = getPaywallCoder('error', ctx) as ErrorConverter<any>;
       const decodedError = errorCoder.decode(obj['error']);
       return {
         id: eventId,
@@ -162,10 +160,7 @@ export function parsePaywallEvent(
     }
 
     case PaywallEventId.DidFailRendering: {
-      const errorCoder = getPaywallCoder(
-        'error',
-        ctx,
-      ) as ErrorConverter<any>;
+      const errorCoder = getPaywallCoder('error', ctx) as ErrorConverter<any>;
       const decodedError = errorCoder.decode(obj['error']);
       return {
         id: eventId,
@@ -175,10 +170,7 @@ export function parsePaywallEvent(
     }
 
     case PaywallEventId.DidFailLoadingProducts: {
-      const errorCoder = getPaywallCoder(
-        'error',
-        ctx,
-      ) as ErrorConverter<any>;
+      const errorCoder = getPaywallCoder('error', ctx) as ErrorConverter<any>;
       const decodedError = errorCoder.decode(obj['error']);
       return {
         id: eventId,
@@ -230,4 +222,3 @@ function getPaywallCoder(
       return new AdaptyNativeErrorCoder();
   }
 }
-

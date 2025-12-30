@@ -1,10 +1,7 @@
 import type { EventHandlers } from './types';
 import { $bridge } from '@/bridge';
 import { EmitterSubscription } from 'react-native';
-import {
-  ParsedPaywallEvent,
-  PaywallEventId,
-} from '@/types/paywall-events';
+import { ParsedPaywallEvent, PaywallEventId } from '@/types/paywall-events';
 import { LogContext } from '@/logger';
 
 type EventName = keyof EventHandlers;
@@ -101,11 +98,7 @@ export class ViewEmitter {
           continue; // Handler not registered for this view
         }
 
-        const {
-          handler,
-          config: handlerConfig,
-          onRequestClose,
-        } = handlerData;
+        const { handler, config: handlerConfig, onRequestClose } = handlerData;
 
         // Filter by action type for DidPerformAction events
         if (
@@ -291,10 +284,7 @@ function extractCallbackArgs<T extends keyof EventHandlers>(
 
     case PaywallEventId.DidPerformAction:
       // For DidPerformAction, different handlers need different arguments
-      if (
-        handlerName === 'onUrlPress' ||
-        handlerName === 'onCustomAction'
-      ) {
+      if (handlerName === 'onUrlPress' || handlerName === 'onCustomAction') {
         return [event.action.value ?? ''] as ExtractedArgs<T>;
       }
       // onCloseButtonPress, onAndroidSystemBack don't take arguments

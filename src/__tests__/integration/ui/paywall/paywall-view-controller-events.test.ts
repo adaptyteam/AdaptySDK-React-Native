@@ -286,26 +286,59 @@ describe('ViewController - onPurchaseStarted event', () => {
     const [product] = handler.mock.calls[0]!;
 
     // Platform-independent product fields
-    expect(product).toHaveProperty('vendorProductId', sample.product.vendor_product_id);
-    expect(product).toHaveProperty('adaptyId', sample.product.adapty_product_id);
-    expect(product).toHaveProperty('localizedTitle', sample.product.localized_title);
-    expect(product).toHaveProperty('localizedDescription', sample.product.localized_description);
-    expect(product).toHaveProperty('accessLevelId', sample.product.access_level_id);
+    expect(product).toHaveProperty(
+      'vendorProductId',
+      sample.product.vendor_product_id,
+    );
+    expect(product).toHaveProperty(
+      'adaptyId',
+      sample.product.adapty_product_id,
+    );
+    expect(product).toHaveProperty(
+      'localizedTitle',
+      sample.product.localized_title,
+    );
+    expect(product).toHaveProperty(
+      'localizedDescription',
+      sample.product.localized_description,
+    );
+    expect(product).toHaveProperty(
+      'accessLevelId',
+      sample.product.access_level_id,
+    );
     expect(product).toHaveProperty('productType', sample.product.product_type);
 
     // Platform-independent price fields
     expect(product).toHaveProperty('price');
     expect(product.price).toHaveProperty('amount', sample.product.price.amount);
-    expect(product.price).toHaveProperty('currencyCode', sample.product.price.currency_code);
-    expect(product.price).toHaveProperty('currencySymbol', sample.product.price.currency_symbol);
-    expect(product.price).toHaveProperty('localizedString', sample.product.price.localized_string);
+    expect(product.price).toHaveProperty(
+      'currencyCode',
+      sample.product.price.currency_code,
+    );
+    expect(product.price).toHaveProperty(
+      'currencySymbol',
+      sample.product.price.currency_symbol,
+    );
+    expect(product.price).toHaveProperty(
+      'localizedString',
+      sample.product.price.localized_string,
+    );
 
     // Platform-independent subscription fields
     if (product.subscription) {
       expect(product.subscription).toHaveProperty('subscriptionPeriod');
-      expect(product.subscription.subscriptionPeriod).toHaveProperty('unit', sample.product.subscription.period.unit);
-      expect(product.subscription.subscriptionPeriod).toHaveProperty('numberOfUnits', sample.product.subscription.period.number_of_units);
-      expect(product.subscription).toHaveProperty('localizedSubscriptionPeriod', sample.product.subscription.localized_period);
+      expect(product.subscription.subscriptionPeriod).toHaveProperty(
+        'unit',
+        sample.product.subscription.period.unit,
+      );
+      expect(product.subscription.subscriptionPeriod).toHaveProperty(
+        'numberOfUnits',
+        sample.product.subscription.period.number_of_units,
+      );
+      expect(product.subscription).toHaveProperty(
+        'localizedSubscriptionPeriod',
+        sample.product.subscription.localized_period,
+      );
     }
   });
 });
@@ -356,10 +389,22 @@ describe('ViewController - onPurchaseCompleted event', () => {
     }
 
     // Platform-independent product fields
-    expect(product).toHaveProperty('vendorProductId', sample.product.vendor_product_id);
-    expect(product).toHaveProperty('adaptyId', sample.product.adapty_product_id);
-    expect(product).toHaveProperty('localizedTitle', sample.product.localized_title);
-    expect(product).toHaveProperty('localizedDescription', sample.product.localized_description);
+    expect(product).toHaveProperty(
+      'vendorProductId',
+      sample.product.vendor_product_id,
+    );
+    expect(product).toHaveProperty(
+      'adaptyId',
+      sample.product.adapty_product_id,
+    );
+    expect(product).toHaveProperty(
+      'localizedTitle',
+      sample.product.localized_title,
+    );
+    expect(product).toHaveProperty(
+      'localizedDescription',
+      sample.product.localized_description,
+    );
   });
 
   it('should call onPurchaseCompleted handler with user_cancelled result', async () => {
@@ -401,8 +446,9 @@ describe('ViewController - onPurchaseFailed event', () => {
   it('should call onPurchaseFailed handler when purchase fails', async () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific product fields are tested in platform-specific test files.
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> = jest
+      .fn()
+      .mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
@@ -425,10 +471,22 @@ describe('ViewController - onPurchaseFailed event', () => {
     expect(error).toHaveProperty('message');
 
     // Platform-independent product fields
-    expect(product).toHaveProperty('vendorProductId', sample.product.vendor_product_id);
-    expect(product).toHaveProperty('adaptyId', sample.product.adapty_product_id);
-    expect(product).toHaveProperty('localizedTitle', sample.product.localized_title);
-    expect(product).toHaveProperty('localizedDescription', sample.product.localized_description);
+    expect(product).toHaveProperty(
+      'vendorProductId',
+      sample.product.vendor_product_id,
+    );
+    expect(product).toHaveProperty(
+      'adaptyId',
+      sample.product.adapty_product_id,
+    );
+    expect(product).toHaveProperty(
+      'localizedTitle',
+      sample.product.localized_title,
+    );
+    expect(product).toHaveProperty(
+      'localizedDescription',
+      sample.product.localized_description,
+    );
   });
 });
 
@@ -447,8 +505,9 @@ describe('ViewController - onRestoreStarted event', () => {
   });
 
   it('should call onRestoreStarted handler when restore starts', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRestoreStarted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<EventHandlers['onRestoreStarted']> = jest
+      .fn()
+      .mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreStarted: handler });
 
@@ -533,8 +592,9 @@ describe('ViewController - onRestoreFailed event', () => {
   });
 
   it('should call onRestoreFailed handler when restore fails', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRestoreFailed']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<EventHandlers['onRestoreFailed']> = jest
+      .fn()
+      .mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreFailed: handler });
 
@@ -844,21 +904,45 @@ describe('ViewController - onWebPaymentNavigationFinished event', () => {
     // Platform-independent product fields
     expect(product).toBeDefined();
     if (product) {
-      expect(product).toHaveProperty('vendorProductId', sample.product.vendor_product_id);
-      expect(product).toHaveProperty('adaptyId', sample.product.adapty_product_id);
-      expect(product).toHaveProperty('localizedTitle', sample.product.localized_title);
-      expect(product).toHaveProperty('localizedDescription', sample.product.localized_description);
+      expect(product).toHaveProperty(
+        'vendorProductId',
+        sample.product.vendor_product_id,
+      );
+      expect(product).toHaveProperty(
+        'adaptyId',
+        sample.product.adapty_product_id,
+      );
+      expect(product).toHaveProperty(
+        'localizedTitle',
+        sample.product.localized_title,
+      );
+      expect(product).toHaveProperty(
+        'localizedDescription',
+        sample.product.localized_description,
+      );
       expect(product).toHaveProperty('price');
       if (product.price) {
-        expect(product.price).toHaveProperty('amount', sample.product.price.amount);
-        expect(product.price).toHaveProperty('currencyCode', sample.product.price.currency_code);
+        expect(product.price).toHaveProperty(
+          'amount',
+          sample.product.price.amount,
+        );
+        expect(product.price).toHaveProperty(
+          'currencyCode',
+          sample.product.price.currency_code,
+        );
       }
 
       // Platform-independent subscription fields
       if (product.subscription) {
         expect(product.subscription).toHaveProperty('subscriptionPeriod');
-        expect(product.subscription.subscriptionPeriod).toHaveProperty('unit', sample.product.subscription.period.unit);
-        expect(product.subscription.subscriptionPeriod).toHaveProperty('numberOfUnits', sample.product.subscription.period.number_of_units);
+        expect(product.subscription.subscriptionPeriod).toHaveProperty(
+          'unit',
+          sample.product.subscription.period.unit,
+        );
+        expect(product.subscription.subscriptionPeriod).toHaveProperty(
+          'numberOfUnits',
+          sample.product.subscription.period.number_of_units,
+        );
       }
     }
 
@@ -928,7 +1012,11 @@ describe('ViewController - event viewId filtering', () => {
     const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
 
     // Emit all event types with wrong viewId
-    emitPaywallProductSelectedEvent(wrongViewId, sample.product_id, sample.view);
+    emitPaywallProductSelectedEvent(
+      wrongViewId,
+      sample.product_id,
+      sample.view,
+    );
     emitPaywallPurchaseStartedEvent(
       wrongViewId,
       PAYWALL_PURCHASE_STARTED.product,
@@ -1493,4 +1581,3 @@ describe('ViewController - setEventHandlers merge behavior', () => {
     expect(onCloseHandler).toHaveBeenCalledTimes(1);
   });
 });
-

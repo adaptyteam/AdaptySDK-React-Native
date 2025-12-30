@@ -7,10 +7,7 @@ import {
 import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '@/logger';
 import { parseMethodResult } from '@/coders';
-import {
-  AdaptyType,
-  parseCommonEvent,
-} from '@/coders/parse';
+import { AdaptyType, parseCommonEvent } from '@/coders/parse';
 import { parsePaywallEvent } from '@/coders/parse-paywall';
 import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 
