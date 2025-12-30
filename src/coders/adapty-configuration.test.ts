@@ -37,6 +37,7 @@ describe('AdaptyConfigurationCoder', () => {
       customerUserId: 'user123',
       observerMode: true,
       ipAddressCollectionDisabled: true,
+      clearDataOnBackup: true,
       logLevel: LogLevel.VERBOSE,
       serverCluster: 'eu' as const,
       backendProxyHost: 'proxy.example.com',
@@ -71,6 +72,7 @@ describe('AdaptyConfigurationCoder', () => {
       },
       observer_mode: true,
       ip_address_collection_disabled: true,
+      clear_data_on_backup: true,
       log_level: 'verbose',
       server_cluster: 'eu',
       backend_proxy_host: 'proxy.example.com',
@@ -182,6 +184,20 @@ describe('AdaptyConfigurationCoder', () => {
       disk_storage_size_limit: 100 * 1024 * 1024,
     });
     expect(result.log_level).toBeUndefined();
+  });
+
+  it('should handle clearDataOnBackup parameter conditionally', () => {
+    const paramsWithout = {};
+    const resultWithout = coder.encode(apiKey, paramsWithout);
+    expect(resultWithout.clear_data_on_backup).toBeUndefined();
+
+    const paramsWithFalse = { clearDataOnBackup: false };
+    const resultWithFalse = coder.encode(apiKey, paramsWithFalse);
+    expect(resultWithFalse.clear_data_on_backup).toBe(false);
+
+    const paramsWithTrue = { clearDataOnBackup: true };
+    const resultWithTrue = coder.encode(apiKey, paramsWithTrue);
+    expect(resultWithTrue.clear_data_on_backup).toBe(true);
   });
 
   it('should prefer params media cache over default', () => {

@@ -159,6 +159,12 @@ export interface ActivateParamsInput {
    * @defaultValue `false`
    */
   ipAddressCollectionDisabled?: boolean;
+  /**
+   * Controls whether the SDK will create a new profile when the app is restored from an iCloud backup
+   * @defaultValue `false`
+   * @platform ios
+   */
+  clearDataOnBackup?: boolean;
   ios?: {
     /**
      * Disables IDFA collection
