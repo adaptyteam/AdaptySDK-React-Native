@@ -326,6 +326,7 @@ export const DEFAULT_EVENT_HANDLERS: Partial<EventHandlers> = {
   onCloseButtonPress: () => true,
   onAndroidSystemBack: () => true,
   onRestoreCompleted: () => true,
+  onRenderingFailed: () => true,
   onPurchaseCompleted: (purchaseResult: AdaptyPurchaseResult) =>
     purchaseResult.type !== 'user_cancelled',
   onUrlPress: url => {

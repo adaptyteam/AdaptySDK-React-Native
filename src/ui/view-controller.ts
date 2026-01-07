@@ -259,6 +259,7 @@ export class ViewController {
    * - `onCloseButtonPress` - closes paywall (returns `true`)
    * - `onAndroidSystemBack` - closes paywall (returns `true`)
    * - `onRestoreCompleted` - closes paywall (returns `true`)
+   * - `onRenderingFailed` - closes paywall (returns `true`)
    * - `onPurchaseCompleted` - closes paywall on success (returns `purchaseResult.type !== 'user_cancelled'`)
    * - `onUrlPress` - opens URL and keeps paywall open (returns `false`)
    *

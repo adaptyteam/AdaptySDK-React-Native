@@ -357,15 +357,17 @@ describe('ViewController', () => {
       const view = await ViewController.create(paywall, {} as any);
 
       // After create, default handlers should be registered
-      // (onCloseButtonPress, onAndroidSystemBack, onRestoreCompleted, onPurchaseCompleted, onUrlPress)
+      // (onCloseButtonPress, onAndroidSystemBack, onRestoreCompleted, onRenderingFailed, onPurchaseCompleted, onUrlPress)
       expect(handlers.has('onCloseButtonPress')).toBe(true);
       expect(handlers.has('onAndroidSystemBack')).toBe(true);
       expect(handlers.has('onRestoreCompleted')).toBe(true);
+      expect(handlers.has('onRenderingFailed')).toBe(true);
       expect(handlers.has('onPurchaseCompleted')).toBe(true);
       expect(handlers.has('onUrlPress')).toBe(true);
 
       const defaultOnAndroidSystemBack = handlers.get('onAndroidSystemBack');
       const defaultOnRestoreCompleted = handlers.get('onRestoreCompleted');
+      const defaultOnRenderingFailed = handlers.get('onRenderingFailed');
       const defaultOnUrlPress = handlers.get('onUrlPress');
 
       // Now override only onCloseButtonPress
@@ -382,6 +384,7 @@ describe('ViewController', () => {
       expect(handlers.get('onRestoreCompleted')).toBe(
         defaultOnRestoreCompleted,
       );
+      expect(handlers.get('onRenderingFailed')).toBe(defaultOnRenderingFailed);
       expect(handlers.get('onUrlPress')).toBe(defaultOnUrlPress);
       expect(handlers.has('onPurchaseCompleted')).toBe(true);
     });

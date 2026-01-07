@@ -1441,6 +1441,23 @@ describe('ViewController - default event handlers', () => {
     dismissSpy.mockRestore();
   });
 
+  it('should auto-dismiss paywall when onRenderingFailed event is emitted with default handler', async () => {
+    const viewId = (view as any).id;
+    const sample = PAYWALL_RENDERING_FAILED;
+
+    // Spy on dismiss method to verify it's called
+    const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
+
+    // Emit rendering_failed event WITHOUT setting custom handler
+    // Default handler (onRenderingFailed: () => true) should be active from create()
+    emitPaywallRenderingFailedEvent(viewId, sample.error, sample.view);
+
+    // Verify dismiss was called due to default handler returning true
+    expect(dismissSpy).toHaveBeenCalledTimes(1);
+
+    dismissSpy.mockRestore();
+  });
+
   it('should allow overriding default onCloseButtonPress handler', async () => {
     const viewId = (view as any).id;
     const sample = PAYWALL_USER_ACTION_CLOSE;
@@ -1475,6 +1492,28 @@ describe('ViewController - default event handlers', () => {
 
     // Emit system_back event
     emitPaywallUserActionEvent(viewId, 'system_back', undefined, sample.view);
+
+    // Custom handler should be called
+    expect(customHandler).toHaveBeenCalledTimes(1);
+
+    // Dismiss should NOT be called because custom handler returned false
+    expect(dismissSpy).not.toHaveBeenCalled();
+
+    dismissSpy.mockRestore();
+  });
+
+  it('should allow overriding default onRenderingFailed handler', async () => {
+    const viewId = (view as any).id;
+    const sample = PAYWALL_RENDERING_FAILED;
+
+    const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
+
+    // Override default handler with one that returns false
+    const customHandler = jest.fn().mockReturnValue(false);
+    view.setEventHandlers({ onRenderingFailed: customHandler });
+
+    // Emit rendering_failed event
+    emitPaywallRenderingFailedEvent(viewId, sample.error, sample.view);
 
     // Custom handler should be called
     expect(customHandler).toHaveBeenCalledTimes(1);
