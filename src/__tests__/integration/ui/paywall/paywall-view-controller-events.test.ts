@@ -1620,3 +1620,58 @@ describe('ViewController - setEventHandlers merge behavior', () => {
     expect(onCloseHandler).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('ViewController - onPaywallClosed after user action close', () => {
+  let adapty: Adapty;
+  let view: ViewController;
+
+  beforeEach(async () => {
+    const result = await createPaywallViewController();
+    adapty = result.adapty;
+    view = result.view;
+  });
+
+  afterEach(() => {
+    cleanupPaywallViewController(view, adapty);
+  });
+
+  it('should call onPaywallClosed handler even after close button triggers dismiss', async () => {
+    const viewId = (view as any).id;
+    const closeButtonSample = PAYWALL_USER_ACTION_CLOSE_BUTTON;
+    const closedSample = PAYWALL_VIEW_DISAPPEARED;
+
+    // Set up handlers
+    const onCloseButtonPressHandler: jest.MockedFunction<
+      EventHandlers['onCloseButtonPress']
+    > = jest.fn().mockReturnValue(true); // Returns true to trigger dismiss
+    const onPaywallClosedHandler: jest.MockedFunction<
+      EventHandlers['onPaywallClosed']
+    > = jest.fn().mockReturnValue(false);
+
+    // Spy on dismiss WITHOUT mocking - let it execute normally
+    const dismissSpy = jest.spyOn(view, 'dismiss');
+
+    view.setEventHandlers({
+      onCloseButtonPress: onCloseButtonPressHandler,
+      onPaywallClosed: onPaywallClosedHandler,
+    });
+
+    // 1. User presses close button - this should trigger dismiss
+    emitPaywallUserActionEvent(viewId, 'close', undefined, closeButtonSample.view);
+
+    expect(onCloseButtonPressHandler).toHaveBeenCalledTimes(1);
+    expect(dismissSpy).toHaveBeenCalledTimes(1);
+
+    // 2. Wait for dismiss to complete (including removeAllListeners)
+    await dismissSpy.mock.results[0]?.value;
+
+    // 3. Native code sends onPaywallClosed event after paywall actually closes
+    emitPaywallViewDisappearedEvent(viewId, closedSample.view);
+
+    // BUG EXPECTATION: onPaywallClosed handler should be called,
+    // but it might not be if dismiss() unsubscribed all handlers before native sent the event
+    expect(onPaywallClosedHandler).toHaveBeenCalledTimes(1);
+
+    dismissSpy.mockRestore();
+  });
+});
