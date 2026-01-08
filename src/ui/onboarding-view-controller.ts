@@ -54,7 +54,7 @@ export class OnboardingViewController {
     const data: Req['AdaptyUICreateOnboardingView.Request'] = {
       method: methodKey,
       onboarding: coder.encode(onboarding),
-      ...(encodedParams as any),
+      ...encodedParams,
     };
 
     const body = JSON.stringify(data);

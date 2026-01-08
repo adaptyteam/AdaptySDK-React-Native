@@ -1,8 +1,10 @@
 import { CreateOnboardingViewParamsInput } from '@/ui/types';
+import { Req } from '@/types/schema';
 
-type Serializable = {
-  external_urls_presentation?: string;
-};
+type Serializable = Pick<
+  Req['AdaptyUICreateOnboardingView.Request'],
+  'external_urls_presentation'
+>;
 
 export class AdaptyUICreateOnboardingViewParamsCoder {
   encode(data: CreateOnboardingViewParamsInput): Serializable {
