@@ -23,7 +23,6 @@ export type Props = ViewProps & {
   onPurchaseCompleted?: EventHandlers['onPurchaseCompleted'];
   onPurchaseFailed?: EventHandlers['onPurchaseFailed'];
   onRestoreStarted?: EventHandlers['onRestoreStarted'];
-  onPaywallClosed?: EventHandlers['onPaywallClosed'];
   onPaywallShown?: EventHandlers['onPaywallShown'];
   onWebPaymentNavigationFinished?: EventHandlers['onWebPaymentNavigationFinished'];
   onRestoreCompleted?: EventHandlers['onRestoreCompleted'];
@@ -47,7 +46,6 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   onPurchaseCompleted,
   onPurchaseFailed,
   onRestoreStarted,
-  onPaywallClosed,
   onPaywallShown,
   onWebPaymentNavigationFinished,
   onRestoreCompleted,
@@ -81,7 +79,6 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
     if (onPurchaseCompleted) handlers.onPurchaseCompleted = onPurchaseCompleted;
     if (onPurchaseFailed) handlers.onPurchaseFailed = onPurchaseFailed;
     if (onRestoreStarted) handlers.onRestoreStarted = onRestoreStarted;
-    if (onPaywallClosed) handlers.onPaywallClosed = onPaywallClosed;
     if (onPaywallShown) handlers.onPaywallShown = onPaywallShown;
     if (onWebPaymentNavigationFinished)
       handlers.onWebPaymentNavigationFinished = onWebPaymentNavigationFinished;
@@ -101,7 +98,6 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
     onPurchaseCompleted,
     onPurchaseFailed,
     onRestoreStarted,
-    onPaywallClosed,
     onPaywallShown,
     onWebPaymentNavigationFinished,
     onRestoreCompleted,
