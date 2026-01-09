@@ -18,7 +18,6 @@ export type Props = ViewProps & {
   paywall: AdaptyPaywall;
   params?: CreatePaywallViewParamsInput;
   onCloseButtonPress?: EventHandlers['onCloseButtonPress'];
-  onAndroidSystemBack?: EventHandlers['onAndroidSystemBack'];
   onProductSelected?: EventHandlers['onProductSelected'];
   onPurchaseStarted?: EventHandlers['onPurchaseStarted'];
   onPurchaseCompleted?: EventHandlers['onPurchaseCompleted'];
@@ -43,7 +42,6 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   paywall,
   params,
   onCloseButtonPress,
-  onAndroidSystemBack,
   onProductSelected,
   onPurchaseStarted,
   onPurchaseCompleted,
@@ -78,7 +76,6 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
     const handlers: Partial<EventHandlers> = {};
 
     if (onCloseButtonPress) handlers.onCloseButtonPress = onCloseButtonPress;
-    if (onAndroidSystemBack) handlers.onAndroidSystemBack = onAndroidSystemBack;
     if (onProductSelected) handlers.onProductSelected = onProductSelected;
     if (onPurchaseStarted) handlers.onPurchaseStarted = onPurchaseStarted;
     if (onPurchaseCompleted) handlers.onPurchaseCompleted = onPurchaseCompleted;
@@ -99,7 +96,6 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
     return handlers;
   }, [
     onCloseButtonPress,
-    onAndroidSystemBack,
     onProductSelected,
     onPurchaseStarted,
     onPurchaseCompleted,
