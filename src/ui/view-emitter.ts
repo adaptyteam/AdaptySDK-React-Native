@@ -36,6 +36,13 @@ export class ViewEmitter {
       onRequestClose: () => Promise<void>;
     }
   > = new Map();
+  private internalHandlers: Map<
+    EventName,
+    {
+      handler: (event: ParsedPaywallEvent) => void;
+      config: (typeof HANDLER_TO_EVENT_CONFIG)[EventName];
+    }
+  > = new Map();
 
   constructor(viewId: string) {
     this.viewId = viewId;
@@ -59,6 +66,7 @@ export class ViewEmitter {
       onRequestClose,
     });
 
+    // If no subscription to native event exists - create one
     if (!this.eventListeners.has(config.nativeEvent)) {
       const subscription = $bridge.addEventListener(
         config.nativeEvent,
@@ -68,6 +76,54 @@ export class ViewEmitter {
     }
 
     return this.eventListeners.get(config.nativeEvent)!;
+  }
+
+  /**
+   * Adds an internal event handler.
+   * Internal handlers:
+   * - Are called AFTER client handlers
+   * - Do NOT return boolean (don't affect auto-dismiss)
+   * - Are used for internal SDK logic (e.g., cleanup)
+   * @internal
+   */
+  public addInternalListener(
+    event: EventName,
+    callback: (event: ParsedPaywallEvent) => void,
+  ): void {
+    const config = HANDLER_TO_EVENT_CONFIG[event];
+
+    if (!config) {
+      throw new Error(`No event config found for handler: ${event}`);
+    }
+
+    // Replace existing internal handler for this event
+    this.internalHandlers.set(event, {
+      handler: callback,
+      config,
+    });
+
+    // If no subscription to native event exists - create one
+    if (!this.eventListeners.has(config.nativeEvent)) {
+      const subscription = $bridge.addEventListener(
+        config.nativeEvent,
+        this.createEventHandler(config),
+      );
+      this.eventListeners.set(config.nativeEvent, subscription);
+    }
+  }
+
+  /**
+   * Checks if handler should be skipped based on action type filtering
+   */
+  private shouldSkipHandler(
+    handlerConfig: { propertyMap?: { [key: string]: string } },
+    parsedEvent: ParsedPaywallEvent,
+  ): boolean {
+    return !!(
+      handlerConfig.propertyMap &&
+      parsedEvent.id === PaywallEventId.DidPerformAction &&
+      parsedEvent.action.type !== handlerConfig.propertyMap['action']
+    );
   }
 
   private createEventHandler(
@@ -91,6 +147,7 @@ export class ViewEmitter {
       const possibleHandlers =
         NATIVE_EVENT_TO_HANDLERS[config.nativeEvent] || [];
 
+      // 1. Client handlers
       let hasError = false;
       for (const handlerName of possibleHandlers) {
         const handlerData = this.handlers.get(handlerName);
@@ -101,11 +158,7 @@ export class ViewEmitter {
         const { handler, config: handlerConfig, onRequestClose } = handlerData;
 
         // Filter by action type for DidPerformAction events
-        if (
-          handlerConfig.propertyMap &&
-          parsedEvent.id === PaywallEventId.DidPerformAction &&
-          parsedEvent.action.type !== handlerConfig.propertyMap['action']
-        ) {
+        if (this.shouldSkipHandler(handlerConfig, parsedEvent)) {
           continue;
         }
 
@@ -141,6 +194,34 @@ export class ViewEmitter {
         }
       }
 
+      // 2. Internal handlers
+      for (const handlerName of possibleHandlers) {
+        const internalHandlerData = this.internalHandlers.get(handlerName);
+        if (!internalHandlerData) {
+          continue;
+        }
+
+        const { handler, config: handlerConfig } = internalHandlerData;
+
+        // Use the same filtering logic
+        if (this.shouldSkipHandler(handlerConfig, parsedEvent)) {
+          continue;
+        }
+
+        try {
+          handler(parsedEvent);
+        } catch (error) {
+          // Log error but continue execution
+          log.failed({
+            error,
+            handlerName: `internal:${handlerName}`,
+            viewId: eventViewId,
+            eventId: parsedEvent.id,
+            reason: 'internal_handler_failed',
+          });
+        }
+      }
+
       if (!hasError) {
         log.success({ viewId: eventViewId, eventId: parsedEvent.id });
       }
@@ -151,6 +232,7 @@ export class ViewEmitter {
     this.eventListeners.forEach(subscription => subscription.remove());
     this.eventListeners.clear();
     this.handlers.clear();
+    this.internalHandlers.clear();
   }
 }
 
