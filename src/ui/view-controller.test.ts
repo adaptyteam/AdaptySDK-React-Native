@@ -21,6 +21,7 @@ jest.mock('./view-emitter', () => {
   return {
     ViewEmitter: jest.fn().mockImplementation(() => ({
       addListener: jest.fn(),
+      addInternalListener: jest.fn(),
       removeAllListeners: jest.fn(),
     })),
   };
@@ -127,7 +128,7 @@ describe('ViewController', () => {
   });
 
   describe('dismiss', () => {
-    it('calls bridge and unsubscribes listeners', async () => {
+    it('calls bridge and registers internal cleanup handler', async () => {
       const { AdaptyPaywallCoder } = jest.requireMock(
         '@/coders/adapty-paywall',
       );
@@ -140,14 +141,22 @@ describe('ViewController', () => {
         .mockResolvedValueOnce(undefined); // dismiss
 
       const { ViewEmitter } = jest.requireMock('./view-emitter');
+      const addInternalListenerMock = jest.fn();
       const removeAllListenersMock = jest.fn();
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener: jest.fn(),
+        addInternalListener: addInternalListenerMock,
         removeAllListeners: removeAllListenersMock,
       }));
 
       const view = await ViewController.create(paywall, {} as any);
       view.setEventHandlers({ onCloseButtonPress: () => true });
+
+      // Verify internal handler was registered for cleanup
+      expect(addInternalListenerMock).toHaveBeenCalledWith(
+        'onPaywallClosed',
+        expect.any(Function),
+      );
 
       await view.dismiss();
 
@@ -157,7 +166,10 @@ describe('ViewController', () => {
         'Void',
         expect.any(Object),
       );
-      expect(removeAllListenersMock).toHaveBeenCalled();
+
+      // Cleanup now happens via internal handler, not directly in dismiss()
+      // So removeAllListeners should NOT be called immediately after dismiss
+      expect(removeAllListenersMock).not.toHaveBeenCalled();
     });
 
     it('throws if id is null', async () => {
@@ -181,6 +193,7 @@ describe('ViewController', () => {
       const addListener = jest.fn();
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
+        addInternalListener: jest.fn(),
         removeAllListeners: jest.fn(),
       }));
 
@@ -229,6 +242,7 @@ describe('ViewController', () => {
       // Mock ViewEmitter instance BEFORE create
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
+        addInternalListener: jest.fn(),
         removeAllListeners,
       }));
 
@@ -292,6 +306,7 @@ describe('ViewController', () => {
       });
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
+        addInternalListener: jest.fn(),
         removeAllListeners: jest.fn(),
       }));
 
@@ -347,6 +362,7 @@ describe('ViewController', () => {
       });
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
+        addInternalListener: jest.fn(),
         removeAllListeners: jest.fn(),
       }));
 
@@ -401,6 +417,7 @@ describe('ViewController', () => {
       const addListener = jest.fn();
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
+        addInternalListener: jest.fn(),
         removeAllListeners: jest.fn(),
       }));
 

@@ -1364,7 +1364,10 @@ describe('ViewController - dismiss cleanup', () => {
     // Call dismiss
     await view.dismiss();
 
-    // Emit events AFTER dismiss - handlers should NOT be called
+    // Emit onPaywallClosed event - this triggers cleanup via internal handler
+    emitPaywallViewDisappearedEvent(viewId, sample.view);
+
+    // Emit events AFTER cleanup - handlers should NOT be called
     emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
     emitPaywallPurchaseStartedEvent(
       viewId,
@@ -1374,7 +1377,7 @@ describe('ViewController - dismiss cleanup', () => {
     emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
     emitPaywallRestoreStartedEvent(viewId, sample.view);
 
-    // Verify that NONE of the handlers were called after dismiss
+    // Verify that NONE of the handlers were called after cleanup
     expect(onProductSelectedHandler).not.toHaveBeenCalled();
     expect(onPurchaseStartedHandler).not.toHaveBeenCalled();
     expect(onCloseHandler).not.toHaveBeenCalled();
@@ -1657,7 +1660,12 @@ describe('ViewController - onPaywallClosed after user action close', () => {
     });
 
     // 1. User presses close button - this should trigger dismiss
-    emitPaywallUserActionEvent(viewId, 'close', undefined, closeButtonSample.view);
+    emitPaywallUserActionEvent(
+      viewId,
+      'close',
+      undefined,
+      closeButtonSample.view,
+    );
 
     expect(onCloseButtonPressHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).toHaveBeenCalledTimes(1);
@@ -1668,8 +1676,8 @@ describe('ViewController - onPaywallClosed after user action close', () => {
     // 3. Native code sends onPaywallClosed event after paywall actually closes
     emitPaywallViewDisappearedEvent(viewId, closedSample.view);
 
-    // BUG EXPECTATION: onPaywallClosed handler should be called,
-    // but it might not be if dismiss() unsubscribed all handlers before native sent the event
+    // VERIFICATION: onPaywallClosed handler should be called
+    // Cleanup happens via internal handler AFTER this client handler executes
     expect(onPaywallClosedHandler).toHaveBeenCalledTimes(1);
 
     dismissSpy.mockRestore();
