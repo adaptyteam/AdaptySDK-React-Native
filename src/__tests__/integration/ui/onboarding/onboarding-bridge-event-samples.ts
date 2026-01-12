@@ -1,18 +1,21 @@
 /**
  * Bridge event samples in native format (snake_case)
  *
- * These samples represent events as they come from the native module.
  * Synthetic examples created based on cross_platform.yaml schema for types not present in logs.
  *
  * Use these samples for integration tests to verify event handling.
  */
 
+/**
+ * Sample for OnboardingViewEvent.OnAnalyticsEvent with event.name = 'onboarding_started'
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnAnalyticsEvent
+ */
 export const ONBOARDING_ANALYTICS_ONBOARDING_STARTED = {
   id: 'onboarding_on_analytics_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -25,12 +28,16 @@ export const ONBOARDING_ANALYTICS_ONBOARDING_STARTED = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnAnalyticsEvent with event.name = 'screen_presented'
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnAnalyticsEvent
+ */
 export const ONBOARDING_ANALYTICS_SCREEN_PRESENTED = {
   id: 'onboarding_on_analytics_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -43,10 +50,37 @@ export const ONBOARDING_ANALYTICS_SCREEN_PRESENTED = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnAnalyticsEvent with element_id
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnAnalyticsEvent
+ */
+export const ONBOARDING_ANALYTICS_WITH_ELEMENT_ID = {
+  id: 'onboarding_on_analytics_action',
+  view: {
+    id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
+    variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
+    placement_id: 'test_placement',
+  },
+  meta: {
+    onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
+    screen_cid: 'bGn6r0Fo',
+    screen_index: 0,
+    total_screens: 18,
+  },
+  event: {
+    name: 'button_clicked',
+    element_id: 'continue_button',
+  },
+} as const;
+
+/**
+ * Sample for OnboardingViewEvent.OnAnalyticsEvent with event.name = 'second_screen_presented'
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnAnalyticsEvent
+ */
 export const ONBOARDING_ANALYTICS_SECOND_SCREEN_PRESENTED = {
   id: 'onboarding_on_analytics_action',
   view: {
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
   },
@@ -61,11 +95,15 @@ export const ONBOARDING_ANALYTICS_SECOND_SCREEN_PRESENTED = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnAnalyticsEvent with event.name = 'navigation_failed'
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnAnalyticsEvent
+ */
 export const ONBOARDING_ANALYTICS_NAVIGATION_FAILED = {
   id: 'onboarding_on_analytics_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
   },
   meta: {
@@ -79,12 +117,16 @@ export const ONBOARDING_ANALYTICS_NAVIGATION_FAILED = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'input' and value.type = 'text'
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_TEXT_INPUT = {
   id: 'onboarding_on_state_updated_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -102,12 +144,16 @@ export const ONBOARDING_STATE_UPDATED_TEXT_INPUT = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'input' and value.type = 'email'
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_EMAIL_INPUT = {
   id: 'onboarding_on_state_updated_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -125,12 +171,16 @@ export const ONBOARDING_STATE_UPDATED_EMAIL_INPUT = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'input' and value.type = 'number'
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_NUMBER_INPUT = {
   id: 'onboarding_on_state_updated_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -148,12 +198,16 @@ export const ONBOARDING_STATE_UPDATED_NUMBER_INPUT = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'select'
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_SELECT_OPTION = {
   id: 'onboarding_on_state_updated_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -172,12 +226,16 @@ export const ONBOARDING_STATE_UPDATED_SELECT_OPTION = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'multi_select' (single selection)
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_MULTI_SELECT_SINGLE = {
   id: 'onboarding_on_state_updated_action',
   view: {
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -198,12 +256,16 @@ export const ONBOARDING_STATE_UPDATED_MULTI_SELECT_SINGLE = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'multi_select' (multiple selections)
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_MULTI_SELECT_MULTIPLE = {
   id: 'onboarding_on_state_updated_action',
   view: {
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -229,12 +291,16 @@ export const ONBOARDING_STATE_UPDATED_MULTI_SELECT_MULTIPLE = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'multi_select' (empty selection)
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_MULTI_SELECT_EMPTY = {
   id: 'onboarding_on_state_updated_action',
   view: {
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -249,12 +315,16 @@ export const ONBOARDING_STATE_UPDATED_MULTI_SELECT_EMPTY = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'date_picker' (full date)
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_DATE_PICKER_FULL = {
   id: 'onboarding_on_state_updated_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -273,12 +343,16 @@ export const ONBOARDING_STATE_UPDATED_DATE_PICKER_FULL = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnStateUpdatedAction with element_type = 'date_picker' (partial date - year only)
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnStateUpdatedAction
+ */
 export const ONBOARDING_STATE_UPDATED_DATE_PICKER_PARTIAL = {
   id: 'onboarding_on_state_updated_action',
   view: {
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
   },
   meta: {
     onboarding_id: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
@@ -295,10 +369,14 @@ export const ONBOARDING_STATE_UPDATED_DATE_PICKER_PARTIAL = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.DidFinishLoading
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.DidFinishLoading
+ */
 export const ONBOARDING_DID_FINISH_LOADING = {
   id: 'onboarding_did_finish_loading',
   view: {
-    placement_id: 'test_stas0',
+    placement_id: 'test_placement',
     id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
     variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
   },
@@ -310,6 +388,10 @@ export const ONBOARDING_DID_FINISH_LOADING = {
   },
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnPaywallAction
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnPaywallAction
+ */
 export const ONBOARDING_PAYWALL_ACTION = {
   id: 'onboarding_on_paywall_action',
   view: {
@@ -326,6 +408,10 @@ export const ONBOARDING_PAYWALL_ACTION = {
   action_id: 'test_anna2',
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnCloseAction
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnCloseAction
+ */
 export const ONBOARDING_CLOSE_ACTION = {
   id: 'onboarding_on_close_action',
   view: {
@@ -342,6 +428,10 @@ export const ONBOARDING_CLOSE_ACTION = {
   action_id: '',
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.OnCustomAction
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.OnCustomAction
+ */
 export const ONBOARDING_CUSTOM_ACTION = {
   id: 'onboarding_on_custom_action',
   view: {
@@ -358,6 +448,10 @@ export const ONBOARDING_CUSTOM_ACTION = {
   action_id: 'id123',
 } as const;
 
+/**
+ * Sample for OnboardingViewEvent.DidFailWithError
+ * @see cross_platform.yaml#/$events/OnboardingViewEvent.DidFailWithError
+ */
 export const ONBOARDING_ERROR_EVENT = {
   id: 'onboarding_did_fail_with_error',
   view: {
@@ -372,59 +466,4 @@ export const ONBOARDING_ERROR_EVENT = {
     detail:
       'An internal WebKit error occurred: Error Domain=NSURLErrorDomain Code=-1005 "The network connection was lost."',
   },
-} as const;
-
-export const PROFILE_DID_LOAD_LATEST_PROFILE = {
-  id: 'did_load_latest_profile',
-  profile: {
-    profile_id: '8b79ec26-3f3d-482c-99e8-ec745710ef59',
-    customer_user_id: null,
-    segment_hash:
-      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    paid_access_levels: {},
-    subscriptions: {},
-    non_subscriptions: {},
-  },
-} as const;
-
-export const INSTALLATION_DETAILS_SUCCESS = {
-  id: 'on_installation_details_success',
-  details: {
-    app_launch_count: 8,
-    payload: '{}',
-    install_time: '2025-12-16T12:08:41.041Z',
-    install_id: 'some-install-id',
-  },
-} as const;
-
-/**
- * All event types collected from logs
- */
-export const EVENT_TYPES = {
-  ONBOARDING_ANALYTICS: 'onboarding_on_analytics_action',
-  ONBOARDING_STATE_UPDATED: 'onboarding_on_state_updated_action',
-  ONBOARDING_FINISHED_LOADING: 'onboarding_did_finish_loading',
-  ONBOARDING_PAYWALL_ACTION: 'onboarding_on_paywall_action',
-  ONBOARDING_CLOSE_ACTION: 'onboarding_on_close_action',
-  ONBOARDING_CUSTOM_ACTION: 'onboarding_on_custom_action',
-  ONBOARDING_ERROR: 'onboarding_did_fail_with_error',
-  PROFILE_LOADED: 'did_load_latest_profile',
-  INSTALLATION_DETAILS: 'on_installation_details_success',
-} as const;
-
-/**
- * View metadata that appears in all onboarding events
- */
-export const COMMON_VIEW_DATA = {
-  id: 'C2ECBFB4-5ADA-4E42-B129-49A7977175F3',
-  placement_id: 'test_stas0',
-  variation_id: 'd7e60b9e-453a-42a1-8e80-145b3740cbbb',
-} as const;
-
-/**
- * Onboarding metadata
- */
-export const COMMON_ONBOARDING_META = {
-  onboardingId: '5e8e68b1-2696-4a5d-8069-4a5f9f4ac022',
-  totalScreens: 18,
 } as const;

@@ -1,7 +1,8 @@
 import { EmitterSubscription } from 'react-native';
 import { LogContext } from '@/logger';
 import type { AdaptyType } from '@/coders/parse';
-import { parseCommonEvent, parsePaywallEvent } from '@/coders/parse';
+import { parseCommonEvent } from '@/coders/parse';
+import { parsePaywallEvent } from '@/coders/parse-paywall';
 import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';

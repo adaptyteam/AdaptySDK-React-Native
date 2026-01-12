@@ -23,7 +23,21 @@
 
 ![Adapty: CRM for mobile apps with subscriptions](https://adapty-portal-media-production.s3.amazonaws.com/github/adapty-schema.png)
 
-Adapty SDK is an open-source framework that makes implementing in-app subscriptions for React Native fast and easy. It’s 100% open-source and lightweight.
+Adapty SDK is an open-source framework that makes implementing in-app subscriptions for React Native fast and easy. It's 100% open-source and lightweight.
+
+## Table of Contents
+
+- [Why Adapty?](#why-adapty)
+- [Getting Started](#getting-started)
+- [Integrate IAPs within a few hours without server coding](#integrate-iaps-within-a-few-hours-without-server-coding)
+- [Design paywalls in the no-code builder](#design-paywalls-in-the-no-code-builder)
+- [Test paywalls & prices on React Native without app releases](#test-paywalls--prices-on-react-native-without-app-releases)
+- [Real-time analytics for your React Native app](#real-time-analytics-for-your-react-native-app)
+- [Mobile app monetization's largest community](#mobile-app-monetizations-largest-community)
+- [React Native Architecture Compatibility](#react-native-architecture-compatibility)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Why Adapty?
 
@@ -38,6 +52,27 @@ Adapty SDK is an open-source framework that makes implementing in-app subscripti
 <h3 align="center" style="border-bottom: none; margin-top: -15px; margin-bottom: -15px; font-size: 150%">
 <a href="https://adapty.io/schedule-demo?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native_schedule-demo">Talk to Us to Learn More</a>
 </h3>
+
+## Getting Started
+
+### For React Native projects:
+
+```sh
+# using npm
+npm install react-native-adapty 
+
+# or using yarn
+yarn add react-native-adapty
+```
+
+### For Expo projects:
+
+```sh
+npx expo install react-native-adapty
+npx expo prebuild
+```
+
+Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
 ## Integrate IAPs within a few hours without server coding
 
@@ -78,28 +113,6 @@ Ask questions, participate in discussions about Adapty-related topics, become a 
 
 <a href="https://discord.gg/subscriptions-hub"><img src="https://adapty-portal-media-production.s3.amazonaws.com/github/join-discord.svg" /></a>
 
-
-## Getting Started
-
-### For React Native projects:
-
-```sh
-# using npm
-npm install react-native-adapty 
-
-# or using yarn
-yarn add react-native-adapty
-```
-
-### For Expo projects:
-
-```sh
-npx expo install react-native-adapty
-npx expo prebuild
-```
-
-Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
-
 ## React Native Architecture Compatibility
 
 Adapty SDK is compatible with both **React Native's New Architecture** (including Turbo Modules) and the legacy architecture.
@@ -110,7 +123,8 @@ Adapty SDK is compatible with both **React Native's New Architecture** (includin
 We provide several example applications with increasing complexity:
 
 - **[BasicExample](./examples/BasicExample/)** (React Native) – Minimal setup example showing core SDK features.
-- **[FocusJournalExpo](./examples/FocusJournalExpo/)** (Expo) – Full-featured app with navigation and premium features.
+- **[ExpoGoWebMock](./examples/ExpoGoWebMock/)** (Expo Go / Expo Web) – Easiest to run (works in browser with mock mode, no Adapty key required). Demonstrates mock data usage for Expo Go/Web. Includes both custom paywall and Adapty Paywall Builder.
+- **[FocusJournalExpo](./examples/FocusJournalExpo/)** (Expo) – Simple app with premium features using Adapty Paywall Builder. Includes video guide.
 - **[AdaptyDevtools](./examples/AdaptyDevtools/)** (React Native) – DevTools and bug reporting tool.
 
 📹 **Watch our video guide** for step-by-step integration with the Focus Journal Expo example:

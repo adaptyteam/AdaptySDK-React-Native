@@ -595,6 +595,7 @@ export interface components {
       google_enable_pending_prepaid_plans?: boolean;
       google_local_access_level_allowed?: boolean;
       ip_address_collection_disabled?: boolean;
+      clear_data_on_backup?: boolean;
       server_cluster?: 'default' | 'eu' | 'cn';
       backend_proxy_host?: string;
       backend_proxy_port?: number;

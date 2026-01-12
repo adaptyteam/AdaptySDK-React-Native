@@ -18,13 +18,11 @@ export type Props = ViewProps & {
   paywall: AdaptyPaywall;
   params?: CreatePaywallViewParamsInput;
   onCloseButtonPress?: EventHandlers['onCloseButtonPress'];
-  onAndroidSystemBack?: EventHandlers['onAndroidSystemBack'];
   onProductSelected?: EventHandlers['onProductSelected'];
   onPurchaseStarted?: EventHandlers['onPurchaseStarted'];
   onPurchaseCompleted?: EventHandlers['onPurchaseCompleted'];
   onPurchaseFailed?: EventHandlers['onPurchaseFailed'];
   onRestoreStarted?: EventHandlers['onRestoreStarted'];
-  onPaywallClosed?: EventHandlers['onPaywallClosed'];
   onPaywallShown?: EventHandlers['onPaywallShown'];
   onWebPaymentNavigationFinished?: EventHandlers['onWebPaymentNavigationFinished'];
   onRestoreCompleted?: EventHandlers['onRestoreCompleted'];
@@ -43,13 +41,11 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   paywall,
   params,
   onCloseButtonPress,
-  onAndroidSystemBack,
   onProductSelected,
   onPurchaseStarted,
   onPurchaseCompleted,
   onPurchaseFailed,
   onRestoreStarted,
-  onPaywallClosed,
   onPaywallShown,
   onWebPaymentNavigationFinished,
   onRestoreCompleted,
@@ -78,13 +74,11 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
     const handlers: Partial<EventHandlers> = {};
 
     if (onCloseButtonPress) handlers.onCloseButtonPress = onCloseButtonPress;
-    if (onAndroidSystemBack) handlers.onAndroidSystemBack = onAndroidSystemBack;
     if (onProductSelected) handlers.onProductSelected = onProductSelected;
     if (onPurchaseStarted) handlers.onPurchaseStarted = onPurchaseStarted;
     if (onPurchaseCompleted) handlers.onPurchaseCompleted = onPurchaseCompleted;
     if (onPurchaseFailed) handlers.onPurchaseFailed = onPurchaseFailed;
     if (onRestoreStarted) handlers.onRestoreStarted = onRestoreStarted;
-    if (onPaywallClosed) handlers.onPaywallClosed = onPaywallClosed;
     if (onPaywallShown) handlers.onPaywallShown = onPaywallShown;
     if (onWebPaymentNavigationFinished)
       handlers.onWebPaymentNavigationFinished = onWebPaymentNavigationFinished;
@@ -99,13 +93,11 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
     return handlers;
   }, [
     onCloseButtonPress,
-    onAndroidSystemBack,
     onProductSelected,
     onPurchaseStarted,
     onPurchaseCompleted,
     onPurchaseFailed,
     onRestoreStarted,
-    onPaywallClosed,
     onPaywallShown,
     onWebPaymentNavigationFinished,
     onRestoreCompleted,

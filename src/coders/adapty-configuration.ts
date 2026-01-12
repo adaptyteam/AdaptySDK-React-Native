@@ -56,6 +56,9 @@ export class AdaptyConfigurationCoder {
           app_account_token: params.ios.appAccountToken,
         };
       }
+      if (params.ios?.clearDataOnBackup !== undefined) {
+        config['clear_data_on_backup'] = params.ios.clearDataOnBackup;
+      }
     }
 
     if (Platform.OS === 'android') {

@@ -72,8 +72,17 @@ export class ViewController {
     );
 
     view.id = result.id;
+    view.viewEmitter = new ViewEmitter(result.id);
 
     view.setEventHandlers(DEFAULT_EVENT_HANDLERS);
+
+    // Register internal handler for cleanup
+    view.viewEmitter.addInternalListener('onPaywallClosed', () => {
+      // Called AFTER client's onPaywallClosed handler
+      if (view.viewEmitter) {
+        view.viewEmitter.removeAllListeners();
+      }
+    });
 
     return view;
   }
@@ -184,10 +193,6 @@ export class ViewController {
     } satisfies Req['AdaptyUIDismissPaywallView.Request']);
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
-
-    if (this.viewEmitter) {
-      this.viewEmitter.removeAllListeners();
-    }
   }
 
   /**
@@ -259,6 +264,7 @@ export class ViewController {
    * - `onCloseButtonPress` - closes paywall (returns `true`)
    * - `onAndroidSystemBack` - closes paywall (returns `true`)
    * - `onRestoreCompleted` - closes paywall (returns `true`)
+   * - `onRenderingFailed` - closes paywall (returns `true`)
    * - `onPurchaseCompleted` - closes paywall on success (returns `purchaseResult.type !== 'user_cancelled'`)
    * - `onUrlPress` - opens URL and keeps paywall open (returns `false`)
    *
