@@ -110,7 +110,8 @@ Adapty SDK is compatible with both **React Native's New Architecture** (includin
 We provide several example applications with increasing complexity:
 
 - **[BasicExample](./examples/BasicExample/)** (React Native) – Minimal setup example showing core SDK features.
-- **[FocusJournalExpo](./examples/FocusJournalExpo/)** (Expo) – Full-featured app with navigation and premium features.
+- **[ExpoGoWebMock](./examples/ExpoGoWebMock/)** (Expo Go / Expo Web) – Easiest to run (works in browser with mock mode, no Adapty key required). Demonstrates mock data usage for Expo Go/Web. Includes both custom paywall and Adapty Paywall Builder.
+- **[FocusJournalExpo](./examples/FocusJournalExpo/)** (Expo) – Simple app with premium features using Adapty Paywall Builder. Includes video guide.
 - **[AdaptyDevtools](./examples/AdaptyDevtools/)** (React Native) – DevTools and bug reporting tool.
 
 📹 **Watch our video guide** for step-by-step integration with the Focus Journal Expo example:
