@@ -128,7 +128,7 @@ describe('ViewController', () => {
   });
 
   describe('dismiss', () => {
-    it('calls bridge and registers internal cleanup handler', async () => {
+    it('calls bridge and clears listeners after dismiss', async () => {
       const { AdaptyPaywallCoder } = jest.requireMock(
         '@/coders/adapty-paywall',
       );
@@ -141,22 +141,15 @@ describe('ViewController', () => {
         .mockResolvedValueOnce(undefined); // dismiss
 
       const { ViewEmitter } = jest.requireMock('./view-emitter');
-      const addInternalListenerMock = jest.fn();
       const removeAllListenersMock = jest.fn();
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener: jest.fn(),
-        addInternalListener: addInternalListenerMock,
+        addInternalListener: jest.fn(),
         removeAllListeners: removeAllListenersMock,
       }));
 
       const view = await ViewController.create(paywall, {} as any);
       view.setEventHandlers({ onCloseButtonPress: () => true });
-
-      // Verify internal handler was registered for cleanup
-      expect(addInternalListenerMock).toHaveBeenCalledWith(
-        'onPaywallClosed',
-        expect.any(Function),
-      );
 
       await view.dismiss();
 
@@ -167,9 +160,7 @@ describe('ViewController', () => {
         expect.any(Object),
       );
 
-      // Cleanup now happens via internal handler, not directly in dismiss()
-      // So removeAllListeners should NOT be called immediately after dismiss
-      expect(removeAllListenersMock).not.toHaveBeenCalled();
+      expect(removeAllListenersMock).toHaveBeenCalledTimes(1);
     });
 
     it('throws if id is null', async () => {

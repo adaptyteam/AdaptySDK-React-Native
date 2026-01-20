@@ -76,14 +76,6 @@ export class ViewController {
 
     view.setEventHandlers(DEFAULT_EVENT_HANDLERS);
 
-    // Register internal handler for cleanup
-    view.viewEmitter.addInternalListener('onPaywallClosed', () => {
-      // Called AFTER client's onPaywallClosed handler
-      if (view.viewEmitter) {
-        view.viewEmitter.removeAllListeners();
-      }
-    });
-
     return view;
   }
 
@@ -193,6 +185,10 @@ export class ViewController {
     } satisfies Req['AdaptyUIDismissPaywallView.Request']);
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    if (this.viewEmitter) {
+      this.viewEmitter.removeAllListeners();
+    }
   }
 
   /**
