@@ -1670,14 +1670,14 @@ describe('ViewController - onPaywallClosed after user action close', () => {
     expect(onCloseButtonPressHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).toHaveBeenCalledTimes(1);
 
-    // 2. Wait for dismiss to complete (including removeAllListeners)
-    await dismissSpy.mock.results[0]?.value;
-
-    // 3. Native code sends onPaywallClosed event after paywall actually closes
+    // 2. Native code sends onPaywallClosed before dismiss resolves
+    // (dismiss response is expected to be the last event)
     emitPaywallViewDisappearedEvent(viewId, closedSample.view);
 
+    // 3. Wait for dismiss to complete (includes cleanup)
+    await dismissSpy.mock.results[0]?.value;
+
     // VERIFICATION: onPaywallClosed handler should be called
-    // Cleanup happens via internal handler AFTER this client handler executes
     expect(onPaywallClosedHandler).toHaveBeenCalledTimes(1);
 
     dismissSpy.mockRestore();
