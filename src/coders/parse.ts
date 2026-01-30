@@ -1,10 +1,7 @@
 import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '../logger';
 import { AdaptyNativeErrorCoder } from './adapty-native-error';
-import { AdaptyPaywallCoder } from './adapty-paywall';
-import { AdaptyPaywallProductCoder } from './adapty-paywall-product';
 import { AdaptyProfileCoder } from './adapty-profile';
-import { ArrayCoder } from './array';
 import { BridgeErrorCoder } from './bridge-error';
 import { ErrorConverter } from './error-coder';
 import type { Converter } from './types';
@@ -17,6 +14,7 @@ import { AdaptyUiOnboardingStateParamsCoder } from '@/coders/adapty-ui-onboardin
 import { AdaptyUiOnboardingStateUpdatedActionCoder } from '@/coders/adapty-ui-onboarding-state-updated-action';
 import { AdaptyInstallationStatusCoder } from '@/coders/adapty-installation-status';
 import { AdaptyInstallationDetailsCoder } from '@/coders/adapty-installation-details';
+import { coderFactory } from './factory';
 
 const AdaptyTypes = [
   'AdaptyError',
@@ -143,9 +141,9 @@ function getCoder(
     case 'AdaptyProfile':
       return new AdaptyProfileCoder();
     case 'AdaptyPaywall':
-      return new AdaptyPaywallCoder();
+      return coderFactory.createPaywallCoder();
     case 'AdaptyPaywallProduct':
-      return new AdaptyPaywallProductCoder();
+      return coderFactory.createPaywallProductCoder();
     case 'AdaptyRemoteConfig':
       return new AdaptyRemoteConfigCoder();
     case 'AdaptyPaywallBuilder':
@@ -167,7 +165,7 @@ function getCoder(
     case 'BridgeError':
       return new BridgeErrorCoder();
     case 'Array<AdaptyPaywallProduct>':
-      return new ArrayCoder(AdaptyPaywallProductCoder as any);
+      return coderFactory.createPaywallProductArrayCoder();
     case 'String':
       return null;
   }
