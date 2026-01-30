@@ -3,9 +3,9 @@ import { LogContext } from '../logger';
 import { ErrorConverter } from './error-coder';
 import type { Converter } from './types';
 import { AdaptyNativeErrorCoder } from './adapty-native-error';
-import { AdaptyPaywallProductCoder } from './adapty-paywall-product';
 import { AdaptyProfileCoder } from './adapty-profile';
 import { AdaptyPurchaseResultCoder } from './adapty-purchase-result';
+import { coderFactory } from './factory';
 import type {
   AdaptyPaywallProduct,
   AdaptyProfile,
@@ -213,7 +213,7 @@ function getPaywallCoder(
 ): Converter<any, any> | ErrorConverter<any> {
   switch (type) {
     case 'product':
-      return new AdaptyPaywallProductCoder();
+      return coderFactory.createPaywallProductCoder();
     case 'profile':
       return new AdaptyProfileCoder();
     case 'purchaseResult':

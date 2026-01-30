@@ -1,8 +1,7 @@
 import React, { memo, useEffect, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyPaywall } from '@/types';
-import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
-import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
+import { coderFactory } from '@/coders/factory';
 import { generateId } from '@/utils/generate-id';
 import { shouldEnableMock } from '@/utils';
 import {
@@ -62,9 +61,9 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   );
 
   const paywallJson = useMemo(() => {
-    const encodedPaywall = new AdaptyPaywallCoder().encode(paywall);
+    const encodedPaywall = coderFactory.createPaywallCoder().encode(paywall);
     const paramsWithDefaults = { ...DEFAULT_PARAMS, ...params };
-    const encodedParams = new AdaptyUICreatePaywallViewParamsCoder().encode(
+    const encodedParams = coderFactory.createUiCreatePaywallViewParamsCoder().encode(
       paramsWithDefaults,
     );
     return JSON.stringify({ paywall: encodedPaywall, ...encodedParams });

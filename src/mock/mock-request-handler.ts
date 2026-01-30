@@ -8,8 +8,8 @@ import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
 import { generateId } from '@/utils/generate-id';
-import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
 import { AdaptyProfileCoder } from '@/coders/adapty-profile';
+import { coderFactory } from '@/coders/factory';
 
 type EventCallback = (...args: any[]) => void | Promise<void>;
 
@@ -175,7 +175,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           break;
 
         case 'update_profile':
-          const profileParamsCoder = new AdaptyProfileParametersCoder();
+          const profileParamsCoder = coderFactory.createProfileParametersCoder();
           const profileParams = profileParamsCoder.decode(parsedParams.params);
           this.store.updateProfile(profileParams);
           result = undefined; // void
