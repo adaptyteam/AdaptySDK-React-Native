@@ -119,8 +119,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
 
-    //noinspection DifferentStdlibGradleVersion
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    // kotlin-stdlib is added automatically by Kotlin Gradle plugin
 }
 
 if (isNewArchitectureEnabled()) {
