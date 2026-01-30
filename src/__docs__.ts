@@ -12,3 +12,5 @@ export * from './ui/types';
 export { ViewController } from './ui/view-controller';
 export { OnboardingViewController } from './ui/onboarding-view-controller';
 export * from './mock/types';
+
+export type { ActivateParamsInput } from '@adapty/core';
