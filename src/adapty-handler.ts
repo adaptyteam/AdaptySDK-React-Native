@@ -8,8 +8,9 @@ import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
 import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
 import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
 import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
-import { AdaptyConfigurationCoder } from '@/coders/adapty-configuration';
+import { coderFactory } from '@/coders/factory';
 import { AdaptyIdentifyParamsCoder } from '@/coders/adapty-identify-params';
+import type { ActivateParamsInput } from '@adapty/core';
 
 import type * as Model from '@/types';
 import * as Input from '@/types/inputs';
@@ -195,7 +196,7 @@ export class Adapty {
    *
    * @param {string} apiKey - You can find it in your app settings
    * in {@link https://app.adapty.io/ | Adapty Dashboard} App settings > General.
-   * @param {Input.ActivateParamsInput} params - Optional parameters of type {@link ActivateParamsInput}.
+   * @param {ActivateParamsInput} params - Optional parameters of type {@link ActivateParamsInput}.
    * @returns {Promise<void>} A promise that resolves when the SDK is initialized.
    *
    * @throws {@link AdaptyError}
@@ -203,7 +204,7 @@ export class Adapty {
    */
   public async activate(
     apiKey: string,
-    params: Input.ActivateParamsInput = {},
+    params: ActivateParamsInput = {},
   ): Promise<void> {
     // Initialize bridge with mock or native handler based on enableMock flag
     // If enableMock is not provided, use shouldEnableMock() detection
@@ -244,7 +245,7 @@ export class Adapty {
       }
     }
 
-    const configurationCoder = new AdaptyConfigurationCoder();
+    const configurationCoder = coderFactory.createConfigurationCoder();
     const config = configurationCoder.encode(apiKey, params);
 
     const methodKey = 'activate';

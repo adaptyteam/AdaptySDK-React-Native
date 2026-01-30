@@ -1,5 +1,3 @@
-import { AdaptyUiMediaCache } from '@/ui/types';
-import type { AdaptyMockConfig } from '@/mock/types';
 /**
  * Log levels for the SDK
  *
@@ -86,103 +84,6 @@ export type GetPlacementForDefaultAudienceParamsInput =
       maxAgeSeconds: number;
     };
 
-/**
- * Describes optional parameters for the {@link activate} method.
- */
-export interface ActivateParamsInput {
-  /**
-   * Turn it on if you handle purchases and subscription status yourself
-   * and use Adapty for sending subscription events and analytics
-   *
-   * @defaultValue `false`
-   */
-  observerMode?: boolean;
-  /**
-   * User identifier in your system
-   *
-   * @remarks
-   * If none of the parameters are passed, the SDK will generate an ID
-   * and use it for a current device.
-   * Use your own ID:
-   * 1. If you want to support a cross-device experience
-   * 2. If you have your own authentication system,
-   *    and you want to associate adapty profile with your user
-   */
-  customerUserId?: string;
-  /**
-   * Log level for the SDK
-   *
-   * @remarks
-   * Logging is performed on a native side.
-   * So you are expected to watch logs in Xcode or Android Studio.
-   */
-  logLevel?: LogLevel;
-
-  serverCluster?: 'default' | 'eu' | 'cn';
-  backendProxyHost?: string;
-  backendProxyPort?: number;
-  activateUi?: boolean;
-  mediaCache?: AdaptyUiMediaCache;
-
-  /**
-   * Locks methods threads until the SDK is ready.
-   * @defaultValue `false`
-   * @deprecated Turned on by default
-   */
-  lockMethodsUntilReady?: boolean;
-  /**
-   * Does not activate SDK until any other method is called
-   * Fixes annoying iOS simulator auhtentication
-   */
-  __debugDeferActivation?: boolean;
-  /**
-   * Ignores multiple activation attempts on fast refresh.
-   * If true, skips activation if SDK is already activated.
-   */
-  __ignoreActivationOnFastRefresh?: boolean;
-  /**
-   * Enables mock mode for web platform
-   * @remarks
-   * When enabled, SDK will use mock implementations instead of native modules.
-   * Useful for Expo Web and testing.
-   * @defaultValue `false`
-   */
-  enableMock?: boolean;
-  /**
-   * Configuration for mock mode
-   * @remarks
-   * Allows customization of mock data returned by the SDK.
-   */
-  mockConfig?: AdaptyMockConfig;
-  /**
-   * Disables IP address collection
-   * @defaultValue `false`
-   */
-  ipAddressCollectionDisabled?: boolean;
-  ios?: {
-    /**
-     * Disables IDFA collection
-     * @default false
-     */
-    idfaCollectionDisabled?: boolean;
-    appAccountToken?: string;
-    /**
-     * Controls whether the SDK will create a new profile when the app is restored from an iCloud backup
-     * @defaultValue `false`
-     */
-    clearDataOnBackup?: boolean;
-  };
-  android?: {
-    /**
-     * Disables Google AdvertisingID collection
-     * @default false
-     */
-    adIdCollectionDisabled?: boolean;
-    pendingPrepaidPlansEnabled?: boolean;
-    localAccessLevelAllowed?: boolean;
-    obfuscatedAccountId?: string;
-  };
-}
 
 export interface IdentifyParamsInput {
   ios?: {
