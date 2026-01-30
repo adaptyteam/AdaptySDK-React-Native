@@ -4,12 +4,7 @@ import { $bridge, initBridge, isBridgeInitialized } from '@/bridge';
 import { LogContext, Log, LogScope } from '@/logger';
 import type { Def, Req } from '@/types/schema';
 
-import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
-import { AdaptyPaywallProductCoder } from '@/coders/adapty-paywall-product';
-import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
-import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
 import { coderFactory } from '@/coders/factory';
-import { AdaptyIdentifyParamsCoder } from '@/coders/adapty-identify-params';
 import { FetchPolicy } from '@adapty/core';
 import type {
   ActivateParamsInput,
@@ -630,7 +625,7 @@ export class Adapty {
       method: methodKey,
       customer_user_id: customerUserId,
     };
-    const identifyParamsCoder = new AdaptyIdentifyParamsCoder();
+    const identifyParamsCoder = coderFactory.createIdentifyParamsCoder();
     const parameters = identifyParamsCoder.encode(params);
     if (parameters) {
       data.parameters = parameters;
@@ -670,7 +665,7 @@ export class Adapty {
     const log = ctx.call({ methodName: 'logShowPaywall' });
     log.start({ paywall });
 
-    const coder = new AdaptyPaywallCoder();
+    const coder = coderFactory.createPaywallCoder();
     const methodKey = 'log_show_paywall';
     const data: Req['LogShowPaywall.Request'] = {
       method: methodKey,
@@ -698,8 +693,8 @@ export class Adapty {
       method: methodKey,
       open_in: openIn,
       ...('vendorProductId' in paywallOrProduct
-        ? { product: new AdaptyPaywallProductCoder().encode(paywallOrProduct) }
-        : { paywall: new AdaptyPaywallCoder().encode(paywallOrProduct) }),
+        ? { product: coderFactory.createPaywallProductCoder().encode(paywallOrProduct) }
+        : { paywall: coderFactory.createPaywallCoder().encode(paywallOrProduct) }),
     };
 
     const body = JSON.stringify(data);
@@ -721,8 +716,8 @@ export class Adapty {
     const data: Req['CreateWebPaywallUrl.Request'] = {
       method: methodKey,
       ...('vendorProductId' in paywallOrProduct
-        ? { product: new AdaptyPaywallProductCoder().encode(paywallOrProduct) }
-        : { paywall: new AdaptyPaywallCoder().encode(paywallOrProduct) }),
+        ? { product: coderFactory.createPaywallProductCoder().encode(paywallOrProduct) }
+        : { paywall: coderFactory.createPaywallCoder().encode(paywallOrProduct) }),
     };
 
     const body = JSON.stringify(data);
@@ -801,7 +796,7 @@ export class Adapty {
     const log = ctx.call({ methodName: 'makePurchase' });
     log.start({ product, params });
 
-    const coder = new AdaptyPaywallProductCoder();
+    const coder = coderFactory.createPaywallProductCoder();
     const encoded = coder.encode(product);
     const productInput = coder.getInput(encoded);
 
@@ -811,7 +806,7 @@ export class Adapty {
       product: productInput,
     };
 
-    const purchaseParamsCoder = new AdaptyPurchaseParamsCoder();
+    const purchaseParamsCoder = coderFactory.createPurchaseParamsCoder();
     const purchaseParams = purchaseParamsCoder.encode(params);
 
     if (Object.keys(purchaseParams).length > 0) {
@@ -1141,7 +1136,7 @@ export class Adapty {
     const log = ctx.call({ methodName: 'updateProfile' });
     log.start({ params });
 
-    const coder = new AdaptyProfileParametersCoder();
+    const coder = coderFactory.createProfileParametersCoder();
     const methodKey = 'update_profile';
     const data: Req['UpdateProfile.Request'] = {
       method: methodKey,
