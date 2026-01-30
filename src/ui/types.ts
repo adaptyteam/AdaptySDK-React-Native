@@ -7,7 +7,7 @@ import {
   AdaptyPurchaseResult,
   WebPresentation,
 } from '@/types';
-import { FileLocation, MakePurchaseParamsInput } from '@/types/inputs';
+import type { FileLocation, MakePurchaseParamsInput } from '@adapty/core';
 
 /**
  * @internal

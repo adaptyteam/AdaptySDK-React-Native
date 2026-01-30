@@ -1,4 +1,4 @@
-import { LogLevel } from '../types/inputs';
+import { LogLevel } from '@adapty/core';
 import VERSION from '../version';
 
 export class Log {

@@ -1,5 +1,8 @@
 import { AdaptyPurchaseParamsCoder } from './adapty-purchase-params';
-import * as Input from '@/types/inputs';
+import {
+  AdaptyAndroidSubscriptionUpdateReplacementMode,
+  type MakePurchaseParamsInput,
+} from '@adapty/core';
 
 jest.mock('react-native', () => ({
   Platform: {
@@ -16,12 +19,11 @@ describe('AdaptyPurchaseParamsCoder', () => {
 
   describe('encode', () => {
     it('should handle deprecated type', () => {
-      const params: Input.MakePurchaseParamsInput = {
+      const params: MakePurchaseParamsInput = {
         android: {
           oldSubVendorProductId: 'old_product_id',
           prorationMode:
-            Input.AdaptyAndroidSubscriptionUpdateReplacementMode
-              .ChargeProratedPrice,
+            AdaptyAndroidSubscriptionUpdateReplacementMode.ChargeProratedPrice,
           isOfferPersonalized: true,
         },
       };
@@ -37,13 +39,12 @@ describe('AdaptyPurchaseParamsCoder', () => {
     });
 
     it('should handle new type', () => {
-      const params: Input.MakePurchaseParamsInput = {
+      const params: MakePurchaseParamsInput = {
         android: {
           subscriptionUpdateParams: {
             oldSubVendorProductId: 'old_product_id',
             prorationMode:
-              Input.AdaptyAndroidSubscriptionUpdateReplacementMode
-                .ChargeProratedPrice,
+              AdaptyAndroidSubscriptionUpdateReplacementMode.ChargeProratedPrice,
           },
           isOfferPersonalized: true,
         },
@@ -60,7 +61,7 @@ describe('AdaptyPurchaseParamsCoder', () => {
     });
 
     it('should handle empty params', () => {
-      const params: Input.MakePurchaseParamsInput = {};
+      const params: MakePurchaseParamsInput = {};
 
       const result = coder.encode(params);
       expect(result).toEqual({});
@@ -70,13 +71,12 @@ describe('AdaptyPurchaseParamsCoder', () => {
       const originalPlatform = require('react-native').Platform;
       require('react-native').Platform = { OS: 'ios' };
 
-      const params: Input.MakePurchaseParamsInput = {
+      const params: MakePurchaseParamsInput = {
         android: {
           subscriptionUpdateParams: {
             oldSubVendorProductId: 'old_product_id',
             prorationMode:
-              Input.AdaptyAndroidSubscriptionUpdateReplacementMode
-                .ChargeProratedPrice,
+              AdaptyAndroidSubscriptionUpdateReplacementMode.ChargeProratedPrice,
           },
           isOfferPersonalized: true,
         },

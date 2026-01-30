@@ -10,10 +10,18 @@ import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters
 import { AdaptyPurchaseParamsCoder } from '@/coders/adapty-purchase-params';
 import { coderFactory } from '@/coders/factory';
 import { AdaptyIdentifyParamsCoder } from '@/coders/adapty-identify-params';
-import type { ActivateParamsInput } from '@adapty/core';
+import { FetchPolicy } from '@adapty/core';
+import type {
+  ActivateParamsInput,
+  FileLocation,
+  GetPlacementForDefaultAudienceParamsInput,
+  GetPlacementParamsInput,
+  IdentifyParamsInput,
+  LogLevel,
+  MakePurchaseParamsInput,
+} from '@adapty/core';
 
 import type * as Model from '@/types';
-import * as Input from '@/types/inputs';
 import { MethodName, UserEventName } from '@/types/bridge';
 import { AdaptyType } from '@/coders/parse';
 import {
@@ -23,7 +31,6 @@ import {
   WebPresentation,
 } from '@/types';
 import { AdaptyError } from './adapty-error';
-import { IdentifyParamsInput } from '@/types/inputs';
 import { shouldEnableMock } from '@/utils';
 import type { AdaptyMockConfig } from '@/mock/types';
 
@@ -291,7 +298,7 @@ export class Adapty {
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
    * @param {string | undefined} [locale] - The locale of the desired paywall.
-   * @param {Input.GetPlacementParamsInput} [params] - Additional parameters for retrieving paywall.
+   * @param {GetPlacementParamsInput} [params] - Additional parameters for retrieving paywall.
    * @returns {Promise<Model.AdaptyPaywall>}
    * A promise that resolves with a requested paywall.
    *
@@ -303,8 +310,8 @@ export class Adapty {
   public async getPaywall(
     placementId: string,
     locale?: string,
-    params: Input.GetPlacementParamsInput = {
-      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+    params: GetPlacementParamsInput = {
+      fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
       loadTimeoutMs: 5000,
     },
   ): Promise<Model.AdaptyPaywall> {
@@ -325,7 +332,7 @@ export class Adapty {
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
         type:
-          params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+          params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
       } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
@@ -366,7 +373,7 @@ export class Adapty {
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
    * @param {string | undefined} [locale] - The locale of the desired paywall.
-   * @param {Input.GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
+   * @param {GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
    * @returns {Promise<Model.AdaptyPaywall>}
    * A promise that resolves with a requested paywall.
    *
@@ -378,8 +385,8 @@ export class Adapty {
   public async getPaywallForDefaultAudience(
     placementId: string,
     locale?: string,
-    params: Input.GetPlacementForDefaultAudienceParamsInput = {
-      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+    params: GetPlacementForDefaultAudienceParamsInput = {
+      fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
     },
   ): Promise<Model.AdaptyPaywall> {
     const ctx = new LogContext();
@@ -398,7 +405,7 @@ export class Adapty {
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
         type:
-          params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+          params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
       } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
@@ -442,7 +449,7 @@ export class Adapty {
 
     log.start({ paywall });
 
-    const coder = new AdaptyPaywallCoder();
+    const coder = coderFactory.createPaywallCoder();
     const methodKey = 'get_paywall_products';
     const data: Req['GetPaywallProducts.Request'] = {
       method: methodKey,
@@ -465,8 +472,8 @@ export class Adapty {
   public async getOnboarding(
     placementId: string,
     locale?: string,
-    params: Input.GetPlacementParamsInput = {
-      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+    params: GetPlacementParamsInput = {
+      fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
       loadTimeoutMs: 5000,
     },
   ): Promise<Model.AdaptyOnboarding> {
@@ -487,7 +494,7 @@ export class Adapty {
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
         type:
-          params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+          params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
       } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
@@ -512,8 +519,8 @@ export class Adapty {
   public async getOnboardingForDefaultAudience(
     placementId: string,
     locale?: string,
-    params: Input.GetPlacementParamsInput = {
-      fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+    params: GetPlacementParamsInput = {
+      fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
       loadTimeoutMs: 5000,
     },
   ): Promise<Model.AdaptyOnboarding> {
@@ -533,7 +540,7 @@ export class Adapty {
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
         type:
-          params.fetchPolicy ?? Input.FetchPolicy.ReloadRevalidatingCacheData,
+          params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
       } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
@@ -606,7 +613,7 @@ export class Adapty {
    * when the user switches from being an anonymous user to an authenticated user.
    *
    * @param {string} customerUserId - unique user id
-   * @param {Input.IdentifyParamsInput} [params] - Additional parameters for identification
+   * @param {IdentifyParamsInput} [params] - Additional parameters for identification
    * @throws {@link AdaptyError}
    */
   public async identify(
@@ -765,7 +772,7 @@ export class Adapty {
    *
    * @param {Model.AdaptyPaywallProduct} product - The product to be purchased.
    * You can get the product using {@link Adapty.getPaywallProducts} method.
-   * @param {Input.MakePurchaseParamsInput} [params] - Additional parameters for the purchase.
+   * @param {MakePurchaseParamsInput} [params] - Additional parameters for the purchase.
    * @returns {Promise<Model.AdaptyPurchaseResult>} A Promise that resolves to the {@link Model.AdaptyPurchaseResult} object
    * containing details about the purchase. If the result is `'success'`, it also includes the updated user's profile.
    * @throws {AdaptyError} If an error occurs during the purchase process
@@ -787,7 +794,7 @@ export class Adapty {
    */
   public async makePurchase(
     product: Model.AdaptyPaywallProduct,
-    params: Input.MakePurchaseParamsInput = {},
+    params: MakePurchaseParamsInput = {},
   ): Promise<Model.AdaptyPurchaseResult> {
     const ctx = new LogContext();
 
@@ -925,7 +932,7 @@ export class Adapty {
    *
    * @returns {Promise<void>} resolves when fallback placements are saved
    */
-  public async setFallback(fileLocation: Input.FileLocation): Promise<void> {
+  public async setFallback(fileLocation: FileLocation): Promise<void> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'setFallback' });
     const fileLocationJson = Platform.select({
@@ -954,7 +961,7 @@ export class Adapty {
    * @deprecated use {@link setFallback}
    */
   public async setFallbackPaywalls(
-    paywallsLocation: Input.FileLocation,
+    paywallsLocation: FileLocation,
   ): Promise<void> {
     return this.setFallback(paywallsLocation);
   }
@@ -992,11 +999,11 @@ export class Adapty {
    * `info`: various information messages, such as those that log the lifecycle of various modules
    * `verbose`: any additional information that may be useful during debugging, such as function calls, API queries, etc.
    *
-   * @param {Input.LogLevel} logLevel - new preferred log level
+   * @param {LogLevel} logLevel - new preferred log level
    * @returns {Promise<void>} resolves when the log level is set
    * @throws {@link AdaptyError} if the log level is invalid
    */
-  public async setLogLevel(logLevel: Input.LogLevel): Promise<void> {
+  public async setLogLevel(logLevel: LogLevel): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'setLogLevel' });

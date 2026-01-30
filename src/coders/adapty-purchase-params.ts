@@ -1,12 +1,15 @@
-import * as Input from '@/types/inputs';
+import type {
+  AdaptyAndroidSubscriptionUpdateParameters,
+  MakePurchaseParamsInput,
+} from '@adapty/core';
 import { Platform } from 'react-native';
 
-type Model = Input.MakePurchaseParamsInput;
+type Model = MakePurchaseParamsInput;
 type Serializable = Record<string, any>;
 
 function isDeprecatedType(
   data: any,
-): data is { android?: Input.AdaptyAndroidSubscriptionUpdateParameters } {
+): data is { android?: AdaptyAndroidSubscriptionUpdateParameters } {
   return (
     data &&
     data.android &&

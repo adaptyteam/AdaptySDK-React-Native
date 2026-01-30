@@ -1,7 +1,7 @@
-import * as Input from '@/types/inputs';
+import type { IdentifyParamsInput } from '@adapty/core';
 import { Platform } from 'react-native';
 
-type Model = Input.IdentifyParamsInput;
+type Model = IdentifyParamsInput;
 type Serializable = {
   app_account_token?: string;
   obfuscated_account_id?: string;

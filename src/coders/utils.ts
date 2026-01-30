@@ -37,7 +37,7 @@ export const extractBase64Data = (input: string): string => {
   return input;
 };
 
-import type { FileLocation } from '@/types/inputs';
+import type { FileLocation } from '@adapty/core';
 
 type PlatformSelector<T> = { ios: T; android: T };
 
