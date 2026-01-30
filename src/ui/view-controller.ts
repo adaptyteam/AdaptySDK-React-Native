@@ -10,14 +10,12 @@ import {
 import { ViewEmitter } from './view-emitter';
 import { AdaptyPaywall } from '@/types';
 import { LogContext, LogScope } from '@/logger';
-import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
-import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
+import { coderFactory } from '@/coders/factory';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
 import { Req } from '@/types/schema';
-import { AdaptyUiDialogConfigCoder } from '@/coders/adapty-ui-dialog-config';
 
 export const DEFAULT_PARAMS: CreatePaywallViewParamsInput = {
   prefetchProducts: true,
@@ -46,8 +44,8 @@ export class ViewController {
 
     const view = new ViewController();
 
-    const paywallCoder = new AdaptyPaywallCoder();
-    const paramsCoder = new AdaptyUICreatePaywallViewParamsCoder();
+    const paywallCoder = coderFactory.createPaywallCoder();
+    const paramsCoder = coderFactory.createUiCreatePaywallViewParamsCoder();
     const methodKey = 'adapty_ui_create_paywall_view';
 
     // Set default values for required parameters
@@ -221,7 +219,7 @@ export class ViewController {
       throw this.errNoViewReference();
     }
 
-    const coder = new AdaptyUiDialogConfigCoder();
+    const coder = coderFactory.createUiDialogConfigCoder();
     const methodKey = 'adapty_ui_show_dialog';
     const body = JSON.stringify({
       method: methodKey,
