@@ -10,7 +10,6 @@ import {
 } from './native-module-mock.utils';
 import {
   ACTIVATE_REQUEST_MINIMAL,
-  ACTIVATE_REQUEST_WITH_LOG_LEVEL,
   ACTIVATE_REQUEST_WITH_CUSTOMER_USER_ID,
   ACTIVATE_RESPONSE_SUCCESS,
   ACTIVATE_RESPONSE_ERROR,
@@ -165,12 +164,12 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       expect(nativeMock.handler).toHaveBeenCalledTimes(2);
 
       // First call: activate
-      const [firstMethod] = nativeMock.handler.mock.calls[0];
-      expect(firstMethod).toBe('activate');
+      const firstCall = nativeMock.handler.mock.calls[0];
+      expect(firstCall?.[0]).toBe('activate');
 
       // Second call: is_activated
-      const [secondMethod] = nativeMock.handler.mock.calls[1];
-      expect(secondMethod).toBe('is_activated');
+      const secondCall = nativeMock.handler.mock.calls[1];
+      expect(secondCall?.[0]).toBe('is_activated');
     });
   });
 
@@ -300,15 +299,13 @@ describe('Adapty - Activation (Bridge Integration)', () => {
         components['requests']['Activate.Request']
       >(nativeMock, 0);
 
-      // TypeScript enforces these properties exist
-      const _method: 'activate' = request.method;
-      const _apiKey: string = request.configuration.api_key;
+      // Verify values
+      expect(request.method).toBe('activate');
+      expect(request.configuration.api_key).toBe('test_key');
 
       // TypeScript should error if accessing non-existent properties
       // @ts-expect-error - this property doesn't exist in api.d.ts
-      const _invalid = request.configuration.nonExistentField;
-
-      expect(request.method).toBe('activate');
+      expect(request.configuration.nonExistentField).toBeUndefined();
     });
 
     it('should have strictly typed response structure', async () => {
