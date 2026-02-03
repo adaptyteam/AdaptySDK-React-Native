@@ -37,11 +37,13 @@ export interface MockNativeModule {
 
 /**
  * Response registry for mapping method names to their typed responses
- * Supports activate and is_activated methods (more to be added in Phase 2)
+ * Extended in Phase 2 to support profile, purchase, paywall methods
  */
 interface ResponseRegistry {
   activate?: components['requests']['Activate.Response'];
   is_activated?: components['requests']['IsActivated.Response'];
+  get_profile?: components['requests']['GetProfile.Response'];
+  update_profile?: components['requests']['UpdateProfile.Response'];
 }
 
 /**
