@@ -44,7 +44,9 @@ interface ResponseRegistry {
   is_activated?: components['requests']['IsActivated.Response'];
   get_profile?: components['requests']['GetProfile.Response'];
   update_profile?: components['requests']['UpdateProfile.Response'];
+  get_paywall?: components['requests']['GetPaywall.Response'];
   get_paywall_products?: components['requests']['GetPaywallProducts.Response'];
+  log_show_paywall?: components['requests']['LogShowPaywall.Response'];
 }
 
 /**

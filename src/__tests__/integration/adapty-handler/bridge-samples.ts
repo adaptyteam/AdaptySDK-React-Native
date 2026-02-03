@@ -190,6 +190,50 @@ export const UPDATE_PROFILE_RESPONSE_SUCCESS: components['requests']['UpdateProf
 };
 
 // ============================================================================
+// GetPaywall Request/Response Samples
+// ============================================================================
+
+/**
+ * GetPaywall request
+ */
+export const GET_PAYWALL_REQUEST: components['requests']['GetPaywall.Request'] = {
+  method: 'get_paywall',
+  placement_id: 'test_placement',
+};
+
+/**
+ * GetPaywall response with paywall builder
+ */
+export const GET_PAYWALL_RESPONSE: components['requests']['GetPaywall.Response'] = {
+  success: {
+    placement: {
+      developer_id: 'test_placement',
+      ab_test_name: 'test_ab',
+      audience_name: 'all_users',
+      revision: 1,
+      placement_audience_version_id: 'v1',
+    },
+    paywall_id: 'paywall_test_placement',
+    paywall_name: 'test_placement',
+    variation_id: 'variation_123',
+    products: [
+      {
+        vendor_product_id: 'com.example.product',
+        adapty_product_id: 'adapty_product',
+        access_level_id: 'premium',
+        product_type: 'subscription',
+      },
+    ],
+    response_created_at: -1,
+    request_locale: 'en',
+    paywall_builder: {
+      paywall_builder_id: 'builder_123',
+      lang: 'en',
+    },
+  },
+};
+
+// ============================================================================
 // GetPaywallProducts Request/Response Samples
 // ============================================================================
 
@@ -247,4 +291,37 @@ export const GET_PAYWALL_PRODUCTS_RESPONSE: components['requests']['GetPaywallPr
       },
     },
   ],
+};
+
+// ============================================================================
+// LogShowPaywall Request/Response Samples
+// ============================================================================
+
+/**
+ * LogShowPaywall request
+ */
+export const LOG_SHOW_PAYWALL_REQUEST: components['requests']['LogShowPaywall.Request'] = {
+  method: 'log_show_paywall',
+  paywall: {
+    placement: {
+      developer_id: 'test_placement',
+      ab_test_name: 'test_ab',
+      audience_name: 'all_users',
+      revision: 1,
+      placement_audience_version_id: 'v1',
+    },
+    paywall_id: 'paywall_test_placement',
+    paywall_name: 'test_placement',
+    variation_id: 'variation_123',
+    products: [],
+    response_created_at: -1,
+    request_locale: 'en',
+  },
+};
+
+/**
+ * LogShowPaywall response
+ */
+export const LOG_SHOW_PAYWALL_RESPONSE: components['requests']['LogShowPaywall.Response'] = {
+  success: true,
 };
