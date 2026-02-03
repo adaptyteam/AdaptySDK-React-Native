@@ -84,3 +84,15 @@ export const INSTALLATION_DETAILS_SUCCESS = {
     install_id: 'some-install-id',
   },
 } as const;
+
+/**
+ * Sample for Event.OnInstallationDetailsFail
+ * @see cross_platform.yaml#/$events/Event.OnInstallationDetailsFail
+ */
+export const INSTALLATION_DETAILS_FAIL = {
+  id: 'on_installation_details_fail',
+  error: {
+    adapty_code: 2004,
+    message: 'Failed to fetch installation details',
+  },
+} as const;

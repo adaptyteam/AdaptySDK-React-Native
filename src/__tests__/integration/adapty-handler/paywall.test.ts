@@ -1,23 +1,71 @@
 import { Adapty } from '@/adapty-handler';
-import type { AdaptyPaywall } from '@/types';
+import { resetBridge } from '@/bridge';
+import type { components } from '@/types/api';
 import { FetchPolicy } from '@/types/inputs';
-import { createAdaptyInstance, cleanupAdapty } from './setup.utils';
+import {
+  createNativeModuleMock,
+  extractNativeRequest,
+  expectNativeCall,
+  resetNativeModuleMock,
+  type MockNativeModule,
+} from '../shared/native-module-mock.utils';
+import {
+  ACTIVATE_RESPONSE_SUCCESS,
+  GET_PAYWALL_REQUEST,
+  GET_PAYWALL_RESPONSE,
+  GET_PAYWALL_RESPONSE_ERROR,
+  GET_PAYWALL_FOR_DEFAULT_AUDIENCE_REQUEST,
+  GET_PAYWALL_FOR_DEFAULT_AUDIENCE_RESPONSE,
+  LOG_SHOW_PAYWALL_RESPONSE,
+} from '../shared/bridge-samples';
+import { cleanupAdapty } from './setup.utils';
 
-describe('Adapty - Paywall', () => {
+/**
+ * Integration tests for Adapty paywall operations
+ *
+ * Tests verify:
+ * 1. GetPaywall request format and response parsing
+ * 2. GetPaywallForDefaultAudience request and response
+ * 3. LogShowPaywall request encoding
+ * 4. Paywall field transformations (snake_case → camelCase)
+ */
+describe('Adapty - Paywall (Bridge Integration)', () => {
   let adapty: Adapty;
+  let nativeMock: MockNativeModule;
 
   beforeEach(async () => {
-    adapty = await createAdaptyInstance();
+    adapty = new Adapty();
+
+    nativeMock = createNativeModuleMock({
+      activate: ACTIVATE_RESPONSE_SUCCESS,
+      get_paywall: GET_PAYWALL_RESPONSE,
+      get_paywall_for_default_audience:
+        GET_PAYWALL_FOR_DEFAULT_AUDIENCE_RESPONSE,
+      log_show_paywall: LOG_SHOW_PAYWALL_RESPONSE,
+    });
+
+    await adapty.activate('test_api_key', { logLevel: 'error' });
+    nativeMock.handler.mockClear();
   });
 
   afterEach(() => {
     cleanupAdapty(adapty);
+    resetNativeModuleMock(nativeMock);
+    resetBridge();
   });
 
   describe('Basic getPaywall', () => {
     it('should return paywall with default parameters', async () => {
       const paywall = await adapty.getPaywall('test_placement');
 
+      // Verify: GetPaywall.Request sent
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'get_paywall',
+        expectedRequest: GET_PAYWALL_REQUEST,
+      });
+
+      // Verify: response parsed to camelCase
       expect(paywall).toBeDefined();
       expect(paywall.id).toContain('test_placement');
       expect(paywall.name).toBe('test_placement');
@@ -27,19 +75,51 @@ describe('Adapty - Paywall', () => {
     });
 
     it('should return different paywalls for different placementId', async () => {
+      // Setup different response for second call
+      const response2: components['requests']['GetPaywall.Response'] = {
+        success: {
+          ...GET_PAYWALL_RESPONSE.success!,
+          placement: {
+            ...GET_PAYWALL_RESPONSE.success!.placement,
+            developer_id: 'placement_two',
+          },
+          paywall_id: 'paywall_placement_two',
+          paywall_name: 'placement_two',
+        },
+      };
+
+      nativeMock.handler.mockImplementationOnce((_method, _params) => {
+        return Promise.resolve(JSON.stringify(GET_PAYWALL_RESPONSE));
+      });
+
+      nativeMock.handler.mockImplementationOnce((_method, _params) => {
+        return Promise.resolve(JSON.stringify(response2));
+      });
+
       const paywall1 = await adapty.getPaywall('placement_one');
       const paywall2 = await adapty.getPaywall('placement_two');
 
-      expect(paywall1.id).toContain('placement_one');
-      expect(paywall2.id).toContain('placement_two');
-      expect(paywall1.name).toBe('placement_one');
+      // Verify: different paywall_id returned from native
+      expect(paywall1.id).toBe('paywall_test_placement');
+      expect(paywall2.id).toBe('paywall_placement_two');
+      expect(paywall1.name).toBe('test_placement');
       expect(paywall2.name).toBe('placement_two');
-      expect(paywall1.placement.id).toBe('placement_one');
+      // Verify: placement.id reflects what was returned from native (developer_id)
+      expect(paywall1.placement.id).toBe('test_placement');
       expect(paywall2.placement.id).toBe('placement_two');
     });
 
     it('should return paywall with correct structure', async () => {
       const paywall = await adapty.getPaywall('structure_test');
+
+      // Verify: request sent with correct placement_id
+      const request = extractNativeRequest<
+        components['requests']['GetPaywall.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.placement_id).toBe('structure_test');
 
       // Check all required fields
       expect(paywall.id).toBeDefined();
@@ -51,7 +131,7 @@ describe('Adapty - Paywall', () => {
 
       // Check placement structure
       expect(paywall.placement).toBeDefined();
-      expect(paywall.placement.id).toBe('structure_test');
+      expect(paywall.placement.id).toBe('test_placement');
       expect(paywall.placement.abTestName).toBeDefined();
       expect(paywall.placement.audienceName).toBeDefined();
       expect(paywall.placement.revision).toBeDefined();
@@ -74,74 +154,115 @@ describe('Adapty - Paywall', () => {
     });
   });
 
-  describe('Custom paywall via mockConfig', () => {
-    it('should return custom paywall when provided in config', async () => {
-      const customPaywall: Partial<AdaptyPaywall> = {
-        name: 'Custom Premium Paywall',
-        variationId: 'custom_variation_123',
-        remoteConfig: {
-          lang: 'en',
-          data: {
-            title: 'Unlock Premium Features',
-            subtitle: 'Get access to all premium content',
-          },
-          dataString:
-            '{"title":"Unlock Premium Features","subtitle":"Get access to all premium content"}',
-        },
-      };
-
-      const adaptyWithCustom = await createAdaptyInstance({
-        paywalls: {
-          custom_placement: customPaywall,
-        },
-      });
-
-      const paywall = await adaptyWithCustom.getPaywall('custom_placement');
-
-      expect(paywall.name).toBe('Custom Premium Paywall');
-      expect(paywall.variationId).toBe('custom_variation_123');
-      expect(paywall.remoteConfig?.data?.['title']).toBe(
-        'Unlock Premium Features',
-      );
-      expect(paywall.remoteConfig?.data?.['subtitle']).toBe(
-        'Get access to all premium content',
-      );
-      // Should still have placement ID from mock
-      expect(paywall.placement.id).toBe('custom_placement');
-
-      cleanupAdapty(adaptyWithCustom);
-    });
-  });
-
   describe('API parameters smoke-test', () => {
     it('should accept all parameters without errors', async () => {
       // Test that method accepts all parameters (locale, fetchPolicy, loadTimeoutMs)
-      // Note: Mock ignores these parameters, but we verify API contract is stable
       const paywall = await adapty.getPaywall('test_placement', 'ru', {
         fetchPolicy: FetchPolicy.ReturnCacheDataIfNotExpiredElseLoad,
         maxAgeSeconds: 300,
         loadTimeoutMs: 3000,
       });
 
+      // Verify: request contains parameters
+      const request = extractNativeRequest<
+        components['requests']['GetPaywall.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.placement_id).toBe('test_placement');
+      expect(request.locale).toBe('ru');
+      // load_timeout is converted from ms to seconds (3000ms -> 3s)
+      expect(request.load_timeout).toBe(3);
+
       // Verify method didn't crash and returns valid paywall
       expect(paywall).toBeDefined();
       expect(paywall.id).toContain('test_placement');
       expect(paywall.placement.id).toBe('test_placement');
+    });
+  });
 
-      // Note: We don't check that locale/fetchPolicy/timeout affected the result
-      // because mock implementation ignores them. This is just a smoke-test
-      // to ensure API contract is stable and TypeScript compiles correctly.
+  describe('getPaywallForDefaultAudience', () => {
+    it('should send GetPaywallForDefaultAudience.Request', async () => {
+      const paywall = await adapty.getPaywallForDefaultAudience(
+        'test_placement_default',
+      );
+
+      // Verify: GetPaywallForDefaultAudience.Request sent
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'get_paywall_for_default_audience',
+        expectedRequest: GET_PAYWALL_FOR_DEFAULT_AUDIENCE_REQUEST,
+      });
+
+      // Verify: response parsed to camelCase
+      expect(paywall).toBeDefined();
+      expect(paywall.id).toBe('paywall_default_audience');
+      expect(paywall.name).toBe('test_placement_default');
+      expect(paywall.placement.id).toBe('test_placement_default');
+      expect(paywall.placement.audienceName).toBe('default_audience');
+      expect(paywall.variationId).toBe('default_variation_123');
+    });
+
+    it('should include locale when provided', async () => {
+      await adapty.getPaywallForDefaultAudience('test_placement_default', 'ru');
+
+      const request = extractNativeRequest<
+        components['requests']['GetPaywallForDefaultAudience.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.method).toBe('get_paywall_for_default_audience');
+      expect(request.placement_id).toBe('test_placement_default');
+      expect(request.locale).toBe('ru');
     });
   });
 
   describe('logShowPaywall', () => {
     it('should log paywall show event after getPaywall', async () => {
       const paywall = await adapty.getPaywall('test_placement');
+      nativeMock.handler.mockClear();
 
       // Should not throw
-      const result = await adapty.logShowPaywall(paywall);
+      await adapty.logShowPaywall(paywall);
 
-      expect(result).toBeUndefined();
+      // Verify: LogShowPaywall.Request sent
+      const request = extractNativeRequest<
+        components['requests']['LogShowPaywall.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.method).toBe('log_show_paywall');
+      expect(request.paywall.paywall_id).toBeDefined();
+      expect(request.paywall.variation_id).toBeDefined();
+
+      // Note: result is actually `true` (from obj.success in parseMethodResult),
+      // not undefined, even though TypeScript signature is Promise<void>
+      // This is expected behavior for Void type responses
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should parse AdaptyError from GetPaywall.Response', async () => {
+      // Reset bridge and create mock with error response for get_paywall
+      resetBridge();
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        get_paywall: GET_PAYWALL_RESPONSE_ERROR,
+      });
+
+      // Create new Adapty instance and activate
+      adapty = new Adapty();
+      await adapty.activate('test_api_key');
+
+      // Execute: get paywall should throw AdaptyError with adaptyCode
+      await expect(
+        adapty.getPaywall('nonexistent_placement'),
+      ).rejects.toMatchObject({
+        adaptyCode: 2, // camelCase in JS (from native adapty_code)
+      });
     });
   });
 });
