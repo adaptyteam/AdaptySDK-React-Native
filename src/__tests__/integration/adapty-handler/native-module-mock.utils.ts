@@ -223,6 +223,7 @@ export function expectNativeCall<T extends { method: string }>(
 export function resetNativeModuleMock(mock: MockNativeModule): void {
   mock.handler.mockClear();
   mock.getConstants.mockClear();
+  resetTestEmitter();
 }
 
 /**
@@ -267,6 +268,17 @@ export function getTestEmitter(): TestEventEmitter {
     globalTestEmitter = new TestEventEmitter();
   }
   return globalTestEmitter;
+}
+
+/**
+ * Resets the global test emitter
+ * Should be called in afterEach to ensure clean state between tests
+ */
+export function resetTestEmitter(): void {
+  if (globalTestEmitter) {
+    globalTestEmitter.removeAllListeners();
+    globalTestEmitter = null;
+  }
 }
 
 /**

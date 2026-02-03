@@ -5,10 +5,13 @@
  */
 
 import { Adapty } from '@/adapty-handler';
+import { resetBridge } from '@/bridge';
 import type { AdaptyPaywallProduct, AdaptyProfile } from '@/types';
 import {
   createNativeModuleMock,
   emitNativeEvent,
+  resetNativeModuleMock,
+  type MockNativeModule,
 } from './native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
@@ -18,10 +21,13 @@ import {
 
 describe('Adapty - Purchase Event', () => {
   let adapty: Adapty;
+  let nativeMock: MockNativeModule;
 
   beforeEach(async () => {
+    resetBridge();
+
     // Setup native mock
-    createNativeModuleMock({
+    nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,
       make_purchase: MAKE_PURCHASE_RESPONSE_SUCCESS,
     });
@@ -32,7 +38,9 @@ describe('Adapty - Purchase Event', () => {
   });
 
   afterEach(() => {
-    // No cleanup needed - each test creates new instance
+    adapty.removeAllListeners();
+    resetNativeModuleMock(nativeMock);
+    resetBridge();
   });
 
   it('should emit onLatestProfileLoad event with correct format after purchase', async () => {
@@ -67,9 +75,6 @@ describe('Adapty - Purchase Event', () => {
 
     // Manually emit native event (simulating what native SDK does)
     emitNativeEvent('did_load_latest_profile', EVENT_DID_LOAD_LATEST_PROFILE);
-
-    // Wait for event propagation
-    await new Promise(resolve => setTimeout(resolve, 50));
 
     // Assert: Purchase succeeded
     expect(result.type).toBe('success');

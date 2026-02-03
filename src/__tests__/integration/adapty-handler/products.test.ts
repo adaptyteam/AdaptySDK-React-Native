@@ -8,6 +8,7 @@
  */
 
 import { Adapty } from '@/adapty-handler';
+import { resetBridge } from '@/bridge';
 import type { components } from '@/types/api';
 import type { AdaptyPaywall } from '@/types';
 import {
@@ -19,6 +20,7 @@ import {
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PAYWALL_PRODUCTS_RESPONSE,
+  GET_PAYWALL_PRODUCTS_RESPONSE_ERROR,
 } from './bridge-samples';
 
 describe('Adapty - Paywall Products', () => {
@@ -38,6 +40,7 @@ describe('Adapty - Paywall Products', () => {
 
   afterEach(() => {
     resetNativeModuleMock(nativeMock);
+    resetBridge();
   });
 
   describe('GetPaywallProducts request and response', () => {
@@ -124,6 +127,45 @@ describe('Adapty - Paywall Products', () => {
           currencySymbol: '$',
           localizedString: '$9.99',
         },
+      });
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should parse AdaptyError from GetPaywallProducts.Response', async () => {
+      // Reset bridge and create mock with error response for get_paywall_products
+      resetBridge();
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        get_paywall_products: GET_PAYWALL_PRODUCTS_RESPONSE_ERROR,
+      });
+
+      // Create new Adapty instance and activate SDK
+      adapty = new Adapty();
+      await adapty.activate('test_api_key');
+
+      // Create minimal paywall for the request
+      const paywall: AdaptyPaywall = {
+        hasViewConfiguration: false,
+        id: 'test_paywall_id',
+        name: 'Test Paywall',
+        variationId: 'test_variation_123',
+        version: 1,
+        requestLocale: 'en',
+        productIdentifiers: [],
+        products: [],
+        placement: {
+          id: 'test_placement',
+          abTestName: 'test_ab',
+          audienceName: 'all_users',
+          revision: 1,
+          audienceVersionId: 'v1',
+        },
+      };
+
+      // Execute: get paywall products should throw AdaptyError with adaptyCode
+      await expect(adapty.getPaywallProducts(paywall)).rejects.toMatchObject({
+        adaptyCode: 2, // camelCase in JS (from native adapty_code)
       });
     });
   });

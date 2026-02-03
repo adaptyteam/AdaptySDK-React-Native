@@ -189,6 +189,17 @@ export const UPDATE_PROFILE_RESPONSE_SUCCESS: components['requests']['UpdateProf
   success: true,
 };
 
+/**
+ * UpdateProfile error response
+ */
+export const UPDATE_PROFILE_RESPONSE_ERROR: components['requests']['UpdateProfile.Response'] = {
+  error: {
+    adapty_code: 2,
+    message: 'Profile update failed',
+    detail: 'Unable to update profile at this time',
+  },
+};
+
 // ============================================================================
 // GetPaywall Request/Response Samples
 // ============================================================================
@@ -230,6 +241,17 @@ export const GET_PAYWALL_RESPONSE: components['requests']['GetPaywall.Response']
       paywall_builder_id: 'builder_123',
       lang: 'en',
     },
+  },
+};
+
+/**
+ * GetPaywall error response
+ */
+export const GET_PAYWALL_RESPONSE_ERROR: components['requests']['GetPaywall.Response'] = {
+  error: {
+    adapty_code: 2,
+    message: 'Paywall not found',
+    detail: 'No paywall exists for the specified placement',
   },
 };
 
@@ -291,6 +313,17 @@ export const GET_PAYWALL_PRODUCTS_RESPONSE: components['requests']['GetPaywallPr
       },
     },
   ],
+};
+
+/**
+ * GetPaywallProducts error response
+ */
+export const GET_PAYWALL_PRODUCTS_RESPONSE_ERROR: components['requests']['GetPaywallProducts.Response'] = {
+  error: {
+    adapty_code: 2,
+    message: 'Products not found',
+    detail: 'Unable to fetch products for the specified paywall',
+  },
 };
 
 // ============================================================================

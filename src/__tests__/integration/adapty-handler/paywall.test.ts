@@ -13,6 +13,7 @@ import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PAYWALL_REQUEST,
   GET_PAYWALL_RESPONSE,
+  GET_PAYWALL_RESPONSE_ERROR,
   LOG_SHOW_PAYWALL_RESPONSE,
 } from './bridge-samples';
 import { cleanupAdapty } from './setup.utils';
@@ -189,6 +190,26 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       // Note: result is actually `true` (from obj.success in parseMethodResult),
       // not undefined, even though TypeScript signature is Promise<void>
       // This is expected behavior for Void type responses
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should parse AdaptyError from GetPaywall.Response', async () => {
+      // Reset bridge and create mock with error response for get_paywall
+      resetBridge();
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        get_paywall: GET_PAYWALL_RESPONSE_ERROR,
+      });
+
+      // Create new Adapty instance and activate
+      adapty = new Adapty();
+      await adapty.activate('test_api_key');
+
+      // Execute: get paywall should throw AdaptyError with adaptyCode
+      await expect(adapty.getPaywall('nonexistent_placement')).rejects.toMatchObject({
+        adaptyCode: 2, // camelCase in JS (from native adapty_code)
+      });
     });
   });
 });

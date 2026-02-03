@@ -8,6 +8,7 @@
  */
 
 import { Adapty } from '@/adapty-handler';
+import { resetBridge } from '@/bridge';
 import type { components } from '@/types/api';
 import {
   createNativeModuleMock,
@@ -20,6 +21,7 @@ import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PROFILE_RESPONSE_WITH_CUSTOM_ATTRS,
   UPDATE_PROFILE_RESPONSE_SUCCESS,
+  UPDATE_PROFILE_RESPONSE_ERROR,
 } from './bridge-samples';
 
 describe('Adapty - Profile', () => {
@@ -40,6 +42,7 @@ describe('Adapty - Profile', () => {
 
   afterEach(() => {
     resetNativeModuleMock(nativeMock);
+    resetBridge();
   });
 
   describe('Profile update and retrieval', () => {
@@ -101,6 +104,28 @@ describe('Adapty - Profile', () => {
       expect(profile.customAttributes).toEqual({
         user_level: 42,
         referral_code: 'FRIEND2024',
+      });
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should parse AdaptyError from UpdateProfile.Response', async () => {
+      // Reset bridge and create new mock with error response for update_profile
+      resetBridge();
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        update_profile: UPDATE_PROFILE_RESPONSE_ERROR,
+      });
+
+      // Create new Adapty instance and activate SDK
+      adapty = new Adapty();
+      await adapty.activate('test_api_key');
+
+      // Execute: update profile should throw AdaptyError with adaptyCode
+      await expect(
+        adapty.updateProfile({ email: 'test@example.com' }),
+      ).rejects.toMatchObject({
+        adaptyCode: 2, // camelCase in JS (from native adapty_code)
       });
     });
   });
