@@ -325,3 +325,66 @@ export const LOG_SHOW_PAYWALL_REQUEST: components['requests']['LogShowPaywall.Re
 export const LOG_SHOW_PAYWALL_RESPONSE: components['requests']['LogShowPaywall.Response'] = {
   success: true,
 };
+
+// ============================================================================
+// MakePurchase Request/Response Samples
+// ============================================================================
+
+/**
+ * MakePurchase request with product (snake_case format)
+ * Only includes fields that getInput() sends to native bridge
+ */
+export const MAKE_PURCHASE_REQUEST: components['requests']['MakePurchase.Request'] = {
+  method: 'make_purchase',
+  product: {
+    vendor_product_id: 'com.example.vip',
+    adapty_product_id: 'adapty_vip',
+    access_level_id: 'vip_premium',
+    product_type: 'subscription',
+    paywall_product_index: 0,
+    paywall_variation_id: 'variation_vip',
+    paywall_ab_test_name: 'test_ab_vip',
+    paywall_name: 'VIP Paywall',
+  },
+};
+
+/**
+ * MakePurchase response - successful purchase with profile
+ */
+export const MAKE_PURCHASE_RESPONSE_SUCCESS: components['requests']['MakePurchase.Response'] = {
+  success: {
+    type: 'success',
+    profile: {
+      profile_id: 'profile_123',
+      customer_user_id: 'user_123',
+      segment_hash: 'segment_abc',
+      is_test_user: false,
+      timestamp: 1704067200000,
+      paid_access_levels: {
+        vip_premium: {
+          id: 'vip_premium',
+          is_active: true,
+          vendor_product_id: 'com.example.vip',
+          store: 'app_store',
+          activated_at: '2024-01-01T00:00:00.000Z',
+          renewed_at: '2024-01-01T00:00:00.000Z',
+          will_renew: true,
+          is_in_grace_period: false,
+          expires_at: '2024-02-01T00:00:00.000Z',
+          is_lifetime: false,
+          starts_at: '2024-01-01T00:00:00.000Z',
+          is_refund: false,
+        },
+      },
+    },
+  },
+};
+
+/**
+ * MakePurchase response - user cancelled purchase
+ */
+export const MAKE_PURCHASE_RESPONSE_CANCELLED: components['requests']['MakePurchase.Response'] = {
+  success: {
+    type: 'user_cancelled',
+  },
+};
