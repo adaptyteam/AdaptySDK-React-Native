@@ -188,3 +188,63 @@ export const UPDATE_PROFILE_REQUEST_CUSTOM_ATTRS: components['requests']['Update
 export const UPDATE_PROFILE_RESPONSE_SUCCESS: components['requests']['UpdateProfile.Response'] = {
   success: true,
 };
+
+// ============================================================================
+// GetPaywallProducts Request/Response Samples
+// ============================================================================
+
+/**
+ * GetPaywallProducts request with paywall (snake_case format)
+ */
+export const GET_PAYWALL_PRODUCTS_REQUEST: components['requests']['GetPaywallProducts.Request'] = {
+  method: 'get_paywall_products',
+  paywall: {
+    placement: {
+      placement_id: 'test_placement',
+      ab_test_name: 'test_ab',
+      audience_name: 'all_users',
+      revision: 1,
+      audience_version_id: 'v1',
+    },
+    paywall_id: 'test_paywall_id',
+    paywall_name: 'Test Paywall',
+    variation_id: 'test_variation_123',
+    products: [
+      {
+        vendor_product_id: 'com.example.monthly',
+        adapty_product_id: 'monthly_id',
+        access_level_id: 'premium',
+        product_type: 'subscription',
+      },
+    ],
+    response_created_at: 1704067200000,
+    request_locale: 'en',
+  },
+};
+
+/**
+ * GetPaywallProducts response with products array
+ */
+export const GET_PAYWALL_PRODUCTS_RESPONSE: components['requests']['GetPaywallProducts.Response'] = {
+  success: [
+    {
+      vendor_product_id: 'com.example.monthly',
+      adapty_product_id: 'monthly_id',
+      access_level_id: 'premium',
+      product_type: 'subscription',
+      paywall_product_index: 0,
+      paywall_variation_id: 'test_variation_123',
+      paywall_ab_test_name: 'test_ab',
+      paywall_name: 'Test Paywall',
+      localized_description: 'Monthly Premium Subscription',
+      localized_title: 'Premium Monthly',
+      is_family_shareable: false,
+      price: {
+        amount: 9.99,
+        currency_code: 'USD',
+        currency_symbol: '$',
+        localized_string: '$9.99',
+      },
+    },
+  ],
+};
