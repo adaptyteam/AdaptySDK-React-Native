@@ -1,41 +1,98 @@
-import { Adapty } from '@/adapty-handler';
-import { createAdaptyInstance, cleanupAdapty } from './setup.utils';
+/**
+ * Profile Integration Tests
+ *
+ * Tests profile management operations:
+ * - GetProfile request format and response parsing
+ * - UpdateProfile request encoding (camelCase → snake_case)
+ * - Verify only customAttributes returned in profile
+ */
 
+import { Adapty } from '@/adapty-handler';
+import { resetBridge } from '@/bridge';
+import type { components } from '@/types/api';
+import {
+  createNativeModuleMock,
+  expectNativeCall,
+  extractNativeRequest,
+  resetNativeModuleMock,
+  type MockNativeModule,
+} from '../shared/native-module-mock.utils';
+import {
+  ACTIVATE_RESPONSE_SUCCESS,
+  GET_PROFILE_RESPONSE_WITH_CUSTOM_ATTRS,
+  UPDATE_PROFILE_RESPONSE_SUCCESS,
+  UPDATE_PROFILE_RESPONSE_ERROR,
+} from '../shared/bridge-samples';
 describe('Adapty - Profile', () => {
+  let nativeMock: MockNativeModule;
   let adapty: Adapty;
 
-  beforeEach(async () => {
-    adapty = await createAdaptyInstance();
+  beforeEach(() => {
+    // Create native module mock with responses for activate, get_profile, update_profile
+    nativeMock = createNativeModuleMock({
+      activate: ACTIVATE_RESPONSE_SUCCESS,
+      get_profile: GET_PROFILE_RESPONSE_WITH_CUSTOM_ATTRS,
+      update_profile: UPDATE_PROFILE_RESPONSE_SUCCESS,
+    });
+
+    // Create SDK instance
+    adapty = new Adapty();
   });
 
   afterEach(() => {
-    cleanupAdapty(adapty);
+    resetNativeModuleMock(nativeMock);
+    resetBridge();
   });
 
-  describe('Profile update behavior', () => {
-    it('should return only customAttributes in profile', async () => {
-      // According to Adapty documentation, getProfile() only returns customAttributes.
-      // Other fields (firstName, lastName, email, phoneNumber) are sent to server
-      // for CRM/segmentation but not returned in profile.
+  describe('Profile update and retrieval', () => {
+    it('should send UpdateProfile in snake_case and return only customAttributes', async () => {
+      // Activate SDK
+      await adapty.activate('test_api_key');
 
-      const profileParams = {
-        email: 'bug3test@example.com',
-        phoneNumber: '+9876543210',
-        firstName: 'Jane',
-        lastName: 'Smith',
+      // Update profile with camelCase fields
+      await adapty.updateProfile({
+        email: 'test@example.com',
+        phoneNumber: '+1234567890',
+        firstName: 'John',
+        lastName: 'Doe',
         codableCustomAttributes: {
-          membership: 'gold',
-          testing: 'bug3',
+          membership: 'premium',
+          level: 42,
         },
-      };
+      });
 
-      // Update profile through the full flow
-      await adapty.updateProfile(profileParams);
+      // Verify UpdateProfile request sent in snake_case
+      const updateRequest = extractNativeRequest<
+        components['requests']['UpdateProfile.Request']
+      >({
+        nativeModule: nativeMock,
+        callIndex: 1,
+      }); // Call index 1 (after activate)
 
-      // Get profile to verify correct update
+      expect(updateRequest.method).toBe('update_profile');
+      expect(updateRequest.params).toMatchObject({
+        email: 'test@example.com',
+        phone_number: '+1234567890', // snake_case conversion
+        first_name: 'John', // snake_case conversion
+        last_name: 'Doe', // snake_case conversion
+        custom_attributes: {
+          membership: 'premium',
+          level: 42,
+        },
+      });
+
+      // Get profile to verify response parsing
       const profile = await adapty.getProfile();
 
-      // Verify that personal fields are not returned
+      // Verify GetProfile request
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'get_profile',
+        expectedRequest: { method: 'get_profile' },
+        callIndex: 2,
+      }); // Call index 2 (after activate and update_profile)
+
+      // Verify that personal fields are NOT returned in profile
       expect((profile as any).email).toBeUndefined();
       expect((profile as any).phoneNumber).toBeUndefined();
       expect((profile as any).phone_number).toBeUndefined();
@@ -44,11 +101,33 @@ describe('Adapty - Profile', () => {
       expect((profile as any).lastName).toBeUndefined();
       expect((profile as any).last_name).toBeUndefined();
 
-      // Only customAttributes are stored and returned
+      // Only customAttributes are returned
       expect(profile.customAttributes).toBeDefined();
       expect(profile.customAttributes).toEqual({
-        membership: 'gold',
-        testing: 'bug3',
+        user_level: 42,
+        referral_code: 'FRIEND2024',
+      });
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should parse AdaptyError from UpdateProfile.Response', async () => {
+      // Reset bridge and create new mock with error response for update_profile
+      resetBridge();
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        update_profile: UPDATE_PROFILE_RESPONSE_ERROR,
+      });
+
+      // Create new Adapty instance and activate SDK
+      adapty = new Adapty();
+      await adapty.activate('test_api_key');
+
+      // Execute: update profile should throw AdaptyError with adaptyCode
+      await expect(
+        adapty.updateProfile({ email: 'test@example.com' }),
+      ).rejects.toMatchObject({
+        adaptyCode: 2, // camelCase in JS (from native adapty_code)
       });
     });
   });

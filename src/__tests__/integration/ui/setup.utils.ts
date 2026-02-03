@@ -7,7 +7,7 @@ import { AdaptyPaywall } from '@/types';
 import {
   createAdaptyInstance,
   cleanupAdapty,
-} from '../adapty-handler/setup.utils';
+} from '../adapty-handler-mock-web/setup.utils';
 
 /**
  * Creates OnboardingViewController for testing
