@@ -157,6 +157,9 @@ export function extractNativeRequest<T>(
 /**
  * Verifies that native module was called with correct request format
  *
+ * Uses toMatchObject for partial matching - SDK may add extra fields like
+ * cross_platform_sdk_name, activate_ui, media_cache, etc.
+ *
  * @param mock - Mocked native module
  * @param expectedMethod - Expected method name (e.g., 'activate')
  * @param expectedRequest - Expected request structure (will be compared against actual)
@@ -195,7 +198,7 @@ export function expectNativeCall<T extends { method: string }>(
   const actualRequest = JSON.parse(params.args) as T;
 
   expect(actualMethod).toBe(expectedMethod);
-  expect(actualRequest).toEqual(expectedRequest);
+  expect(actualRequest).toMatchObject(expectedRequest);
 }
 
 /**
