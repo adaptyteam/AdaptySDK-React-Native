@@ -244,11 +244,11 @@ export const GET_PAYWALL_PRODUCTS_REQUEST: components['requests']['GetPaywallPro
   method: 'get_paywall_products',
   paywall: {
     placement: {
-      placement_id: 'test_placement',
+      developer_id: 'test_placement',
       ab_test_name: 'test_ab',
       audience_name: 'all_users',
       revision: 1,
-      audience_version_id: 'v1',
+      placement_audience_version_id: 'v1',
     },
     paywall_id: 'test_paywall_id',
     paywall_name: 'Test Paywall',

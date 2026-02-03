@@ -69,9 +69,9 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       // Setup different response for second call
       const response2: components['requests']['GetPaywall.Response'] = {
         success: {
-          ...GET_PAYWALL_RESPONSE.success,
+          ...GET_PAYWALL_RESPONSE.success!,
           placement: {
-            ...GET_PAYWALL_RESPONSE.success.placement,
+            ...GET_PAYWALL_RESPONSE.success!.placement,
             developer_id: 'placement_two',
           },
           paywall_id: 'paywall_placement_two',
@@ -79,11 +79,11 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
         },
       };
 
-      nativeMock.handler.mockImplementationOnce((method, params) => {
+      nativeMock.handler.mockImplementationOnce((_method, _params) => {
         return Promise.resolve(JSON.stringify(GET_PAYWALL_RESPONSE));
       });
 
-      nativeMock.handler.mockImplementationOnce((method, params) => {
+      nativeMock.handler.mockImplementationOnce((_method, _params) => {
         return Promise.resolve(JSON.stringify(response2));
       });
 
@@ -175,7 +175,7 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       nativeMock.handler.mockClear();
 
       // Should not throw
-      const result = await adapty.logShowPaywall(paywall);
+      await adapty.logShowPaywall(paywall);
 
       // Verify: LogShowPaywall.Request sent
       const request = extractNativeRequest<
