@@ -104,17 +104,17 @@ export function createNativeModuleMock(
   // Install mock into NativeModules
   (NativeModules as any).RNAdapty = mock;
 
-  // Mock NativeEventEmitter to prevent errors during NativeRequestHandler construction
-  // Note: This is a simplified mock - real implementation would handle events
+  // Improve NativeEventEmitter mock to support event emission
   if (!(NativeEventEmitter as any).__mocked) {
-    const OriginalEmitter = NativeEventEmitter;
-    (NativeEventEmitter as any) = jest.fn().mockImplementation(() => ({
-      addListener: jest.fn(() => ({
-        remove: jest.fn(),
-      })),
-    }));
+    (NativeEventEmitter as any) = jest.fn().mockImplementation(() => {
+      const emitter = getTestEmitter();
+      return {
+        addListener: emitter.addListener.bind(emitter),
+        emit: emitter.emit.bind(emitter),
+        removeAllListeners: emitter.removeAllListeners.bind(emitter),
+      };
+    });
     (NativeEventEmitter as any).__mocked = true;
-    (NativeEventEmitter as any).__original = OriginalEmitter;
   }
 
   return mock;
@@ -223,4 +223,48 @@ export function expectNativeCall<T extends { method: string }>(
 export function resetNativeModuleMock(mock: MockNativeModule): void {
   mock.handler.mockClear();
   mock.getConstants.mockClear();
+}
+
+/**
+ * Simple event emitter for testing
+ */
+class TestEventEmitter {
+  private listeners: Map<string, Set<(...args: any[]) => void>> = new Map();
+
+  addListener(event: string, callback: (...args: any[]) => void): { remove: () => void } {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)!.add(callback);
+
+    return {
+      remove: () => {
+        this.listeners.get(event)?.delete(callback);
+      },
+    };
+  }
+
+  emit(event: string, ...args: any[]): void {
+    const callbacks = this.listeners.get(event);
+    if (callbacks) {
+      callbacks.forEach(callback => callback(...args));
+    }
+  }
+
+  removeAllListeners(): void {
+    this.listeners.clear();
+  }
+}
+
+// Global test emitter instance
+let globalTestEmitter: TestEventEmitter | null = null;
+
+/**
+ * Get or create global test emitter for event testing
+ */
+export function getTestEmitter(): TestEventEmitter {
+  if (!globalTestEmitter) {
+    globalTestEmitter = new TestEventEmitter();
+  }
+  return globalTestEmitter;
 }
