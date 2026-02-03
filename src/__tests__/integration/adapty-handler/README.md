@@ -34,10 +34,9 @@ JS: adapty.activate
 
 ### What These Tests DON'T Test
 
-❌ Actual native SDK behavior (use E2E tests)
+❌ Actual native SDK behavior 
 ❌ React Native environment setup
 ❌ Real network requests
-❌ Platform-specific native code
 
 ## File Structure
 
@@ -51,6 +50,21 @@ src/__tests__/integration/adapty-handler/
 ├── setup.utils.ts                      # Test setup helpers
 └── helpers.utils.ts                    # Generic test helpers
 ```
+
+## Migration Status
+
+✅ **Phase 1 Complete** - Activation tests migrated (14 tests)
+✅ **Phase 2 Complete** - All remaining tests migrated
+
+**Migrated files:**
+- activation.test.ts (14 tests) - Activation flow
+- profile.test.ts (1 test) - Profile operations
+- products.test.ts (1 test) - Paywall products
+- paywall.test.ts (5 tests) - Paywall retrieval
+- purchase.test.ts (2 tests) - Purchase flow
+- purchase-event.test.ts (1 test) - Purchase events
+
+**Total:** 24 tests, all using NativeModuleMock spy approach
 
 ## Core Components
 
