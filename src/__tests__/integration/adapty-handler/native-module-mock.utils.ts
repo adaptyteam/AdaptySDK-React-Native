@@ -268,3 +268,19 @@ export function getTestEmitter(): TestEventEmitter {
   }
   return globalTestEmitter;
 }
+
+/**
+ * Emits a mock native event for testing
+ *
+ * @param eventName - Native event name (e.g., 'did_load_latest_profile')
+ * @param eventData - Event data as object (will be JSON.stringified)
+ *
+ * @example
+ * ```typescript
+ * emitNativeEvent('did_load_latest_profile', EVENT_DID_LOAD_LATEST_PROFILE);
+ * ```
+ */
+export function emitNativeEvent(eventName: string, eventData: any): void {
+  const emitter = getTestEmitter();
+  emitter.emit(eventName, JSON.stringify(eventData));
+}
