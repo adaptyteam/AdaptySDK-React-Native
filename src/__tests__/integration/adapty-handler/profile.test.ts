@@ -23,7 +23,6 @@ import {
   UPDATE_PROFILE_RESPONSE_SUCCESS,
   UPDATE_PROFILE_RESPONSE_ERROR,
 } from './bridge-samples';
-
 describe('Adapty - Profile', () => {
   let nativeMock: MockNativeModule;
   let adapty: Adapty;

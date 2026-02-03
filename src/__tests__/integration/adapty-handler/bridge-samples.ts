@@ -8,6 +8,7 @@
  */
 
 import type { components } from '@/types/api';
+import type { AdaptyPaywallProduct } from '@/types';
 
 // ============================================================================
 // Activate Request Samples
@@ -452,5 +453,35 @@ export const EVENT_DID_LOAD_LATEST_PROFILE: components['events']['Event.DidLoadL
     },
     subscriptions: {},
     non_subscriptions: {},
+  },
+};
+
+// ============================================================================
+// Product Samples (for public API usage)
+// ============================================================================
+
+/**
+ * VIP product sample in camelCase format (public API format)
+ * Used in purchase tests
+ */
+export const VIP_PRODUCT: AdaptyPaywallProduct = {
+  vendorProductId: 'com.example.vip',
+  adaptyId: 'adapty_vip',
+  accessLevelId: 'vip_premium',
+  productType: 'subscription',
+  paywallProductIndex: 0,
+  variationId: 'variation_vip',
+  paywallABTestName: 'test_ab_vip',
+  paywallName: 'VIP Paywall',
+  localizedDescription: 'VIP Access Plan',
+  localizedTitle: 'VIP Access',
+  ios: {
+    isFamilyShareable: false,
+  },
+  price: {
+    amount: 19.99,
+    currencyCode: 'USD',
+    currencySymbol: '$',
+    localizedString: '$19.99',
   },
 };

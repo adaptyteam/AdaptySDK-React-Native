@@ -528,6 +528,6 @@ it('should send correct Activate.Request', async () => {
 
 ## References
 
-- [api.d.ts](../../src/types/api.d.ts) - Generated from cross_platform.yaml
-- [UI Integration Tests](../../src/__tests__/integration/ui/README.md) - Similar spy approach
-- [Current Tests](../../src/__tests__/integration/adapty-handler/) - Code to be migrated
+- [api.d.ts](../../../types/api.d.ts) - Generated from cross_platform.yaml
+- [UI Integration Tests](../ui/README.md) - Similar spy approach
+- [Current Tests](./) - Code to be migrated

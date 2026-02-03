@@ -9,7 +9,6 @@
 
 import type { components } from '@/types/api';
 import { Adapty } from '@/adapty-handler';
-import type { AdaptyPaywallProduct } from '@/types';
 import { resetBridge } from '@/bridge';
 import {
   createNativeModuleMock,
@@ -23,8 +22,8 @@ import {
   MAKE_PURCHASE_REQUEST,
   MAKE_PURCHASE_RESPONSE_SUCCESS,
   MAKE_PURCHASE_RESPONSE_CANCELLED,
+  VIP_PRODUCT,
 } from './bridge-samples';
-
 describe('Adapty - MakePurchase Bridge Integration', () => {
   let adapty: Adapty;
   let nativeMock: MockNativeModule;
@@ -52,31 +51,8 @@ describe('Adapty - MakePurchase Bridge Integration', () => {
       // Activate SDK
       await adapty.activate('test_key');
 
-      // Product in camelCase (public API format)
-      const product: AdaptyPaywallProduct = {
-        vendorProductId: 'com.example.vip',
-        adaptyId: 'adapty_vip',
-        accessLevelId: 'vip_premium',
-        productType: 'subscription',
-        paywallProductIndex: 0,
-        variationId: 'variation_vip',
-        paywallABTestName: 'test_ab_vip',
-        paywallName: 'VIP Paywall',
-        localizedDescription: 'VIP Access Plan',
-        localizedTitle: 'VIP Access',
-        ios: {
-          isFamilyShareable: false,
-        },
-        price: {
-          amount: 19.99,
-          currencyCode: 'USD',
-          currencySymbol: '$',
-          localizedString: '$19.99',
-        },
-      };
-
-      // Make purchase
-      await adapty.makePurchase(product);
+      // Make purchase with VIP product
+      await adapty.makePurchase(VIP_PRODUCT);
 
       // Verify native call with snake_case format
       expectNativeCall<components['requests']['MakePurchase.Request']>(
@@ -103,31 +79,8 @@ describe('Adapty - MakePurchase Bridge Integration', () => {
       // Activate SDK
       await adapty.activate('test_key');
 
-      // Product for purchase attempt
-      const product: AdaptyPaywallProduct = {
-        vendorProductId: 'com.example.vip',
-        adaptyId: 'adapty_vip',
-        accessLevelId: 'vip_premium',
-        productType: 'subscription',
-        paywallProductIndex: 0,
-        variationId: 'variation_vip',
-        paywallABTestName: 'test_ab_vip',
-        paywallName: 'VIP Paywall',
-        localizedDescription: 'VIP Access Plan',
-        localizedTitle: 'VIP Access',
-        ios: {
-          isFamilyShareable: false,
-        },
-        price: {
-          amount: 19.99,
-          currencyCode: 'USD',
-          currencySymbol: '$',
-          localizedString: '$19.99',
-        },
-      };
-
-      // Make purchase
-      const result = await adapty.makePurchase(product);
+      // Make purchase with VIP product
+      const result = await adapty.makePurchase(VIP_PRODUCT);
 
       // Verify cancelled result type
       expect(result).toBeDefined();

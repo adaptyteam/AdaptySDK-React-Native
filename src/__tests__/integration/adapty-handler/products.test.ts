@@ -22,7 +22,6 @@ import {
   GET_PAYWALL_PRODUCTS_RESPONSE,
   GET_PAYWALL_PRODUCTS_RESPONSE_ERROR,
 } from './bridge-samples';
-
 describe('Adapty - Paywall Products', () => {
   let nativeMock: MockNativeModule;
   let adapty: Adapty;

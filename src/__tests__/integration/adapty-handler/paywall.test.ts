@@ -31,7 +31,6 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
   let nativeMock: MockNativeModule;
 
   beforeEach(async () => {
-    resetBridge();
     adapty = new Adapty();
 
     nativeMock = createNativeModuleMock({

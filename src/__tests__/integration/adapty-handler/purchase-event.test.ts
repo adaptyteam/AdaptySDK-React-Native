@@ -18,14 +18,11 @@ import {
   MAKE_PURCHASE_RESPONSE_SUCCESS,
   EVENT_DID_LOAD_LATEST_PROFILE,
 } from './bridge-samples';
-
 describe('Adapty - Purchase Event', () => {
   let adapty: Adapty;
   let nativeMock: MockNativeModule;
 
   beforeEach(async () => {
-    resetBridge();
-
     // Setup native mock
     nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,

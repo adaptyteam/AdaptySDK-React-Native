@@ -34,9 +34,6 @@ describe('Adapty - Activation (Bridge Integration)', () => {
   let nativeMock: MockNativeModule;
 
   beforeEach(() => {
-    // Reset bridge to ensure clean state
-    resetBridge();
-
     // Create fresh Adapty instance
     adapty = new Adapty();
   });
