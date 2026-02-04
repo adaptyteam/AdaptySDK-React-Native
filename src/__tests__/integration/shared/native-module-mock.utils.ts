@@ -64,6 +64,17 @@ interface ResponseRegistry {
   report_transaction?: components['requests']['ReportTransaction.Response'];
   update_attribution_data?: components['requests']['UpdateAttributionData.Response'];
   get_current_installation_status?: components['requests']['GetCurrentInstallationStatus.Response'];
+
+  // Adapty UI - Paywall methods
+  adapty_ui_create_paywall_view?: components['requests']['AdaptyUICreatePaywallView.Response'];
+  adapty_ui_present_paywall_view?: components['requests']['AdaptyUIPresentPaywallView.Response'];
+  adapty_ui_dismiss_paywall_view?: components['requests']['AdaptyUIDismissPaywallView.Response'];
+  adapty_ui_show_dialog?: components['requests']['AdaptyUIShowDialog.Response'];
+
+  // Adapty UI - Onboarding methods
+  adapty_ui_create_onboarding_view?: components['requests']['AdaptyUICreateOnboardingView.Response'];
+  adapty_ui_present_onboarding_view?: components['requests']['AdaptyUIPresentOnboardingView.Response'];
+  adapty_ui_dismiss_onboarding_view?: components['requests']['AdaptyUIDismissOnboardingView.Response'];
 }
 
 /**
