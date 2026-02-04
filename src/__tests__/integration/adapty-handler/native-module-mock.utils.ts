@@ -48,6 +48,8 @@ interface ResponseRegistry {
   get_paywall_products?: components['requests']['GetPaywallProducts.Response'];
   log_show_paywall?: components['requests']['LogShowPaywall.Response'];
   make_purchase?: components['requests']['MakePurchase.Response'];
+  get_onboarding?: components['requests']['GetOnboarding.Response'];
+  get_onboarding_for_default_audience?: components['requests']['GetOnboardingForDefaultAudience.Response'];
 }
 
 /**
