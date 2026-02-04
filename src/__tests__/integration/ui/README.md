@@ -12,6 +12,49 @@ These tests verify that view controller event handlers work correctly with the m
 
 Event samples in [`bridge-event-samples.ts`](/Users/stanislavmayorov/projects/AdaptySDK-React-Native/src/__tests__/integration/ui/bridge-event-samples.ts) use native format (snake_case) to match real bridge events.
 
+## Test Organization
+
+This directory contains two types of integration tests:
+
+### 1. Event Handling Tests (events/ subdirectories)
+
+**Purpose:** Test event emission and parsing
+**Approach:** Use MockRequestHandler with testEmitter
+**Files:**
+- `paywall/events/*-events.test.ts` - Paywall event handlers
+- `onboarding/events/onboarding-view-controller-events.test.ts` - Onboarding event handlers
+
+**What they test:**
+- Events emitted from native are parsed correctly (snake_case → camelCase)
+- Event handlers receive correct data
+- Event filtering by viewId
+- Default handlers behavior
+
+### 2. UI Methods Tests (root ui/ directory)
+
+**Purpose:** Test bridge communication for UI controller methods
+**Approach:** Use NativeModuleMock (same as adapty-handler tests)
+**Files:**
+- `view-controller-methods.test.ts` - Paywall UI methods ← NEW
+- `onboarding-view-controller-methods.test.ts` - Onboarding UI methods ← NEW
+
+**What they test:**
+- Request encoding (camelCase → snake_case)
+- Response parsing (snake_case → camelCase)
+- Parameter handling (prefetchProducts, loadTimeoutMs, iOS styles)
+
+Both types are **complementary**:
+- Events tests ensure event handling works
+- Methods tests ensure bridge communication is correct
+
+## Shared Utilities
+
+UI tests use shared utilities from `../shared/`:
+- `native-module-mock.utils.ts` - Native module mocking (for methods tests)
+- `bridge-samples/ui-methods.ts` - UI methods request/response samples
+
+See [../shared/README.md](../shared/README.md) for details.
+
 ## Architecture
 
 The testing infrastructure consists of three main components:
