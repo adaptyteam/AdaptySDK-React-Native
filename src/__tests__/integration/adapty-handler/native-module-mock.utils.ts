@@ -55,6 +55,9 @@ interface ResponseRegistry {
   restore_purchases?: components['requests']['RestorePurchases.Response'];
   open_web_paywall?: components['requests']['OpenWebPaywall.Response'];
   create_web_paywall_url?: components['requests']['CreateWebPaywallUrl.Response'];
+  set_log_level?: components['requests']['SetLogLevel.Response'];
+  set_fallback?: components['requests']['SetFallback.Response'];
+  set_integration_identifiers?: components['requests']['SetIntegrationIdentifier.Response'];
 }
 
 /**

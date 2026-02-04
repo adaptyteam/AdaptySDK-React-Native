@@ -647,3 +647,50 @@ export const CREATE_WEB_PAYWALL_URL_REQUEST: components['requests']['CreateWebPa
 export const CREATE_WEB_PAYWALL_URL_RESPONSE: components['requests']['CreateWebPaywallUrl.Response'] = {
   success: 'https://example.adapty.io/web-paywall-url',
 };
+
+// ============================================================================
+// SetLogLevel Request/Response Samples
+// ============================================================================
+
+export const SET_LOG_LEVEL_REQUEST: components['requests']['SetLogLevel.Request'] = {
+  method: 'set_log_level',
+  value: 'error',
+};
+
+export const SET_LOG_LEVEL_RESPONSE: components['requests']['SetLogLevel.Response'] = {
+  success: true,
+};
+
+// ============================================================================
+// SetFallback Request/Response Samples
+// ============================================================================
+
+export const SET_FALLBACK_REQUEST_WITH_ASSET_ID: components['requests']['SetFallback.Request'] = {
+  method: 'set_fallback',
+  asset_id: 'fallback_asset_123',
+};
+
+export const SET_FALLBACK_REQUEST_WITH_PATH: components['requests']['SetFallback.Request'] = {
+  method: 'set_fallback',
+  path: '/path/to/fallback.json',
+};
+
+export const SET_FALLBACK_RESPONSE_SUCCESS: components['requests']['SetFallback.Response'] = {
+  success: true,
+};
+
+// ============================================================================
+// SetIntegrationIdentifier Request/Response Samples
+// ============================================================================
+
+export const SET_INTEGRATION_IDENTIFIER_REQUEST: components['requests']['SetIntegrationIdentifier.Request'] = {
+  method: 'set_integration_identifiers',
+  key_values: {
+    appmetrica_device_id: 'device_123',
+    appmetrica_profile_id: 'profile_456',
+  },
+};
+
+export const SET_INTEGRATION_IDENTIFIER_RESPONSE_SUCCESS: components['requests']['SetIntegrationIdentifier.Response'] = {
+  success: true,
+};
