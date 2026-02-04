@@ -21,6 +21,7 @@ export * from './paywall';
 export * from './purchase';
 export * from './user-management';
 export * from './onboarding';
+export * from './ui-methods';
 export * from './configuration';
 export * from './installation';
 export * from './ios-specific';
