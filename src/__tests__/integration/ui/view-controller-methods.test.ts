@@ -1,6 +1,5 @@
 import { resetBridge } from '@/bridge';
 import { createPaywallView } from '@/ui/create-paywall-view';
-import { ViewController } from '@/ui/view-controller';
 import type { components } from '@/types/api';
 import type { AdaptyPaywall } from '@/types';
 import {
@@ -81,7 +80,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
     });
 
     it('should encode custom parameters', async () => {
-      const view = await createPaywallView(paywall, {
+      await createPaywallView(paywall, {
         prefetchProducts: false,
         loadTimeoutMs: 3000,
       });

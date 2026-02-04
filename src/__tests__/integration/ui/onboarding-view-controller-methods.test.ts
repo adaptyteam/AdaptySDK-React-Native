@@ -1,6 +1,5 @@
 import { resetBridge } from '@/bridge';
 import { createOnboardingView } from '@/ui/create-onboarding-view';
-import { OnboardingViewController } from '@/ui/onboarding-view-controller';
 import type { components } from '@/types/api';
 import type { AdaptyOnboarding } from '@/types';
 import {
@@ -78,7 +77,7 @@ describe('OnboardingViewController Methods (Bridge Integration)', () => {
     });
 
     it('should encode custom externalUrlsPresentation', async () => {
-      const view = await createOnboardingView(onboarding, {
+      await createOnboardingView(onboarding, {
         externalUrlsPresentation: 'browser_out_app',
       });
 
