@@ -12,12 +12,12 @@ import {
   emitNativeEvent,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   MAKE_PURCHASE_RESPONSE_SUCCESS,
   EVENT_DID_LOAD_LATEST_PROFILE,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 describe('Adapty - Purchase Event', () => {
   let adapty: Adapty;
   let nativeMock: MockNativeModule;

@@ -7,14 +7,14 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   SET_LOG_LEVEL_REQUEST,
   SET_LOG_LEVEL_RESPONSE,
   SET_FALLBACK_RESPONSE_SUCCESS,
   SET_INTEGRATION_IDENTIFIER_RESPONSE_SUCCESS,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Configuration (Bridge Integration)', () => {

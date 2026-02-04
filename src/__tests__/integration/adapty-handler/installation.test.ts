@@ -5,14 +5,14 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_CURRENT_INSTALLATION_STATUS_REQUEST,
   GET_CURRENT_INSTALLATION_STATUS_RESPONSE_DETERMINED,
   GET_CURRENT_INSTALLATION_STATUS_RESPONSE_NOT_DETERMINED,
   GET_CURRENT_INSTALLATION_STATUS_RESPONSE_NOT_AVAILABLE,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Installation Status (Bridge Integration)', () => {

@@ -6,11 +6,11 @@ import {
   extractNativeRequest,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_ONBOARDING_RESPONSE,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Onboarding (Bridge Integration)', () => {

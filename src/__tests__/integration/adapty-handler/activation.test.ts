@@ -7,7 +7,7 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_REQUEST_MINIMAL,
   ACTIVATE_REQUEST_WITH_CUSTOMER_USER_ID,
@@ -16,7 +16,7 @@ import {
   IS_ACTIVATED_REQUEST,
   IS_ACTIVATED_RESPONSE_TRUE,
   IS_ACTIVATED_RESPONSE_FALSE,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 /**

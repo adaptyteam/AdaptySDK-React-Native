@@ -7,13 +7,13 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   REPORT_TRANSACTION_REQUEST,
   REPORT_TRANSACTION_RESPONSE_SUCCESS,
   UPDATE_ATTRIBUTION_DATA_RESPONSE_SUCCESS,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Attribution (Bridge Integration)', () => {

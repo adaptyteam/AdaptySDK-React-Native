@@ -16,12 +16,12 @@ import {
   extractNativeRequest,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PAYWALL_PRODUCTS_RESPONSE,
   GET_PAYWALL_PRODUCTS_RESPONSE_ERROR,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 describe('Adapty - Paywall Products', () => {
   let nativeMock: MockNativeModule;
   let adapty: Adapty;

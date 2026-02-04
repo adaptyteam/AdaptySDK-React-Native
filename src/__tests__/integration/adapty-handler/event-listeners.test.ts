@@ -6,12 +6,12 @@ import {
   emitNativeEvent,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
-import { ACTIVATE_RESPONSE_SUCCESS } from './bridge-samples';
+} from '../shared/native-module-mock.utils';
+import { ACTIVATE_RESPONSE_SUCCESS } from '../shared/bridge-samples';
 import {
   INSTALLATION_DETAILS_SUCCESS,
   INSTALLATION_DETAILS_FAIL,
-} from './adapty-handler-bridge-event-samples';
+} from './bridge-samples-event-adapty-handler';
 import { cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Event Listeners (Bridge Integration)', () => {

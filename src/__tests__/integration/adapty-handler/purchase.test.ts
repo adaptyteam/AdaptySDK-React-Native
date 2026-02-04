@@ -15,7 +15,7 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   IS_ACTIVATED_RESPONSE_TRUE,
@@ -23,7 +23,7 @@ import {
   MAKE_PURCHASE_RESPONSE_SUCCESS,
   MAKE_PURCHASE_RESPONSE_CANCELLED,
   VIP_PRODUCT,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 describe('Adapty - MakePurchase Bridge Integration', () => {
   let adapty: Adapty;
   let nativeMock: MockNativeModule;

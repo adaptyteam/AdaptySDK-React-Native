@@ -6,12 +6,12 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   RESTORE_PURCHASES_REQUEST,
   RESTORE_PURCHASES_RESPONSE_WITH_PREMIUM,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Restore Purchases (Bridge Integration)', () => {

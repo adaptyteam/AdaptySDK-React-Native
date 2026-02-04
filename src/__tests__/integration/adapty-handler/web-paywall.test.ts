@@ -7,13 +7,13 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PAYWALL_RESPONSE,
   OPEN_WEB_PAYWALL_RESPONSE_SUCCESS,
   CREATE_WEB_PAYWALL_URL_RESPONSE,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Web Paywall (Bridge Integration)', () => {

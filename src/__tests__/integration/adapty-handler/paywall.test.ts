@@ -8,14 +8,14 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PAYWALL_REQUEST,
   GET_PAYWALL_RESPONSE,
   GET_PAYWALL_RESPONSE_ERROR,
   LOG_SHOW_PAYWALL_RESPONSE,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 /**

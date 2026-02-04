@@ -7,7 +7,7 @@ import {
   expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
-} from './native-module-mock.utils';
+} from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   PRESENT_CODE_REDEMPTION_SHEET_REQUEST,
@@ -16,7 +16,7 @@ import {
   UPDATE_COLLECTING_REFUND_DATA_CONSENT_RESPONSE_SUCCESS,
   UPDATE_REFUND_PREFERENCE_REQUEST,
   UPDATE_REFUND_PREFERENCE_RESPONSE_SUCCESS,
-} from './bridge-samples';
+} from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
 // Save original values
