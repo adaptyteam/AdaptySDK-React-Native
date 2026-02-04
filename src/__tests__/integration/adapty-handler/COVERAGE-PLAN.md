@@ -728,6 +728,80 @@ describe('Adapty - Web Paywall (Bridge Integration)', () => {
 
 **Note:** These methods return early on Android. Tests should verify this behavior.
 
+### Platform.OS Mocking Pattern
+
+Based on existing UI tests pattern (`src/__tests__/integration/ui/paywall/ios-paywall-view-controller-events.test.ts`):
+
+```typescript
+import { Platform } from 'react-native';
+
+// Save original values
+const originalOS = Platform.OS;
+const originalSelect = Platform.select;
+
+describe('iOS-specific methods', () => {
+  beforeAll(() => {
+    // Override for iOS tests
+    Platform.OS = 'ios';
+    Platform.select = jest.fn((obj: any) => obj.ios || obj.default);
+  });
+
+  afterAll(() => {
+    // Restore original values
+    Platform.OS = originalOS;
+    Platform.select = originalSelect;
+  });
+
+  it('presentCodeRedemptionSheet should call native on iOS', async () => {
+    await adapty.presentCodeRedemptionSheet();
+
+    expectNativeCall({
+      nativeModule: nativeMock,
+      method: 'present_code_redemption_sheet',
+      expectedRequest: PRESENT_CODE_REDEMPTION_SHEET_REQUEST
+    });
+  });
+});
+
+describe('Android behavior for iOS-only methods', () => {
+  beforeAll(() => {
+    Platform.OS = 'android';
+    Platform.select = jest.fn((obj: any) => obj.android || obj.default);
+  });
+
+  afterAll(() => {
+    Platform.OS = originalOS;
+    Platform.select = originalSelect;
+  });
+
+  it('presentCodeRedemptionSheet should resolve immediately on Android', async () => {
+    await adapty.presentCodeRedemptionSheet();
+
+    // На Android не должно быть вызова native
+    expect(nativeMock.handler).not.toHaveBeenCalled();
+  });
+
+  it('updateCollectingRefundDataConsent should resolve immediately on Android', async () => {
+    await adapty.updateCollectingRefundDataConsent(true);
+
+    expect(nativeMock.handler).not.toHaveBeenCalled();
+  });
+
+  it('updateRefundPreference should resolve immediately on Android', async () => {
+    await adapty.updateRefundPreference('early');
+
+    expect(nativeMock.handler).not.toHaveBeenCalled();
+  });
+});
+```
+
+**Key points:**
+- Override `Platform.OS` and `Platform.select` in `beforeAll`
+- Restore original values in `afterAll`
+- Create separate describe blocks for iOS and Android tests
+- iOS tests verify native calls are made
+- Android tests verify methods resolve immediately without native calls
+
 ---
 
 ## Part 7: Attribution Tests
