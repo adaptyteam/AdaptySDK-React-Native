@@ -559,3 +559,36 @@ export const LOGOUT_REQUEST: components['requests']['Logout.Request'] = {
 export const LOGOUT_RESPONSE_SUCCESS: components['requests']['Logout.Response'] = {
   success: true,
 };
+
+// ============================================================================
+// RestorePurchases Request/Response Samples
+// ============================================================================
+
+export const RESTORE_PURCHASES_REQUEST: components['requests']['RestorePurchases.Request'] = {
+  method: 'restore_purchases',
+};
+
+export const RESTORE_PURCHASES_RESPONSE_WITH_PREMIUM: components['requests']['RestorePurchases.Response'] = {
+  success: {
+    profile_id: 'restored_profile_123',
+    segment_hash: 'restored_hash',
+    is_test_user: false,
+    timestamp: -1,
+    custom_attributes: {},
+    paid_access_levels: {
+      premium: {
+        id: 'premium',
+        is_active: true,
+        vendor_product_id: 'com.example.premium',
+        store: 'app_store',
+        activated_at: '2026-01-01T00:00:00Z',
+        is_lifetime: false,
+        will_renew: true,
+        is_in_grace_period: false,
+        is_refund: false,
+      },
+    },
+    subscriptions: {},
+    non_subscriptions: {},
+  },
+};

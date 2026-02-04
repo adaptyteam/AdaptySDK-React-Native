@@ -52,6 +52,7 @@ interface ResponseRegistry {
   get_onboarding_for_default_audience?: components['requests']['GetOnboardingForDefaultAudience.Response'];
   identify?: components['requests']['Identify.Response'];
   logout?: components['requests']['Logout.Response'];
+  restore_purchases?: components['requests']['RestorePurchases.Response'];
 }
 
 /**
