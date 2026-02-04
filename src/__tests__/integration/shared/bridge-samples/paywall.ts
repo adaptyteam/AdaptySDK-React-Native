@@ -59,6 +59,46 @@ export const GET_PAYWALL_RESPONSE_ERROR: components['requests']['GetPaywall.Resp
 };
 
 /**
+ * GetPaywallForDefaultAudience request
+ */
+export const GET_PAYWALL_FOR_DEFAULT_AUDIENCE_REQUEST: components['requests']['GetPaywallForDefaultAudience.Request'] = {
+  method: 'get_paywall_for_default_audience',
+  placement_id: 'test_placement_default',
+};
+
+/**
+ * GetPaywallForDefaultAudience response (same format as GetPaywall.Response)
+ */
+export const GET_PAYWALL_FOR_DEFAULT_AUDIENCE_RESPONSE: components['requests']['GetPaywallForDefaultAudience.Response'] = {
+  success: {
+    placement: {
+      developer_id: 'test_placement_default',
+      ab_test_name: 'default_ab_test',
+      audience_name: 'default_audience',
+      revision: 1,
+      placement_audience_version_id: 'default_v1',
+    },
+    paywall_id: 'paywall_default_audience',
+    paywall_name: 'test_placement_default',
+    variation_id: 'default_variation_123',
+    products: [
+      {
+        vendor_product_id: 'com.example.default_product',
+        adapty_product_id: 'default_adapty_product',
+        access_level_id: 'premium',
+        product_type: 'subscription',
+      },
+    ],
+    response_created_at: -1,
+    request_locale: 'en',
+    paywall_builder: {
+      paywall_builder_id: 'default_builder_123',
+      lang: 'en',
+    },
+  },
+};
+
+/**
  * GetPaywallProducts request with paywall (snake_case format)
  */
 export const GET_PAYWALL_PRODUCTS_REQUEST: components['requests']['GetPaywallProducts.Request'] = {

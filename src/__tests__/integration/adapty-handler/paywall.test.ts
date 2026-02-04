@@ -14,6 +14,8 @@ import {
   GET_PAYWALL_REQUEST,
   GET_PAYWALL_RESPONSE,
   GET_PAYWALL_RESPONSE_ERROR,
+  GET_PAYWALL_FOR_DEFAULT_AUDIENCE_REQUEST,
+  GET_PAYWALL_FOR_DEFAULT_AUDIENCE_RESPONSE,
   LOG_SHOW_PAYWALL_RESPONSE,
 } from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
@@ -23,8 +25,9 @@ import { cleanupAdapty } from './setup.utils';
  *
  * Tests verify:
  * 1. GetPaywall request format and response parsing
- * 2. LogShowPaywall request encoding
- * 3. Paywall field transformations (snake_case → camelCase)
+ * 2. GetPaywallForDefaultAudience request and response
+ * 3. LogShowPaywall request encoding
+ * 4. Paywall field transformations (snake_case → camelCase)
  */
 describe('Adapty - Paywall (Bridge Integration)', () => {
   let adapty: Adapty;
@@ -36,6 +39,7 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
     nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,
       get_paywall: GET_PAYWALL_RESPONSE,
+      get_paywall_for_default_audience: GET_PAYWALL_FOR_DEFAULT_AUDIENCE_RESPONSE,
       log_show_paywall: LOG_SHOW_PAYWALL_RESPONSE,
     });
 
@@ -174,6 +178,41 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       expect(paywall).toBeDefined();
       expect(paywall.id).toContain('test_placement');
       expect(paywall.placement.id).toBe('test_placement');
+    });
+  });
+
+  describe('getPaywallForDefaultAudience', () => {
+    it('should send GetPaywallForDefaultAudience.Request', async () => {
+      const paywall = await adapty.getPaywallForDefaultAudience('test_placement_default');
+
+      // Verify: GetPaywallForDefaultAudience.Request sent
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'get_paywall_for_default_audience',
+        expectedRequest: GET_PAYWALL_FOR_DEFAULT_AUDIENCE_REQUEST
+      });
+
+      // Verify: response parsed to camelCase
+      expect(paywall).toBeDefined();
+      expect(paywall.id).toBe('paywall_default_audience');
+      expect(paywall.name).toBe('test_placement_default');
+      expect(paywall.placement.id).toBe('test_placement_default');
+      expect(paywall.placement.audienceName).toBe('default_audience');
+      expect(paywall.variationId).toBe('default_variation_123');
+    });
+
+    it('should include locale when provided', async () => {
+      await adapty.getPaywallForDefaultAudience('test_placement_default', 'ru');
+
+      const request = extractNativeRequest<
+        components['requests']['GetPaywallForDefaultAudience.Request']
+      >({
+        nativeModule: nativeMock
+      });
+
+      expect(request.method).toBe('get_paywall_for_default_audience');
+      expect(request.placement_id).toBe('test_placement_default');
+      expect(request.locale).toBe('ru');
     });
   });
 

@@ -68,7 +68,7 @@ src/__tests__/integration/adapty-handler/
 ├── activation.test.ts                  # Activation flow (14 tests)
 ├── profile.test.ts                     # Profile operations (2 tests)
 ├── products.test.ts                    # Paywall products (2 tests)
-├── paywall.test.ts                     # Paywall retrieval (6 tests)
+├── paywall.test.ts                     # Paywall retrieval (8 tests)
 ├── purchase.test.ts                    # Purchase flow (2 tests)
 ├── purchase-event.test.ts              # Purchase events (1 test)
 ├── onboarding.test.ts                  # Onboarding (3 tests)
