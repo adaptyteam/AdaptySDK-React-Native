@@ -7,16 +7,16 @@ import {
   extractNativeRequest,
   resetNativeModuleMock,
   type MockNativeModule,
-} from '../shared/native-module-mock.utils';
+} from '../../../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_ONBOARDING_RESPONSE,
   ADAPTY_UI_CREATE_ONBOARDING_VIEW_RESPONSE,
   ADAPTY_UI_PRESENT_ONBOARDING_VIEW_RESPONSE,
   ADAPTY_UI_DISMISS_ONBOARDING_VIEW_RESPONSE,
-} from '../shared/bridge-samples';
+} from '../../../shared/bridge-samples';
 import { Adapty } from '@/adapty-handler';
-import { cleanupAdapty } from '../adapty-handler/setup.utils';
+import { cleanupAdapty } from '../../../adapty-handler/setup.utils';
 
 /**
  * Integration tests for OnboardingViewController methods

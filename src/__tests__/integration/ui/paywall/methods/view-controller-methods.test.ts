@@ -7,7 +7,7 @@ import {
   extractNativeRequest,
   resetNativeModuleMock,
   type MockNativeModule,
-} from '../shared/native-module-mock.utils';
+} from '../../../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PAYWALL_RESPONSE,
@@ -15,9 +15,9 @@ import {
   ADAPTY_UI_PRESENT_PAYWALL_VIEW_RESPONSE,
   ADAPTY_UI_DISMISS_PAYWALL_VIEW_RESPONSE,
   ADAPTY_UI_SHOW_DIALOG_RESPONSE_PRIMARY,
-} from '../shared/bridge-samples';
+} from '../../../shared/bridge-samples';
 import { Adapty } from '@/adapty-handler';
-import { cleanupAdapty } from '../adapty-handler/setup.utils';
+import { cleanupAdapty } from '../../../adapty-handler/setup.utils';
 
 /**
  * Integration tests for ViewController methods (Paywall UI)
