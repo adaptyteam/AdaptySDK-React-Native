@@ -694,3 +694,41 @@ export const SET_INTEGRATION_IDENTIFIER_REQUEST: components['requests']['SetInte
 export const SET_INTEGRATION_IDENTIFIER_RESPONSE_SUCCESS: components['requests']['SetIntegrationIdentifier.Response'] = {
   success: true,
 };
+
+// ============================================================================
+// PresentCodeRedemptionSheet Request/Response Samples (iOS only)
+// ============================================================================
+
+export const PRESENT_CODE_REDEMPTION_SHEET_REQUEST: components['requests']['PresentCodeRedemptionSheet.Request'] = {
+  method: 'present_code_redemption_sheet',
+};
+
+export const PRESENT_CODE_REDEMPTION_SHEET_RESPONSE: components['requests']['PresentCodeRedemptionSheet.Response'] = {
+  success: true,
+};
+
+// ============================================================================
+// UpdateCollectingRefundDataConsent Request/Response Samples (iOS only)
+// ============================================================================
+
+export const UPDATE_COLLECTING_REFUND_DATA_CONSENT_REQUEST: components['requests']['UpdateCollectingRefundDataConsent.Request'] = {
+  method: 'update_collecting_refund_data_consent',
+  consent: true,
+};
+
+export const UPDATE_COLLECTING_REFUND_DATA_CONSENT_RESPONSE_SUCCESS: components['requests']['UpdateCollectingRefundDataConsent.Response'] = {
+  success: true,
+};
+
+// ============================================================================
+// UpdateRefundPreference Request/Response Samples (iOS only)
+// ============================================================================
+
+export const UPDATE_REFUND_PREFERENCE_REQUEST: components['requests']['UpdateRefundPreference.Request'] = {
+  method: 'update_refund_preference',
+  refund_preference: 'grant',
+};
+
+export const UPDATE_REFUND_PREFERENCE_RESPONSE_SUCCESS: components['requests']['UpdateRefundPreference.Response'] = {
+  success: true,
+};

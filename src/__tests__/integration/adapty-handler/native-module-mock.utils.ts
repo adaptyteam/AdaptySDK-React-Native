@@ -58,6 +58,9 @@ interface ResponseRegistry {
   set_log_level?: components['requests']['SetLogLevel.Response'];
   set_fallback?: components['requests']['SetFallback.Response'];
   set_integration_identifiers?: components['requests']['SetIntegrationIdentifier.Response'];
+  present_code_redemption_sheet?: components['requests']['PresentCodeRedemptionSheet.Response'];
+  update_collecting_refund_data_consent?: components['requests']['UpdateCollectingRefundDataConsent.Response'];
+  update_refund_preference?: components['requests']['UpdateRefundPreference.Response'];
 }
 
 /**
