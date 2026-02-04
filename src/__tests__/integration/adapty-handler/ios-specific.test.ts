@@ -125,7 +125,7 @@ describe('Adapty - iOS-specific methods (Bridge Integration)', () => {
     it('presentCodeRedemptionSheet should resolve immediately on Android', async () => {
       await adapty.presentCodeRedemptionSheet();
 
-      // На Android не должно быть вызова native
+      // On Android there should be no native call
       expect(nativeMock.handler).not.toHaveBeenCalled();
     });
 
