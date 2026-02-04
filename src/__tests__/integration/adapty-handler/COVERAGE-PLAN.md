@@ -130,8 +130,7 @@ export const GET_ONBOARDING_RESPONSE: components['requests']['GetOnboarding.Resp
     response_created_at: -1,
     request_locale: 'en',
     onboarding_builder: {
-      onboarding_builder_id: 'builder_789',
-      lang: 'en',
+      config_url: 'https://example.com/onboarding-config',
     },
   },
 };
@@ -300,11 +299,11 @@ export const IDENTIFY_REQUEST: components['requests']['Identify.Request'] = {
   customer_user_id: 'user_12345',
 };
 
-export const IDENTIFY_REQUEST_WITH_PARAMS: components['requests']['Identify.Request'] = {
+export const IDENTIFY_REQUEST_WITH_APP_ACCOUNT_TOKEN: components['requests']['Identify.Request'] = {
   method: 'identify',
   customer_user_id: 'user_12345',
   parameters: {
-    analytics_disabled: true,
+    app_account_token: 'ios_token_abc',
   },
 };
 
@@ -392,9 +391,11 @@ describe('Adapty - User Management (Bridge Integration)', () => {
       });
     });
 
-    it('should include parameters when provided', async () => {
+    it('should include iOS parameters when provided', async () => {
       await adapty.identify('user_12345', {
-        analyticsDisabled: true,
+        ios: {
+          appAccountToken: 'ios_token_abc',
+        },
       });
 
       const request = extractNativeRequest<
@@ -404,7 +405,7 @@ describe('Adapty - User Management (Bridge Integration)', () => {
       });
 
       expect(request.customer_user_id).toBe('user_12345');
-      expect(request.parameters?.analytics_disabled).toBe(true);
+      expect(request.parameters?.app_account_token).toBe('ios_token_abc');
     });
   });
 
