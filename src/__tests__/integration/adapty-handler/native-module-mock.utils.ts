@@ -63,6 +63,7 @@ interface ResponseRegistry {
   update_refund_preference?: components['requests']['UpdateRefundPreference.Response'];
   report_transaction?: components['requests']['ReportTransaction.Response'];
   update_attribution_data?: components['requests']['UpdateAttributionData.Response'];
+  get_current_installation_status?: components['requests']['GetCurrentInstallationStatus.Response'];
 }
 
 /**
