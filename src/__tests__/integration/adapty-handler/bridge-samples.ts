@@ -544,6 +544,17 @@ export const IDENTIFY_REQUEST_WITH_APP_ACCOUNT_TOKEN: components['requests']['Id
   },
 };
 
+/**
+ * Identify request with Android obfuscatedAccountId
+ */
+export const IDENTIFY_REQUEST_WITH_ANDROID_ACCOUNT: components['requests']['Identify.Request'] = {
+  method: 'identify',
+  customer_user_id: 'user_12345',
+  parameters: {
+    obfuscated_account_id: 'android_account_xyz',
+  },
+};
+
 export const IDENTIFY_RESPONSE_SUCCESS: components['requests']['Identify.Response'] = {
   success: true,
 };
