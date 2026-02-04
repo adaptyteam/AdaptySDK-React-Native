@@ -14,14 +14,24 @@ Event samples in [`bridge-event-samples.ts`](/Users/stanislavmayorov/projects/Ad
 
 ## Test Organization
 
-This directory contains two types of integration tests:
+This directory contains two types of integration tests, organized by controller type:
 
-### 1. Event Handling Tests (events/ subdirectories)
+```
+ui/
+├── paywall/
+│   ├── events/   # Event handling tests for ViewController
+│   └── methods/  # Bridge communication tests for ViewController
+└── onboarding/
+    ├── events/   # Event handling tests for OnboardingViewController
+    └── methods/  # Bridge communication tests for OnboardingViewController
+```
+
+### 1. Event Handling Tests (`*/events/` subdirectories)
 
 **Purpose:** Test event emission and parsing
 **Approach:** Use MockRequestHandler with testEmitter
 **Files:**
-- `paywall/events/*-events.test.ts` - Paywall event handlers
+- `paywall/events/*-events.test.ts` - Paywall event handlers (3 files)
 - `onboarding/events/onboarding-view-controller-events.test.ts` - Onboarding event handlers
 
 **What they test:**
@@ -30,13 +40,13 @@ This directory contains two types of integration tests:
 - Event filtering by viewId
 - Default handlers behavior
 
-### 2. UI Methods Tests (root ui/ directory)
+### 2. UI Methods Tests (`*/methods/` subdirectories)
 
 **Purpose:** Test bridge communication for UI controller methods
 **Approach:** Use NativeModuleMock (same as adapty-handler tests)
 **Files:**
-- `view-controller-methods.test.ts` - Paywall UI methods ← NEW
-- `onboarding-view-controller-methods.test.ts` - Onboarding UI methods ← NEW
+- `paywall/methods/view-controller-methods.test.ts` - Paywall UI methods (7 tests)
+- `onboarding/methods/onboarding-view-controller-methods.test.ts` - Onboarding UI methods (4 tests)
 
 **What they test:**
 - Request encoding (camelCase → snake_case)
@@ -227,8 +237,17 @@ Events are filtered by view ID to ensure that only events intended for a specifi
 # Run all UI integration tests
 yarn test src/__tests__/integration/ui
 
+# Run specific controller type tests
+yarn test src/__tests__/integration/ui/paywall
+yarn test src/__tests__/integration/ui/onboarding
+
+# Run specific test category
+yarn test src/__tests__/integration/ui/paywall/events
+yarn test src/__tests__/integration/ui/paywall/methods
+
 # Run specific test file
-yarn test src/__tests__/integration/ui/onboarding-view-controller-events.test.ts
+yarn test src/__tests__/integration/ui/onboarding/events/onboarding-view-controller-events.test.ts
+yarn test src/__tests__/integration/ui/paywall/methods/view-controller-methods.test.ts
 
 # Run with watch mode
 yarn test --watch src/__tests__/integration/ui
@@ -255,14 +274,31 @@ export const NEW_EVENT_SAMPLES = {
 
 2. Create emit function in `event-emitter.utils.ts` that formats payload in native format
 
-3. Add test cases in `onboarding-view-controller-events.test.ts` that verify handler receives camelCase data
+3. Add test cases in appropriate test file that verify handler receives camelCase data
 
-### Adding Paywall Event Tests
+### Adding New UI Methods Tests
 
-Create similar test files for `ViewController` (paywall events):
-- `view-controller-events.test.ts`
-- Add paywall-specific emit functions to `event-emitter.utils.ts`
-- Use the same architecture and patterns
+To add tests for new UI methods:
+
+1. Add bridge samples in `../shared/bridge-samples/ui-methods.ts`:
+```typescript
+export const ADAPTY_UI_NEW_METHOD_REQUEST: components['requests']['NewMethod.Request'] = {
+  method: 'adapty_ui_new_method',
+  // ... fields in snake_case
+};
+```
+
+2. Extend `ResponseRegistry` in `../shared/native-module-mock.utils.ts`:
+```typescript
+interface ResponseRegistry {
+  // ... existing methods
+  adapty_ui_new_method?: components['requests']['NewMethod.Response'];
+}
+```
+
+3. Add test cases in `paywall/methods/` or `onboarding/methods/` that verify:
+   - Request encoding (camelCase → snake_case)
+   - Response parsing (snake_case → camelCase)
 
 ## Technical Details
 
@@ -312,33 +348,45 @@ If tests time out:
 
 ## Test Coverage
 
-### Onboarding Events
+### Event Handling Tests
 
-All 7 onboarding event types are covered:
+**Paywall Events** (`paywall/events/`):
+- 3 test files covering all paywall event types
+- Platform-specific tests (iOS, Android)
+- Cross-platform event tests
 
-1. **onClose** - 2 tests (basic + filtering)
-2. **onAnalytics** - 1 test
-3. **onStateUpdated** - 9 tests covering all input types:
-   - Text input
-   - Email input
-   - Number input
-   - Select (single option)
-   - Multi-select (single item)
-   - Multi-select (multiple items)
-   - Multi-select (empty)
-   - Date picker (full date)
-   - Date picker (partial date)
-4. **onFinishedLoading** - 1 test
-5. **onPaywall** - 1 test
-6. **onCustom** - 1 test
-7. **onError** - 1 test
+**Onboarding Events** (`onboarding/events/`):
+- All 7 onboarding event types covered:
+  1. **onClose** - 2 tests (basic + filtering)
+  2. **onAnalytics** - 1 test
+  3. **onStateUpdated** - 9 tests covering all input types
+  4. **onFinishedLoading** - 1 test
+  5. **onPaywall** - 1 test
+  6. **onCustom** - 1 test
+  7. **onError** - 1 test
+- Total: **16 tests** covering all onboarding event types and their variations
 
-Total: **16 tests** covering all onboarding event types and their variations.
+### UI Methods Tests
+
+**Paywall UI Methods** (`paywall/methods/view-controller-methods.test.ts`):
+- 7 tests covering:
+  - `createPaywallView()` - default and custom parameters
+  - `present()` - full_screen and page_sheet styles
+  - `dismiss()` - request format
+  - `showDialog()` - full and minimal configurations
+
+**Onboarding UI Methods** (`onboarding/methods/onboarding-view-controller-methods.test.ts`):
+- 4 tests covering:
+  - `createOnboardingView()` - default and custom parameters
+  - `present()` - iOS presentation style
+  - `dismiss()` - request format
+
+**Total: 11 UI methods tests** verifying bridge communication
 
 ## Future Improvements
 
-- [ ] Create similar test suite for paywall events
-- [ ] Add tests for error scenarios
+- [ ] Add tests for error scenarios in methods tests
 - [ ] Add tests for multiple handlers on the same view
 - [ ] Add tests for unsubscribe functionality
+- [ ] Add tests for edge cases (null/undefined parameters)
 
