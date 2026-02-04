@@ -57,10 +57,7 @@ import { ACTIVATE_REQUEST, ... } from '../shared/bridge-samples';
 
 ### 🟡 Minor Issues to Clean Up
 
-**1. Old file to remove:**
-- `adapty-handler/bridge-samples-event-adapty-handler.ts` - obsolete
-
-**2. TypeScript warnings (non-critical):**
+**1. TypeScript warnings (non-critical):**
 - Unused import `components` in some files
 - `possibly undefined` warnings (safe to ignore)
 
@@ -603,32 +600,7 @@ Expected: PASS (4 tests)
 
 ---
 
-### Task 5: Clean up obsolete files
-
-**Files:**
-- Delete: `src/__tests__/integration/adapty-handler/bridge-samples-event-adapty-handler.ts`
-
-**Step 1: Verify file is not used**
-
-```bash
-grep -r "bridge-samples-event-adapty-handler" src/__tests__/integration/
-```
-
-Expected: Only found in the file itself (no imports)
-
-**Step 2: Delete file**
-
-```bash
-git rm src/__tests__/integration/adapty-handler/bridge-samples-event-adapty-handler.ts
-git commit -m "chore: remove obsolete bridge-samples-event-adapty-handler
-
-File is obsolete - events samples moved to shared/bridge-samples/events.ts
-No longer used in any tests."
-```
-
----
-
-### Task 6: Fix TypeScript warnings
+### Task 5: Fix TypeScript warnings
 
 **Files:**
 - Various test files with warnings
@@ -666,7 +638,7 @@ All tests still passing, TypeScript compiles cleanly."
 
 ---
 
-### Task 7: Update documentation
+### Task 6: Update documentation
 
 **Files:**
 - Modify: `src/__tests__/integration/adapty-handler/README.md`
@@ -787,9 +759,10 @@ Update adapty-handler and ui READMEs to reference shared utilities."
 1. Add UI methods samples to `shared/bridge-samples/ui-methods.ts`
 2. Extend ResponseRegistry for UI methods
 3. Create UI methods integration tests (2 files, 10 tests)
-4. Clean up obsolete `bridge-samples-event-adapty-handler.ts`
-5. Fix minor TypeScript warnings
-6. Document shared utilities in READMEs
+4. Fix minor TypeScript warnings
+5. Document shared utilities in READMEs
+
+**Note:** `bridge-samples-event-adapty-handler.ts` is NOT obsolete - it contains real event data from native logs used in event-listeners.test.ts. Keep as-is or optionally move to shared/.
 
 ### Estimated Effort
 
@@ -797,11 +770,10 @@ Update adapty-handler and ui READMEs to reference shared utilities."
 - Task 2: Extend ResponseRegistry - 5 min
 - Task 3: Paywall UI methods tests - 30 min
 - Task 4: Onboarding UI methods tests - 30 min
-- Task 5: Cleanup - 5 min
-- Task 6: Fix warnings - 10 min
-- Task 7: Documentation - 20 min
+- Task 5: Fix warnings - 10 min
+- Task 6: Documentation - 20 min
 
-**Total: ~2 hours**
+**Total: ~1.5-2 hours**
 
 ### New Structure Benefits
 
