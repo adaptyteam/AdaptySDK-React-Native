@@ -592,3 +592,58 @@ export const RESTORE_PURCHASES_RESPONSE_WITH_PREMIUM: components['requests']['Re
     non_subscriptions: {},
   },
 };
+
+// ============================================================================
+// OpenWebPaywall Request/Response Samples
+// ============================================================================
+
+export const OPEN_WEB_PAYWALL_REQUEST_WITH_PAYWALL: components['requests']['OpenWebPaywall.Request'] = {
+  method: 'open_web_paywall',
+  open_in: 'browser_out_app',
+  paywall: {
+    placement: {
+      developer_id: 'test_placement',
+      ab_test_name: 'test_ab',
+      audience_name: 'all_users',
+      revision: 1,
+      placement_audience_version_id: 'v1',
+    },
+    paywall_id: 'paywall_test',
+    paywall_name: 'test_placement',
+    variation_id: 'variation_123',
+    products: [],
+    response_created_at: -1,
+    request_locale: 'en',
+  },
+};
+
+export const OPEN_WEB_PAYWALL_RESPONSE_SUCCESS: components['requests']['OpenWebPaywall.Response'] = {
+  success: true,
+};
+
+// ============================================================================
+// CreateWebPaywallUrl Request/Response Samples
+// ============================================================================
+
+export const CREATE_WEB_PAYWALL_URL_REQUEST: components['requests']['CreateWebPaywallUrl.Request'] = {
+  method: 'create_web_paywall_url',
+  paywall: {
+    placement: {
+      developer_id: 'test_placement',
+      ab_test_name: 'test_ab',
+      audience_name: 'all_users',
+      revision: 1,
+      placement_audience_version_id: 'v1',
+    },
+    paywall_id: 'paywall_test',
+    paywall_name: 'test_placement',
+    variation_id: 'variation_123',
+    products: [],
+    response_created_at: -1,
+    request_locale: 'en',
+  },
+};
+
+export const CREATE_WEB_PAYWALL_URL_RESPONSE: components['requests']['CreateWebPaywallUrl.Response'] = {
+  success: 'https://example.adapty.io/web-paywall-url',
+};

@@ -53,6 +53,8 @@ interface ResponseRegistry {
   identify?: components['requests']['Identify.Response'];
   logout?: components['requests']['Logout.Response'];
   restore_purchases?: components['requests']['RestorePurchases.Response'];
+  open_web_paywall?: components['requests']['OpenWebPaywall.Response'];
+  create_web_paywall_url?: components['requests']['CreateWebPaywallUrl.Response'];
 }
 
 /**
