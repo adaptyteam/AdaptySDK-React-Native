@@ -7,7 +7,7 @@ import type { AdaptySubscription, AdaptyAccessLevel } from '@/types';
 import {
   createPaywallViewController,
   cleanupPaywallViewController,
-} from '../setup.utils';
+} from '../../setup.utils';
 import {
   emitPaywallUserActionEvent,
   emitPaywallPurchaseStartedEvent,

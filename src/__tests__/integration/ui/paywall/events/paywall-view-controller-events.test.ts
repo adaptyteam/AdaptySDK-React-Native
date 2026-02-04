@@ -20,7 +20,7 @@ import { EventHandlers } from '@/ui/types';
 import {
   createPaywallViewController,
   cleanupPaywallViewController,
-} from '../setup.utils';
+} from '../../setup.utils';
 import {
   emitPaywallProductSelectedEvent,
   emitPaywallUserActionEvent,
