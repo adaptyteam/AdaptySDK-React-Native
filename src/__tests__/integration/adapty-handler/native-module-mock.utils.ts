@@ -50,6 +50,8 @@ interface ResponseRegistry {
   make_purchase?: components['requests']['MakePurchase.Response'];
   get_onboarding?: components['requests']['GetOnboarding.Response'];
   get_onboarding_for_default_audience?: components['requests']['GetOnboardingForDefaultAudience.Response'];
+  identify?: components['requests']['Identify.Response'];
+  logout?: components['requests']['Logout.Response'];
 }
 
 /**

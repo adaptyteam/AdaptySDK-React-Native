@@ -526,3 +526,36 @@ export const GET_ONBOARDING_FOR_DEFAULT_AUDIENCE_REQUEST: components['requests']
     type: 'reload_revalidating_cache_data',
   },
 };
+
+// ============================================================================
+// Identify Request/Response Samples
+// ============================================================================
+
+export const IDENTIFY_REQUEST: components['requests']['Identify.Request'] = {
+  method: 'identify',
+  customer_user_id: 'user_12345',
+};
+
+export const IDENTIFY_REQUEST_WITH_APP_ACCOUNT_TOKEN: components['requests']['Identify.Request'] = {
+  method: 'identify',
+  customer_user_id: 'user_12345',
+  parameters: {
+    app_account_token: 'ios_token_abc',
+  },
+};
+
+export const IDENTIFY_RESPONSE_SUCCESS: components['requests']['Identify.Response'] = {
+  success: true,
+};
+
+// ============================================================================
+// Logout Request/Response Samples
+// ============================================================================
+
+export const LOGOUT_REQUEST: components['requests']['Logout.Request'] = {
+  method: 'logout',
+};
+
+export const LOGOUT_RESPONSE_SUCCESS: components['requests']['Logout.Response'] = {
+  success: true,
+};
