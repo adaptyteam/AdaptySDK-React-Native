@@ -62,7 +62,11 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       await adapty.activate('test_api_key_12345');
 
       // Verify: SDK sent correct request format to native
-      expectNativeCall(nativeMock, 'activate', ACTIVATE_REQUEST_MINIMAL, 0);
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'activate',
+        expectedRequest: ACTIVATE_REQUEST_MINIMAL
+      });
 
       // Verify: activation succeeded
       const isActivated = await adapty.isActivated();
@@ -82,7 +86,9 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       // Verify: request contains log_level in snake_case
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
-      >(nativeMock, 0);
+      >({
+        nativeModule: nativeMock
+      });
 
       expect(request.configuration.log_level).toBe('error'); // snake_case
       expect((request.configuration as any).logLevel).toBeUndefined(); // no camelCase
@@ -100,17 +106,18 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       });
 
       // Verify: matches expected request structure
-      expectNativeCall(
-        nativeMock,
-        'activate',
-        ACTIVATE_REQUEST_WITH_CUSTOMER_USER_ID,
-        0,
-      );
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'activate',
+        expectedRequest: ACTIVATE_REQUEST_WITH_CUSTOMER_USER_ID
+      });
 
       // Verify: snake_case format
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
-      >(nativeMock, 0);
+      >({
+        nativeModule: nativeMock
+      });
 
       expect(request.configuration.customer_user_id).toBe('user_123');
     });
@@ -141,7 +148,11 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       expect(isActivated).toBe(false);
 
       // Verify: sent correct IsActivated.Request
-      expectNativeCall(nativeMock, 'is_activated', IS_ACTIVATED_REQUEST, 0);
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'is_activated',
+        expectedRequest: IS_ACTIVATED_REQUEST
+      });
     });
 
     it('should return true after successful activation', async () => {
@@ -188,7 +199,9 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       // Verify: all fields encoded in snake_case
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
-      >(nativeMock, 0);
+      >({
+        nativeModule: nativeMock
+      });
 
       expect(request.configuration).toMatchObject({
         api_key: 'test_api_key_12345',
@@ -219,7 +232,9 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       // Verify: api_key is present (SDK adds other default fields)
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
-      >(nativeMock, 0);
+      >({
+        nativeModule: nativeMock
+      });
 
       expect(request.configuration.api_key).toBe('test_api_key_12345');
       // SDK adds default fields like cross_platform_sdk_name, activate_ui, etc.
@@ -294,7 +309,9 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       // Extract request with explicit type
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
-      >(nativeMock, 0);
+      >({
+        nativeModule: nativeMock
+      });
 
       // Verify values
       expect(request.method).toBe('activate');

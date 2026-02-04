@@ -55,12 +55,12 @@ describe('Adapty - MakePurchase Bridge Integration', () => {
       await adapty.makePurchase(VIP_PRODUCT);
 
       // Verify native call with snake_case format
-      expectNativeCall<components['requests']['MakePurchase.Request']>(
-        nativeMock,
-        'make_purchase',
-        MAKE_PURCHASE_REQUEST,
-        1, // call index 1 (0 is activate)
-      );
+      expectNativeCall<components['requests']['MakePurchase.Request']>({
+        nativeModule: nativeMock,
+        method: 'make_purchase',
+        expectedRequest: MAKE_PURCHASE_REQUEST,
+        callIndex: 1
+      }); // call index 1 (0 is activate)
     });
   });
 

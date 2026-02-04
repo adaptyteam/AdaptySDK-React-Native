@@ -104,29 +104,30 @@ const nativeMock = createNativeModuleMock({
 });
 ```
 
-#### `extractNativeRequest<T>(mock, callIndex)`
+#### `extractNativeRequest<T>(options)`
 
 Extracts and parses the request sent to native module:
 
 ```typescript
 const request = extractNativeRequest<
   components['requests']['Activate.Request']
->(nativeMock, 0);
+>({
+  nativeModule: nativeMock
+});
 
 expect(request.configuration.api_key).toBe('test_key');
 ```
 
-#### `expectNativeCall(mock, method, expectedRequest, callIndex)`
+#### `expectNativeCall(options)`
 
 Verifies that native module was called with correct parameters:
 
 ```typescript
-expectNativeCall(
-  nativeMock,
-  'activate',
-  ACTIVATE_REQUEST_MINIMAL,
-  0
-);
+expectNativeCall({
+  nativeModule: nativeMock,
+  method: 'activate',
+  expectedRequest: ACTIVATE_REQUEST_MINIMAL
+});
 ```
 
 #### `resetNativeModuleMock(mock)`
@@ -163,12 +164,11 @@ describe('Feature Name', () => {
     await adapty.someMethod();
 
     // Verify: check native was called correctly
-    expectNativeCall(
-      nativeMock,
-      'method_name',
-      EXPECTED_REQUEST,
-      0
-    );
+    expectNativeCall({
+      nativeModule: nativeMock,
+      method: 'method_name',
+      expectedRequest: EXPECTED_REQUEST
+    });
   });
 });
 ```
@@ -190,7 +190,9 @@ it('should send parameters in snake_case', async () => {
   // Extract what was sent to native
   const request = extractNativeRequest<
     components['requests']['Activate.Request']
-  >(nativeMock, 0);
+  >({
+    nativeModule: nativeMock
+  });
 
   // Verify: snake_case format
   expect(request.configuration.customer_user_id).toBe('user_123');
@@ -231,7 +233,9 @@ Always use explicit types from `api.d.ts` for type safety:
 // ✅ Good: Explicit type from api.d.ts
 const request = extractNativeRequest<
   components['requests']['Activate.Request']
->(nativeMock, 0);
+>({
+  nativeModule: nativeMock
+});
 ```
 
 ### Creating New Samples
@@ -292,7 +296,11 @@ nativeMock = createNativeModuleMock({
 
 **Solution:** Use `expectNativeCall` or `extractNativeRequest` to verify:
 ```typescript
-expectNativeCall(nativeMock, 'activate', EXPECTED_REQUEST, 0);
+expectNativeCall({
+  nativeModule: nativeMock,
+  method: 'activate',
+  expectedRequest: EXPECTED_REQUEST
+});
 ```
 
 ## Related Documentation

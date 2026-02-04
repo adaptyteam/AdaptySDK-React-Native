@@ -51,6 +51,32 @@ interface ResponseRegistry {
 }
 
 /**
+ * Options for extractNativeRequest function
+ */
+interface ExtractNativeRequestOptions {
+  nativeModule: MockNativeModule;
+  callIndex?: number; // default = 0
+}
+
+/**
+ * Options for expectNativeCall function
+ */
+interface ExpectNativeCallOptions<T extends { method: string }> {
+  nativeModule: MockNativeModule;
+  method: string;
+  expectedRequest: T;
+  callIndex?: number; // default = 0
+}
+
+/**
+ * Options for emitNativeEvent function
+ */
+interface EmitNativeEventOptions {
+  eventName: string;
+  eventData: any;
+}
+
+/**
  * Creates a mocked RNAdapty native module with typed responses
  *
  * The mock intercepts calls to NativeModules.RNAdapty.handler() and returns
@@ -123,25 +149,29 @@ export function createNativeModuleMock(
 /**
  * Extracts and parses the request sent to native module
  *
- * @param mock - Mocked native module returned by createNativeModuleMock
- * @param callIndex - Which call to inspect (default: 0 = first call)
+ * @param options - Extraction options
+ * @param options.nativeModule - Mocked native module
+ * @param options.callIndex - Which call to inspect (default: 0 = first call)
  * @returns Parsed request object with type safety
  *
  * @example
  * ```typescript
  * const request = extractNativeRequest<
  *   components['requests']['Activate.Request']
- * >(nativeMock, 0);
+ * >({
+ *   nativeModule: nativeMock,
+ *   callIndex: 1
+ * });
  *
  * expect(request.configuration.api_key).toBe('test_key');
- * expect(request.configuration.log_level).toBe('error');
  * ```
  */
 export function extractNativeRequest<T>(
-  mock: MockNativeModule,
-  callIndex: number = 0,
+  options: ExtractNativeRequestOptions
 ): T {
-  const calls = mock.handler.mock.calls;
+  const { nativeModule, callIndex = 0 } = options;
+
+  const calls = nativeModule.handler.mock.calls;
 
   if (calls.length <= callIndex) {
     throw new Error(
@@ -166,28 +196,27 @@ export function extractNativeRequest<T>(
  * Uses toMatchObject for partial matching - SDK may add extra fields like
  * cross_platform_sdk_name, activate_ui, media_cache, etc.
  *
- * @param mock - Mocked native module
- * @param expectedMethod - Expected method name (e.g., 'activate')
- * @param expectedRequest - Expected request structure (will be compared against actual)
- * @param callIndex - Which call to verify (default: 0 = first call)
+ * @param options - Verification options
+ * @param options.nativeModule - Mocked native module
+ * @param options.method - Expected method name (e.g., 'activate')
+ * @param options.expectedRequest - Expected request structure
+ * @param options.callIndex - Which call to verify (default: 0 = first call)
  *
  * @example
  * ```typescript
- * expectNativeCall(
- *   nativeMock,
- *   'activate',
- *   ACTIVATE_REQUEST_MINIMAL,
- *   0
- * );
+ * expectNativeCall({
+ *   nativeModule: nativeMock,
+ *   method: 'activate',
+ *   expectedRequest: ACTIVATE_REQUEST_MINIMAL
+ * });
  * ```
  */
 export function expectNativeCall<T extends { method: string }>(
-  mock: MockNativeModule,
-  expectedMethod: string,
-  expectedRequest: T,
-  callIndex: number = 0,
+  options: ExpectNativeCallOptions<T>
 ): void {
-  const calls = mock.handler.mock.calls;
+  const { nativeModule, method: expectedMethod, expectedRequest, callIndex = 0 } = options;
+
+  const calls = nativeModule.handler.mock.calls;
 
   if (calls.length <= callIndex) {
     throw new Error(
@@ -284,15 +313,20 @@ export function resetTestEmitter(): void {
 /**
  * Emits a mock native event for testing
  *
- * @param eventName - Native event name (e.g., 'did_load_latest_profile')
- * @param eventData - Event data as object (will be JSON.stringified)
+ * @param options - Event emission options
+ * @param options.eventName - Native event name (e.g., 'did_load_latest_profile')
+ * @param options.eventData - Event data as object (will be JSON.stringified)
  *
  * @example
  * ```typescript
- * emitNativeEvent('did_load_latest_profile', EVENT_DID_LOAD_LATEST_PROFILE);
+ * emitNativeEvent({
+ *   eventName: 'did_load_latest_profile',
+ *   eventData: EVENT_DID_LOAD_LATEST_PROFILE
+ * });
  * ```
  */
-export function emitNativeEvent(eventName: string, eventData: any): void {
+export function emitNativeEvent(options: EmitNativeEventOptions): void {
+  const { eventName, eventData } = options;
   const emitter = getTestEmitter();
   emitter.emit(eventName, JSON.stringify(eventData));
 }

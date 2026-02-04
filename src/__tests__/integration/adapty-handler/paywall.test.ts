@@ -54,7 +54,11 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       const paywall = await adapty.getPaywall('test_placement');
 
       // Verify: GetPaywall.Request sent
-      expectNativeCall(nativeMock, 'get_paywall', GET_PAYWALL_REQUEST, 0);
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'get_paywall',
+        expectedRequest: GET_PAYWALL_REQUEST
+      });
 
       // Verify: response parsed to camelCase
       expect(paywall).toBeDefined();
@@ -106,7 +110,9 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       // Verify: request sent with correct placement_id
       const request = extractNativeRequest<
         components['requests']['GetPaywall.Request']
-      >(nativeMock, 0);
+      >({
+        nativeModule: nativeMock
+      });
 
       expect(request.placement_id).toBe('structure_test');
 
@@ -155,7 +161,9 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       // Verify: request contains parameters
       const request = extractNativeRequest<
         components['requests']['GetPaywall.Request']
-      >(nativeMock, 0);
+      >({
+        nativeModule: nativeMock
+      });
 
       expect(request.placement_id).toBe('test_placement');
       expect(request.locale).toBe('ru');
@@ -180,7 +188,9 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       // Verify: LogShowPaywall.Request sent
       const request = extractNativeRequest<
         components['requests']['LogShowPaywall.Request']
-      >(nativeMock, 0);
+      >({
+        nativeModule: nativeMock
+      });
 
       expect(request.method).toBe('log_show_paywall');
       expect(request.paywall.paywall_id).toBeDefined();

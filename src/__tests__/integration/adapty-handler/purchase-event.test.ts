@@ -71,7 +71,10 @@ describe('Adapty - Purchase Event', () => {
     const result = await adapty.makePurchase(product);
 
     // Manually emit native event (simulating what native SDK does)
-    emitNativeEvent('did_load_latest_profile', EVENT_DID_LOAD_LATEST_PROFILE);
+    emitNativeEvent({
+      eventName: 'did_load_latest_profile',
+      eventData: EVENT_DID_LOAD_LATEST_PROFILE
+    });
 
     // Assert: Purchase succeeded
     expect(result.type).toBe('success');

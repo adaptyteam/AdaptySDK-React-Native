@@ -64,7 +64,10 @@ describe('Adapty - Profile', () => {
       // Verify UpdateProfile request sent in snake_case
       const updateRequest = extractNativeRequest<
         components['requests']['UpdateProfile.Request']
-      >(nativeMock, 1); // Call index 1 (after activate)
+      >({
+        nativeModule: nativeMock,
+        callIndex: 1
+      }); // Call index 1 (after activate)
 
       expect(updateRequest.method).toBe('update_profile');
       expect(updateRequest.params).toMatchObject({
@@ -82,12 +85,12 @@ describe('Adapty - Profile', () => {
       const profile = await adapty.getProfile();
 
       // Verify GetProfile request
-      expectNativeCall(
-        nativeMock,
-        'get_profile',
-        { method: 'get_profile' },
-        2, // Call index 2 (after activate and update_profile)
-      );
+      expectNativeCall({
+        nativeModule: nativeMock,
+        method: 'get_profile',
+        expectedRequest: { method: 'get_profile' },
+        callIndex: 2
+      }); // Call index 2 (after activate and update_profile)
 
       // Verify that personal fields are NOT returned in profile
       expect((profile as any).email).toBeUndefined();

@@ -90,7 +90,10 @@ describe('Adapty - Paywall Products', () => {
       // Verify GetPaywallProducts.Request sent with snake_case paywall
       const request = extractNativeRequest<
         components['requests']['GetPaywallProducts.Request']
-      >(nativeMock, 1); // Call index 1 (after activate)
+      >({
+        nativeModule: nativeMock,
+        callIndex: 1
+      }); // Call index 1 (after activate)
 
       expect(request.method).toBe('get_paywall_products');
       expect(request.paywall).toMatchObject({
