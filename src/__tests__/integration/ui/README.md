@@ -385,8 +385,7 @@ If tests time out:
 
 ## Future Improvements
 
-- [ ] Add tests for error scenarios in methods tests
-- [ ] Add tests for multiple handlers on the same view
-- [ ] Add tests for unsubscribe functionality
-- [ ] Add tests for edge cases (null/undefined parameters)
+- [ ] Add tests for error scenarios in methods tests (error responses from bridge)
+- [ ] Add tests for edge cases in methods tests (null/undefined parameters)
+- [ ] Add performance tests for event handling with many subscribers
 
