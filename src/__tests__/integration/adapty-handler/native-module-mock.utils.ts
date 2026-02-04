@@ -61,6 +61,8 @@ interface ResponseRegistry {
   present_code_redemption_sheet?: components['requests']['PresentCodeRedemptionSheet.Response'];
   update_collecting_refund_data_consent?: components['requests']['UpdateCollectingRefundDataConsent.Response'];
   update_refund_preference?: components['requests']['UpdateRefundPreference.Response'];
+  report_transaction?: components['requests']['ReportTransaction.Response'];
+  update_attribution_data?: components['requests']['UpdateAttributionData.Response'];
 }
 
 /**

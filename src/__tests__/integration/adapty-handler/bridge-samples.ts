@@ -732,3 +732,36 @@ export const UPDATE_REFUND_PREFERENCE_REQUEST: components['requests']['UpdateRef
 export const UPDATE_REFUND_PREFERENCE_RESPONSE_SUCCESS: components['requests']['UpdateRefundPreference.Response'] = {
   success: true,
 };
+
+// ============================================================================
+// ReportTransaction Request/Response Samples
+// ============================================================================
+
+export const REPORT_TRANSACTION_REQUEST: components['requests']['ReportTransaction.Request'] = {
+  method: 'report_transaction',
+  transaction_id: 'transaction_12345',
+};
+
+export const REPORT_TRANSACTION_REQUEST_WITH_VARIATION: components['requests']['ReportTransaction.Request'] = {
+  method: 'report_transaction',
+  transaction_id: 'transaction_12345',
+  variation_id: 'variation_abc',
+};
+
+export const REPORT_TRANSACTION_RESPONSE_SUCCESS: components['requests']['ReportTransaction.Response'] = {
+  success: true,
+};
+
+// ============================================================================
+// UpdateAttributionData Request/Response Samples
+// ============================================================================
+
+export const UPDATE_ATTRIBUTION_DATA_REQUEST: components['requests']['UpdateAttributionData.Request'] = {
+  method: 'update_attribution_data',
+  attribution: '{"campaign":"summer_sale","source":"google"}',
+  source: 'appsflyer',
+};
+
+export const UPDATE_ATTRIBUTION_DATA_RESPONSE_SUCCESS: components['requests']['UpdateAttributionData.Response'] = {
+  success: true,
+};
