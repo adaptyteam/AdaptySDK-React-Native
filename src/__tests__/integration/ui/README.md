@@ -45,8 +45,8 @@ ui/
 **Purpose:** Test bridge communication for UI controller methods
 **Approach:** Use NativeModuleMock (same as adapty-handler tests)
 **Files:**
-- `paywall/methods/view-controller-methods.test.ts` - Paywall UI methods (7 tests)
-- `onboarding/methods/onboarding-view-controller-methods.test.ts` - Onboarding UI methods (4 tests)
+- `paywall/methods/paywall-view-controller-methods.test.ts` - Paywall UI methods (7 tests)
+- `onboarding/methods/onboarding-paywall-view-controller-methods.test.ts` - Onboarding UI methods (4 tests)
 
 **What they test:**
 - Request encoding (camelCase → snake_case)
@@ -247,7 +247,7 @@ yarn test src/__tests__/integration/ui/paywall/methods
 
 # Run specific test file
 yarn test src/__tests__/integration/ui/onboarding/events/onboarding-view-controller-events.test.ts
-yarn test src/__tests__/integration/ui/paywall/methods/view-controller-methods.test.ts
+yarn test src/__tests__/integration/ui/paywall/methods/paywall-view-controller-methods.test.ts
 
 # Run with watch mode
 yarn test --watch src/__tests__/integration/ui
@@ -368,14 +368,14 @@ If tests time out:
 
 ### UI Methods Tests
 
-**Paywall UI Methods** (`paywall/methods/view-controller-methods.test.ts`):
+**Paywall UI Methods** (`paywall/methods/paywall-view-controller-methods.test.ts`):
 - 7 tests covering:
   - `createPaywallView()` - default and custom parameters
   - `present()` - full_screen and page_sheet styles
   - `dismiss()` - request format
   - `showDialog()` - full and minimal configurations
 
-**Onboarding UI Methods** (`onboarding/methods/onboarding-view-controller-methods.test.ts`):
+**Onboarding UI Methods** (`onboarding/methods/onboarding-paywall-view-controller-methods.test.ts`):
 - 4 tests covering:
   - `createOnboardingView()` - default and custom parameters
   - `present()` - iOS presentation style
