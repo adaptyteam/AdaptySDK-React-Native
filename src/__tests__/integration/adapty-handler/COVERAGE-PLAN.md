@@ -839,7 +839,218 @@ describe('Android behavior for iOS-only methods', () => {
 
 ---
 
-## Implementation Order Recommendation
+## Part 10: Platform-Specific Parameters Tests
+
+**Files:**
+- Create: `src/__tests__/integration/adapty-handler/platform-parameters.test.ts`
+- Modify: `src/__tests__/integration/adapty-handler/bridge-samples.ts`
+
+**Scope:**
+Test methods that work on BOTH platforms but accept platform-specific parameters.
+Unlike Part 6 (iOS-only methods), these methods execute on all platforms but encode different parameters.
+
+**Methods with platform-specific parameters:**
+- `identify()` - has `ios.appAccountToken` and `android.obfuscatedAccountId`
+- Other methods may have platform-specific params (TBD)
+
+**Step 1: Add bridge samples for platform-specific parameters**
+
+Add to bridge-samples.ts:
+
+```typescript
+// ============================================================================
+// Platform-Specific Parameter Samples
+// ============================================================================
+
+/**
+ * Identify request with Android obfuscatedAccountId
+ */
+export const IDENTIFY_REQUEST_WITH_ANDROID_ACCOUNT: components['requests']['Identify.Request'] = {
+  method: 'identify',
+  customer_user_id: 'user_12345',
+  parameters: {
+    obfuscated_account_id: 'android_account_xyz',
+  },
+};
+```
+
+**Step 2: Create platform-parameters.test.ts**
+
+```typescript
+import { Platform } from 'react-native';
+import { Adapty } from '@/adapty-handler';
+import { resetBridge } from '@/bridge';
+import type { components } from '@/types/api';
+import {
+  createNativeModuleMock,
+  extractNativeRequest,
+  resetNativeModuleMock,
+  type MockNativeModule,
+} from './native-module-mock.utils';
+import {
+  ACTIVATE_RESPONSE_SUCCESS,
+  IDENTIFY_RESPONSE_SUCCESS,
+  IDENTIFY_REQUEST_WITH_APP_ACCOUNT_TOKEN,
+  IDENTIFY_REQUEST_WITH_ANDROID_ACCOUNT,
+} from './bridge-samples';
+import { cleanupAdapty } from './setup.utils';
+
+// Save original Platform values
+const originalOS = Platform.OS;
+const originalSelect = Platform.select;
+
+describe('Adapty - Platform-Specific Parameters (Bridge Integration)', () => {
+  let adapty: Adapty;
+  let nativeMock: MockNativeModule;
+
+  beforeEach(async () => {
+    resetBridge();
+    adapty = new Adapty();
+
+    nativeMock = createNativeModuleMock({
+      activate: ACTIVATE_RESPONSE_SUCCESS,
+      identify: IDENTIFY_RESPONSE_SUCCESS,
+    });
+
+    await adapty.activate('test_api_key', { logLevel: 'error' });
+    nativeMock.handler.mockClear();
+  });
+
+  afterEach(() => {
+    cleanupAdapty(adapty);
+    resetNativeModuleMock(nativeMock);
+    resetBridge();
+  });
+
+  describe('identify() - iOS parameters', () => {
+    beforeAll(() => {
+      Platform.OS = 'ios';
+      Platform.select = jest.fn((obj: any) => obj.ios || obj.default);
+    });
+
+    afterAll(() => {
+      Platform.OS = originalOS;
+      Platform.select = originalSelect;
+    });
+
+    it('should encode ios.appAccountToken to app_account_token on iOS', async () => {
+      await adapty.identify('user_12345', {
+        ios: {
+          appAccountToken: 'ios_token_abc',
+        },
+      });
+
+      const request = extractNativeRequest<
+        components['requests']['Identify.Request']
+      >({
+        nativeModule: nativeMock
+      });
+
+      // Verify: iOS parameter encoded
+      expect(request.customer_user_id).toBe('user_12345');
+      expect(request.parameters?.app_account_token).toBe('ios_token_abc');
+
+      // Verify: Android parameter NOT included
+      expect(request.parameters?.obfuscated_account_id).toBeUndefined();
+    });
+
+    it('should NOT encode android.obfuscatedAccountId on iOS', async () => {
+      await adapty.identify('user_12345', {
+        android: {
+          obfuscatedAccountId: 'android_account_xyz',
+        },
+      });
+
+      const request = extractNativeRequest<
+        components['requests']['Identify.Request']
+      >({
+        nativeModule: nativeMock
+      });
+
+      // Verify: Android parameter NOT encoded on iOS
+      expect(request.parameters?.obfuscated_account_id).toBeUndefined();
+    });
+  });
+
+  describe('identify() - Android parameters', () => {
+    beforeAll(() => {
+      Platform.OS = 'android';
+      Platform.select = jest.fn((obj: any) => obj.android || obj.default);
+    });
+
+    afterAll(() => {
+      Platform.OS = originalOS;
+      Platform.select = originalSelect;
+    });
+
+    it('should encode android.obfuscatedAccountId to obfuscated_account_id on Android', async () => {
+      await adapty.identify('user_12345', {
+        android: {
+          obfuscatedAccountId: 'android_account_xyz',
+        },
+      });
+
+      const request = extractNativeRequest<
+        components['requests']['Identify.Request']
+      >({
+        nativeModule: nativeMock
+      });
+
+      // Verify: Android parameter encoded
+      expect(request.customer_user_id).toBe('user_12345');
+      expect(request.parameters?.obfuscated_account_id).toBe('android_account_xyz');
+
+      // Verify: iOS parameter NOT included
+      expect(request.parameters?.app_account_token).toBeUndefined();
+    });
+
+    it('should NOT encode ios.appAccountToken on Android', async () => {
+      await adapty.identify('user_12345', {
+        ios: {
+          appAccountToken: 'ios_token_abc',
+        },
+      });
+
+      const request = extractNativeRequest<
+        components['requests']['Identify.Request']
+      >({
+        nativeModule: nativeMock
+      });
+
+      // Verify: iOS parameter NOT encoded on Android
+      expect(request.parameters?.app_account_token).toBeUndefined();
+    });
+  });
+});
+```
+
+**Step 3: Run tests**
+
+Run: `yarn test src/__tests__/integration/adapty-handler/platform-parameters.test.ts`
+Expected: PASS (4 tests)
+
+**Step 4: Commit**
+
+```bash
+git add src/__tests__/integration/adapty-handler/bridge-samples.ts \
+        src/__tests__/integration/adapty-handler/platform-parameters.test.ts
+git commit -m "test: add platform-specific parameters tests
+
+Test platform-specific parameter encoding in methods that work on both platforms:
+- identify() with ios.appAccountToken on iOS → app_account_token
+- identify() with android.obfuscatedAccountId on Android → obfuscated_account_id
+- Verify parameters are NOT encoded on wrong platform
+
+Tests use Platform.OS mocking to verify conditional encoding logic.
+
+All tests passing ✅"
+```
+
+**Key difference from Part 6:**
+- Part 6: Methods don't work at all on Android (return early)
+- Part 10: Methods work on both platforms, but parameters are platform-specific
+
+---
 
 **Priority 1 (Core functionality):**
 1. Part 1: Onboarding (similar to paywall, straightforward)
@@ -857,6 +1068,9 @@ describe('Android behavior for iOS-only methods', () => {
 
 **Priority 4 (Events):**
 9. Part 9: Event Listeners
+
+**Priority 5 (Platform-specific parameters):**
+10. Part 10: Platform-Specific Parameters (identify with iOS/Android params)
 
 ## Success Criteria
 
