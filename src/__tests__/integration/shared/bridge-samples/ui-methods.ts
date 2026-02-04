@@ -7,9 +7,7 @@
 
 import type { components } from '@/types/api';
 
-// ============================================================================
 // Paywall UI Methods
-// ============================================================================
 
 /**
  * AdaptyUICreatePaywallView.Request with default parameters
@@ -119,9 +117,7 @@ export const ADAPTY_UI_SHOW_DIALOG_RESPONSE_SECONDARY: components['requests']['A
   success: 'secondary',
 };
 
-// ============================================================================
 // Onboarding UI Methods
-// ============================================================================
 
 /**
  * AdaptyUICreateOnboardingView.Request
