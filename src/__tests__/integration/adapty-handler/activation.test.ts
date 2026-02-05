@@ -65,7 +65,7 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       expectNativeCall({
         nativeModule: nativeMock,
         method: 'activate',
-        expectedRequest: ACTIVATE_REQUEST_MINIMAL
+        expectedRequest: ACTIVATE_REQUEST_MINIMAL,
       });
 
       // Verify: activation succeeded
@@ -87,7 +87,7 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.configuration.log_level).toBe('error'); // snake_case
@@ -109,14 +109,14 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       expectNativeCall({
         nativeModule: nativeMock,
         method: 'activate',
-        expectedRequest: ACTIVATE_REQUEST_WITH_CUSTOMER_USER_ID
+        expectedRequest: ACTIVATE_REQUEST_WITH_CUSTOMER_USER_ID,
       });
 
       // Verify: snake_case format
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.configuration.customer_user_id).toBe('user_123');
@@ -151,7 +151,7 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       expectNativeCall({
         nativeModule: nativeMock,
         method: 'is_activated',
-        expectedRequest: IS_ACTIVATED_REQUEST
+        expectedRequest: IS_ACTIVATED_REQUEST,
       });
     });
 
@@ -200,7 +200,7 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.configuration).toMatchObject({
@@ -233,7 +233,7 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.configuration.api_key).toBe('test_api_key_12345');
@@ -310,7 +310,7 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['Activate.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       // Verify values

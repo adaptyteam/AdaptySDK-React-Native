@@ -40,9 +40,12 @@ describe('OnboardingViewController Methods (Bridge Integration)', () => {
     nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,
       get_onboarding: GET_ONBOARDING_RESPONSE,
-      adapty_ui_create_onboarding_view: ADAPTY_UI_CREATE_ONBOARDING_VIEW_RESPONSE,
-      adapty_ui_present_onboarding_view: ADAPTY_UI_PRESENT_ONBOARDING_VIEW_RESPONSE,
-      adapty_ui_dismiss_onboarding_view: ADAPTY_UI_DISMISS_ONBOARDING_VIEW_RESPONSE,
+      adapty_ui_create_onboarding_view:
+        ADAPTY_UI_CREATE_ONBOARDING_VIEW_RESPONSE,
+      adapty_ui_present_onboarding_view:
+        ADAPTY_UI_PRESENT_ONBOARDING_VIEW_RESPONSE,
+      adapty_ui_dismiss_onboarding_view:
+        ADAPTY_UI_DISMISS_ONBOARDING_VIEW_RESPONSE,
     });
 
     await adapty.activate('test_api_key', { logLevel: 'error' });
@@ -63,7 +66,7 @@ describe('OnboardingViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUICreateOnboardingView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('adapty_ui_create_onboarding_view');
@@ -84,7 +87,7 @@ describe('OnboardingViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUICreateOnboardingView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.external_urls_presentation).toBe('browser_out_app');
@@ -101,7 +104,7 @@ describe('OnboardingViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUIPresentOnboardingView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('adapty_ui_present_onboarding_view');
@@ -120,7 +123,7 @@ describe('OnboardingViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUIDismissOnboardingView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('adapty_ui_dismiss_onboarding_view');

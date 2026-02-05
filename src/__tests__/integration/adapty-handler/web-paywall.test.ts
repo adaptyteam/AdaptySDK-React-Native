@@ -4,7 +4,6 @@ import type { components } from '@/types/api';
 import {
   createNativeModuleMock,
   extractNativeRequest,
-  expectNativeCall,
   resetNativeModuleMock,
   type MockNativeModule,
 } from '../shared/native-module-mock.utils';

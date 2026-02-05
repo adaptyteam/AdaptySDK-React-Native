@@ -1,7 +1,6 @@
 import { Platform } from 'react-native';
 import { Adapty } from '@/adapty-handler';
 import { resetBridge } from '@/bridge';
-import type { components } from '@/types/api';
 import {
   createNativeModuleMock,
   expectNativeCall,

@@ -1,6 +1,7 @@
 import { Adapty } from '@/adapty-handler';
 import { resetBridge } from '@/bridge';
-import type { AdaptyInstallationDetails, AdaptyError } from '@/types';
+import { AdaptyError } from '@/adapty-error';
+import type { AdaptyInstallationDetails } from '@/types';
 import {
   createNativeModuleMock,
   emitNativeEvent,
@@ -79,7 +80,9 @@ describe('Adapty - Event Listeners (Bridge Integration)', () => {
 
       const receivedError: AdaptyError = callback.mock.calls[0][0];
       expect(receivedError.adaptyCode).toBe(2004);
-      expect(receivedError.message).toBe('Failed to fetch installation details');
+      expect(receivedError.message).toBe(
+        'Failed to fetch installation details',
+      );
     });
 
     it('should support multiple listeners for the same event', async () => {

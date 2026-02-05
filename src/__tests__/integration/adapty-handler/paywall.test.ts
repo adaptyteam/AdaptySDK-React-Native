@@ -39,7 +39,8 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
     nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,
       get_paywall: GET_PAYWALL_RESPONSE,
-      get_paywall_for_default_audience: GET_PAYWALL_FOR_DEFAULT_AUDIENCE_RESPONSE,
+      get_paywall_for_default_audience:
+        GET_PAYWALL_FOR_DEFAULT_AUDIENCE_RESPONSE,
       log_show_paywall: LOG_SHOW_PAYWALL_RESPONSE,
     });
 
@@ -61,7 +62,7 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       expectNativeCall({
         nativeModule: nativeMock,
         method: 'get_paywall',
-        expectedRequest: GET_PAYWALL_REQUEST
+        expectedRequest: GET_PAYWALL_REQUEST,
       });
 
       // Verify: response parsed to camelCase
@@ -115,7 +116,7 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['GetPaywall.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.placement_id).toBe('structure_test');
@@ -166,7 +167,7 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['GetPaywall.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.placement_id).toBe('test_placement');
@@ -183,13 +184,15 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
 
   describe('getPaywallForDefaultAudience', () => {
     it('should send GetPaywallForDefaultAudience.Request', async () => {
-      const paywall = await adapty.getPaywallForDefaultAudience('test_placement_default');
+      const paywall = await adapty.getPaywallForDefaultAudience(
+        'test_placement_default',
+      );
 
       // Verify: GetPaywallForDefaultAudience.Request sent
       expectNativeCall({
         nativeModule: nativeMock,
         method: 'get_paywall_for_default_audience',
-        expectedRequest: GET_PAYWALL_FOR_DEFAULT_AUDIENCE_REQUEST
+        expectedRequest: GET_PAYWALL_FOR_DEFAULT_AUDIENCE_REQUEST,
       });
 
       // Verify: response parsed to camelCase
@@ -207,7 +210,7 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['GetPaywallForDefaultAudience.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('get_paywall_for_default_audience');
@@ -228,7 +231,7 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['LogShowPaywall.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('log_show_paywall');
@@ -255,7 +258,9 @@ describe('Adapty - Paywall (Bridge Integration)', () => {
       await adapty.activate('test_api_key');
 
       // Execute: get paywall should throw AdaptyError with adaptyCode
-      await expect(adapty.getPaywall('nonexistent_placement')).rejects.toMatchObject({
+      await expect(
+        adapty.getPaywall('nonexistent_placement'),
+      ).rejects.toMatchObject({
         adaptyCode: 2, // camelCase in JS (from native adapty_code)
       });
     });

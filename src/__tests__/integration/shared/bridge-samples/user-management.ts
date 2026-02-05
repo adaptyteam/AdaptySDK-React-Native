@@ -18,31 +18,34 @@ export const IDENTIFY_REQUEST: components['requests']['Identify.Request'] = {
 /**
  * Identify request with iOS app_account_token
  */
-export const IDENTIFY_REQUEST_WITH_APP_ACCOUNT_TOKEN: components['requests']['Identify.Request'] = {
-  method: 'identify',
-  customer_user_id: 'user_12345',
-  parameters: {
-    app_account_token: 'ios_token_abc',
-  },
-};
+export const IDENTIFY_REQUEST_WITH_APP_ACCOUNT_TOKEN: components['requests']['Identify.Request'] =
+  {
+    method: 'identify',
+    customer_user_id: 'user_12345',
+    parameters: {
+      app_account_token: 'ios_token_abc',
+    },
+  };
 
 /**
  * Identify request with Android obfuscatedAccountId
  */
-export const IDENTIFY_REQUEST_WITH_ANDROID_ACCOUNT: components['requests']['Identify.Request'] = {
-  method: 'identify',
-  customer_user_id: 'user_12345',
-  parameters: {
-    obfuscated_account_id: 'android_account_xyz',
-  },
-};
+export const IDENTIFY_REQUEST_WITH_ANDROID_ACCOUNT: components['requests']['Identify.Request'] =
+  {
+    method: 'identify',
+    customer_user_id: 'user_12345',
+    parameters: {
+      obfuscated_account_id: 'android_account_xyz',
+    },
+  };
 
 /**
  * Identify successful response
  */
-export const IDENTIFY_RESPONSE_SUCCESS: components['requests']['Identify.Response'] = {
-  success: true,
-};
+export const IDENTIFY_RESPONSE_SUCCESS: components['requests']['Identify.Response'] =
+  {
+    success: true,
+  };
 
 /**
  * Logout request
@@ -54,6 +57,7 @@ export const LOGOUT_REQUEST: components['requests']['Logout.Request'] = {
 /**
  * Logout successful response
  */
-export const LOGOUT_RESPONSE_SUCCESS: components['requests']['Logout.Response'] = {
-  success: true,
-};
+export const LOGOUT_RESPONSE_SUCCESS: components['requests']['Logout.Response'] =
+  {
+    success: true,
+  };

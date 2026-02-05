@@ -65,7 +65,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUICreatePaywallView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('adapty_ui_create_paywall_view');
@@ -88,7 +88,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUICreatePaywallView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.preload_products).toBe(false);
@@ -106,7 +106,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUIPresentPaywallView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('adapty_ui_present_paywall_view');
@@ -123,7 +123,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUIPresentPaywallView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.ios_presentation_style).toBe('page_sheet');
@@ -140,7 +140,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUIDismissPaywallView.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('adapty_ui_dismiss_paywall_view');
@@ -164,7 +164,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUIShowDialog.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.method).toBe('adapty_ui_show_dialog');
@@ -191,7 +191,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
       const request = extractNativeRequest<
         components['requests']['AdaptyUIShowDialog.Request']
       >({
-        nativeModule: nativeMock
+        nativeModule: nativeMock,
       });
 
       expect(request.configuration.secondary_action_title).toBeUndefined();

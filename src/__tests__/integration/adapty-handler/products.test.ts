@@ -92,7 +92,7 @@ describe('Adapty - Paywall Products', () => {
         components['requests']['GetPaywallProducts.Request']
       >({
         nativeModule: nativeMock,
-        callIndex: 1
+        callIndex: 1,
       }); // Call index 1 (after activate)
 
       expect(request.method).toBe('get_paywall_products');

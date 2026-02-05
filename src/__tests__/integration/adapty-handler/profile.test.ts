@@ -66,7 +66,7 @@ describe('Adapty - Profile', () => {
         components['requests']['UpdateProfile.Request']
       >({
         nativeModule: nativeMock,
-        callIndex: 1
+        callIndex: 1,
       }); // Call index 1 (after activate)
 
       expect(updateRequest.method).toBe('update_profile');
@@ -89,7 +89,7 @@ describe('Adapty - Profile', () => {
         nativeModule: nativeMock,
         method: 'get_profile',
         expectedRequest: { method: 'get_profile' },
-        callIndex: 2
+        callIndex: 2,
       }); // Call index 2 (after activate and update_profile)
 
       // Verify that personal fields are NOT returned in profile

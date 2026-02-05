@@ -59,7 +59,7 @@ describe('Adapty - MakePurchase Bridge Integration', () => {
         nativeModule: nativeMock,
         method: 'make_purchase',
         expectedRequest: MAKE_PURCHASE_REQUEST,
-        callIndex: 1
+        callIndex: 1,
       }); // call index 1 (0 is activate)
     });
   });

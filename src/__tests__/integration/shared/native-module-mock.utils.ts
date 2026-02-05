@@ -45,6 +45,7 @@ interface ResponseRegistry {
   get_profile?: components['requests']['GetProfile.Response'];
   update_profile?: components['requests']['UpdateProfile.Response'];
   get_paywall?: components['requests']['GetPaywall.Response'];
+  get_paywall_for_default_audience?: components['requests']['GetPaywallForDefaultAudience.Response'];
   get_paywall_products?: components['requests']['GetPaywallProducts.Response'];
   log_show_paywall?: components['requests']['LogShowPaywall.Response'];
   make_purchase?: components['requests']['MakePurchase.Response'];
@@ -194,7 +195,7 @@ export function createNativeModuleMock(
  * ```
  */
 export function extractNativeRequest<T>(
-  options: ExtractNativeRequestOptions
+  options: ExtractNativeRequestOptions,
 ): T {
   const { nativeModule, callIndex = 0 } = options;
 
@@ -239,9 +240,14 @@ export function extractNativeRequest<T>(
  * ```
  */
 export function expectNativeCall<T extends { method: string }>(
-  options: ExpectNativeCallOptions<T>
+  options: ExpectNativeCallOptions<T>,
 ): void {
-  const { nativeModule, method: expectedMethod, expectedRequest, callIndex = 0 } = options;
+  const {
+    nativeModule,
+    method: expectedMethod,
+    expectedRequest,
+    callIndex = 0,
+  } = options;
 
   const calls = nativeModule.handler.mock.calls;
 
@@ -288,7 +294,10 @@ export function resetNativeModuleMock(mock: MockNativeModule): void {
 class TestEventEmitter {
   private listeners: Map<string, Set<(...args: any[]) => void>> = new Map();
 
-  addListener(event: string, callback: (...args: any[]) => void): { remove: () => void } {
+  addListener(
+    event: string,
+    callback: (...args: any[]) => void,
+  ): { remove: () => void } {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }

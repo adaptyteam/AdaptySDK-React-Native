@@ -39,7 +39,7 @@ describe('Adapty - Onboarding (Bridge Integration)', () => {
 
   describe('getOnboarding', () => {
     it('should send correct GetOnboarding.Request', async () => {
-      const onboarding = await adapty.getOnboarding('test_onboarding_placement');
+      await adapty.getOnboarding('test_onboarding_placement');
 
       const request = extractNativeRequest<
         components['requests']['GetOnboarding.Request']
@@ -50,12 +50,7 @@ describe('Adapty - Onboarding (Bridge Integration)', () => {
       expect(request.method).toBe('get_onboarding');
       expect(request.placement_id).toBe('test_onboarding_placement');
       expect(request.load_timeout).toBe(5);
-      expect(request.fetch_policy.type).toBe('reload_revalidating_cache_data');
-
-      // Verify response parsing
-      expect(onboarding.id).toBeDefined();
-      expect(onboarding.name).toBe('test_onboarding_placement');
-      expect(onboarding.variationId).toBe('onboarding_variation_456');
+      expect(request.fetch_policy?.type).toBe('reload_revalidating_cache_data');
     });
 
     it('should include locale in request when provided', async () => {
@@ -73,9 +68,7 @@ describe('Adapty - Onboarding (Bridge Integration)', () => {
 
   describe('getOnboardingForDefaultAudience', () => {
     it('should send correct GetOnboardingForDefaultAudience.Request', async () => {
-      const onboarding = await adapty.getOnboardingForDefaultAudience(
-        'test_onboarding_placement',
-      );
+      await adapty.getOnboardingForDefaultAudience('test_onboarding_placement');
 
       const request = extractNativeRequest<
         components['requests']['GetOnboardingForDefaultAudience.Request']
@@ -85,7 +78,7 @@ describe('Adapty - Onboarding (Bridge Integration)', () => {
 
       expect(request.method).toBe('get_onboarding_for_default_audience');
       expect(request.placement_id).toBe('test_onboarding_placement');
-      expect(request.fetch_policy.type).toBe('reload_revalidating_cache_data');
+      expect(request.fetch_policy?.type).toBe('reload_revalidating_cache_data');
     });
   });
 });

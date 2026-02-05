@@ -73,7 +73,7 @@ describe('Adapty - Purchase Event', () => {
     // Manually emit native event (simulating what native SDK does)
     emitNativeEvent({
       eventName: 'did_load_latest_profile',
-      eventData: EVENT_DID_LOAD_LATEST_PROFILE
+      eventData: EVENT_DID_LOAD_LATEST_PROFILE,
     });
 
     // Assert: Purchase succeeded
