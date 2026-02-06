@@ -1,6 +1,6 @@
 import { Adapty } from '@/adapty-handler';
 import type { AdaptyPaywall } from '@/types';
-import { FetchPolicy } from '@/types/inputs';
+import { FetchPolicy } from '@adapty/core';
 import { createAdaptyInstance, cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Paywall', () => {
