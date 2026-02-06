@@ -1,8 +1,7 @@
 import React, { memo, useEffect, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyOnboarding, WebPresentation } from '@/types';
-import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
-import { AdaptyUICreateOnboardingViewParamsCoder } from '@/coders';
+import { coderFactory } from '@/coders/factory';
 import { generateId } from '@/utils/generate-id';
 import { shouldEnableMock } from '@/utils';
 import {
@@ -55,9 +54,9 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
   );
 
   const onboardingJson = useMemo(() => {
-    const encodedOnboarding = new AdaptyOnboardingCoder().encode(onboarding);
+    const encodedOnboarding = coderFactory.createOnboardingCoder().encode(onboarding);
 
-    const encodedParams = new AdaptyUICreateOnboardingViewParamsCoder().encode({
+    const encodedParams = coderFactory.createUiCreateOnboardingViewParamsCoder().encode({
       externalUrlsPresentation,
     });
 

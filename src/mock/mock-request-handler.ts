@@ -8,7 +8,6 @@ import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
 import { generateId } from '@/utils/generate-id';
-import { AdaptyProfileCoder } from '@/coders/adapty-profile';
 import { coderFactory } from '@/coders/factory';
 
 type EventCallback = (...args: any[]) => void | Promise<void>;
@@ -150,7 +149,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           // Emit profile update event
           // Event format must match cross_platform.yaml: { profile: <encoded_profile> }
           setTimeout(() => {
-            const profileCoder = new AdaptyProfileCoder();
+            const profileCoder = coderFactory.createProfileCoder();
             const encodedProfile = profileCoder.encode(updatedProfile);
             this.emitter.emit(
               'did_load_latest_profile',

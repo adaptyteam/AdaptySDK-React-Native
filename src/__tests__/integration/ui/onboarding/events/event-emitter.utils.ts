@@ -1,7 +1,6 @@
 import { $bridge } from '@/bridge';
 import { OnboardingStateUpdatedAction } from '@/ui/types';
-import { AdaptyNativeErrorCoder } from '@/coders/adapty-native-error';
-import { AdaptyUiOnboardingStateParamsCoder } from '@/coders/adapty-ui-onboarding-state-params';
+import { coderFactory } from '@/coders/factory';
 
 /**
  * Emits mock onboarding close event for testing
@@ -124,7 +123,7 @@ export function emitOnboardingStateUpdatedEvent(
   }
 
   // Encode action to native format (snake_case) manually
-  const paramCoder = new AdaptyUiOnboardingStateParamsCoder();
+  const paramCoder = coderFactory.createUiOnboardingStateParamsCoder();
   let encodedAction: Record<string, any> = {
     element_id: action.elementId,
     element_type: action.elementType,
@@ -299,7 +298,7 @@ export function emitOnboardingErrorEvent(
     throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
   }
 
-  const errorCoder = new AdaptyNativeErrorCoder();
+  const errorCoder = coderFactory.createNativeErrorCoder();
   const encodedError = errorCoder.encode({
     adaptyCode: error.adaptyCode,
     message: error.message,

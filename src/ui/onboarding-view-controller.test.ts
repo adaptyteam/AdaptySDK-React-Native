@@ -1,7 +1,7 @@
 import { OnboardingViewController } from './onboarding-view-controller';
 import { AdaptyOnboarding } from '@/types';
 import { $bridge } from '@/bridge';
-import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
+import { coderFactory } from '@/coders/factory';
 import { OnboardingViewEmitter } from './onboarding-view-emitter';
 
 jest.mock('@/bridge', () => {
@@ -16,7 +16,22 @@ jest.mock('@/bridge', () => {
   };
 });
 
-jest.mock('@/coders/adapty-onboarding');
+jest.mock('@/coders/factory', () => ({
+  coderFactory: {
+    createOnboardingCoder: jest.fn(() => ({
+      encode: jest.fn().mockReturnValue({}),
+    })),
+    createUiCreateOnboardingViewParamsCoder: jest.fn(() => ({
+      encode: jest.fn().mockImplementation((params: Record<string, unknown>) => {
+        const result: Record<string, unknown> = {};
+        if (params['externalUrlsPresentation']) {
+          result['external_urls_presentation'] = params['externalUrlsPresentation'];
+        }
+        return result;
+      }),
+    })),
+  },
+}));
 
 jest.mock('./onboarding-view-emitter', () => {
   return {
@@ -52,8 +67,8 @@ describe('OnboardingViewController', () => {
 
   describe('create', () => {
     it('creates native view and stores id', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({ encoded: true }) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({ encoded: true }) },
       );
 
       (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
@@ -80,8 +95,8 @@ describe('OnboardingViewController', () => {
     });
 
     it('passes custom externalUrlsPresentation', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({ encoded: true }) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({ encoded: true }) },
       );
 
       (jest.mocked($bridge.request) as jest.Mock).mockResolvedValue({
@@ -103,8 +118,8 @@ describe('OnboardingViewController', () => {
     });
 
     it('propagates bridge errors', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({}) },
       );
 
       (jest.mocked($bridge.request) as jest.Mock).mockRejectedValue(
@@ -119,8 +134,8 @@ describe('OnboardingViewController', () => {
 
   describe('present', () => {
     it('calls bridge with id', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({}) },
       );
       (jest.mocked($bridge.request) as jest.Mock)
         .mockResolvedValueOnce({ id: 'uuid-2' }) // create
@@ -148,8 +163,8 @@ describe('OnboardingViewController', () => {
 
   describe('dismiss', () => {
     it('calls bridge and unsubscribes listeners', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({}) },
       );
       (jest.mocked($bridge.request) as jest.Mock)
         .mockResolvedValueOnce({ id: 'uuid-3' }) // create
@@ -187,8 +202,8 @@ describe('OnboardingViewController', () => {
 
   describe('setEventHandlers', () => {
     it('registers provided handlers', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({}) },
       );
 
       const addListener = jest.fn();
@@ -231,8 +246,8 @@ describe('OnboardingViewController', () => {
     });
 
     it('reuses same OnboardingViewEmitter and overrides handlers when called multiple times', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({}) },
       );
 
       const addListener = jest.fn();
@@ -290,8 +305,8 @@ describe('OnboardingViewController', () => {
     });
 
     it('replaces handler when same event is registered multiple times', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({}) },
       );
 
       const handlers = new Map();
@@ -337,8 +352,8 @@ describe('OnboardingViewController', () => {
     });
 
     it('preserves default handlers when setting custom handlers for different events', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({}) },
       );
 
       const handlers = new Map();
@@ -371,8 +386,8 @@ describe('OnboardingViewController', () => {
     });
 
     it('registers only provided handlers without merging defaults', async () => {
-      (AdaptyOnboardingCoder as unknown as jest.Mock).mockImplementation(
-        () => ({ encode: jest.fn().mockReturnValue({}) }),
+      (coderFactory.createOnboardingCoder as jest.Mock).mockReturnValue(
+        { encode: jest.fn().mockReturnValue({}) },
       );
 
       const addListener = jest.fn();

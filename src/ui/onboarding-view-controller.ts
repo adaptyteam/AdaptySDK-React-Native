@@ -7,8 +7,7 @@ import {
 } from './types';
 import { AdaptyOnboarding, WebPresentation } from '@/types';
 import { LogContext, LogScope } from '@/logger';
-import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
-import { AdaptyUICreateOnboardingViewParamsCoder } from '@/coders';
+import { coderFactory } from '@/coders/factory';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
@@ -43,11 +42,11 @@ export class OnboardingViewController {
 
     const view = new OnboardingViewController();
 
-    const coder = new AdaptyOnboardingCoder();
+    const coder = coderFactory.createOnboardingCoder();
     const methodKey = 'adapty_ui_create_onboarding_view';
 
     const paramsWithDefaults = { ...DEFAULT_ONBOARDING_PARAMS, ...params };
-    const encodedParams = new AdaptyUICreateOnboardingViewParamsCoder().encode(
+    const encodedParams = coderFactory.createUiCreateOnboardingViewParamsCoder().encode(
       paramsWithDefaults,
     );
 

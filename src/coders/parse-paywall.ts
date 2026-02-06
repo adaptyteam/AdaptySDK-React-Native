@@ -1,10 +1,6 @@
 import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '../logger';
-import { ErrorConverter } from './error-coder';
-import type { Converter } from './types';
-import { AdaptyNativeErrorCoder } from './adapty-native-error';
-import { AdaptyProfileCoder } from './adapty-profile';
-import { AdaptyPurchaseResultCoder } from './adapty-purchase-result';
+import type { Converter, ErrorConverter } from '@adapty/core';
 import { coderFactory } from './factory';
 import type {
   AdaptyPaywallProduct,
@@ -215,10 +211,10 @@ function getPaywallCoder(
     case 'product':
       return coderFactory.createPaywallProductCoder();
     case 'profile':
-      return new AdaptyProfileCoder();
+      return coderFactory.createProfileCoder();
     case 'purchaseResult':
-      return new AdaptyPurchaseResultCoder();
+      return coderFactory.createPurchaseResultCoder();
     case 'error':
-      return new AdaptyNativeErrorCoder();
+      return coderFactory.createNativeErrorCoder();
   }
 }

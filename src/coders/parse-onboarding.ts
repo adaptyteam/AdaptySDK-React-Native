@@ -1,10 +1,7 @@
 import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '../logger';
-import { ErrorConverter } from './error-coder';
-import type { Converter } from './types';
-import { AdaptyNativeErrorCoder } from './adapty-native-error';
-import { AdaptyUiOnboardingMetaCoder } from '@/coders/adapty-ui-onboarding-meta';
-import { AdaptyUiOnboardingStateUpdatedActionCoder } from '@/coders/adapty-ui-onboarding-state-updated-action';
+import type { Converter, ErrorConverter } from '@adapty/core';
+import { coderFactory } from './factory';
 import type { AdaptyUiOnboardingMeta } from '@/ui/types';
 import type { OnboardingStateUpdatedAction } from '@/ui/types';
 import {
@@ -126,10 +123,10 @@ function getOnboardingCoder(
 ): Converter<any, any> | ErrorConverter<any> {
   switch (type) {
     case 'meta':
-      return new AdaptyUiOnboardingMetaCoder();
+      return coderFactory.createUiOnboardingMetaCoder();
     case 'action':
-      return new AdaptyUiOnboardingStateUpdatedActionCoder();
+      return coderFactory.createUiOnboardingStateUpdatedActionCoder();
     case 'error':
-      return new AdaptyNativeErrorCoder();
+      return coderFactory.createNativeErrorCoder();
   }
 }
