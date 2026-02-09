@@ -62,10 +62,10 @@ export class Adapty {
       this.resolveHeldActivation &&
       !this.nonWaitingMethods.includes(method)
     ) {
-      log.wait({});
+      log.wait(() => ({}));
       await this.resolveHeldActivation();
       this.resolveHeldActivation = null;
-      log.waitComplete({});
+      log.waitComplete(() => ({}));
     }
     /*
      * wait until activate call is resolved before calling native methods
@@ -75,23 +75,23 @@ export class Adapty {
       this.activating &&
       (!this.nonWaitingMethods.includes(method) || method === 'is_activated')
     ) {
-      log.wait({});
+      log.wait(() => ({}));
       await this.activating;
-      log.waitComplete({});
+      log.waitComplete(() => ({}));
       this.activating = null;
     }
 
     try {
       const result = await $bridge.request(method, params, resultType, ctx);
 
-      log.success(result);
+      log.success(() => result as Record<string, any>);
       return result as T;
     } catch (error) {
       /*
        * Success because error was handled validly
        * It is a developer task to define which errors must be logged
        */
-      log.success({ error });
+      log.success(() => ({ error }));
       throw error;
     }
   }
@@ -225,25 +225,25 @@ export class Adapty {
 
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'activate' });
-    log.start({ apiKey, params });
+    log.start(() => ({ apiKey, params }));
 
     // Skipping activation if SDK is already activated
     if (params.__ignoreActivationOnFastRefresh) {
       try {
         const isAlreadyActivated = await this.isActivated();
         if (!!this.activating || isAlreadyActivated) {
-          log.success({
+          log.success(() => ({
             message:
               'SDK already activated, skipping activation because ignoreActivationOnFastRefresh flag is enabled',
-          });
+          }));
           return Promise.resolve();
         }
       } catch (error) {
-        log.waitComplete({
+        log.waitComplete(() => ({
           message:
             'Failed to check activation status, proceeding with activation; ignoreActivationOnFastRefresh flag could not be applied',
           error,
-        });
+        }));
       }
     }
 
@@ -313,7 +313,7 @@ export class Adapty {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getPaywall' });
 
-    log.start({ placementId, locale, params });
+    log.start(() => ({ placementId, locale, params }));
 
     const methodKey = 'get_paywall';
     const data: Req['GetPaywall.Request'] = {
@@ -387,7 +387,7 @@ export class Adapty {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getPaywallForDefaultAudience' });
 
-    log.start({ placementId, locale, params });
+    log.start(() => ({ placementId, locale, params }));
 
     const methodKey = 'get_paywall_for_default_audience';
     const data: Req['GetPaywallForDefaultAudience.Request'] = {
@@ -442,7 +442,7 @@ export class Adapty {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getPaywallProducts' });
 
-    log.start({ paywall });
+    log.start(() => ({ paywall }));
 
     const coder = coderFactory.createPaywallCoder();
     const methodKey = 'get_paywall_products';
@@ -475,7 +475,7 @@ export class Adapty {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getOnboarding' });
 
-    log.start({ placementId, locale, params });
+    log.start(() => ({ placementId, locale, params }));
 
     const methodKey = 'get_onboarding';
     const data: Req['GetOnboarding.Request'] = {
@@ -522,7 +522,7 @@ export class Adapty {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getOnboardingForDefaultAudience' });
 
-    log.start({ placementId, locale, params });
+    log.start(() => ({ placementId, locale, params }));
 
     const methodKey = 'get_onboarding_for_default_audience';
     const data: Req['GetOnboardingForDefaultAudience.Request'] = {
@@ -581,7 +581,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'getProfile' });
-    log.start({});
+    log.start(() => ({}));
 
     const methodKey = 'get_profile';
     const body = JSON.stringify({
@@ -618,7 +618,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'identify' });
-    log.start({ customerUserId });
+    log.start(() => ({ customerUserId }));
 
     const methodKey = 'identify';
     const data: Req['Identify.Request'] = {
@@ -663,7 +663,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'logShowPaywall' });
-    log.start({ paywall });
+    log.start(() => ({ paywall }));
 
     const coder = coderFactory.createPaywallCoder();
     const methodKey = 'log_show_paywall';
@@ -686,7 +686,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'openWebPaywall' });
-    log.start({ paywallOrProduct });
+    log.start(() => ({ paywallOrProduct }));
 
     const methodKey = 'open_web_paywall';
     const data: Req['OpenWebPaywall.Request'] = {
@@ -710,7 +710,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'create_web_paywall_url' });
-    log.start({ paywallOrProduct });
+    log.start(() => ({ paywallOrProduct }));
 
     const methodKey = 'create_web_paywall_url';
     const data: Req['CreateWebPaywallUrl.Request'] = {
@@ -743,7 +743,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'logout' });
-    log.start({});
+    log.start(() => ({}));
 
     const methodKey = 'logout';
     const body = JSON.stringify({
@@ -794,7 +794,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'makePurchase' });
-    log.start({ product, params });
+    log.start(() => ({ product, params }));
 
     const coder = coderFactory.createPaywallProductCoder();
     const encoded = coder.encode(product);
@@ -840,7 +840,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'presentCodeRedemptionSheet' });
-    log.start({});
+    log.start(() => ({}));
 
     const methodKey = 'present_code_redemption_sheet';
     const body = JSON.stringify({
@@ -870,7 +870,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'reportTransaction' });
-    log.start({ variationId, transactionId });
+    log.start(() => ({ variationId, transactionId }));
 
     const methodKey = 'report_transaction';
     const data: Req['ReportTransaction.Request'] = {
@@ -899,7 +899,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'restorePurchases' });
-    log.start({});
+    log.start(() => ({}));
 
     const methodKey = 'restore_purchases';
     const body = JSON.stringify({
@@ -937,7 +937,7 @@ export class Adapty {
           ? `${fileLocation.android.relativeAssetPath}a`
           : `${fileLocation.android.rawResName}r`,
     });
-    log.start({ fileLocationJson });
+    log.start(() => ({ fileLocationJson }));
 
     const methodKey = 'set_fallback';
     const data: Req['SetFallback.Request'] = {
@@ -967,7 +967,7 @@ export class Adapty {
   ): Promise<void> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'setIntegrationIdentifier' });
-    log.start({ key });
+    log.start(() => ({ key }));
 
     const methodKey = 'set_integration_identifiers';
     const data: Req['SetIntegrationIdentifier.Request'] = {
@@ -1002,7 +1002,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'setLogLevel' });
-    log.start({ logLevel });
+    log.start(() => ({ logLevel }));
 
     Log.logLevel = logLevel;
 
@@ -1046,7 +1046,7 @@ export class Adapty {
   ): Promise<void> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'updateAttribution' });
-    log.start({ attribution, source });
+    log.start(() => ({ attribution, source }));
 
     const methodKey = 'update_attribution_data';
     const data: Req['UpdateAttributionData.Request'] = {
@@ -1073,7 +1073,7 @@ export class Adapty {
     const log = ctx.call({
       methodName: 'update_collecting_refund_data_consent',
     });
-    log.start({ consent });
+    log.start(() => ({ consent }));
 
     const methodKey = 'update_collecting_refund_data_consent';
     const data: Req['UpdateCollectingRefundDataConsent.Request'] = {
@@ -1097,7 +1097,7 @@ export class Adapty {
 
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'update_refund_preference' });
-    log.start({ refundPreference });
+    log.start(() => ({ refundPreference }));
 
     const methodKey = 'update_refund_preference';
     const data: Req['UpdateRefundPreference.Request'] = {
@@ -1134,7 +1134,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'updateProfile' });
-    log.start({ params });
+    log.start(() => ({ params }));
 
     const coder = coderFactory.createProfileParametersCoder();
     const methodKey = 'update_profile';
@@ -1154,7 +1154,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'isActivated' });
-    log.start({});
+    log.start(() => ({}));
 
     const methodKey = 'is_activated';
     const body = JSON.stringify({
@@ -1200,7 +1200,7 @@ export class Adapty {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'getCurrentInstallationStatus' });
-    log.start({});
+    log.start(() => ({}));
 
     const methodKey = 'get_current_installation_status';
     const body = JSON.stringify({

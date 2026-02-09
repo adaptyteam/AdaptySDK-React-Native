@@ -125,12 +125,12 @@ export class ViewEmitter {
 
       const ctx = new LogContext();
       const log = ctx.event({ methodName: nativeEvent });
-      log.start({ viewId: eventViewId, eventId: parsedEvent.id });
+      log.start(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
 
       // Resolve handler name from event
       const resolver = NATIVE_EVENT_RESOLVER[nativeEvent];
       if (!resolver) {
-        log.failed({ reason: 'no_resolver', nativeEvent });
+        log.failed(() => ({ reason: 'no_resolver', nativeEvent }));
         return;
       }
 
@@ -159,24 +159,24 @@ export class ViewEmitter {
 
           if (shouldClose) {
             onRequestClose().catch(error => {
-              log.failed({
+              log.failed(() => ({
                 error,
                 handlerName,
                 viewId: eventViewId,
                 eventId: parsedEvent.id,
                 reason: 'on_request_close_failed',
-              });
+              }));
             });
           }
         } catch (error) {
           hasError = true;
-          log.failed({
+          log.failed(() => ({
             error,
             handlerName,
             viewId: eventViewId,
             eventId: parsedEvent.id,
             reason: 'handler_error',
-          });
+          }));
         }
       }
 
@@ -187,18 +187,18 @@ export class ViewEmitter {
           internalHandlerData.handler(parsedEvent);
         } catch (error) {
           hasError = true;
-          log.failed({
+          log.failed(() => ({
             error,
             handlerName: `${handlerName} (internal)`,
             viewId: eventViewId,
             eventId: parsedEvent.id,
             reason: 'internal_handler_failed',
-          });
+          }));
         }
       }
 
       if (!hasError) {
-        log.success({ viewId: eventViewId, eventId: parsedEvent.id });
+        log.success(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
       }
     };
   }

@@ -40,7 +40,7 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'createPaywallView' });
-    log.start({ paywall, params });
+    log.start(() => ({ paywall, params }));
 
     const view = new ViewController();
 
@@ -106,14 +106,14 @@ export class ViewController {
     try {
       const result = await $bridge.request(method, params, resultType, ctx);
 
-      log.success(result);
+      log.success(() => result as Record<string, any>);
       return result as T;
     } catch (error) {
       /*
        * Success because error was handled validly
        * It is a developer task to define which errors must be logged
        */
-      log.success({ error });
+      log.success(() => ({ error }));
       throw error;
     }
   }
@@ -138,13 +138,13 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'present' });
-    log.start({
+    log.start(() => ({
       _id: this.id,
       iosPresentationStyle: options.iosPresentationStyle,
-    });
+    }));
 
     if (this.id === null) {
-      log.failed({ error: 'no _id' });
+      log.failed(() => ({ error: 'no _id' }));
       throw this.errNoViewReference();
     }
 
@@ -168,10 +168,10 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'dismiss' });
-    log.start({ _id: this.id });
+    log.start(() => ({ _id: this.id }));
 
     if (this.id === null) {
-      log.failed({ error: 'no id' });
+      log.failed(() => ({ error: 'no id' }));
       throw this.errNoViewReference();
     }
 
@@ -212,10 +212,10 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'showDialog' });
-    log.start({ _id: this.id });
+    log.start(() => ({ _id: this.id }));
 
     if (this.id === null) {
-      log.failed({ error: 'no id' });
+      log.failed(() => ({ error: 'no id' }));
       throw this.errNoViewReference();
     }
 
@@ -243,7 +243,7 @@ export class ViewController {
       // Log error but don't re-throw to avoid breaking event handling
       const ctx = new LogContext();
       const log = ctx.call({ methodName: 'onRequestClose' });
-      log.failed({ error, message: 'Failed to dismiss paywall' });
+      log.failed(() => ({ error, message: 'Failed to dismiss paywall' }));
     }
   };
 
@@ -277,7 +277,7 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'setEventHandlers' });
-    log.start({ _id: this.id });
+    log.start(() => ({ _id: this.id }));
 
     if (this.id === null) {
       throw this.errNoViewReference();

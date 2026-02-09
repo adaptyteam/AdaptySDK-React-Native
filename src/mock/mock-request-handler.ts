@@ -40,7 +40,7 @@ class SimpleEventEmitter {
         } catch (error) {
           const ctx = new LogContext();
           const log = ctx.event({ methodName: `mock/${event}` });
-          log.failed({ error });
+          log.failed(() => ({ error }));
         }
       });
     }
@@ -97,7 +97,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
     ctx?: LogContext,
   ): Promise<T> {
     const log = ctx?.bridge({ methodName: `mock/${method}` });
-    log?.start({ method, params });
+    log?.start(() => ({ method, params }));
 
     try {
       let result: any;
@@ -230,10 +230,10 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = undefined;
       }
 
-      log?.success({ result });
+      log?.success(() => ({ result }));
       return result as T;
     } catch (error) {
-      log?.success({ error });
+      log?.success(() => ({ error }));
       throw error;
     }
   }
@@ -261,7 +261,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
       const ctx = new LogContext();
 
       const log = ctx.event({ methodName: `mock/${event}` });
-      log.start(data);
+      log.start(() => data);
 
       let rawValue = null;
 
@@ -282,7 +282,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           const paywallEvent = parsePaywallEvent(arg, ctx);
           return paywallEvent;
         } catch (error) {
-          log.failed({ error });
+          log.failed(() => ({ error }));
 
           throw error;
         }

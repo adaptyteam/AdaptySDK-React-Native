@@ -84,7 +84,7 @@ export class OnboardingViewEmitter {
 
       const ctx = new LogContext();
       const log = ctx.event({ methodName: config.nativeEvent });
-      log.start({ viewId: eventViewId, eventId: parsedEvent.id });
+      log.start(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
 
       // Get all possible handler names for this native event
       const possibleHandlers =
@@ -109,30 +109,30 @@ export class OnboardingViewEmitter {
         } catch (error) {
           hasError = true;
           shouldClose = true;
-          log.failed({
+          log.failed(() => ({
             error,
             handlerName,
             viewId: eventViewId,
             eventId: parsedEvent.id,
             reason: 'user_handler_failed',
-          });
+          }));
         }
 
         if (shouldClose) {
           onRequestClose().catch(error => {
-            log.failed({
+            log.failed(() => ({
               error,
               handlerName,
               viewId: eventViewId,
               eventId: parsedEvent.id,
               reason: 'on_request_close_failed',
-            });
+            }));
           });
         }
       }
 
       if (!hasError) {
-        log.success({ viewId: eventViewId, eventId: parsedEvent.id });
+        log.success(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
       }
     };
   }
