@@ -5,10 +5,13 @@ module.exports = {
   preset: 'react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   modulePaths: ['./src'],
-  moduleNameMapper: pathsToModuleNameMapper(
-    { '@/*': ['*'] },
-    { prefix: '<rootDir>/src/' },
-  ),
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(
+      { '@/*': ['*'] },
+      { prefix: '<rootDir>/src/' },
+    ),
+    '^@adapty/core$': '<rootDir>/node_modules/@adapty/core/dist/index.cjs',
+  },
   setupFiles: ['./jest/jest.setup.js'],
   transformIgnorePatterns: ['node_modules/(?!@react-native|react-native)'],
   testPathIgnorePatterns: ['/dist'],
