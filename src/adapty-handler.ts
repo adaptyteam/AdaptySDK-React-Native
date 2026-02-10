@@ -2,6 +2,7 @@ import { Platform, EmitterSubscription } from 'react-native';
 
 import { $bridge, initBridge, isBridgeInitialized } from '@/bridge';
 import { LogContext, Log, LogScope } from '@/logger';
+import VERSION from '@/version';
 import type { Def, Req } from '@/types/schema';
 
 import { coderFactory } from '@/coders/factory';
@@ -35,6 +36,10 @@ import type { AdaptyMockConfig } from '@/mock/types';
  * @public
  */
 export class Adapty {
+  constructor() {
+    Log.setVersion(VERSION);
+  }
+
   private resolveHeldActivation?: (() => Promise<void>) | null = null;
   private activating: Promise<void> | null = null;
   private nonWaitingMethods: MethodName[] = [
