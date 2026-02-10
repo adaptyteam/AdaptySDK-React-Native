@@ -2,8 +2,7 @@ import React, { memo, useEffect, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyOnboarding, WebPresentation } from '@/types';
 import { coderFactory } from '@/coders/factory';
-import { generateId } from '@/utils/generate-id';
-import { shouldEnableMock } from '@/utils';
+import { generateId, shouldEnableMock } from '@/utils';
 import {
   OnboardingEventHandlers,
   NativeAdaptyOnboardingViewProps,
@@ -11,6 +10,7 @@ import {
 import { createOnboardingEventHandlers } from './create-onboarding-event-handlers';
 import { DEFAULT_ONBOARDING_PARAMS } from './onboarding-view-controller';
 import { AdaptyOnboardingViewMock } from './AdaptyOnboardingView.mock';
+import { filterUndefined } from '@adapty/core';
 
 export type Props = ViewProps & {
   onboarding: AdaptyOnboarding;
@@ -68,21 +68,18 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
 
   const combinedEventHandlers =
     useMemo((): Partial<OnboardingEventHandlers> => {
-      const individualHandlers: Partial<OnboardingEventHandlers> = {};
-
-      if (onClose) individualHandlers.onClose = onClose;
-      if (onCustom) individualHandlers.onCustom = onCustom;
-      if (onPaywall) individualHandlers.onPaywall = onPaywall;
-      if (onStateUpdated) individualHandlers.onStateUpdated = onStateUpdated;
-      if (onFinishedLoading)
-        individualHandlers.onFinishedLoading = onFinishedLoading;
-      if (onAnalytics) individualHandlers.onAnalytics = onAnalytics;
-      if (onError) individualHandlers.onError = onError;
-
       // Merge legacy eventHandlers with individual props (individual props take priority)
       return {
         ...eventHandlers,
-        ...individualHandlers,
+        ...filterUndefined({
+          onClose,
+          onCustom,
+          onPaywall,
+          onStateUpdated,
+          onFinishedLoading,
+          onAnalytics,
+          onError,
+        }),
       };
     }, [
       onClose,

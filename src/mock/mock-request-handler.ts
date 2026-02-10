@@ -7,7 +7,7 @@ import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
-import { generateId } from '@/utils/generate-id';
+import { generateId } from '@/utils';
 import { coderFactory } from '@/coders/factory';
 
 type EventCallback = (...args: any[]) => void | Promise<void>;
