@@ -104,7 +104,7 @@ export class NativeRequestHandler<
       const ctx = new LogContext();
 
       const log = ctx.event({ methodName: event });
-      log.start(() => data);
+      log.start(() => ({ args: data }));
 
       let rawValue = null;
 

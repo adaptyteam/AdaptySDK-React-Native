@@ -261,7 +261,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
       const ctx = new LogContext();
 
       const log = ctx.event({ methodName: `mock/${event}` });
-      log.start(() => data);
+      log.start(() => ({ args: data }));
 
       let rawValue = null;
 
