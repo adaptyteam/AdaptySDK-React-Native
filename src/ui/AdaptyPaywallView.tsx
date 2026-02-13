@@ -63,9 +63,9 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   const paywallJson = useMemo(() => {
     const encodedPaywall = coderFactory.createPaywallCoder().encode(paywall);
     const paramsWithDefaults = { ...DEFAULT_PARAMS, ...params };
-    const encodedParams = coderFactory.createUiCreatePaywallViewParamsCoder().encode(
-      paramsWithDefaults,
-    );
+    const encodedParams = coderFactory
+      .createUiCreatePaywallViewParamsCoder()
+      .encode(paramsWithDefaults);
     return JSON.stringify({ paywall: encodedPaywall, ...encodedParams });
   }, [paywall, params]);
 
@@ -88,21 +88,22 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
         onUrlPress,
       }),
     [
-    onCloseButtonPress,
-    onProductSelected,
-    onPurchaseStarted,
-    onPurchaseCompleted,
-    onPurchaseFailed,
-    onRestoreStarted,
-    onPaywallShown,
-    onWebPaymentNavigationFinished,
-    onRestoreCompleted,
-    onRestoreFailed,
-    onRenderingFailed,
-    onLoadingProductsFailed,
-    onCustomAction,
-    onUrlPress,
-  ]);
+      onCloseButtonPress,
+      onProductSelected,
+      onPurchaseStarted,
+      onPurchaseCompleted,
+      onPurchaseFailed,
+      onRestoreStarted,
+      onPaywallShown,
+      onWebPaymentNavigationFinished,
+      onRestoreCompleted,
+      onRestoreFailed,
+      onRenderingFailed,
+      onLoadingProductsFailed,
+      onCustomAction,
+      onUrlPress,
+    ],
+  );
 
   useEffect(() => {
     const unsubscribe = createPaywallEventHandlers(eventHandlers, uniqueViewId);

@@ -54,11 +54,15 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
   );
 
   const onboardingJson = useMemo(() => {
-    const encodedOnboarding = coderFactory.createOnboardingCoder().encode(onboarding);
+    const encodedOnboarding = coderFactory
+      .createOnboardingCoder()
+      .encode(onboarding);
 
-    const encodedParams = coderFactory.createUiCreateOnboardingViewParamsCoder().encode({
-      externalUrlsPresentation,
-    });
+    const encodedParams = coderFactory
+      .createUiCreateOnboardingViewParamsCoder()
+      .encode({
+        externalUrlsPresentation,
+      });
 
     return JSON.stringify({
       onboarding: encodedOnboarding,

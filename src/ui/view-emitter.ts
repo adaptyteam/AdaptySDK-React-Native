@@ -1,10 +1,7 @@
 import type { EventHandlers } from './types';
 import { $bridge } from '@/bridge';
 import { EmitterSubscription } from 'react-native';
-import {
-  ParsedPaywallEvent,
-  PaywallEventIdType,
-} from '@/types/paywall-events';
+import { ParsedPaywallEvent, PaywallEventIdType } from '@/types/paywall-events';
 import { LogContext } from '@/logger';
 import {
   NATIVE_EVENT_RESOLVER,
@@ -153,7 +150,10 @@ export class ViewEmitter {
       const handlerData = this.handlers.get(handlerName);
       if (handlerData) {
         const { handler, onRequestClose } = handlerData;
-        const callbackArgs = extractPaywallCallbackArgs(handlerName, parsedEvent);
+        const callbackArgs = extractPaywallCallbackArgs(
+          handlerName,
+          parsedEvent,
+        );
         const callback = handler as (
           ...args: Parameters<EventHandlers[typeof handlerName]>
         ) => boolean;
@@ -214,4 +214,3 @@ export class ViewEmitter {
     this.internalHandlers.clear();
   }
 }
-

@@ -174,7 +174,8 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           break;
 
         case 'update_profile':
-          const profileParamsCoder = coderFactory.createProfileParametersCoder();
+          const profileParamsCoder =
+            coderFactory.createProfileParametersCoder();
           const profileParams = profileParamsCoder.decode(parsedParams.params);
           this.store.updateProfile(profileParams);
           result = undefined; // void

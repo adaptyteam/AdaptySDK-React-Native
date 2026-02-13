@@ -101,7 +101,10 @@ export class OnboardingViewEmitter {
 
         const { handler, onRequestClose } = handlerData;
 
-        const callbackArgs = extractOnboardingCallbackArgs(handlerName, parsedEvent);
+        const callbackArgs = extractOnboardingCallbackArgs(
+          handlerName,
+          parsedEvent,
+        );
         const callback = handler as (
           ...args: Parameters<OnboardingEventHandlers[typeof handlerName]>
         ) => boolean;
@@ -145,4 +148,3 @@ export class OnboardingViewEmitter {
     this.handlers.clear();
   }
 }
-

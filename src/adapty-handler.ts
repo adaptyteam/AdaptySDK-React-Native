@@ -331,8 +331,7 @@ export class Adapty {
     }
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
-        type:
-          params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
+        type: params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
       } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
@@ -404,8 +403,7 @@ export class Adapty {
     }
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
-        type:
-          params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
+        type: params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
       } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
@@ -493,8 +491,7 @@ export class Adapty {
     }
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
-        type:
-          params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
+        type: params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
       } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
@@ -539,8 +536,7 @@ export class Adapty {
     }
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
-        type:
-          params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
+        type: params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
       } satisfies Def['AdaptyPlacementFetchPolicy'];
     } else {
       data['fetch_policy'] = {
@@ -698,8 +694,14 @@ export class Adapty {
       method: methodKey,
       open_in: openIn,
       ...('vendorProductId' in paywallOrProduct
-        ? { product: coderFactory.createPaywallProductCoder().encode(paywallOrProduct) }
-        : { paywall: coderFactory.createPaywallCoder().encode(paywallOrProduct) }),
+        ? {
+            product: coderFactory
+              .createPaywallProductCoder()
+              .encode(paywallOrProduct),
+          }
+        : {
+            paywall: coderFactory.createPaywallCoder().encode(paywallOrProduct),
+          }),
     };
 
     const body = JSON.stringify(data);
@@ -721,8 +723,14 @@ export class Adapty {
     const data: Req['CreateWebPaywallUrl.Request'] = {
       method: methodKey,
       ...('vendorProductId' in paywallOrProduct
-        ? { product: coderFactory.createPaywallProductCoder().encode(paywallOrProduct) }
-        : { paywall: coderFactory.createPaywallCoder().encode(paywallOrProduct) }),
+        ? {
+            product: coderFactory
+              .createPaywallProductCoder()
+              .encode(paywallOrProduct),
+          }
+        : {
+            paywall: coderFactory.createPaywallCoder().encode(paywallOrProduct),
+          }),
     };
 
     const body = JSON.stringify(data);

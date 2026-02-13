@@ -46,9 +46,9 @@ export class OnboardingViewController {
     const methodKey = 'adapty_ui_create_onboarding_view';
 
     const paramsWithDefaults = { ...DEFAULT_ONBOARDING_PARAMS, ...params };
-    const encodedParams = coderFactory.createUiCreateOnboardingViewParamsCoder().encode(
-      paramsWithDefaults,
-    );
+    const encodedParams = coderFactory
+      .createUiCreateOnboardingViewParamsCoder()
+      .encode(paramsWithDefaults);
 
     const data: Req['AdaptyUICreateOnboardingView.Request'] = {
       method: methodKey,
@@ -99,7 +99,10 @@ export class OnboardingViewController {
       // Log error but don't re-throw to avoid breaking event handling
       const ctx = new LogContext();
       const log = ctx.call({ methodName: 'onRequestClose' });
-      log.failed(() => ({ error, message: 'Failed to dismiss onboarding view' }));
+      log.failed(() => ({
+        error,
+        message: 'Failed to dismiss onboarding view',
+      }));
     }
   };
 

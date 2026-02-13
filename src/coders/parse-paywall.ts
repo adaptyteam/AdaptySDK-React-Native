@@ -6,5 +6,4 @@ import { coderFactory } from './factory';
 export const parsePaywallEvent = (
   input: string,
   ctx?: LogContext,
-): ParsedPaywallEvent | null =>
-  _parsePaywallEvent(coderFactory, input, ctx);
+): ParsedPaywallEvent | null => _parsePaywallEvent(coderFactory, input, ctx);
