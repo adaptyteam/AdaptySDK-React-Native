@@ -12,7 +12,11 @@ import { DEFAULT_ONBOARDING_PARAMS } from './onboarding-view-controller';
 import { AdaptyOnboardingViewMock } from './AdaptyOnboardingView.mock';
 import { filterUndefined } from '@adapty/core';
 
-export type Props = ViewProps & {
+/**
+ * Props for the {@link AdaptyOnboardingView} component.
+ * @public
+ */
+export type AdaptyOnboardingViewProps = ViewProps & {
   onboarding: AdaptyOnboarding;
   externalUrlsPresentation?: WebPresentation;
   onClose?: OnboardingEventHandlers['onClose'];
@@ -35,7 +39,7 @@ const NativeAdaptyOnboardingView = shouldEnableMock()
       'AdaptyOnboardingView',
     );
 
-const AdaptyOnboardingViewComponent: React.FC<Props> = ({
+const AdaptyOnboardingViewComponent: React.FC<AdaptyOnboardingViewProps> = ({
   onboarding,
   externalUrlsPresentation = DEFAULT_ONBOARDING_PARAMS.externalUrlsPresentation,
   eventHandlers,
@@ -113,4 +117,14 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
   );
 };
 
+/**
+ * React component that renders a native onboarding view.
+ *
+ * @remarks
+ * Accepts an onboarding object and optional event handler props.
+ * Under the hood, it creates a native view and subscribes to onboarding events.
+ *
+ * @see {@link AdaptyOnboardingViewProps} for available props
+ * @public
+ */
 export const AdaptyOnboardingView = memo(AdaptyOnboardingViewComponent);

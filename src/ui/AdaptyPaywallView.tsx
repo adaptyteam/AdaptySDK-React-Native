@@ -13,7 +13,11 @@ import { DEFAULT_PARAMS } from './view-controller';
 import { AdaptyPaywallViewMock } from './AdaptyPaywallView.mock';
 import { filterUndefined } from '@adapty/core';
 
-export type Props = ViewProps & {
+/**
+ * Props for the {@link AdaptyPaywallView} component.
+ * @public
+ */
+export type AdaptyPaywallViewProps = ViewProps & {
   paywall: AdaptyPaywall;
   params?: CreatePaywallViewParamsInput;
   onCloseButtonPress?: EventHandlers['onCloseButtonPress'];
@@ -36,7 +40,7 @@ const NativeAdaptyPaywallView = shouldEnableMock()
   ? AdaptyPaywallViewMock
   : requireNativeComponent<NativeAdaptyPaywallViewProps>('AdaptyPaywallView');
 
-const AdaptyPaywallViewComponent: React.FC<Props> = ({
+const AdaptyPaywallViewComponent: React.FC<AdaptyPaywallViewProps> = ({
   paywall,
   params,
   onCloseButtonPress,
@@ -119,4 +123,14 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   );
 };
 
+/**
+ * React component that renders a native paywall view.
+ *
+ * @remarks
+ * Accepts a paywall object and optional event handler props.
+ * Under the hood, it creates a native view and subscribes to paywall events.
+ *
+ * @see {@link AdaptyPaywallViewProps} for available props
+ * @public
+ */
 export const AdaptyPaywallView = memo(AdaptyPaywallViewComponent);

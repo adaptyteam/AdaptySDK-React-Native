@@ -24,5 +24,19 @@ export * from './ui/types';
 export { ViewController } from './ui/view-controller';
 export { OnboardingViewController } from './ui/onboarding-view-controller';
 export * from './mock/types';
+// UI functions & components
+export { createPaywallView } from './ui/create-paywall-view';
+export { createOnboardingView } from './ui/create-onboarding-view';
+export {
+  AdaptyPaywallView,
+  type AdaptyPaywallViewProps,
+} from './ui/AdaptyPaywallView';
+export {
+  AdaptyOnboardingView,
+  type AdaptyOnboardingViewProps,
+} from './ui/AdaptyOnboardingView';
+// Utilities
+export { isRunningInExpoGo, shouldEnableMock } from './utils/env-detection';
 
+export { AdaptyError } from '@adapty/core';
 export type { ActivateParamsInput } from '@adapty/core';
