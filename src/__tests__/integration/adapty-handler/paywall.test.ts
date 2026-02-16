@@ -1,7 +1,7 @@
 import { Adapty } from '@/adapty-handler';
 import { resetBridge } from '@/bridge';
 import type { components } from '@/types/api';
-import { FetchPolicy } from '@/types/inputs';
+import { FetchPolicy } from '@adapty/core';
 import {
   createNativeModuleMock,
   extractNativeRequest,

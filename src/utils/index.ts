@@ -1,2 +1,2 @@
-export { generateId } from './generate-id';
+export { generateId } from '@adapty/core';
 export { isRunningInExpoGo, shouldEnableMock } from './env-detection';

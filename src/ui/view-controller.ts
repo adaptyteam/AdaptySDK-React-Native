@@ -10,14 +10,12 @@ import {
 import { ViewEmitter } from './view-emitter';
 import { AdaptyPaywall } from '@/types';
 import { LogContext, LogScope } from '@/logger';
-import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
-import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
+import { coderFactory } from '@/coders/factory';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
 import { Req } from '@/types/schema';
-import { AdaptyUiDialogConfigCoder } from '@/coders/adapty-ui-dialog-config';
 
 export const DEFAULT_PARAMS: CreatePaywallViewParamsInput = {
   prefetchProducts: true,
@@ -42,12 +40,12 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'createPaywallView' });
-    log.start({ paywall, params });
+    log.start(() => ({ paywall, params }));
 
     const view = new ViewController();
 
-    const paywallCoder = new AdaptyPaywallCoder();
-    const paramsCoder = new AdaptyUICreatePaywallViewParamsCoder();
+    const paywallCoder = coderFactory.createPaywallCoder();
+    const paramsCoder = coderFactory.createUiCreatePaywallViewParamsCoder();
     const methodKey = 'adapty_ui_create_paywall_view';
 
     // Set default values for required parameters
@@ -108,14 +106,14 @@ export class ViewController {
     try {
       const result = await $bridge.request(method, params, resultType, ctx);
 
-      log.success(result);
+      log.success(() => result as Record<string, any>);
       return result as T;
     } catch (error) {
       /*
        * Success because error was handled validly
        * It is a developer task to define which errors must be logged
        */
-      log.success({ error });
+      log.success(() => ({ error }));
       throw error;
     }
   }
@@ -140,13 +138,13 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'present' });
-    log.start({
+    log.start(() => ({
       _id: this.id,
       iosPresentationStyle: options.iosPresentationStyle,
-    });
+    }));
 
     if (this.id === null) {
-      log.failed({ error: 'no _id' });
+      log.failed(() => ({ error: 'no _id' }));
       throw this.errNoViewReference();
     }
 
@@ -170,10 +168,10 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'dismiss' });
-    log.start({ _id: this.id });
+    log.start(() => ({ _id: this.id }));
 
     if (this.id === null) {
-      log.failed({ error: 'no id' });
+      log.failed(() => ({ error: 'no id' }));
       throw this.errNoViewReference();
     }
 
@@ -214,14 +212,14 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'showDialog' });
-    log.start({ _id: this.id });
+    log.start(() => ({ _id: this.id }));
 
     if (this.id === null) {
-      log.failed({ error: 'no id' });
+      log.failed(() => ({ error: 'no id' }));
       throw this.errNoViewReference();
     }
 
-    const coder = new AdaptyUiDialogConfigCoder();
+    const coder = coderFactory.createUiDialogConfigCoder();
     const methodKey = 'adapty_ui_show_dialog';
     const body = JSON.stringify({
       method: methodKey,
@@ -245,7 +243,7 @@ export class ViewController {
       // Log error but don't re-throw to avoid breaking event handling
       const ctx = new LogContext();
       const log = ctx.call({ methodName: 'onRequestClose' });
-      log.failed({ error, message: 'Failed to dismiss paywall' });
+      log.failed(() => ({ error, message: 'Failed to dismiss paywall' }));
     }
   };
 
@@ -279,7 +277,7 @@ export class ViewController {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'setEventHandlers' });
-    log.start({ _id: this.id });
+    log.start(() => ({ _id: this.id }));
 
     if (this.id === null) {
       throw this.errNoViewReference();
