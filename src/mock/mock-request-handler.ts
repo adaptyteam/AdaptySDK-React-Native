@@ -7,9 +7,8 @@ import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
 import { createMockPurchaseResult } from './mock-data';
-import { generateId } from '@/utils/generate-id';
-import { AdaptyProfileParametersCoder } from '@/coders/adapty-profile-parameters';
-import { AdaptyProfileCoder } from '@/coders/adapty-profile';
+import { generateId } from '@/utils';
+import { coderFactory } from '@/coders/factory';
 
 type EventCallback = (...args: any[]) => void | Promise<void>;
 
@@ -41,7 +40,7 @@ class SimpleEventEmitter {
         } catch (error) {
           const ctx = new LogContext();
           const log = ctx.event({ methodName: `mock/${event}` });
-          log.failed({ error });
+          log.failed(() => ({ error }));
         }
       });
     }
@@ -98,7 +97,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
     ctx?: LogContext,
   ): Promise<T> {
     const log = ctx?.bridge({ methodName: `mock/${method}` });
-    log?.start({ method, params });
+    log?.start(() => ({ method, params }));
 
     try {
       let result: any;
@@ -150,7 +149,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           // Emit profile update event
           // Event format must match cross_platform.yaml: { profile: <encoded_profile> }
           setTimeout(() => {
-            const profileCoder = new AdaptyProfileCoder();
+            const profileCoder = coderFactory.createProfileCoder();
             const encodedProfile = profileCoder.encode(updatedProfile);
             this.emitter.emit(
               'did_load_latest_profile',
@@ -175,7 +174,8 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           break;
 
         case 'update_profile':
-          const profileParamsCoder = new AdaptyProfileParametersCoder();
+          const profileParamsCoder =
+            coderFactory.createProfileParametersCoder();
           const profileParams = profileParamsCoder.decode(parsedParams.params);
           this.store.updateProfile(profileParams);
           result = undefined; // void
@@ -231,10 +231,10 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = undefined;
       }
 
-      log?.success({ result });
+      log?.success(() => ({ result }));
       return result as T;
     } catch (error) {
-      log?.success({ error });
+      log?.success(() => ({ error }));
       throw error;
     }
   }
@@ -262,7 +262,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
       const ctx = new LogContext();
 
       const log = ctx.event({ methodName: `mock/${event}` });
-      log.start(data);
+      log.start(() => ({ args: data }));
 
       let rawValue = null;
 
@@ -283,7 +283,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           const paywallEvent = parsePaywallEvent(arg, ctx);
           return paywallEvent;
         } catch (error) {
-          log.failed({ error });
+          log.failed(() => ({ error }));
 
           throw error;
         }
