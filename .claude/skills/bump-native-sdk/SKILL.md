@@ -61,3 +61,10 @@ Format: `chore: upgrade <platform> SDK to <version>`
 Examples:
 - `chore: upgrade ios SDK to 3.15.3`
 - `chore: upgrade android SDK to bom 3.15.2, crossplatform 3.15.6`
+
+## Reminder
+
+After all changes are verified, remind the user:
+
+> Don't forget to update `cross_platform.yaml` if the cross-platform protocol version changed.
+> Don't forget to bump the version in `package.json`.
