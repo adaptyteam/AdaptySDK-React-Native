@@ -6,6 +6,7 @@ export {
   LogLevel,
   FetchPolicy,
   AdaptyAndroidSubscriptionUpdateReplacementMode,
+  type ActivateParamsInput,
   type GetPlacementParamsInput,
   type GetPlacementForDefaultAudienceParamsInput,
   type MakePurchaseParamsInput,
