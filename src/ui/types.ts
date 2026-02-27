@@ -1,6 +1,5 @@
 // Re-export all shared UI types from @adapty/core
 export type {
-  ArgType,
   EventHandlerResult,
   ProductPurchaseParams,
   EventHandlers,
