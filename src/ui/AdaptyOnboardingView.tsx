@@ -1,10 +1,8 @@
 import React, { memo, useEffect, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyOnboarding, WebPresentation } from '@/types';
-import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
-import { AdaptyUICreateOnboardingViewParamsCoder } from '@/coders';
-import { generateId } from '@/utils/generate-id';
-import { shouldEnableMock } from '@/utils';
+import { coderFactory } from '@/coders/factory';
+import { generateId, shouldEnableMock } from '@/utils';
 import {
   OnboardingEventHandlers,
   NativeAdaptyOnboardingViewProps,
@@ -12,8 +10,13 @@ import {
 import { createOnboardingEventHandlers } from './create-onboarding-event-handlers';
 import { DEFAULT_ONBOARDING_PARAMS } from './onboarding-view-controller';
 import { AdaptyOnboardingViewMock } from './AdaptyOnboardingView.mock';
+import { filterUndefined } from '@adapty/core';
 
-export type Props = ViewProps & {
+/**
+ * Props for the {@link AdaptyOnboardingView} component.
+ * @public
+ */
+export type AdaptyOnboardingViewProps = ViewProps & {
   onboarding: AdaptyOnboarding;
   externalUrlsPresentation?: WebPresentation;
   onClose?: OnboardingEventHandlers['onClose'];
@@ -36,7 +39,7 @@ const NativeAdaptyOnboardingView = shouldEnableMock()
       'AdaptyOnboardingView',
     );
 
-const AdaptyOnboardingViewComponent: React.FC<Props> = ({
+const AdaptyOnboardingViewComponent: React.FC<AdaptyOnboardingViewProps> = ({
   onboarding,
   externalUrlsPresentation = DEFAULT_ONBOARDING_PARAMS.externalUrlsPresentation,
   eventHandlers,
@@ -55,11 +58,15 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
   );
 
   const onboardingJson = useMemo(() => {
-    const encodedOnboarding = new AdaptyOnboardingCoder().encode(onboarding);
+    const encodedOnboarding = coderFactory
+      .createOnboardingCoder()
+      .encode(onboarding);
 
-    const encodedParams = new AdaptyUICreateOnboardingViewParamsCoder().encode({
-      externalUrlsPresentation,
-    });
+    const encodedParams = coderFactory
+      .createUiCreateOnboardingViewParamsCoder()
+      .encode({
+        externalUrlsPresentation,
+      });
 
     return JSON.stringify({
       onboarding: encodedOnboarding,
@@ -69,21 +76,18 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
 
   const combinedEventHandlers =
     useMemo((): Partial<OnboardingEventHandlers> => {
-      const individualHandlers: Partial<OnboardingEventHandlers> = {};
-
-      if (onClose) individualHandlers.onClose = onClose;
-      if (onCustom) individualHandlers.onCustom = onCustom;
-      if (onPaywall) individualHandlers.onPaywall = onPaywall;
-      if (onStateUpdated) individualHandlers.onStateUpdated = onStateUpdated;
-      if (onFinishedLoading)
-        individualHandlers.onFinishedLoading = onFinishedLoading;
-      if (onAnalytics) individualHandlers.onAnalytics = onAnalytics;
-      if (onError) individualHandlers.onError = onError;
-
       // Merge legacy eventHandlers with individual props (individual props take priority)
       return {
         ...eventHandlers,
-        ...individualHandlers,
+        ...filterUndefined({
+          onClose,
+          onCustom,
+          onPaywall,
+          onStateUpdated,
+          onFinishedLoading,
+          onAnalytics,
+          onError,
+        }),
       };
     }, [
       onClose,
@@ -113,4 +117,14 @@ const AdaptyOnboardingViewComponent: React.FC<Props> = ({
   );
 };
 
+/**
+ * React component that renders a native onboarding view.
+ *
+ * @remarks
+ * Accepts an onboarding object and optional event handler props.
+ * Under the hood, it creates a native view and subscribes to onboarding events.
+ *
+ * @see {@link AdaptyOnboardingViewProps} for available props
+ * @public
+ */
 export const AdaptyOnboardingView = memo(AdaptyOnboardingViewComponent);

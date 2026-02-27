@@ -63,3 +63,9 @@ buck-out/
 
 # Docs
 docs
+
+# Claude
+.claude/settings.local.json
+
+# Worktrees
+.worktrees

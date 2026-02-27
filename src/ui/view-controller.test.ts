@@ -14,8 +14,21 @@ jest.mock('@/bridge', () => {
   };
 });
 
-jest.mock('@/coders/adapty-paywall');
-jest.mock('@/coders/adapty-ui-dialog-config');
+jest.mock('@/coders/factory', () => {
+  return {
+    coderFactory: {
+      createPaywallCoder: jest.fn(() => ({
+        encode: jest.fn().mockReturnValue({ encoded: true }),
+      })),
+      createUiCreatePaywallViewParamsCoder: jest.fn(() => ({
+        encode: jest.fn().mockReturnValue({}),
+      })),
+      createUiDialogConfigCoder: jest.fn(() => ({
+        encode: jest.fn().mockReturnValue({ cfg: true }),
+      })),
+    },
+  };
+});
 
 jest.mock('./view-emitter', () => {
   return {
@@ -54,13 +67,6 @@ describe('ViewController', () => {
 
   describe('create', () => {
     it('creates native view and stores id (with defaults applied)', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({ encoded: true }),
-      }));
-
       (jest.mocked(($bridge as any).request) as jest.Mock).mockResolvedValue({
         id: 'uuid-1',
       });
@@ -77,13 +83,6 @@ describe('ViewController', () => {
     });
 
     it('propagates bridge errors', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-
       (jest.mocked(($bridge as any).request) as jest.Mock).mockRejectedValue(
         new Error('boom'),
       );
@@ -96,13 +95,6 @@ describe('ViewController', () => {
 
   describe('present', () => {
     it('calls bridge with id', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-
       (jest.mocked(($bridge as any).request) as jest.Mock)
         .mockResolvedValueOnce({ id: 'uuid-2' }) // create
         .mockResolvedValueOnce(undefined); // present
@@ -129,13 +121,6 @@ describe('ViewController', () => {
 
   describe('dismiss', () => {
     it('calls bridge and clears listeners after dismiss', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-
       (jest.mocked(($bridge as any).request) as jest.Mock)
         .mockResolvedValueOnce({ id: 'uuid-3' }) // create
         .mockResolvedValueOnce(undefined); // dismiss
@@ -173,13 +158,6 @@ describe('ViewController', () => {
 
   describe('setEventHandlers', () => {
     it('registers provided handlers', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-
       const { ViewEmitter } = jest.requireMock('./view-emitter');
       const addListener = jest.fn();
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
@@ -219,13 +197,6 @@ describe('ViewController', () => {
     });
 
     it('reuses same ViewEmitter and overrides handlers when called multiple times', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-
       const { ViewEmitter } = jest.requireMock('./view-emitter');
       const addListener = jest.fn();
       const removeAllListeners = jest.fn();
@@ -282,13 +253,6 @@ describe('ViewController', () => {
     });
 
     it('replaces handler when same event is registered multiple times', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-
       const { ViewEmitter } = jest.requireMock('./view-emitter');
       const handlers = new Map();
       const addListener = jest.fn((event, callback) => {
@@ -338,13 +302,6 @@ describe('ViewController', () => {
     });
 
     it('preserves default handlers when setting custom handlers for different events', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-
       const { ViewEmitter } = jest.requireMock('./view-emitter');
       const handlers = new Map();
       const addListener = jest.fn((event, callback) => {
@@ -397,13 +354,6 @@ describe('ViewController', () => {
     });
 
     it('registers only provided handlers without merging defaults', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-
       const { ViewEmitter } = jest.requireMock('./view-emitter');
       const addListener = jest.fn();
       (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
@@ -440,21 +390,6 @@ describe('ViewController', () => {
 
   describe('showDialog', () => {
     it('encodes config and returns action', async () => {
-      const { AdaptyPaywallCoder } = jest.requireMock(
-        '@/coders/adapty-paywall',
-      );
-      (AdaptyPaywallCoder as unknown as jest.Mock).mockImplementation(() => ({
-        encode: jest.fn().mockReturnValue({}),
-      }));
-      const { AdaptyUiDialogConfigCoder } = jest.requireMock(
-        '@/coders/adapty-ui-dialog-config',
-      );
-      (AdaptyUiDialogConfigCoder as unknown as jest.Mock).mockImplementation(
-        () => ({
-          encode: jest.fn().mockReturnValue({ cfg: true }),
-        }),
-      );
-
       (jest.mocked(($bridge as any).request) as jest.Mock)
         .mockResolvedValueOnce({ id: 'uuid-5' }) // create
         .mockResolvedValueOnce('primary'); // showDialog result

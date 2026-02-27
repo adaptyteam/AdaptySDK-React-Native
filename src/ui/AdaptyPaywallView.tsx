@@ -1,10 +1,8 @@
 import React, { memo, useEffect, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyPaywall } from '@/types';
-import { AdaptyPaywallCoder } from '@/coders/adapty-paywall';
-import { AdaptyUICreatePaywallViewParamsCoder } from '@/coders';
-import { generateId } from '@/utils/generate-id';
-import { shouldEnableMock } from '@/utils';
+import { coderFactory } from '@/coders/factory';
+import { generateId, shouldEnableMock } from '@/utils';
 import {
   CreatePaywallViewParamsInput,
   EventHandlers,
@@ -13,8 +11,13 @@ import {
 import { createPaywallEventHandlers } from './create-paywall-event-handlers';
 import { DEFAULT_PARAMS } from './view-controller';
 import { AdaptyPaywallViewMock } from './AdaptyPaywallView.mock';
+import { filterUndefined } from '@adapty/core';
 
-export type Props = ViewProps & {
+/**
+ * Props for the {@link AdaptyPaywallView} component.
+ * @public
+ */
+export type AdaptyPaywallViewProps = ViewProps & {
   paywall: AdaptyPaywall;
   params?: CreatePaywallViewParamsInput;
   onCloseButtonPress?: EventHandlers['onCloseButtonPress'];
@@ -37,7 +40,7 @@ const NativeAdaptyPaywallView = shouldEnableMock()
   ? AdaptyPaywallViewMock
   : requireNativeComponent<NativeAdaptyPaywallViewProps>('AdaptyPaywallView');
 
-const AdaptyPaywallViewComponent: React.FC<Props> = ({
+const AdaptyPaywallViewComponent: React.FC<AdaptyPaywallViewProps> = ({
   paywall,
   params,
   onCloseButtonPress,
@@ -62,51 +65,49 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   );
 
   const paywallJson = useMemo(() => {
-    const encodedPaywall = new AdaptyPaywallCoder().encode(paywall);
+    const encodedPaywall = coderFactory.createPaywallCoder().encode(paywall);
     const paramsWithDefaults = { ...DEFAULT_PARAMS, ...params };
-    const encodedParams = new AdaptyUICreatePaywallViewParamsCoder().encode(
-      paramsWithDefaults,
-    );
+    const encodedParams = coderFactory
+      .createUiCreatePaywallViewParamsCoder()
+      .encode(paramsWithDefaults);
     return JSON.stringify({ paywall: encodedPaywall, ...encodedParams });
   }, [paywall, params]);
 
-  const eventHandlers = useMemo((): Partial<EventHandlers> => {
-    const handlers: Partial<EventHandlers> = {};
-
-    if (onCloseButtonPress) handlers.onCloseButtonPress = onCloseButtonPress;
-    if (onProductSelected) handlers.onProductSelected = onProductSelected;
-    if (onPurchaseStarted) handlers.onPurchaseStarted = onPurchaseStarted;
-    if (onPurchaseCompleted) handlers.onPurchaseCompleted = onPurchaseCompleted;
-    if (onPurchaseFailed) handlers.onPurchaseFailed = onPurchaseFailed;
-    if (onRestoreStarted) handlers.onRestoreStarted = onRestoreStarted;
-    if (onPaywallShown) handlers.onPaywallShown = onPaywallShown;
-    if (onWebPaymentNavigationFinished)
-      handlers.onWebPaymentNavigationFinished = onWebPaymentNavigationFinished;
-    if (onRestoreCompleted) handlers.onRestoreCompleted = onRestoreCompleted;
-    if (onRestoreFailed) handlers.onRestoreFailed = onRestoreFailed;
-    if (onRenderingFailed) handlers.onRenderingFailed = onRenderingFailed;
-    if (onLoadingProductsFailed)
-      handlers.onLoadingProductsFailed = onLoadingProductsFailed;
-    if (onCustomAction) handlers.onCustomAction = onCustomAction;
-    if (onUrlPress) handlers.onUrlPress = onUrlPress;
-
-    return handlers;
-  }, [
-    onCloseButtonPress,
-    onProductSelected,
-    onPurchaseStarted,
-    onPurchaseCompleted,
-    onPurchaseFailed,
-    onRestoreStarted,
-    onPaywallShown,
-    onWebPaymentNavigationFinished,
-    onRestoreCompleted,
-    onRestoreFailed,
-    onRenderingFailed,
-    onLoadingProductsFailed,
-    onCustomAction,
-    onUrlPress,
-  ]);
+  const eventHandlers = useMemo(
+    (): Partial<EventHandlers> =>
+      filterUndefined({
+        onCloseButtonPress,
+        onProductSelected,
+        onPurchaseStarted,
+        onPurchaseCompleted,
+        onPurchaseFailed,
+        onRestoreStarted,
+        onPaywallShown,
+        onWebPaymentNavigationFinished,
+        onRestoreCompleted,
+        onRestoreFailed,
+        onRenderingFailed,
+        onLoadingProductsFailed,
+        onCustomAction,
+        onUrlPress,
+      }),
+    [
+      onCloseButtonPress,
+      onProductSelected,
+      onPurchaseStarted,
+      onPurchaseCompleted,
+      onPurchaseFailed,
+      onRestoreStarted,
+      onPaywallShown,
+      onWebPaymentNavigationFinished,
+      onRestoreCompleted,
+      onRestoreFailed,
+      onRenderingFailed,
+      onLoadingProductsFailed,
+      onCustomAction,
+      onUrlPress,
+    ],
+  );
 
   useEffect(() => {
     const unsubscribe = createPaywallEventHandlers(eventHandlers, uniqueViewId);
@@ -122,4 +123,14 @@ const AdaptyPaywallViewComponent: React.FC<Props> = ({
   );
 };
 
+/**
+ * React component that renders a native paywall view.
+ *
+ * @remarks
+ * Accepts a paywall object and optional event handler props.
+ * Under the hood, it creates a native view and subscribes to paywall events.
+ *
+ * @see {@link AdaptyPaywallViewProps} for available props
+ * @public
+ */
 export const AdaptyPaywallView = memo(AdaptyPaywallViewComponent);

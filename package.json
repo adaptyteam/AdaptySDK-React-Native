@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "react-native-adapty",
-  "version": "3.15.3",
+  "version": "3.15.4",
   "description": "Adapty React Native SDK",
   "license": "MIT",
   "author": "Adapty team <support@adapty.io>",
@@ -53,6 +53,7 @@
     "format-check": "prettier ./src --check --plugin=prettier-plugin-sort-json",
     "lint": "eslint ./src --ext .ts",
     "test": "jest",
+    "test:coverage": "node ./scripts/check-bridge-api-test-coverage.js",
     "tsc": "tsc --noEmit",
     "update-versions": "node ./scripts/update_versions.cjs",
     "publish-git": "./scripts/git-package_publish.zsh",
@@ -94,6 +95,7 @@
     "typescript": "5.1.6"
   },
   "dependencies": {
+    "@adapty/core": "3.15.0",
     "tslib": "^2.5.0"
   },
   "peerDependencies": {

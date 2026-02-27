@@ -7,6 +7,13 @@
   resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.2.0.tgz#296d00581bfaaabfda1e976849d927824aaea81b"
   integrity sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw==
 
+"@adapty/core@3.15.0":
+  version "3.15.0"
+  resolved "https://registry.yarnpkg.com/@adapty/core/-/core-3.15.0.tgz#48e10bedee700f5b57fb0220d1f129e652cb83c2"
+  integrity sha512-tZWhhY1s69HZXlWWdF9cQzc+jo4yt48WH4bRZhGWyD7Rm+ohr+qYPtStDDQ9Qg2JF8azwZ4xw/XsTYFbXe1Esw==
+  dependencies:
+    tslib "^2.5.0"
+
 "@babel/code-frame@7.10.4", "@babel/code-frame@~7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.10.4.tgz#168da1a36e90da68ae8d49c0f1b48c7c6249213a"
