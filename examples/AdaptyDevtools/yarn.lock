@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@adapty/core@3.15.0":
+  version "3.15.0"
+  resolved "https://registry.yarnpkg.com/@adapty/core/-/core-3.15.0.tgz#48e10bedee700f5b57fb0220d1f129e652cb83c2"
+  integrity sha512-tZWhhY1s69HZXlWWdF9cQzc+jo4yt48WH4bRZhGWyD7Rm+ohr+qYPtStDDQ9Qg2JF8azwZ4xw/XsTYFbXe1Esw==
+  dependencies:
+    tslib "^2.5.0"
+
 "@ampproject/remapping@^2.2.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.3.0.tgz#ed441b6fa600072520ce18b43d2c8cc8caecc7f4"
@@ -5624,10 +5631,11 @@ react-is@^19.1.0:
   integrity sha512-Oe56aUPnkHyyDxxkvqtd7KkdQP5uIUfHxd5XTb3wE9d/kRnZLmKbDB0GWk919tdQ+mxxPtG6EAs6RMT6i1qtHg==
 
 react-native-adapty@latest:
-  version "3.11.3"
-  resolved "https://registry.yarnpkg.com/react-native-adapty/-/react-native-adapty-3.11.3.tgz#128c5178d3003c5fcad5bfc5e146cd237503abc9"
-  integrity sha512-w21QESO+3CLSmJBK6W9Cu3RuuX+AErqet4OMy8Gi5CYZktm4U7i/02heZ+AIUDoOvuwrYU5zYbB9NYoZTbQkXg==
+  version "3.15.4"
+  resolved "https://registry.yarnpkg.com/react-native-adapty/-/react-native-adapty-3.15.4.tgz#ce056e9704a1e1b2aca9ad959b6636bf18e9ca01"
+  integrity sha512-iAyYqcgYGDd1teHNEbWr9zVxRDTpJEdmbq4LYVTjMFkv8+uqiPx4Z8UJQLosO/sbvyGzsGbUCRdpBbipPkHOJQ==
   dependencies:
+    "@adapty/core" "3.15.0"
     tslib "^2.5.0"
 
 react-native-asset@^2.1.1:
