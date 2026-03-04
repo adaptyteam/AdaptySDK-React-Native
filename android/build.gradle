@@ -24,7 +24,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.3'
+        classpath 'com.android.tools.build:gradle:8.1.0'
 
         // noinspection DifferentKotlinGradleVersion
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -110,18 +110,16 @@ def getExtOrDefault(name) {
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
-    api 'io.adapty:android-sdk:3.11.0'
-    api 'io.adapty:android-ui:3.11.0'
-
-    //noinspection GradleDynamicVersion
-    api 'io.adapty.internal:crossplatform:3.11.1'
+    implementation platform('io.adapty:adapty-bom:3.15.2')
+    implementation 'io.adapty:android-sdk'
+    implementation 'io.adapty:android-ui'
+    implementation 'io.adapty.internal:crossplatform:3.15.7'
 
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
 
-    //noinspection DifferentStdlibGradleVersion
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    // kotlin-stdlib is added automatically by Kotlin Gradle plugin
 }
 
 if (isNewArchitectureEnabled()) {

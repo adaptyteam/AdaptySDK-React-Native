@@ -7,6 +7,8 @@ const adapty_error_1 = require("../adapty-error");
 const logger_1 = require("../logger");
 const coders_1 = require("../coders");
 const parse_1 = require("../coders/parse");
+const parse_paywall_1 = require("../coders/parse-paywall");
+const parse_onboarding_1 = require("../coders/parse-onboarding");
 const KEY_HANDLER_NAME = 'HANDLER';
 class NativeRequestHandler {
     constructor(moduleName) {
@@ -30,15 +32,15 @@ class NativeRequestHandler {
     request(method, params, resultType, ctx) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const log = ctx === null || ctx === void 0 ? void 0 : ctx.bridge({ methodName: `fetch/${method}` });
-            log === null || log === void 0 ? void 0 : log.start({ method, params });
+            log === null || log === void 0 ? void 0 : log.start(() => ({ method, params }));
             try {
                 const response = yield this._request(method, { args: params });
                 const result = (0, coders_1.parseMethodResult)(response, resultType, ctx);
-                log === null || log === void 0 ? void 0 : log.success({ response });
+                log === null || log === void 0 ? void 0 : log.success(() => ({ response }));
                 return result;
             }
             catch (error) {
-                log === null || log === void 0 ? void 0 : log.success({ error });
+                log === null || log === void 0 ? void 0 : log.success(() => ({ error }));
                 if (typeof error !== 'object' || error === null) {
                     throw adapty_error_1.AdaptyError.failedToDecodeNativeError(`Unexpected native error type. "Expected object", but got "${typeof error}"`, error);
                 }
@@ -59,22 +61,26 @@ class NativeRequestHandler {
         const consumeNativeCallback = (...data) => {
             const ctx = new logger_1.LogContext();
             const log = ctx.event({ methodName: event });
-            log.start(data);
+            log.start(() => ({ args: data }));
             let rawValue = null;
             const args = data.map(arg => {
                 try {
                     const commonEvent = (0, parse_1.parseCommonEvent)(event, arg, ctx);
                     if (commonEvent)
                         return commonEvent;
-                    const paywallEvent = (0, parse_1.parsePaywallEvent)(arg, ctx);
                     try {
                         rawValue = JSON.parse(arg);
                     }
                     catch (_a) { }
+                    const onboardingEvent = (0, parse_onboarding_1.parseOnboardingEvent)(arg, ctx);
+                    if (onboardingEvent) {
+                        return onboardingEvent;
+                    }
+                    const paywallEvent = (0, parse_paywall_1.parsePaywallEvent)(arg, ctx);
                     return paywallEvent;
                 }
                 catch (error) {
-                    log.failed({ error });
+                    log.failed(() => ({ error }));
                     throw error;
                 }
             });

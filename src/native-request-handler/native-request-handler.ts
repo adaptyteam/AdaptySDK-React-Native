@@ -7,11 +7,9 @@ import {
 import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '@/logger';
 import { parseMethodResult } from '@/coders';
-import {
-  AdaptyType,
-  parseCommonEvent,
-  parsePaywallEvent,
-} from '@/coders/parse';
+import { AdaptyType, parseCommonEvent } from '@/coders/parse';
+import { parsePaywallEvent } from '@/coders/parse-paywall';
+import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 
 const KEY_HANDLER_NAME = 'HANDLER';
 
@@ -59,16 +57,16 @@ export class NativeRequestHandler<
     ctx?: LogContext,
   ) {
     const log = ctx?.bridge({ methodName: `fetch/${method}` });
-    log?.start({ method, params });
+    log?.start(() => ({ method, params }));
 
     try {
       const response = await this._request(method, { args: params });
       const result = parseMethodResult<T>(response, resultType, ctx);
 
-      log?.success({ response });
+      log?.success(() => ({ response }));
       return result;
     } catch (error) {
-      log?.success({ error });
+      log?.success(() => ({ error }));
 
       if (typeof error !== 'object' || error === null) {
         throw AdaptyError.failedToDecodeNativeError(
@@ -106,7 +104,7 @@ export class NativeRequestHandler<
       const ctx = new LogContext();
 
       const log = ctx.event({ methodName: event });
-      log.start(data);
+      log.start(() => ({ args: data }));
 
       let rawValue = null;
 
@@ -115,14 +113,19 @@ export class NativeRequestHandler<
           const commonEvent = parseCommonEvent(event, arg, ctx);
           if (commonEvent) return commonEvent;
 
-          const paywallEvent = parsePaywallEvent(arg, ctx);
-
           try {
             rawValue = JSON.parse(arg);
           } catch {}
+
+          const onboardingEvent = parseOnboardingEvent(arg, ctx);
+          if (onboardingEvent) {
+            return onboardingEvent;
+          }
+
+          const paywallEvent = parsePaywallEvent(arg, ctx);
           return paywallEvent;
         } catch (error) {
-          log.failed({ error });
+          log.failed(() => ({ error }));
 
           throw error;
         }

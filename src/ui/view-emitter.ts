@@ -1,6 +1,13 @@
 import type { EventHandlers } from './types';
 import { $bridge } from '@/bridge';
 import { EmitterSubscription } from 'react-native';
+import { ParsedPaywallEvent, PaywallEventIdType } from '@/types/paywall-events';
+import { LogContext } from '@/logger';
+import {
+  NATIVE_EVENT_RESOLVER,
+  HANDLER_TO_NATIVE_EVENT,
+  extractPaywallCallbackArgs,
+} from '@adapty/core';
 
 type EventName = keyof EventHandlers;
 
@@ -10,6 +17,9 @@ type EventName = keyof EventHandlers;
 // const KEY_VIEW = 'view_id';
 
 /**
+ * ViewEmitter manages event handlers for paywall view events.
+ * Each event type can have only one handler - new handlers replace existing ones.
+ *
  * @remarks
  * View emitter wraps NativeEventEmitter
  * and provides several modifications:
@@ -24,12 +34,17 @@ export class ViewEmitter {
   private viewId: string;
   private eventListeners: Map<string, EmitterSubscription> = new Map();
   private handlers: Map<
-    string,
-    Array<{
-      handler: EventHandlers[keyof EventHandlers];
-      config: (typeof HANDLER_TO_EVENT_CONFIG)[keyof typeof HANDLER_TO_EVENT_CONFIG];
+    EventName,
+    {
+      handler: EventHandlers[EventName];
       onRequestClose: () => Promise<void>;
-    }>
+    }
+  > = new Map();
+  private internalHandlers: Map<
+    EventName,
+    {
+      handler: (event: ParsedPaywallEvent) => void;
+    }
   > = new Map();
 
   constructor(viewId: string) {
@@ -41,174 +56,161 @@ export class ViewEmitter {
     callback: EventHandlers[EventName],
     onRequestClose: () => Promise<void>,
   ): EmitterSubscription {
-    const viewId = this.viewId;
-    const config = HANDLER_TO_EVENT_CONFIG[event];
+    const nativeEvent = HANDLER_TO_NATIVE_EVENT[event];
 
-    if (!config) {
-      throw new Error(`No event config found for handler: ${event}`);
+    if (!nativeEvent) {
+      throw new Error(`No native event mapping found for handler: ${event}`);
     }
 
-    const handlersForEvent = this.handlers.get(config.nativeEvent) ?? [];
-    handlersForEvent.push({
+    // Replace existing handler for this event type
+    this.handlers.set(event, {
       handler: callback,
-      config,
       onRequestClose,
     });
-    this.handlers.set(config.nativeEvent, handlersForEvent);
 
-    if (!this.eventListeners.has(config.nativeEvent)) {
-      const handlers = this.handlers; // Capture the reference
+    // If no subscription to native event exists - create one
+    if (!this.eventListeners.has(nativeEvent)) {
       const subscription = $bridge.addEventListener(
-        config.nativeEvent,
-        function (arg) {
-          const eventViewId = this.rawValue['view']?.['id'] ?? null;
-          if (viewId !== eventViewId) {
-            return;
-          }
-
-          const eventHandlers = handlers.get(config.nativeEvent) ?? [];
-          for (const { handler, config, onRequestClose } of eventHandlers) {
-            if (
-              config.propertyMap &&
-              (arg as any)['action']?.type !== config.propertyMap['action']
-            ) {
-              continue;
-            }
-
-            const callbackArgs = extractCallbackArgs(
-              config.handlerName,
-              arg as Record<string, any>,
-            );
-            const cb = handler as (...args: typeof callbackArgs) => boolean;
-            const shouldClose = cb.apply(null, callbackArgs);
-
-            if (shouldClose) {
-              onRequestClose();
-            }
-          }
-        },
+        nativeEvent,
+        this.createEventHandler(nativeEvent),
       );
-      this.eventListeners.set(config.nativeEvent, subscription);
+      this.eventListeners.set(nativeEvent, subscription);
     }
 
-    return this.eventListeners.get(config.nativeEvent)!;
+    return this.eventListeners.get(nativeEvent)!;
+  }
+
+  /**
+   * Adds an internal event handler.
+   * Internal handlers:
+   * - Are called AFTER client handlers
+   * - Do NOT return boolean (don't affect auto-dismiss)
+   * - Are used for internal SDK logic (e.g., cleanup)
+   * @internal
+   */
+  public addInternalListener(
+    event: EventName,
+    callback: (event: ParsedPaywallEvent) => void,
+  ): void {
+    const nativeEvent = HANDLER_TO_NATIVE_EVENT[event];
+
+    if (!nativeEvent) {
+      throw new Error(`No native event mapping found for handler: ${event}`);
+    }
+
+    // Replace existing internal handler for this event
+    this.internalHandlers.set(event, {
+      handler: callback,
+    });
+
+    // If no subscription to native event exists - create one
+    if (!this.eventListeners.has(nativeEvent)) {
+      const subscription = $bridge.addEventListener(
+        nativeEvent,
+        this.createEventHandler(nativeEvent),
+      );
+      this.eventListeners.set(nativeEvent, subscription);
+    }
+  }
+
+  private createEventHandler(nativeEvent: PaywallEventIdType) {
+    return (parsedEvent: ParsedPaywallEvent | null) => {
+      if (!parsedEvent) {
+        return;
+      }
+
+      const eventViewId = parsedEvent.view.id;
+      if (eventViewId !== this.viewId) {
+        return; // Event for different view
+      }
+
+      const ctx = new LogContext();
+      const log = ctx.event({ methodName: nativeEvent });
+      log.start(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
+
+      // Resolve handler name from event
+      const resolver = NATIVE_EVENT_RESOLVER[nativeEvent];
+      if (!resolver) {
+        log.failed(() => ({ reason: 'no_resolver', nativeEvent }));
+        return;
+      }
+
+      const resolvedHandler = resolver(parsedEvent);
+      if (!resolvedHandler) {
+        // Event doesn't match any handler (e.g., unknown action type)
+        return;
+      }
+
+      // TypeScript doesn't narrow the type after the null check, so we assert it
+      const handlerName = resolvedHandler as EventName;
+
+      let hasError = false;
+
+      // 1. Client handlers
+      const handlerData = this.handlers.get(handlerName);
+      if (handlerData) {
+        const { handler, onRequestClose } = handlerData;
+        const callbackArgs = extractPaywallCallbackArgs(
+          handlerName,
+          parsedEvent,
+        );
+        const callback = handler as (
+          ...args: Parameters<EventHandlers[typeof handlerName]>
+        ) => boolean;
+
+        try {
+          const shouldClose = callback(...callbackArgs);
+
+          if (shouldClose) {
+            onRequestClose().catch(error => {
+              log.failed(() => ({
+                error,
+                handlerName,
+                viewId: eventViewId,
+                eventId: parsedEvent.id,
+                reason: 'on_request_close_failed',
+              }));
+            });
+          }
+        } catch (error) {
+          hasError = true;
+          log.failed(() => ({
+            error,
+            handlerName,
+            viewId: eventViewId,
+            eventId: parsedEvent.id,
+            reason: 'handler_error',
+          }));
+        }
+      }
+
+      // 2. Internal handlers
+      const internalHandlerData = this.internalHandlers.get(handlerName);
+      if (internalHandlerData) {
+        try {
+          internalHandlerData.handler(parsedEvent);
+        } catch (error) {
+          hasError = true;
+          log.failed(() => ({
+            error,
+            handlerName: `${handlerName} (internal)`,
+            viewId: eventViewId,
+            eventId: parsedEvent.id,
+            reason: 'internal_handler_failed',
+          }));
+        }
+      }
+
+      if (!hasError) {
+        log.success(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
+      }
+    };
   }
 
   public removeAllListeners() {
     this.eventListeners.forEach(subscription => subscription.remove());
     this.eventListeners.clear();
     this.handlers.clear();
-    $bridge.removeAllEventListeners();
-  }
-}
-
-type UiEventMapping = {
-  [nativeEventId: string]: {
-    handlerName: keyof EventHandlers;
-    propertyMap?: {
-      [key: string]: string;
-    };
-  }[];
-};
-
-const UI_EVENT_MAPPINGS: UiEventMapping = {
-  paywall_view_did_perform_action: [
-    {
-      handlerName: 'onCloseButtonPress',
-      propertyMap: {
-        action: 'close',
-      },
-    },
-    {
-      handlerName: 'onAndroidSystemBack',
-      propertyMap: {
-        action: 'system_back',
-      },
-    },
-    {
-      handlerName: 'onUrlPress',
-      propertyMap: {
-        action: 'open_url',
-      },
-    },
-    {
-      handlerName: 'onCustomAction',
-      propertyMap: {
-        action: 'custom',
-      },
-    },
-  ],
-  paywall_view_did_select_product: [{ handlerName: 'onProductSelected' }],
-  paywall_view_did_start_purchase: [{ handlerName: 'onPurchaseStarted' }],
-  paywall_view_did_finish_purchase: [{ handlerName: 'onPurchaseCompleted' }],
-  paywall_view_did_fail_purchase: [{ handlerName: 'onPurchaseFailed' }],
-  paywall_view_did_start_restore: [{ handlerName: 'onRestoreStarted' }],
-  paywall_view_did_appear: [{ handlerName: 'onPaywallShown' }],
-  paywall_view_did_disappear: [{ handlerName: 'onPaywallClosed' }],
-  paywall_view_did_finish_web_payment_navigation: [
-    { handlerName: 'onWebPaymentNavigationFinished' },
-  ],
-  paywall_view_did_finish_restore: [{ handlerName: 'onRestoreCompleted' }],
-  paywall_view_did_fail_restore: [{ handlerName: 'onRestoreFailed' }],
-  paywall_view_did_fail_rendering: [{ handlerName: 'onRenderingFailed' }],
-  paywall_view_did_fail_loading_products: [
-    { handlerName: 'onLoadingProductsFailed' },
-  ],
-};
-
-const HANDLER_TO_EVENT_CONFIG: Record<
-  EventName,
-  {
-    nativeEvent: string;
-    propertyMap?: { [key: string]: string };
-    handlerName: EventName;
-  }
-> = Object.entries(UI_EVENT_MAPPINGS).reduce(
-  (acc, [nativeEvent, mappings]) => {
-    mappings.forEach(({ handlerName, propertyMap }) => {
-      acc[handlerName] = {
-        nativeEvent,
-        propertyMap,
-        handlerName,
-      };
-    });
-    return acc;
-  },
-  {} as Record<
-    EventName,
-    {
-      nativeEvent: string;
-      propertyMap?: { [key: string]: string };
-      handlerName: EventName;
-    }
-  >,
-);
-
-function extractCallbackArgs(
-  handlerName: EventName,
-  eventArg: Record<string, any>,
-) {
-  switch (handlerName) {
-    case 'onProductSelected':
-      return [eventArg['product_id']];
-    case 'onPurchaseStarted':
-      return [eventArg['product']];
-    case 'onPurchaseCompleted':
-      return [eventArg['purchased_result'], eventArg['product']];
-    case 'onPurchaseFailed':
-      return [eventArg['error'], eventArg['product']];
-    case 'onRestoreCompleted':
-      return [eventArg['profile']];
-    case 'onRestoreFailed':
-    case 'onRenderingFailed':
-    case 'onLoadingProductsFailed':
-      return [eventArg['error']];
-    case 'onCustomAction':
-    case 'onUrlPress':
-      return [eventArg['action'].value];
-    case 'onWebPaymentNavigationFinished':
-      return [eventArg['product'], eventArg['error']];
-    default:
-      return [];
+    this.internalHandlers.clear();
   }
 }

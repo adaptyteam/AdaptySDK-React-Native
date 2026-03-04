@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/mock/index.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,wBAAwB,CAAC;AAC5D,OAAO,EAAE,SAAS,EAAE,MAAM,cAAc,CAAC;AACzC,YAAY,EAAE,gBAAgB,EAAE,MAAM,SAAS,CAAC;AAChD,OAAO,EACL,iBAAiB,EACjB,4BAA4B,EAC5B,iBAAiB,EACjB,kBAAkB,EAClB,wBAAwB,EACxB,oBAAoB,GACrB,MAAM,aAAa,CAAC"}

@@ -2,11 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OnboardingViewEmitter = void 0;
 const bridge_1 = require("../bridge");
+const logger_1 = require("../logger");
+const core_1 = require("@adapty/core");
 // Emitting view ID is passed in JSON["_view_id"]
 // So that no all visible views would emit this event
 // Must be in every callback response in the form of UUID string
 // const KEY_VIEW = 'view_id';
 /**
+ * OnboardingViewEmitter manages event handlers for onboarding view events.
+ * Each event type can have only one handler - new handlers replace existing ones.
+ *
  * @remarks
  * View emitter wraps NativeEventEmitter
  * and provides several modifications:
@@ -24,115 +29,79 @@ class OnboardingViewEmitter {
         this.viewId = viewId;
     }
     addListener(event, callback, onRequestClose) {
-        var _a;
-        const viewId = this.viewId;
-        const config = HANDLER_TO_EVENT_CONFIG[event];
+        const config = core_1.HANDLER_TO_EVENT_CONFIG[event];
         if (!config) {
             throw new Error(`No event config found for handler: ${event}`);
         }
-        const handlersForEvent = (_a = this.handlers.get(config.nativeEvent)) !== null && _a !== void 0 ? _a : [];
-        handlersForEvent.push({
+        // Replace existing handler for this event type
+        this.handlers.set(event, {
             handler: callback,
             config,
             onRequestClose,
         });
-        this.handlers.set(config.nativeEvent, handlersForEvent);
         if (!this.eventListeners.has(config.nativeEvent)) {
-            const handlers = this.handlers; // Capture the reference
-            const subscription = bridge_1.$bridge.addEventListener(config.nativeEvent, function () {
-                var _a, _b, _c;
-                const eventViewId = (_b = (_a = this.rawValue['view']) === null || _a === void 0 ? void 0 : _a['id']) !== null && _b !== void 0 ? _b : null;
-                if (viewId !== eventViewId) {
-                    return;
-                }
-                const eventHandlers = (_c = handlers.get(config.nativeEvent)) !== null && _c !== void 0 ? _c : [];
-                for (const { handler, config, onRequestClose } of eventHandlers) {
-                    const callbackArgs = extractCallbackArgs(config.handlerName, this.rawValue);
-                    const cb = handler;
-                    const shouldClose = cb.apply(null, callbackArgs);
-                    if (shouldClose) {
-                        onRequestClose();
-                    }
-                }
-            });
+            const subscription = bridge_1.$bridge.addEventListener(config.nativeEvent, this.createEventHandler(config));
             this.eventListeners.set(config.nativeEvent, subscription);
         }
         return this.eventListeners.get(config.nativeEvent);
+    }
+    createEventHandler(config) {
+        return (parsedEvent) => {
+            const eventViewId = parsedEvent.view.id;
+            if (this.viewId !== eventViewId) {
+                return;
+            }
+            const ctx = new logger_1.LogContext();
+            const log = ctx.event({ methodName: config.nativeEvent });
+            log.start(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
+            // Get all possible handler names for this native event
+            const possibleHandlers = core_1.NATIVE_EVENT_TO_HANDLERS[config.nativeEvent] || [];
+            let hasError = false;
+            for (const handlerName of possibleHandlers) {
+                const handlerData = this.handlers.get(handlerName);
+                if (!handlerData) {
+                    continue; // Handler not registered for this view
+                }
+                const { handler, onRequestClose } = handlerData;
+                const callbackArgs = (0, core_1.extractOnboardingCallbackArgs)(handlerName, parsedEvent);
+                const callback = handler;
+                let shouldClose = false;
+                try {
+                    shouldClose = callback(...callbackArgs);
+                }
+                catch (error) {
+                    hasError = true;
+                    shouldClose = true;
+                    log.failed(() => ({
+                        error,
+                        handlerName,
+                        viewId: eventViewId,
+                        eventId: parsedEvent.id,
+                        reason: 'user_handler_failed',
+                    }));
+                }
+                if (shouldClose) {
+                    onRequestClose().catch(error => {
+                        log.failed(() => ({
+                            error,
+                            handlerName,
+                            viewId: eventViewId,
+                            eventId: parsedEvent.id,
+                            reason: 'on_request_close_failed',
+                        }));
+                    });
+                }
+            }
+            if (!hasError) {
+                log.success(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
+            }
+        };
     }
     removeAllListeners() {
         this.eventListeners.forEach(subscription => subscription.remove());
         this.eventListeners.clear();
         this.handlers.clear();
-        bridge_1.$bridge.removeAllEventListeners();
     }
 }
 exports.OnboardingViewEmitter = OnboardingViewEmitter;
-const ONBOARDING_EVENT_MAPPINGS = {
-    onboarding_on_close_action: [
-        {
-            handlerName: 'onClose',
-        },
-    ],
-    onboarding_on_custom_action: [
-        {
-            handlerName: 'onCustom',
-        },
-    ],
-    onboarding_on_paywall_action: [
-        {
-            handlerName: 'onPaywall',
-        },
-    ],
-    onboarding_on_state_updated_action: [
-        {
-            handlerName: 'onStateUpdated',
-        },
-    ],
-    onboarding_did_finish_loading: [
-        {
-            handlerName: 'onFinishedLoading',
-        },
-    ],
-    onboarding_on_analytics_action: [
-        {
-            handlerName: 'onAnalytics',
-        },
-    ],
-    onboarding_did_fail_with_error: [
-        {
-            handlerName: 'onError',
-        },
-    ],
-};
-const HANDLER_TO_EVENT_CONFIG = Object.entries(ONBOARDING_EVENT_MAPPINGS).reduce((acc, [nativeEvent, mappings]) => {
-    mappings.forEach(({ handlerName }) => {
-        acc[handlerName] = {
-            nativeEvent,
-            handlerName,
-        };
-    });
-    return acc;
-}, {});
-function extractCallbackArgs(handlerName, eventArg) {
-    const actionId = eventArg['id'] || '';
-    const meta = eventArg['meta'] || {};
-    const event = eventArg['event'] || {};
-    const action = eventArg['action'] || {};
-    switch (handlerName) {
-        case 'onClose':
-        case 'onCustom':
-        case 'onPaywall':
-            return [actionId, meta];
-        case 'onStateUpdated':
-            return [action.element_id ? action : { element_id: actionId }, meta];
-        case 'onFinishedLoading':
-            return [meta];
-        case 'onAnalytics':
-            return [event, meta];
-        case 'onError':
-            return [eventArg['error']];
-        default:
-            return [];
-    }
-}
 //# sourceMappingURL=onboarding-view-emitter.js.map

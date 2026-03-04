@@ -1,12 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OnboardingViewController = void 0;
+exports.OnboardingViewController = exports.DEFAULT_ONBOARDING_PARAMS = void 0;
 const tslib_1 = require("tslib");
 const types_1 = require("./types");
+const types_2 = require("../types");
 const logger_1 = require("../logger");
-const adapty_onboarding_1 = require("../coders/adapty-onboarding");
+const factory_1 = require("../coders/factory");
 const bridge_1 = require("../bridge");
 const onboarding_view_emitter_1 = require("./onboarding-view-emitter");
+exports.DEFAULT_ONBOARDING_PARAMS = {
+    externalUrlsPresentation: types_2.WebPresentation.BrowserInApp,
+};
 /**
  * Provides methods to control created onboarding view
  * @public
@@ -18,21 +22,23 @@ class OnboardingViewController {
      * and creates reference between native controller and JS instance
      * @internal
      */
-    static create(onboarding) {
+    static create(onboarding, params) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'createOnboardingView' });
-            log.start({ onboarding });
+            log.start(() => ({ onboarding, params }));
             const view = new OnboardingViewController();
-            const coder = new adapty_onboarding_1.AdaptyOnboardingCoder();
+            const coder = factory_1.coderFactory.createOnboardingCoder();
             const methodKey = 'adapty_ui_create_onboarding_view';
-            const data = {
-                method: methodKey,
-                onboarding: coder.encode(onboarding),
-            };
+            const paramsWithDefaults = Object.assign(Object.assign({}, exports.DEFAULT_ONBOARDING_PARAMS), params);
+            const encodedParams = factory_1.coderFactory
+                .createUiCreateOnboardingViewParamsCoder()
+                .encode(paramsWithDefaults);
+            const data = Object.assign({ method: methodKey, onboarding: coder.encode(onboarding) }, encodedParams);
             const body = JSON.stringify(data);
             const result = yield view.handle(methodKey, body, 'AdaptyUiView', ctx, log);
             view.id = result.id;
+            view.setEventHandlers(types_1.DEFAULT_ONBOARDING_EVENT_HANDLERS);
             return view;
         });
     }
@@ -49,14 +55,28 @@ class OnboardingViewController {
      * @internal
      */
     constructor() {
-        this.unsubscribeAllListeners = null;
+        this.viewEmitter = null;
+        this.onRequestClose = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.dismiss();
+            }
+            catch (error) {
+                // Log error but don't re-throw to avoid breaking event handling
+                const ctx = new logger_1.LogContext();
+                const log = ctx.call({ methodName: 'onRequestClose' });
+                log.failed(() => ({
+                    error,
+                    message: 'Failed to dismiss onboarding view',
+                }));
+            }
+        });
         this.id = null;
     }
     handle(method, params, resultType, ctx, log) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield bridge_1.$bridge.request(method, params, resultType, ctx);
-                log.success(result);
+                log.success(() => result);
                 return result;
             }
             catch (error) {
@@ -64,13 +84,18 @@ class OnboardingViewController {
                  * Success because error was handled validly
                  * It is a developer task to define which errors must be logged
                  */
-                log.success({ error });
+                log.success(() => ({ error }));
                 throw error;
             }
         });
     }
     /**
-     * Presents an onboarding view as a full-screen modal
+     * Presents an onboarding view as a modal
+     *
+     * @param {Object} options - Presentation options
+     * @param {AdaptyIOSPresentationStyle} [options.iosPresentationStyle] - iOS presentation style.
+     * Available options: 'full_screen' (default) or 'page_sheet'.
+     * Only affects iOS platform.
      *
      * @remarks
      * Calling `present` upon already visible onboarding view
@@ -78,20 +103,26 @@ class OnboardingViewController {
      *
      * @throws {AdaptyError}
      */
-    present() {
+    present(options = {}) {
+        var _a;
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'present' });
-            log.start({ _id: this.id });
+            log.start(() => ({
+                _id: this.id,
+                iosPresentationStyle: options.iosPresentationStyle,
+            }));
             if (this.id === null) {
-                log.failed({ error: 'no _id' });
+                log.failed(() => ({ error: 'no _id' }));
                 throw this.errNoViewReference();
             }
             const methodKey = 'adapty_ui_present_onboarding_view';
-            const body = JSON.stringify({
+            const requestData = {
                 method: methodKey,
                 id: this.id,
-            });
+                ios_presentation_style: (_a = options.iosPresentationStyle) !== null && _a !== void 0 ? _a : 'full_screen',
+            };
+            const body = JSON.stringify(requestData);
             const result = yield this.handle(methodKey, body, 'Void', ctx, log);
             return result;
         });
@@ -105,9 +136,9 @@ class OnboardingViewController {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'dismiss' });
-            log.start({ _id: this.id });
+            log.start(() => ({ _id: this.id }));
             if (this.id === null) {
-                log.failed({ error: 'no id' });
+                log.failed(() => ({ error: 'no id' }));
                 throw this.errNoViewReference();
             }
             const methodKey = 'adapty_ui_dismiss_onboarding_view';
@@ -117,49 +148,49 @@ class OnboardingViewController {
                 destroy: false,
             });
             yield this.handle(methodKey, body, 'Void', ctx, log);
-            if (this.unsubscribeAllListeners) {
-                this.unsubscribeAllListeners();
+            if (this.viewEmitter) {
+                this.viewEmitter.removeAllListeners();
             }
         });
     }
     /**
-     * Creates a set of specific view event listeners
+     * Sets event handlers for onboarding view events
      *
      * @remarks
-     * It registers only requested set of event handlers.
-     * Your config is assigned into event listeners {@link DEFAULT_ONBOARDING_EVENT_HANDLERS},
-     * that handle default closing behavior.
-     * - `onClose`
+     * Each event type can have only one handler — new handlers replace existing ones.
+     * Default handlers are set during view creation: {@link DEFAULT_ONBOARDING_EVENT_HANDLERS}
+     * - `onClose` - closes onboarding view (returns `true`)
+     *
+     * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
+     * from your custom listener to retain default behavior.
+     *
+     * **Important**: Calling this method multiple times will override only the handlers you provide,
+     * keeping previously set handlers intact.
      *
      * @param {Partial<OnboardingEventHandlers>} [eventHandlers] - set of event handling callbacks
      * @returns {() => void} unsubscribe - function to unsubscribe all listeners
      */
-    registerEventHandlers(eventHandlers = types_1.DEFAULT_ONBOARDING_EVENT_HANDLERS) {
+    setEventHandlers(eventHandlers = {}) {
         const ctx = new logger_1.LogContext();
-        const log = ctx.call({ methodName: 'registerEventHandlers' });
-        log.start({ _id: this.id });
+        const log = ctx.call({ methodName: 'setEventHandlers' });
+        log.start(() => ({ _id: this.id }));
         if (this.id === null) {
             throw this.errNoViewReference();
         }
-        const finalEventHandlers = Object.assign(Object.assign({}, types_1.DEFAULT_ONBOARDING_EVENT_HANDLERS), eventHandlers);
-        // DIY way to tell TS that original arg should not be used
-        const deprecateVar = (_target) => true;
-        if (!deprecateVar(eventHandlers)) {
-            return () => { };
+        // Create viewEmitter on first call
+        if (!this.viewEmitter) {
+            this.viewEmitter = new onboarding_view_emitter_1.OnboardingViewEmitter(this.id);
         }
-        const viewEmitter = new onboarding_view_emitter_1.OnboardingViewEmitter(this.id);
-        Object.keys(finalEventHandlers).forEach(eventStr => {
+        // Register only provided handlers (they will replace existing ones for same events)
+        Object.keys(eventHandlers).forEach(eventStr => {
             const event = eventStr;
-            if (!finalEventHandlers.hasOwnProperty(event)) {
+            if (!eventHandlers.hasOwnProperty(event)) {
                 return;
             }
-            const handler = finalEventHandlers[event];
-            viewEmitter.addListener(event, handler, () => this.dismiss());
+            const handler = eventHandlers[event];
+            this.viewEmitter.addListener(event, handler, this.onRequestClose);
         });
-        const unsubscribe = () => viewEmitter.removeAllListeners();
-        // expose to class to be able to unsubscribe on dismiss
-        this.unsubscribeAllListeners = unsubscribe;
-        return unsubscribe;
+        return () => { var _a; return (_a = this.viewEmitter) === null || _a === void 0 ? void 0 : _a.removeAllListeners(); };
     }
     errNoViewReference() {
         throw new Error('View reference not found');

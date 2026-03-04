@@ -1,28 +1,36 @@
 import React from 'react';
 import { ViewProps } from 'react-native';
-import { AdaptyOnboarding } from '../types';
-import { AdaptyUiOnboardingMeta, OnboardingStateUpdatedAction, OnboardingAnalyticsEventName } from './types';
-import { AdaptyError } from '../adapty-error';
-export interface OnboardingViewEventHandlers {
-    onClose: (actionId: string, meta: AdaptyUiOnboardingMeta) => void;
-    onCustom: (actionId: string, meta: AdaptyUiOnboardingMeta) => void;
-    onPaywall: (actionId: string, meta: AdaptyUiOnboardingMeta) => void;
-    onStateUpdated: (action: OnboardingStateUpdatedAction, meta: AdaptyUiOnboardingMeta) => void;
-    onFinishedLoading: (meta: AdaptyUiOnboardingMeta) => void;
-    onAnalytics: (event: {
-        name: OnboardingAnalyticsEventName;
-        element_id?: string;
-        reply?: string;
-    }, meta: AdaptyUiOnboardingMeta) => void;
-    onError: (error: AdaptyError) => void;
-}
-export type AdaptyOnboardingNativeEvent = {
-    eventId: string;
-    eventData: string;
-};
-export type Props = ViewProps & {
+import { AdaptyOnboarding, WebPresentation } from '../types';
+import { OnboardingEventHandlers } from './types';
+/**
+ * Props for the {@link AdaptyOnboardingView} component.
+ * @public
+ */
+export type AdaptyOnboardingViewProps = ViewProps & {
     onboarding: AdaptyOnboarding;
-    eventHandlers?: Partial<OnboardingViewEventHandlers>;
+    externalUrlsPresentation?: WebPresentation;
+    onClose?: OnboardingEventHandlers['onClose'];
+    onCustom?: OnboardingEventHandlers['onCustom'];
+    onPaywall?: OnboardingEventHandlers['onPaywall'];
+    onStateUpdated?: OnboardingEventHandlers['onStateUpdated'];
+    onFinishedLoading?: OnboardingEventHandlers['onFinishedLoading'];
+    onAnalytics?: OnboardingEventHandlers['onAnalytics'];
+    onError?: OnboardingEventHandlers['onError'];
+    /**
+     * @deprecated Use individual event handler props instead (onClose, onCustom, onPaywall, etc.)
+     * This prop is kept for backward compatibility and will be removed in a future version.
+     */
+    eventHandlers?: Partial<OnboardingEventHandlers>;
 };
-export declare const AdaptyOnboardingView: React.FC<Props>;
+/**
+ * React component that renders a native onboarding view.
+ *
+ * @remarks
+ * Accepts an onboarding object and optional event handler props.
+ * Under the hood, it creates a native view and subscribes to onboarding events.
+ *
+ * @see {@link AdaptyOnboardingViewProps} for available props
+ * @public
+ */
+export declare const AdaptyOnboardingView: React.NamedExoticComponent<AdaptyOnboardingViewProps>;
 //# sourceMappingURL=AdaptyOnboardingView.d.ts.map

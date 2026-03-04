@@ -1,17 +1,19 @@
 import { EmitterSubscription } from 'react-native';
 import { LogContext, LogScope } from './logger';
+import type { ActivateParamsInput, FileLocation, GetPlacementForDefaultAudienceParamsInput, GetPlacementParamsInput, IdentifyParamsInput, LogLevel, MakePurchaseParamsInput } from '@adapty/core';
 import type * as Model from './types';
-import * as Input from './types/inputs';
 import { MethodName, UserEventName } from './types/bridge';
 import { AdaptyType } from './coders/parse';
-import { RefundPreference, AdaptyProfile, AdaptyInstallationDetails } from './types';
+import { RefundPreference, AdaptyProfile, AdaptyInstallationDetails, WebPresentation } from './types';
 import { AdaptyError } from './adapty-error';
+import type { AdaptyMockConfig } from './mock/types';
 /**
  * Entry point for the Adapty SDK.
  * All Adapty methods are available through this class.
  * @public
  */
 export declare class Adapty {
+    constructor();
     private resolveHeldActivation?;
     private activating;
     private nonWaitingMethods;
@@ -32,6 +34,27 @@ export declare class Adapty {
      * Removes all attached event listeners
      */
     removeAllListeners(): void;
+    /**
+     * Enables mock mode.
+     *
+     * @remarks
+     * This method should be called before activate() if you want to test
+     * SDK methods without full activation (e.g., isActivated()).
+     * If bridge is already initialized, this method does nothing.
+     *
+     * **Important**: Mock mode cannot be disabled at runtime.
+     * To switch back to production mode, you need to restart the app.
+     *
+     * @param {AdaptyMockConfig} [mockConfig] - Optional mock configuration
+     *
+     * @example
+     * ```ts
+     * adapty.enableMock({ profile: { ... } });
+     * const isActivated = await adapty.isActivated(); // false
+     * await adapty.activate('api_key');
+     * ```
+     */
+    enableMock(mockConfig?: AdaptyMockConfig): void;
     /**
      * Initializes the Adapty SDK.
      *
@@ -55,13 +78,13 @@ export declare class Adapty {
      *
      * @param {string} apiKey - You can find it in your app settings
      * in {@link https://app.adapty.io/ | Adapty Dashboard} App settings > General.
-     * @param {Input.ActivateParamsInput} params - Optional parameters of type {@link ActivateParamsInput}.
+     * @param {ActivateParamsInput} params - Optional parameters of type {@link ActivateParamsInput}.
      * @returns {Promise<void>} A promise that resolves when the SDK is initialized.
      *
      * @throws {@link AdaptyError}
      * Usually throws if the SDK is already activated or if the API key is invalid.
      */
-    activate(apiKey: string, params?: Input.ActivateParamsInput): Promise<void>;
+    activate(apiKey: string, params?: ActivateParamsInput): Promise<void>;
     /**
      * Fetches the paywall by the specified placement.
      *
@@ -76,7 +99,7 @@ export declare class Adapty {
      * This is the value you specified when you created the placement
      * in the Adapty Dashboard.
      * @param {string | undefined} [locale] - The locale of the desired paywall.
-     * @param {Input.GetPlacementParamsInput} [params] - Additional parameters for retrieving paywall.
+     * @param {GetPlacementParamsInput} [params] - Additional parameters for retrieving paywall.
      * @returns {Promise<Model.AdaptyPaywall>}
      * A promise that resolves with a requested paywall.
      *
@@ -85,7 +108,7 @@ export declare class Adapty {
      * 1. if the paywall with the specified ID is not found
      * 2. if your bundle ID does not match with your Adapty Dashboard setup
      */
-    getPaywall(placementId: string, locale?: string, params?: Input.GetPlacementParamsInput): Promise<Model.AdaptyPaywall>;
+    getPaywall(placementId: string, locale?: string, params?: GetPlacementParamsInput): Promise<Model.AdaptyPaywall>;
     /**
      * Fetches the paywall of the specified placement for the **All Users** audience.
      *
@@ -105,7 +128,7 @@ export declare class Adapty {
      * This is the value you specified when you created the placement
      * in the Adapty Dashboard.
      * @param {string | undefined} [locale] - The locale of the desired paywall.
-     * @param {Input.GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
+     * @param {GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
      * @returns {Promise<Model.AdaptyPaywall>}
      * A promise that resolves with a requested paywall.
      *
@@ -114,7 +137,7 @@ export declare class Adapty {
      * 1. if the paywall with the specified ID is not found
      * 2. if your bundle ID does not match with your Adapty Dashboard setup
      */
-    getPaywallForDefaultAudience(placementId: string, locale?: string, params?: Input.GetPlacementForDefaultAudienceParamsInput): Promise<Model.AdaptyPaywall>;
+    getPaywallForDefaultAudience(placementId: string, locale?: string, params?: GetPlacementForDefaultAudienceParamsInput): Promise<Model.AdaptyPaywall>;
     /**
      * Fetches a list of products associated with a provided paywall.
      *
@@ -130,8 +153,8 @@ export declare class Adapty {
      * @throws {@link AdaptyError}
      */
     getPaywallProducts(paywall: Model.AdaptyPaywall): Promise<Model.AdaptyPaywallProduct[]>;
-    getOnboarding(placementId: string, locale?: string, params?: Input.GetPlacementParamsInput): Promise<Model.AdaptyOnboarding>;
-    getOnboardingForDefaultAudience(placementId: string, locale?: string, params?: Input.GetPlacementParamsInput): Promise<Model.AdaptyOnboarding>;
+    getOnboarding(placementId: string, locale?: string, params?: GetPlacementParamsInput): Promise<Model.AdaptyOnboarding>;
+    getOnboardingForDefaultAudience(placementId: string, locale?: string, params?: GetPlacementParamsInput): Promise<Model.AdaptyOnboarding>;
     /**
      * Fetches a user profile.
      *
@@ -162,9 +185,10 @@ export declare class Adapty {
      * when the user switches from being an anonymous user to an authenticated user.
      *
      * @param {string} customerUserId - unique user id
+     * @param {IdentifyParamsInput} [params] - Additional parameters for identification
      * @throws {@link AdaptyError}
      */
-    identify(customerUserId: string): Promise<void>;
+    identify(customerUserId: string, params?: IdentifyParamsInput): Promise<void>;
     /**
      * Logs a paywall view event.
      *
@@ -188,34 +212,8 @@ export declare class Adapty {
      * @returns {Promise<void>} resolves when the event is logged
      */
     logShowPaywall(paywall: Model.AdaptyPaywall): Promise<void>;
-    openWebPaywall(paywallOrProduct: Model.AdaptyPaywall | Model.AdaptyPaywallProduct): Promise<void>;
+    openWebPaywall(paywallOrProduct: Model.AdaptyPaywall | Model.AdaptyPaywallProduct, openIn?: WebPresentation): Promise<void>;
     createWebPaywallUrl(paywallOrProduct: Model.AdaptyPaywall | Model.AdaptyPaywallProduct): Promise<string>;
-    /**
-     * Logs an onboarding screen view event.
-     *
-     * In order for you to be able to analyze user behavior
-     * at this critical stage without leaving Adapty,
-     * we have implemented the ability to send dedicated events
-     * every time a user visits yet another onboarding screen.
-     *
-     * @remarks
-     * Even though there is only one mandatory parameter in this function,
-     * we recommend that you think of names for all the screens,
-     * as this will make the work of analysts
-     * during the data examination phase much easier.
-     *
-     * @example
-     * ```ts
-     * adapty.logShowOnboarding(1, 'onboarding_name', 'screen_name');
-     * ```
-     *
-     * @param {number} screenOrder - The number of the screen that was shown to the user.
-     * @param {string} [onboardingName] - The name of the onboarding.
-     * @param {string} [screenName] - The name of the screen.
-     * @returns {Promise<void>} resolves when the event is logged
-     * @throws {@link AdaptyError}
-     */
-    logShowOnboarding(screenOrder: number, onboardingName?: string, screenName?: string): Promise<void>;
     /**
      * Logs out the current user.
      * You can then login the user using {@link Adapty.identify} method.
@@ -235,7 +233,7 @@ export declare class Adapty {
      *
      * @param {Model.AdaptyPaywallProduct} product - The product to be purchased.
      * You can get the product using {@link Adapty.getPaywallProducts} method.
-     * @param {Input.MakePurchaseParamsInput} [params] - Additional parameters for the purchase.
+     * @param {MakePurchaseParamsInput} [params] - Additional parameters for the purchase.
      * @returns {Promise<Model.AdaptyPurchaseResult>} A Promise that resolves to the {@link Model.AdaptyPurchaseResult} object
      * containing details about the purchase. If the result is `'success'`, it also includes the updated user's profile.
      * @throws {AdaptyError} If an error occurs during the purchase process
@@ -255,7 +253,7 @@ export declare class Adapty {
      * }
      * ```
      */
-    makePurchase(product: Model.AdaptyPaywallProduct, params?: Input.MakePurchaseParamsInput): Promise<Model.AdaptyPurchaseResult>;
+    makePurchase(product: Model.AdaptyPaywallProduct, params?: MakePurchaseParamsInput): Promise<Model.AdaptyPurchaseResult>;
     /**
      * Opens a native modal screen to redeem Apple Offer Codes.
      *
@@ -293,11 +291,11 @@ export declare class Adapty {
      *
      * @returns {Promise<void>} resolves when fallback placements are saved
      */
-    setFallback(fileLocation: Input.FileLocation): Promise<void>;
+    setFallback(fileLocation: FileLocation): Promise<void>;
     /**
      * @deprecated use {@link setFallback}
      */
-    setFallbackPaywalls(paywallsLocation: Input.FileLocation): Promise<void>;
+    setFallbackPaywalls(paywallsLocation: FileLocation): Promise<void>;
     setIntegrationIdentifier(key: string, value: string): Promise<void>;
     /**
      * Sets the preferred log level.
@@ -311,11 +309,11 @@ export declare class Adapty {
      * `info`: various information messages, such as those that log the lifecycle of various modules
      * `verbose`: any additional information that may be useful during debugging, such as function calls, API queries, etc.
      *
-     * @param {Input.LogLevel} logLevel - new preferred log level
+     * @param {LogLevel} logLevel - new preferred log level
      * @returns {Promise<void>} resolves when the log level is set
      * @throws {@link AdaptyError} if the log level is invalid
      */
-    setLogLevel(logLevel: Input.LogLevel): Promise<void>;
+    setLogLevel(logLevel: LogLevel): Promise<void>;
     /**
      * Updates an attribution data for the current user.
      *

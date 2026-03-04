@@ -17,7 +17,10 @@ public class AdaptyPackage implements ReactPackage {
   @NonNull
   @Override
   public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext ctx) {
-    return Arrays.<ViewManager>asList(new AdaptyOnboardingViewManager());
+    return Arrays.<ViewManager>asList(
+      new AdaptyOnboardingViewManager(),
+      new AdaptyPaywallViewManager()
+    );
   }
 
   @NonNull

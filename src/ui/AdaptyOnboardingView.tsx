@@ -1,152 +1,130 @@
-import React, { useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
+import { requireNativeComponent, ViewProps } from 'react-native';
+import { AdaptyOnboarding, WebPresentation } from '@/types';
+import { coderFactory } from '@/coders/factory';
+import { generateId, shouldEnableMock } from '@/utils';
 import {
-  requireNativeComponent,
-  ViewProps,
-  NativeSyntheticEvent,
-} from 'react-native';
-import { AdaptyOnboarding } from '@/types';
-import { AdaptyOnboardingCoder } from '@/coders/adapty-onboarding';
-import {
-  AdaptyUiOnboardingMeta,
-  OnboardingStateUpdatedAction,
-  OnboardingAnalyticsEventName,
+  OnboardingEventHandlers,
+  NativeAdaptyOnboardingViewProps,
 } from './types';
-import { AdaptyError } from '@/adapty-error';
+import { createOnboardingEventHandlers } from './create-onboarding-event-handlers';
+import { DEFAULT_ONBOARDING_PARAMS } from './onboarding-view-controller';
+import { AdaptyOnboardingViewMock } from './AdaptyOnboardingView.mock';
+import { filterUndefined } from '@adapty/core';
 
-export interface OnboardingViewEventHandlers {
-  onClose: (actionId: string, meta: AdaptyUiOnboardingMeta) => void;
-  onCustom: (actionId: string, meta: AdaptyUiOnboardingMeta) => void;
-  onPaywall: (actionId: string, meta: AdaptyUiOnboardingMeta) => void;
-  onStateUpdated: (
-    action: OnboardingStateUpdatedAction,
-    meta: AdaptyUiOnboardingMeta,
-  ) => void;
-  onFinishedLoading: (meta: AdaptyUiOnboardingMeta) => void;
-  onAnalytics: (
-    event: {
-      name: OnboardingAnalyticsEventName;
-      element_id?: string;
-      reply?: string;
-    },
-    meta: AdaptyUiOnboardingMeta,
-  ) => void;
-  onError: (error: AdaptyError) => void;
-}
-
-export type AdaptyOnboardingNativeEvent = {
-  eventId: string;
-  eventData: string;
-};
-
-export type Props = ViewProps & {
+/**
+ * Props for the {@link AdaptyOnboardingView} component.
+ * @public
+ */
+export type AdaptyOnboardingViewProps = ViewProps & {
   onboarding: AdaptyOnboarding;
-  eventHandlers?: Partial<OnboardingViewEventHandlers>;
+  externalUrlsPresentation?: WebPresentation;
+  onClose?: OnboardingEventHandlers['onClose'];
+  onCustom?: OnboardingEventHandlers['onCustom'];
+  onPaywall?: OnboardingEventHandlers['onPaywall'];
+  onStateUpdated?: OnboardingEventHandlers['onStateUpdated'];
+  onFinishedLoading?: OnboardingEventHandlers['onFinishedLoading'];
+  onAnalytics?: OnboardingEventHandlers['onAnalytics'];
+  onError?: OnboardingEventHandlers['onError'];
+  /**
+   * @deprecated Use individual event handler props instead (onClose, onCustom, onPaywall, etc.)
+   * This prop is kept for backward compatibility and will be removed in a future version.
+   */
+  eventHandlers?: Partial<OnboardingEventHandlers>;
 };
 
-const NativeAdaptyOnboardingView = requireNativeComponent<any>(
-  'AdaptyOnboardingView',
-);
+const NativeAdaptyOnboardingView = shouldEnableMock()
+  ? AdaptyOnboardingViewMock
+  : requireNativeComponent<NativeAdaptyOnboardingViewProps>(
+      'AdaptyOnboardingView',
+    );
 
-export const AdaptyOnboardingView: React.FC<Props> = ({
+const AdaptyOnboardingViewComponent: React.FC<AdaptyOnboardingViewProps> = ({
   onboarding,
+  externalUrlsPresentation = DEFAULT_ONBOARDING_PARAMS.externalUrlsPresentation,
   eventHandlers,
+  onClose,
+  onCustom,
+  onPaywall,
+  onStateUpdated,
+  onFinishedLoading,
+  onAnalytics,
+  onError,
   ...rest
 }) => {
-  const coder = new AdaptyOnboardingCoder();
+  const uniqueViewId = useMemo(
+    () => `${onboarding.id}_${generateId()}`,
+    [onboarding.id],
+  );
 
-  const uniqueViewId = useMemo(() => {
-    const instanceId = `${Date.now()}_${Math.random()
-      .toString(36)
-      .slice(2, 7)}`;
-    return `${onboarding.id}_${instanceId}`;
-  }, [onboarding.id]);
+  const onboardingJson = useMemo(() => {
+    const encodedOnboarding = coderFactory
+      .createOnboardingCoder()
+      .encode(onboarding);
 
-  const handleEvent = (
-    e: NativeSyntheticEvent<AdaptyOnboardingNativeEvent>,
-  ) => {
-    if (!eventHandlers) return;
+    const encodedParams = coderFactory
+      .createUiCreateOnboardingViewParamsCoder()
+      .encode({
+        externalUrlsPresentation,
+      });
 
-    const { eventId, eventData } = e.nativeEvent;
-    let parsedData: any = {};
+    return JSON.stringify({
+      onboarding: encodedOnboarding,
+      ...encodedParams,
+    });
+  }, [onboarding, externalUrlsPresentation]);
 
-    try {
-      parsedData = JSON.parse(eventData);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.warn('Failed to parse event data:', error);
-      return;
-    }
+  const combinedEventHandlers =
+    useMemo((): Partial<OnboardingEventHandlers> => {
+      // Merge legacy eventHandlers with individual props (individual props take priority)
+      return {
+        ...eventHandlers,
+        ...filterUndefined({
+          onClose,
+          onCustom,
+          onPaywall,
+          onStateUpdated,
+          onFinishedLoading,
+          onAnalytics,
+          onError,
+        }),
+      };
+    }, [
+      onClose,
+      onCustom,
+      onPaywall,
+      onStateUpdated,
+      onFinishedLoading,
+      onAnalytics,
+      onError,
+      eventHandlers,
+    ]);
 
-    const handlerName = getHandlerNameForEvent(eventId);
-    if (!handlerName) {
-      return;
-    }
-
-    const callbackArgs = extractOnboardingCallbackArgs(handlerName, parsedData);
-
-    const handler = eventHandlers[handlerName];
-
-    if (handler) {
-      (handler as any)(...callbackArgs);
-    }
-  };
-
-  const getHandlerNameForEvent = (
-    eventId: string,
-  ): keyof OnboardingViewEventHandlers | null => {
-    switch (eventId) {
-      case 'onboarding_on_close_action':
-        return 'onClose';
-      case 'onboarding_on_custom_action':
-        return 'onCustom';
-      case 'onboarding_on_paywall_action':
-        return 'onPaywall';
-      case 'onboarding_on_state_updated_action':
-        return 'onStateUpdated';
-      case 'onboarding_did_finish_loading':
-        return 'onFinishedLoading';
-      case 'onboarding_on_analytics_action':
-        return 'onAnalytics';
-      case 'onboarding_did_fail_with_error':
-        return 'onError';
-      default:
-        return null;
-    }
-  };
-
-  const extractOnboardingCallbackArgs = (
-    handlerName: keyof OnboardingViewEventHandlers,
-    eventArg: Record<string, any>,
-  ): any[] => {
-    const actionId = eventArg['id'] || '';
-    const meta = eventArg['meta'] || {};
-    const event = eventArg['event'] || {};
-    const action = eventArg['action'] || {};
-
-    switch (handlerName) {
-      case 'onClose':
-      case 'onCustom':
-      case 'onPaywall':
-        return [actionId, meta];
-      case 'onStateUpdated':
-        return [action, meta];
-      case 'onFinishedLoading':
-        return [meta];
-      case 'onAnalytics':
-        return [event, meta];
-      case 'onError':
-        return [eventArg['error']];
-      default:
-        return [];
-    }
-  };
+  useEffect(() => {
+    const unsubscribe = createOnboardingEventHandlers(
+      combinedEventHandlers,
+      uniqueViewId,
+    );
+    return unsubscribe;
+  }, [uniqueViewId, combinedEventHandlers]);
 
   return (
     <NativeAdaptyOnboardingView
       {...rest}
       viewId={uniqueViewId}
-      onboardingJson={JSON.stringify(coder.encode(onboarding))}
-      onEvent={handleEvent}
+      onboardingJson={onboardingJson}
     />
   );
 };
+
+/**
+ * React component that renders a native onboarding view.
+ *
+ * @remarks
+ * Accepts an onboarding object and optional event handler props.
+ * Under the hood, it creates a native view and subscribes to onboarding events.
+ *
+ * @see {@link AdaptyOnboardingViewProps} for available props
+ * @public
+ */
+export const AdaptyOnboardingView = memo(AdaptyOnboardingViewComponent);

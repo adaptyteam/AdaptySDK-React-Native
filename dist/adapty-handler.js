@@ -5,12 +5,11 @@ const tslib_1 = require("tslib");
 const react_native_1 = require("react-native");
 const bridge_1 = require("./bridge");
 const logger_1 = require("./logger");
-const adapty_paywall_1 = require("./coders/adapty-paywall");
-const adapty_paywall_product_1 = require("./coders/adapty-paywall-product");
-const adapty_profile_parameters_1 = require("./coders/adapty-profile-parameters");
-const adapty_purchase_params_1 = require("./coders/adapty-purchase-params");
-const adapty_configuration_1 = require("./coders/adapty-configuration");
-const Input = tslib_1.__importStar(require("./types/inputs"));
+const version_1 = tslib_1.__importDefault(require("./version"));
+const factory_1 = require("./coders/factory");
+const core_1 = require("@adapty/core");
+const types_1 = require("./types");
+const utils_1 = require("./utils");
 /**
  * Entry point for the Adapty SDK.
  * All Adapty methods are available through this class.
@@ -26,6 +25,7 @@ class Adapty {
             'get_paywall_for_default_audience',
             'get_onboarding_for_default_audience',
         ];
+        logger_1.Log.setVersion(version_1.default);
     }
     // Middleware to call native handle
     handle(method, params, resultType, ctx, log) {
@@ -38,10 +38,10 @@ class Adapty {
              */
             if (this.resolveHeldActivation &&
                 !this.nonWaitingMethods.includes(method)) {
-                log.wait({});
+                log.wait(() => ({}));
                 yield this.resolveHeldActivation();
                 this.resolveHeldActivation = null;
-                log.waitComplete({});
+                log.waitComplete(() => ({}));
             }
             /*
              * wait until activate call is resolved before calling native methods
@@ -49,14 +49,14 @@ class Adapty {
              */
             if (this.activating &&
                 (!this.nonWaitingMethods.includes(method) || method === 'is_activated')) {
-                log.wait({});
+                log.wait(() => ({}));
                 yield this.activating;
-                log.waitComplete({});
+                log.waitComplete(() => ({}));
                 this.activating = null;
             }
             try {
                 const result = yield bridge_1.$bridge.request(method, params, resultType, ctx);
-                log.success(result);
+                log.success(() => result);
                 return result;
             }
             catch (error) {
@@ -64,7 +64,7 @@ class Adapty {
                  * Success because error was handled validly
                  * It is a developer task to define which errors must be logged
                  */
-                log.success({ error });
+                log.success(() => ({ error }));
                 throw error;
             }
         });
@@ -86,6 +86,31 @@ class Adapty {
      */
     removeAllListeners() {
         return bridge_1.$bridge.removeAllEventListeners();
+    }
+    /**
+     * Enables mock mode.
+     *
+     * @remarks
+     * This method should be called before activate() if you want to test
+     * SDK methods without full activation (e.g., isActivated()).
+     * If bridge is already initialized, this method does nothing.
+     *
+     * **Important**: Mock mode cannot be disabled at runtime.
+     * To switch back to production mode, you need to restart the app.
+     *
+     * @param {AdaptyMockConfig} [mockConfig] - Optional mock configuration
+     *
+     * @example
+     * ```ts
+     * adapty.enableMock({ profile: { ... } });
+     * const isActivated = await adapty.isActivated(); // false
+     * await adapty.activate('api_key');
+     * ```
+     */
+    enableMock(mockConfig) {
+        if (!(0, bridge_1.isBridgeInitialized)()) {
+            (0, bridge_1.initBridge)(true, mockConfig);
+        }
     }
     /**
      * Initializes the Adapty SDK.
@@ -110,39 +135,51 @@ class Adapty {
      *
      * @param {string} apiKey - You can find it in your app settings
      * in {@link https://app.adapty.io/ | Adapty Dashboard} App settings > General.
-     * @param {Input.ActivateParamsInput} params - Optional parameters of type {@link ActivateParamsInput}.
+     * @param {ActivateParamsInput} params - Optional parameters of type {@link ActivateParamsInput}.
      * @returns {Promise<void>} A promise that resolves when the SDK is initialized.
      *
      * @throws {@link AdaptyError}
      * Usually throws if the SDK is already activated or if the API key is invalid.
      */
     activate(apiKey, params = {}) {
+        var _a;
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // Initialize bridge with mock or native handler based on enableMock flag
+            // If enableMock is not provided, use shouldEnableMock() detection
+            if (!(0, bridge_1.isBridgeInitialized)()) {
+                const enableMock = (_a = params.enableMock) !== null && _a !== void 0 ? _a : (0, utils_1.shouldEnableMock)();
+                if (enableMock) {
+                    (0, bridge_1.initBridge)(enableMock, params.mockConfig);
+                }
+                else {
+                    (0, bridge_1.initBridge)(false);
+                }
+            }
             // call before log ctx calls, so no logs are lost
             const logLevel = params.logLevel;
             logger_1.Log.logLevel = logLevel || null;
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'activate' });
-            log.start({ apiKey, params });
+            log.start(() => ({ apiKey, params }));
             // Skipping activation if SDK is already activated
             if (params.__ignoreActivationOnFastRefresh) {
                 try {
                     const isAlreadyActivated = yield this.isActivated();
                     if (!!this.activating || isAlreadyActivated) {
-                        log.success({
+                        log.success(() => ({
                             message: 'SDK already activated, skipping activation because ignoreActivationOnFastRefresh flag is enabled',
-                        });
+                        }));
                         return Promise.resolve();
                     }
                 }
                 catch (error) {
-                    log.waitComplete({
+                    log.waitComplete(() => ({
                         message: 'Failed to check activation status, proceeding with activation; ignoreActivationOnFastRefresh flag could not be applied',
                         error,
-                    });
+                    }));
                 }
             }
-            const configurationCoder = new adapty_configuration_1.AdaptyConfigurationCoder();
+            const configurationCoder = factory_1.coderFactory.createConfigurationCoder();
             const config = configurationCoder.encode(apiKey, params);
             const methodKey = 'activate';
             const body = JSON.stringify({
@@ -183,7 +220,7 @@ class Adapty {
      * This is the value you specified when you created the placement
      * in the Adapty Dashboard.
      * @param {string | undefined} [locale] - The locale of the desired paywall.
-     * @param {Input.GetPlacementParamsInput} [params] - Additional parameters for retrieving paywall.
+     * @param {GetPlacementParamsInput} [params] - Additional parameters for retrieving paywall.
      * @returns {Promise<Model.AdaptyPaywall>}
      * A promise that resolves with a requested paywall.
      *
@@ -193,14 +230,14 @@ class Adapty {
      * 2. if your bundle ID does not match with your Adapty Dashboard setup
      */
     getPaywall(placementId, locale, params = {
-        fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+        fetchPolicy: core_1.FetchPolicy.ReloadRevalidatingCacheData,
         loadTimeoutMs: 5000,
     }) {
         var _a, _b;
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'getPaywall' });
-            log.start({ placementId, locale, params });
+            log.start(() => ({ placementId, locale, params }));
             const methodKey = 'get_paywall';
             const data = {
                 method: methodKey,
@@ -212,7 +249,7 @@ class Adapty {
             }
             if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
                 data['fetch_policy'] = {
-                    type: (_b = params.fetchPolicy) !== null && _b !== void 0 ? _b : Input.FetchPolicy.ReloadRevalidatingCacheData,
+                    type: (_b = params.fetchPolicy) !== null && _b !== void 0 ? _b : core_1.FetchPolicy.ReloadRevalidatingCacheData,
                 };
             }
             else {
@@ -245,7 +282,7 @@ class Adapty {
      * This is the value you specified when you created the placement
      * in the Adapty Dashboard.
      * @param {string | undefined} [locale] - The locale of the desired paywall.
-     * @param {Input.GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
+     * @param {GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
      * @returns {Promise<Model.AdaptyPaywall>}
      * A promise that resolves with a requested paywall.
      *
@@ -255,13 +292,13 @@ class Adapty {
      * 2. if your bundle ID does not match with your Adapty Dashboard setup
      */
     getPaywallForDefaultAudience(placementId, locale, params = {
-        fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+        fetchPolicy: core_1.FetchPolicy.ReloadRevalidatingCacheData,
     }) {
         var _a;
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'getPaywallForDefaultAudience' });
-            log.start({ placementId, locale, params });
+            log.start(() => ({ placementId, locale, params }));
             const methodKey = 'get_paywall_for_default_audience';
             const data = {
                 method: methodKey,
@@ -272,7 +309,7 @@ class Adapty {
             }
             if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
                 data['fetch_policy'] = {
-                    type: (_a = params.fetchPolicy) !== null && _a !== void 0 ? _a : Input.FetchPolicy.ReloadRevalidatingCacheData,
+                    type: (_a = params.fetchPolicy) !== null && _a !== void 0 ? _a : core_1.FetchPolicy.ReloadRevalidatingCacheData,
                 };
             }
             else {
@@ -304,8 +341,8 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'getPaywallProducts' });
-            log.start({ paywall });
-            const coder = new adapty_paywall_1.AdaptyPaywallCoder();
+            log.start(() => ({ paywall }));
+            const coder = factory_1.coderFactory.createPaywallCoder();
             const methodKey = 'get_paywall_products';
             const data = {
                 method: methodKey,
@@ -317,14 +354,14 @@ class Adapty {
         });
     }
     getOnboarding(placementId, locale, params = {
-        fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+        fetchPolicy: core_1.FetchPolicy.ReloadRevalidatingCacheData,
         loadTimeoutMs: 5000,
     }) {
         var _a, _b;
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'getOnboarding' });
-            log.start({ placementId, locale, params });
+            log.start(() => ({ placementId, locale, params }));
             const methodKey = 'get_onboarding';
             const data = {
                 method: methodKey,
@@ -336,7 +373,7 @@ class Adapty {
             }
             if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
                 data['fetch_policy'] = {
-                    type: (_b = params.fetchPolicy) !== null && _b !== void 0 ? _b : Input.FetchPolicy.ReloadRevalidatingCacheData,
+                    type: (_b = params.fetchPolicy) !== null && _b !== void 0 ? _b : core_1.FetchPolicy.ReloadRevalidatingCacheData,
                 };
             }
             else {
@@ -351,14 +388,14 @@ class Adapty {
         });
     }
     getOnboardingForDefaultAudience(placementId, locale, params = {
-        fetchPolicy: Input.FetchPolicy.ReloadRevalidatingCacheData,
+        fetchPolicy: core_1.FetchPolicy.ReloadRevalidatingCacheData,
         loadTimeoutMs: 5000,
     }) {
         var _a;
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'getOnboardingForDefaultAudience' });
-            log.start({ placementId, locale, params });
+            log.start(() => ({ placementId, locale, params }));
             const methodKey = 'get_onboarding_for_default_audience';
             const data = {
                 method: methodKey,
@@ -369,7 +406,7 @@ class Adapty {
             }
             if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
                 data['fetch_policy'] = {
-                    type: (_a = params.fetchPolicy) !== null && _a !== void 0 ? _a : Input.FetchPolicy.ReloadRevalidatingCacheData,
+                    type: (_a = params.fetchPolicy) !== null && _a !== void 0 ? _a : core_1.FetchPolicy.ReloadRevalidatingCacheData,
                 };
             }
             else {
@@ -407,7 +444,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'getProfile' });
-            log.start({});
+            log.start(() => ({}));
             const methodKey = 'get_profile';
             const body = JSON.stringify({
                 method: methodKey,
@@ -425,18 +462,24 @@ class Adapty {
      * when the user switches from being an anonymous user to an authenticated user.
      *
      * @param {string} customerUserId - unique user id
+     * @param {IdentifyParamsInput} [params] - Additional parameters for identification
      * @throws {@link AdaptyError}
      */
-    identify(customerUserId) {
+    identify(customerUserId, params) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'identify' });
-            log.start({ customerUserId });
+            log.start(() => ({ customerUserId }));
             const methodKey = 'identify';
             const data = {
                 method: methodKey,
                 customer_user_id: customerUserId,
             };
+            const identifyParamsCoder = factory_1.coderFactory.createIdentifyParamsCoder();
+            const parameters = identifyParamsCoder.encode(params);
+            if (parameters) {
+                data.parameters = parameters;
+            }
             const body = JSON.stringify(data);
             const result = yield this.handle(methodKey, body, 'Void', ctx, log);
             return result;
@@ -468,8 +511,8 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'logShowPaywall' });
-            log.start({ paywall });
-            const coder = new adapty_paywall_1.AdaptyPaywallCoder();
+            log.start(() => ({ paywall }));
+            const coder = factory_1.coderFactory.createPaywallCoder();
             const methodKey = 'log_show_paywall';
             const data = {
                 method: methodKey,
@@ -480,15 +523,21 @@ class Adapty {
             return result;
         });
     }
-    openWebPaywall(paywallOrProduct) {
+    openWebPaywall(paywallOrProduct, openIn = types_1.WebPresentation.BrowserOutApp) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'openWebPaywall' });
-            log.start({ paywallOrProduct });
+            log.start(() => ({ paywallOrProduct }));
             const methodKey = 'open_web_paywall';
-            const data = Object.assign({ method: methodKey }, ('vendorProductId' in paywallOrProduct
-                ? { product: new adapty_paywall_product_1.AdaptyPaywallProductCoder().encode(paywallOrProduct) }
-                : { paywall: new adapty_paywall_1.AdaptyPaywallCoder().encode(paywallOrProduct) }));
+            const data = Object.assign({ method: methodKey, open_in: openIn }, ('vendorProductId' in paywallOrProduct
+                ? {
+                    product: factory_1.coderFactory
+                        .createPaywallProductCoder()
+                        .encode(paywallOrProduct),
+                }
+                : {
+                    paywall: factory_1.coderFactory.createPaywallCoder().encode(paywallOrProduct),
+                }));
             const body = JSON.stringify(data);
             const result = yield this.handle(methodKey, body, 'Void', ctx, log);
             return result;
@@ -498,57 +547,19 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'create_web_paywall_url' });
-            log.start({ paywallOrProduct });
+            log.start(() => ({ paywallOrProduct }));
             const methodKey = 'create_web_paywall_url';
             const data = Object.assign({ method: methodKey }, ('vendorProductId' in paywallOrProduct
-                ? { product: new adapty_paywall_product_1.AdaptyPaywallProductCoder().encode(paywallOrProduct) }
-                : { paywall: new adapty_paywall_1.AdaptyPaywallCoder().encode(paywallOrProduct) }));
+                ? {
+                    product: factory_1.coderFactory
+                        .createPaywallProductCoder()
+                        .encode(paywallOrProduct),
+                }
+                : {
+                    paywall: factory_1.coderFactory.createPaywallCoder().encode(paywallOrProduct),
+                }));
             const body = JSON.stringify(data);
             const result = yield this.handle(methodKey, body, 'String', ctx, log);
-            return result;
-        });
-    }
-    /**
-     * Logs an onboarding screen view event.
-     *
-     * In order for you to be able to analyze user behavior
-     * at this critical stage without leaving Adapty,
-     * we have implemented the ability to send dedicated events
-     * every time a user visits yet another onboarding screen.
-     *
-     * @remarks
-     * Even though there is only one mandatory parameter in this function,
-     * we recommend that you think of names for all the screens,
-     * as this will make the work of analysts
-     * during the data examination phase much easier.
-     *
-     * @example
-     * ```ts
-     * adapty.logShowOnboarding(1, 'onboarding_name', 'screen_name');
-     * ```
-     *
-     * @param {number} screenOrder - The number of the screen that was shown to the user.
-     * @param {string} [onboardingName] - The name of the onboarding.
-     * @param {string} [screenName] - The name of the screen.
-     * @returns {Promise<void>} resolves when the event is logged
-     * @throws {@link AdaptyError}
-     */
-    logShowOnboarding(screenOrder, onboardingName, screenName) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const ctx = new logger_1.LogContext();
-            const log = ctx.call({ methodName: 'logShowOnboarding' });
-            log.start({ screenOrder, onboardingName, screenName });
-            const methodKey = 'log_show_onboarding';
-            const data = {
-                method: methodKey,
-                params: {
-                    onboarding_screen_order: screenOrder,
-                    onboarding_name: onboardingName,
-                    onboarding_screen_name: screenName,
-                },
-            };
-            const body = JSON.stringify(data);
-            const result = yield this.handle(methodKey, body, 'Void', ctx, log);
             return result;
         });
     }
@@ -562,7 +573,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'logout' });
-            log.start({});
+            log.start(() => ({}));
             const methodKey = 'logout';
             const body = JSON.stringify({
                 method: methodKey,
@@ -583,7 +594,7 @@ class Adapty {
      *
      * @param {Model.AdaptyPaywallProduct} product - The product to be purchased.
      * You can get the product using {@link Adapty.getPaywallProducts} method.
-     * @param {Input.MakePurchaseParamsInput} [params] - Additional parameters for the purchase.
+     * @param {MakePurchaseParamsInput} [params] - Additional parameters for the purchase.
      * @returns {Promise<Model.AdaptyPurchaseResult>} A Promise that resolves to the {@link Model.AdaptyPurchaseResult} object
      * containing details about the purchase. If the result is `'success'`, it also includes the updated user's profile.
      * @throws {AdaptyError} If an error occurs during the purchase process
@@ -607,8 +618,8 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'makePurchase' });
-            log.start({ product, params });
-            const coder = new adapty_paywall_product_1.AdaptyPaywallProductCoder();
+            log.start(() => ({ product, params }));
+            const coder = factory_1.coderFactory.createPaywallProductCoder();
             const encoded = coder.encode(product);
             const productInput = coder.getInput(encoded);
             const methodKey = 'make_purchase';
@@ -616,7 +627,7 @@ class Adapty {
                 method: methodKey,
                 product: productInput,
             };
-            const purchaseParamsCoder = new adapty_purchase_params_1.AdaptyPurchaseParamsCoder();
+            const purchaseParamsCoder = factory_1.coderFactory.createPurchaseParamsCoder();
             const purchaseParams = purchaseParamsCoder.encode(params);
             if (Object.keys(purchaseParams).length > 0) {
                 data.parameters = purchaseParams;
@@ -639,7 +650,7 @@ class Adapty {
             }
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'presentCodeRedemptionSheet' });
-            log.start({});
+            log.start(() => ({}));
             const methodKey = 'present_code_redemption_sheet';
             const body = JSON.stringify({
                 method: methodKey,
@@ -664,7 +675,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'reportTransaction' });
-            log.start({ variationId, transactionId });
+            log.start(() => ({ variationId, transactionId }));
             const methodKey = 'report_transaction';
             const data = {
                 method: methodKey,
@@ -688,7 +699,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'restorePurchases' });
-            log.start({});
+            log.start(() => ({}));
             const methodKey = 'restore_purchases';
             const body = JSON.stringify({
                 method: methodKey,
@@ -717,7 +728,7 @@ class Adapty {
                     ? `${fileLocation.android.relativeAssetPath}a`
                     : `${fileLocation.android.rawResName}r`,
             });
-            log.start({ fileLocationJson });
+            log.start(() => ({ fileLocationJson }));
             const methodKey = 'set_fallback';
             const data = {
                 method: methodKey,
@@ -740,7 +751,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'setIntegrationIdentifier' });
-            log.start({ key });
+            log.start(() => ({ key }));
             const methodKey = 'set_integration_identifiers';
             const data = {
                 method: methodKey,
@@ -763,7 +774,7 @@ class Adapty {
      * `info`: various information messages, such as those that log the lifecycle of various modules
      * `verbose`: any additional information that may be useful during debugging, such as function calls, API queries, etc.
      *
-     * @param {Input.LogLevel} logLevel - new preferred log level
+     * @param {LogLevel} logLevel - new preferred log level
      * @returns {Promise<void>} resolves when the log level is set
      * @throws {@link AdaptyError} if the log level is invalid
      */
@@ -771,7 +782,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'setLogLevel' });
-            log.start({ logLevel });
+            log.start(() => ({ logLevel }));
             logger_1.Log.logLevel = logLevel;
             const methodKey = 'set_log_level';
             const data = {
@@ -808,7 +819,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'updateAttribution' });
-            log.start({ attribution, source });
+            log.start(() => ({ attribution, source }));
             const methodKey = 'update_attribution_data';
             const data = {
                 method: methodKey,
@@ -829,7 +840,7 @@ class Adapty {
             const log = ctx.call({
                 methodName: 'update_collecting_refund_data_consent',
             });
-            log.start({ consent });
+            log.start(() => ({ consent }));
             const methodKey = 'update_collecting_refund_data_consent';
             const data = {
                 method: methodKey,
@@ -847,7 +858,7 @@ class Adapty {
             }
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'update_refund_preference' });
-            log.start({ refundPreference });
+            log.start(() => ({ refundPreference }));
             const methodKey = 'update_refund_preference';
             const data = {
                 method: methodKey,
@@ -878,8 +889,8 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'updateProfile' });
-            log.start({ params });
-            const coder = new adapty_profile_parameters_1.AdaptyProfileParametersCoder();
+            log.start(() => ({ params }));
+            const coder = factory_1.coderFactory.createProfileParametersCoder();
             const methodKey = 'update_profile';
             const data = {
                 method: methodKey,
@@ -894,7 +905,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'isActivated' });
-            log.start({});
+            log.start(() => ({}));
             const methodKey = 'is_activated';
             const body = JSON.stringify({
                 method: methodKey,
@@ -931,7 +942,7 @@ class Adapty {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const ctx = new logger_1.LogContext();
             const log = ctx.call({ methodName: 'getCurrentInstallationStatus' });
-            log.start({});
+            log.start(() => ({}));
             const methodKey = 'get_current_installation_status';
             const body = JSON.stringify({
                 method: methodKey,

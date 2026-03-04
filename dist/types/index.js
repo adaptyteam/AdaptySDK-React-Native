@@ -1,45 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RefundPreference = exports.ProductPeriod = exports.AppTrackingTransparencyStatus = exports.Gender = exports.CancellationReason = exports.OfferType = exports.VendorStore = void 0;
-exports.VendorStore = Object.freeze({
-    AppStore: 'app_store',
-    PlayStore: 'play_store',
-    Adapty: 'adapty',
-});
-exports.OfferType = Object.freeze({
-    FreeTrial: 'free_trial',
-    PayAsYouGo: 'pay_as_you_go',
-    PayUpFront: 'pay_up_front',
-});
-exports.CancellationReason = Object.freeze({
-    VolountarilyCancelled: 'voluntarily_cancelled',
-    BillingError: 'billing_error',
-    Refund: 'refund',
-    PriceIncrease: 'price_increase',
-    ProductWasNotAvailable: 'product_was_not_available',
-    Unknown: 'unknown',
-});
-exports.Gender = Object.freeze({
-    Female: 'f',
-    Male: 'm',
-    Other: 'o',
-});
-exports.AppTrackingTransparencyStatus = Object.freeze({
-    NotDetermined: 0,
-    Restricted: 1,
-    Denied: 2,
-    Authorized: 3,
-    Unknown: 4,
-});
-exports.ProductPeriod = Object.freeze({
-    Day: 'day',
-    Week: 'week',
-    Month: 'month',
-    Year: 'year',
-});
-exports.RefundPreference = Object.freeze({
-    NoPreference: 'no_preference',
-    Grant: 'grant',
-    Decline: 'decline',
-});
+exports.RefundPreference = exports.WebPresentation = exports.ProductPeriod = exports.AppTrackingTransparencyStatus = exports.Gender = exports.CancellationReason = exports.OfferType = exports.VendorStore = void 0;
+var core_1 = require("@adapty/core");
+Object.defineProperty(exports, "VendorStore", { enumerable: true, get: function () { return core_1.VendorStore; } });
+Object.defineProperty(exports, "OfferType", { enumerable: true, get: function () { return core_1.OfferType; } });
+Object.defineProperty(exports, "CancellationReason", { enumerable: true, get: function () { return core_1.CancellationReason; } });
+Object.defineProperty(exports, "Gender", { enumerable: true, get: function () { return core_1.Gender; } });
+Object.defineProperty(exports, "AppTrackingTransparencyStatus", { enumerable: true, get: function () { return core_1.AppTrackingTransparencyStatus; } });
+Object.defineProperty(exports, "ProductPeriod", { enumerable: true, get: function () { return core_1.ProductPeriod; } });
+Object.defineProperty(exports, "WebPresentation", { enumerable: true, get: function () { return core_1.WebPresentation; } });
+Object.defineProperty(exports, "RefundPreference", { enumerable: true, get: function () { return core_1.RefundPreference; } });
 //# sourceMappingURL=index.js.map

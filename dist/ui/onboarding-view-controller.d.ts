@@ -1,14 +1,21 @@
-import { OnboardingEventHandlers } from './types';
+import { AdaptyIOSPresentationStyle, CreateOnboardingViewParamsInput, OnboardingEventHandlers } from './types';
+export declare const DEFAULT_ONBOARDING_PARAMS: CreateOnboardingViewParamsInput;
 /**
  * Provides methods to control created onboarding view
  * @public
  */
 export declare class OnboardingViewController {
     private id;
-    private unsubscribeAllListeners;
+    private viewEmitter;
+    private onRequestClose;
     private handle;
     /**
-     * Presents an onboarding view as a full-screen modal
+     * Presents an onboarding view as a modal
+     *
+     * @param {Object} options - Presentation options
+     * @param {AdaptyIOSPresentationStyle} [options.iosPresentationStyle] - iOS presentation style.
+     * Available options: 'full_screen' (default) or 'page_sheet'.
+     * Only affects iOS platform.
      *
      * @remarks
      * Calling `present` upon already visible onboarding view
@@ -16,7 +23,9 @@ export declare class OnboardingViewController {
      *
      * @throws {AdaptyError}
      */
-    present(): Promise<void>;
+    present(options?: {
+        iosPresentationStyle?: AdaptyIOSPresentationStyle;
+    }): Promise<void>;
     /**
      * Dismisses an onboarding view
      *
@@ -24,18 +33,23 @@ export declare class OnboardingViewController {
      */
     dismiss(): Promise<void>;
     /**
-     * Creates a set of specific view event listeners
+     * Sets event handlers for onboarding view events
      *
      * @remarks
-     * It registers only requested set of event handlers.
-     * Your config is assigned into event listeners {@link DEFAULT_ONBOARDING_EVENT_HANDLERS},
-     * that handle default closing behavior.
-     * - `onClose`
+     * Each event type can have only one handler — new handlers replace existing ones.
+     * Default handlers are set during view creation: {@link DEFAULT_ONBOARDING_EVENT_HANDLERS}
+     * - `onClose` - closes onboarding view (returns `true`)
+     *
+     * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
+     * from your custom listener to retain default behavior.
+     *
+     * **Important**: Calling this method multiple times will override only the handlers you provide,
+     * keeping previously set handlers intact.
      *
      * @param {Partial<OnboardingEventHandlers>} [eventHandlers] - set of event handling callbacks
      * @returns {() => void} unsubscribe - function to unsubscribe all listeners
      */
-    registerEventHandlers(eventHandlers?: Partial<OnboardingEventHandlers>): () => void;
+    setEventHandlers(eventHandlers?: Partial<OnboardingEventHandlers>): () => void;
     private errNoViewReference;
 }
 //# sourceMappingURL=onboarding-view-controller.d.ts.map
