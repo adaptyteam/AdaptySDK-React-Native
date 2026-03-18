@@ -38,5 +38,5 @@ export {
 // Utilities
 export { isRunningInExpoGo, shouldEnableMock } from './utils/env-detection';
 
-export { AdaptyError } from '@adapty/core';
-export type { ActivateParamsInput } from '@adapty/core';
+export { AdaptyError, LogContext, LogScope } from '@adapty/core';
+export type { ActivateParamsInput, LogArgs } from '@adapty/core';
