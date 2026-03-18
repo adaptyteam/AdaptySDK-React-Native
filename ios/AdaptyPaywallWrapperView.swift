@@ -34,7 +34,7 @@ class AdaptyPaywallWrapperView: UIView {
     }
     
     private func setupView() {
-        print("AdaptyPaywallWrapperView setupView called: \(paywallJson)")
+        Log.wrapper.verbose("[AdaptyPaywallWrapperView] setupView called")
         guard #available(iOS 15.0, *) else { return }
         
         // Clean up existing child view to prevent memory leaks
@@ -73,7 +73,7 @@ class AdaptyPaywallWrapperView: UIView {
 
                 self.child = uiView
             } catch {
-                print("AdaptyPaywallWrapperView error: \(error.localizedDescription)")
+                Log.wrapper.error("[AdaptyPaywallWrapperView] error: \(error.localizedDescription)")
             }
         }
     }

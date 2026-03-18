@@ -78,7 +78,10 @@ export class OnboardingViewEmitter {
   private createEventHandler(
     config: (typeof HANDLER_TO_EVENT_CONFIG)[EventName],
   ) {
-    return (parsedEvent: ParsedOnboardingEvent) => {
+    return (parsedEvent: ParsedOnboardingEvent | null) => {
+      if (!parsedEvent) {
+        return;
+      }
       const eventViewId = parsedEvent.view.id;
       if (this.viewId !== eventViewId) {
         return;

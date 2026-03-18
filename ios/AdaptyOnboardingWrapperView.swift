@@ -32,7 +32,7 @@ class AdaptyOnboardingWrapperView: UIView {
     }
     
     private func setupView() {
-        print("AdaptyOnboardingWrapperView setupView called: \(onboardingJson)")
+        Log.wrapper.verbose("[AdaptyOnboardingWrapperView] setupView called")
         guard #available(iOS 15.0, *) else { return }
         
         // Clean up existing child view to prevent memory leaks
@@ -45,7 +45,7 @@ class AdaptyOnboardingWrapperView: UIView {
         Task { @MainActor in
             guard let config = try? await AdaptyPlugin.getOnboardingViewConfiguration(withJson: json)
             else {
-                print("AdaptyOnboardingWrapperView: Failed to get onboarding configuration")
+                Log.wrapper.error("[AdaptyOnboardingWrapperView] Failed to get onboarding configuration")
                 return
             }
 

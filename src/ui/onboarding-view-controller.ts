@@ -250,7 +250,7 @@ export class OnboardingViewController {
     return () => this.viewEmitter?.removeAllListeners();
   }
 
-  private errNoViewReference(): AdaptyError {
-    throw new Error('View reference not found');
+  private errNoViewReference(): Error {
+    return new Error('View reference not found');
   }
 }

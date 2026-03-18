@@ -52,7 +52,7 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun removeListeners(count: Int?) {
-        listenerCount -= 1
+        listenerCount = maxOf(0, listenerCount - (count ?: 1))
 
         if (listenerCount == 0) {
             Adapty.setOnProfileUpdatedListener(null)
