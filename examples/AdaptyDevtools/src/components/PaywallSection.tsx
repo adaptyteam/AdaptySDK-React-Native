@@ -191,12 +191,12 @@ export const PaywallSection: React.FC<Props> = ({
         );
         return false;
       },
-      onPaywallShown() {
-        console.log('[ADAPTY]: Paywall shown');
+      onAppeared() {
+        console.log('[ADAPTY]: Paywall appeared');
         return false;
       },
-      onPaywallClosed() {
-        console.log('[ADAPTY]: Paywall closed');
+      onDisappeared() {
+        console.log('[ADAPTY]: Paywall disappeared');
         return false;
       },
     });
