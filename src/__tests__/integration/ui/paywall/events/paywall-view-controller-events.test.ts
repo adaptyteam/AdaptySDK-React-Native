@@ -1065,8 +1065,11 @@ describe('ViewController - multiple views isolation', () => {
   });
 
   it('should isolate event handlers between view instances', async () => {
-    // Create a second view using the SAME adapty instance
-    const { paywall: paywall2 } = await createPaywallViewController();
+    // Create a second view using the SAME adapty instance.
+    // We get paywall2 directly from the existing adapty (re-creating it via
+    // createPaywallViewController would call createAdaptyInstance again and
+    // reset the bridge, invalidating the first view's listeners).
+    const paywall2 = await adapty.getPaywall('test_placement');
     const view2 = await (view.constructor as any).create(paywall2, {});
 
     try {
