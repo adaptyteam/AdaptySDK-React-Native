@@ -79,6 +79,7 @@ export const PAYWALL_USER_ACTION_OPEN_URL = {
   action: {
     value: 'https://example.com/terms',
     type: 'open_url',
+    open_in: 'browser_in_app',
   },
   view: {
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
