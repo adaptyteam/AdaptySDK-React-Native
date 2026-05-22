@@ -1,19 +1,19 @@
 PODS:
-  - Adapty (3.15.7):
-    - AdaptyLogger (= 3.15.7)
-    - AdaptyUIBuilder (= 3.15.7)
-  - AdaptyLogger (3.15.7)
-  - AdaptyPlugin (3.15.7):
-    - Adapty (= 3.15.7)
-    - AdaptyLogger (= 3.15.7)
-    - AdaptyUI (= 3.15.7)
-    - AdaptyUIBuilder (= 3.15.7)
-  - AdaptyUI (3.15.7):
-    - Adapty (= 3.15.7)
-    - AdaptyLogger (= 3.15.7)
-    - AdaptyUIBuilder (= 3.15.7)
-  - AdaptyUIBuilder (3.15.7):
-    - AdaptyLogger (= 3.15.7)
+  - Adapty (3.17.0):
+    - AdaptyLogger (= 3.17.0)
+    - AdaptyUIBuilder (= 3.17.0)
+  - AdaptyLogger (3.17.0)
+  - AdaptyPlugin (3.17.0):
+    - Adapty (= 3.17.0)
+    - AdaptyLogger (= 3.17.0)
+    - AdaptyUI (= 3.17.0)
+    - AdaptyUIBuilder (= 3.17.0)
+  - AdaptyUI (3.17.0):
+    - Adapty (= 3.17.0)
+    - AdaptyLogger (= 3.17.0)
+    - AdaptyUIBuilder (= 3.17.0)
+  - AdaptyUIBuilder (3.17.0):
+    - AdaptyLogger (= 3.17.0)
   - EXConstants (18.0.10):
     - ExpoModulesCore
   - EXJSONUtils (0.15.0)
@@ -1533,10 +1533,10 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-  - react-native-adapty-sdk (3.15.6):
-    - Adapty (= 3.15.7)
-    - AdaptyPlugin (= 3.15.7)
-    - AdaptyUI (= 3.15.7)
+  - react-native-adapty-sdk (3.17.0):
+    - Adapty (= 3.17.0)
+    - AdaptyPlugin (= 3.17.0)
+    - AdaptyUI (= 3.17.0)
     - React
   - react-native-safe-area-context (5.4.0):
     - hermes-engine
@@ -2276,11 +2276,11 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Adapty: abebbbc8f0b3c5bb5fee60b56370157d1eb6f0fc
-  AdaptyLogger: 0aa2decd92c377035ef68bf8455ae9fb9a1896e8
-  AdaptyPlugin: 4613933dd9d1f5676bfd64d2cf413972be60513b
-  AdaptyUI: 4cde24413c1a424eda3669c1580e4622c1e55e4a
-  AdaptyUIBuilder: 50ddeffc81a5bcf3b1fe06b2a2eda24944cd3a03
+  Adapty: ae0038fac37a10f3916824b508578be0459d03ea
+  AdaptyLogger: 8de7cf207476715ef97c1f5d5b1476af21dc8691
+  AdaptyPlugin: 67b9afd1639599f808eb707341f6ce0418e02a3d
+  AdaptyUI: 6f0fd0494bed813952bd3008cbbd0ff8b961ecbb
+  AdaptyUIBuilder: c2f9e2b57383d7945ab912d9cf78ebd6ee0c3652
   EXConstants: fd688cef4e401dcf798a021cfb5d87c890c30ba3
   EXJSONUtils: 1d3e4590438c3ee593684186007028a14b3686cd
   EXManifests: 224345a575fca389073c416297b6348163f28d1a
@@ -2331,7 +2331,7 @@ SPEC CHECKSUMS:
   React-logger: 50fdb9a8236da90c0b1072da5c32ee03aeb5bf28
   React-Mapbuffer: 9050ee10c19f4f7fca8963d0211b2854d624973e
   React-microtasksnativemodule: f775db9e991c6f3b8ccbc02bfcde22770f96e23b
-  react-native-adapty-sdk: c7e117d486d6f19626fb020e446d762adadadde8
+  react-native-adapty-sdk: 0222ea5dc530924bb22d7f9fc8a33411cffcb5fa
   react-native-safe-area-context: e4223e0c3d6770be30a9353ad2eaf99368b2f6e8
   React-NativeModulesApple: 8969913947d5b576de4ed371a939455a8daf28aa
   React-oscompat: ce47230ed20185e91de62d8c6d139ae61763d09c
