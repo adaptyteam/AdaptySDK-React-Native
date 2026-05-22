@@ -464,4 +464,222 @@ describe('withAdapty expo config plugin', () => {
       expect(attrs.length).toBe(uniqueAttrs.length);
     });
   });
+
+  describe('fallbackFile option', () => {
+    // createRunOncePlugin stamps `_internal` on the config it processes
+    // and short-circuits on subsequent invocations of the same object,
+    // so each test needs its own fresh config object.
+    const makeConfig = () => ({ name: 'test-app', slug: 'test-app' });
+
+    it('should not register any fallback mods when fallbackFile is omitted', () => {
+      const config = withAdapty(makeConfig());
+
+      // Only the manifest mod from withAndroidManifest should be present
+      expect(config.mods?.ios?.xcodeproj).toBeUndefined();
+      expect(config.mods?.android?.dangerous).toBeUndefined();
+      expect(config.mods?.android?.manifest).toBeDefined();
+    });
+
+    it('should register both iOS and Android mods when fallbackFile is a string', () => {
+      const config = withAdapty(makeConfig(), { fallbackFile: './assets/fallback.json' });
+
+      // withXcodeProject registers under mods.ios.xcodeproj
+      expect(config.mods?.ios?.xcodeproj).toBeDefined();
+      // withDangerousMod registers under mods.android.dangerous
+      expect(config.mods?.android?.dangerous).toBeDefined();
+    });
+
+    it('should register only iOS mod when fallbackFile.ios is provided alone', () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: { ios: './assets/ios_fallback.json' },
+      });
+
+      expect(config.mods?.ios?.xcodeproj).toBeDefined();
+      expect(config.mods?.android?.dangerous).toBeUndefined();
+    });
+
+    it('should register only Android mod when fallbackFile.android is provided alone', () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: { android: './assets/android_fallback.json' },
+      });
+
+      expect(config.mods?.ios?.xcodeproj).toBeUndefined();
+      expect(config.mods?.android?.dangerous).toBeDefined();
+    });
+
+    it('should register both mods when fallbackFile object has both platforms', () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: {
+          ios: './assets/ios_fallback.json',
+          android: './assets/android_fallback.json',
+        },
+      });
+
+      expect(config.mods?.ios?.xcodeproj).toBeDefined();
+      expect(config.mods?.android?.dangerous).toBeDefined();
+    });
+
+    it('should coexist with replaceAndroidBackupConfig', () => {
+      const config = withAdapty(makeConfig(), {
+        replaceAndroidBackupConfig: true,
+        fallbackFile: './assets/fallback.json',
+      });
+
+      // Both Android mods should be present
+      expect(config.mods?.android?.dangerous).toBeDefined();
+      expect(config.mods?.android?.manifest).toBeDefined();
+      expect(config.mods?.ios?.xcodeproj).toBeDefined();
+    });
+
+    it('should treat null/undefined inside object as missing platform', () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: { ios: undefined, android: './assets/fallback.json' },
+      });
+
+      expect(config.mods?.ios?.xcodeproj).toBeUndefined();
+      expect(config.mods?.android?.dangerous).toBeDefined();
+    });
+
+    it('should treat empty string fallbackFile as missing', () => {
+      const config = withAdapty(makeConfig(), { fallbackFile: '' });
+
+      expect(config.mods?.ios?.xcodeproj).toBeUndefined();
+      expect(config.mods?.android?.dangerous).toBeUndefined();
+    });
+
+    it('should treat empty string platform entries as missing', () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: { ios: '', android: './assets/fallback.json' },
+      });
+
+      expect(config.mods?.ios?.xcodeproj).toBeUndefined();
+      expect(config.mods?.android?.dangerous).toBeDefined();
+    });
+
+    it('should register no mods when both platform entries are empty', () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: { ios: '', android: '' },
+      });
+
+      expect(config.mods?.ios?.xcodeproj).toBeUndefined();
+      expect(config.mods?.android?.dangerous).toBeUndefined();
+    });
+  });
+
+  describe('fallbackFile mod behavior', () => {
+    const os = require('os');
+    const fs = require('fs');
+    const fsp = require('fs/promises');
+    const nodePath = require('path');
+    const { IOSConfig } = require('expo/config-plugins');
+
+    const makeConfig = () => ({ name: 'test-app', slug: 'test-app' });
+
+    let tmpRoot;
+    beforeEach(async () => {
+      tmpRoot = await fsp.mkdtemp(nodePath.join(os.tmpdir(), 'adapty-plugin-test-'));
+      await fsp.mkdir(nodePath.join(tmpRoot, 'assets'));
+      await fsp.writeFile(nodePath.join(tmpRoot, 'assets', 'fallback.json'), '{"a":1}');
+    });
+
+    afterEach(async () => {
+      await fsp.rm(tmpRoot, { recursive: true, force: true });
+    });
+
+    it('Android dangerous mod copies the JSON to app/src/main/assets/<basename>', async () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: { android: './assets/fallback.json' },
+      });
+
+      await config.mods.android.dangerous({
+        modRequest: {
+          projectRoot: tmpRoot,
+          platformProjectRoot: nodePath.join(tmpRoot, 'android'),
+        },
+        modResults: {},
+      });
+
+      const expectedPath = nodePath.join(
+        tmpRoot,
+        'android',
+        'app',
+        'src',
+        'main',
+        'assets',
+        'fallback.json',
+      );
+      expect(fs.existsSync(expectedPath)).toBe(true);
+      expect(await fsp.readFile(expectedPath, 'utf8')).toBe('{"a":1}');
+    });
+
+    it('Android dangerous mod creates the assets/ directory tree if missing', async () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: { android: './assets/fallback.json' },
+      });
+
+      const platformRoot = nodePath.join(tmpRoot, 'android');
+      // platformRoot intentionally does not exist yet.
+
+      await config.mods.android.dangerous({
+        modRequest: { projectRoot: tmpRoot, platformProjectRoot: platformRoot },
+        modResults: {},
+      });
+
+      expect(fs.existsSync(nodePath.join(platformRoot, 'app', 'src', 'main', 'assets'))).toBe(true);
+    });
+
+    it('iOS xcodeproj mod registers the JSON via IOSConfig.XcodeUtils.addResourceFileToGroup', async () => {
+      const ensureSpy = jest
+        .spyOn(IOSConfig.XcodeUtils, 'ensureGroupRecursively')
+        .mockImplementation(() => null);
+      const addSpy = jest
+        .spyOn(IOSConfig.XcodeUtils, 'addResourceFileToGroup')
+        .mockImplementation(() => null);
+
+      try {
+        const config = withAdapty(makeConfig(), {
+          fallbackFile: { ios: './assets/fallback.json' },
+        });
+
+        const fakeProject = { __fake: true };
+        await config.mods.ios.xcodeproj({
+          modRequest: {
+            projectRoot: tmpRoot,
+            platformProjectRoot: nodePath.join(tmpRoot, 'ios'),
+          },
+          modResults: fakeProject,
+        });
+
+        // Group must exist before files are added to it.
+        expect(ensureSpy).toHaveBeenCalledWith(fakeProject, 'Resources');
+        // The filepath given to Xcode is platform-relative (ios/ → ../assets/...).
+        expect(addSpy).toHaveBeenCalledWith({
+          filepath: nodePath.join('..', 'assets', 'fallback.json'),
+          groupName: 'Resources',
+          project: fakeProject,
+          isBuildFile: true,
+          verbose: false,
+        });
+      } finally {
+        ensureSpy.mockRestore();
+        addSpy.mockRestore();
+      }
+    });
+
+    it('Android dangerous mod throws when the source JSON is missing', async () => {
+      const config = withAdapty(makeConfig(), {
+        fallbackFile: { android: './assets/missing.json' },
+      });
+
+      await expect(
+        config.mods.android.dangerous({
+          modRequest: {
+            projectRoot: tmpRoot,
+            platformProjectRoot: nodePath.join(tmpRoot, 'android'),
+          },
+          modResults: {},
+        }),
+      ).rejects.toThrow(/ENOENT|no such file/i);
+    });
+  });
 });
