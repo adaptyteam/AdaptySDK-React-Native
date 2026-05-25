@@ -11,6 +11,7 @@ module.exports = {
       { prefix: '<rootDir>/src/' },
     ),
     '^@adapty/core$': '<rootDir>/node_modules/@adapty/core/dist/index.cjs',
+    '^react-native-adapty/package\\.json$': '<rootDir>/package.json',
   },
   setupFiles: ['./jest/jest.setup.js'],
   transformIgnorePatterns: ['node_modules/(?!@react-native|react-native)'],

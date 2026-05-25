@@ -1,15 +1,19 @@
-const fsp = require('fs/promises');
-const path = require('path');
-const {
+import fsp from 'fs/promises';
+import path from 'path';
+import {
+  AndroidConfig,
+  ConfigPlugin,
+  IOSConfig,
   createRunOncePlugin,
   withAndroidManifest,
   withDangerousMod,
   withXcodeProject,
-  AndroidConfig,
-  IOSConfig,
-} = require('expo/config-plugins');
+} from 'expo/config-plugins';
 
-const pkg = require('react-native-adapty/package.json');
+const pkg = require('react-native-adapty/package.json') as {
+  name: string;
+  version: string;
+};
 
 const BACKUP_RULES_PATH = '@xml/rn_adapty_backup_rules';
 const EXTRACTION_RULES_PATH = '@xml/rn_adapty_data_extraction_rules';
@@ -17,7 +21,18 @@ const EXTRACTION_RULES_PATH = '@xml/rn_adapty_data_extraction_rules';
 const ANDROID_ASSETS_DIR = path.join('app', 'src', 'main', 'assets');
 const IOS_RESOURCES_GROUP = 'Resources';
 
-function normalizeFallbackFile(input) {
+export type FallbackFileInput = string | { ios?: string; android?: string };
+
+export interface AdaptyPluginProps {
+  replaceAndroidBackupConfig?: boolean;
+  fallbackFile?: FallbackFileInput;
+}
+
+type NormalizedFallback = { ios?: string; android?: string } | null;
+
+function normalizeFallbackFile(
+  input: FallbackFileInput | undefined,
+): NormalizedFallback {
   if (!input) return null;
   if (typeof input === 'string') return { ios: input, android: input };
   return { ios: input.ios, android: input.android };
@@ -27,14 +42,17 @@ function normalizeFallbackFile(input) {
 // SDK can load it via Bundle.main.path(forResource:ofType:). Mirrors the
 // non-image branch of expo-asset's withAssetsIos, kept inline so this plugin
 // depends only on the public expo/config-plugins API.
-function withFallbackIos(config, sourcePath) {
-  return withXcodeProject(config, (config) => {
+const withFallbackIos: ConfigPlugin<string> = (config, sourcePath) => {
+  return withXcodeProject(config, config => {
     const { projectRoot, platformProjectRoot } = config.modRequest;
     const absolutePath = path.resolve(projectRoot, sourcePath);
     const relativePath = path.relative(platformProjectRoot, absolutePath);
     const filename = path.basename(sourcePath);
 
-    IOSConfig.XcodeUtils.ensureGroupRecursively(config.modResults, IOS_RESOURCES_GROUP);
+    IOSConfig.XcodeUtils.ensureGroupRecursively(
+      config.modResults,
+      IOS_RESOURCES_GROUP,
+    );
     IOSConfig.XcodeUtils.addResourceFileToGroup({
       filepath: relativePath,
       groupName: IOS_RESOURCES_GROUP,
@@ -42,22 +60,24 @@ function withFallbackIos(config, sourcePath) {
       isBuildFile: true,
       verbose: false,
     });
-    console.log(`[react-native-adapty] Registered ${filename} as iOS bundle resource`);
+    console.log(
+      `[react-native-adapty] Registered ${filename} as iOS bundle resource`,
+    );
 
     return config;
   });
-}
+};
 
 // Copy a JSON file into android/app/src/main/assets/<basename> so the SDK
 // can read it through AssetManager.open(). Files under assets/ have no
 // Android-side filename restrictions (unlike res/raw/), so no name
 // validation is needed here.
-function withFallbackAndroid(config, sourcePath) {
+const withFallbackAndroid: ConfigPlugin<string> = (config, sourcePath) => {
   const filename = path.basename(sourcePath);
 
   return withDangerousMod(config, [
     'android',
-    async (config) => {
+    async config => {
       const { projectRoot, platformProjectRoot } = config.modRequest;
       const absolutePath = path.resolve(projectRoot, sourcePath);
       const assetsDir = path.join(platformProjectRoot, ANDROID_ASSETS_DIR);
@@ -65,14 +85,21 @@ function withFallbackAndroid(config, sourcePath) {
 
       await fsp.mkdir(assetsDir, { recursive: true });
       await fsp.copyFile(absolutePath, destPath);
-      console.log(`[react-native-adapty] Copied ${filename} to android assets/`);
+      console.log(
+        `[react-native-adapty] Copied ${filename} to android assets/`,
+      );
       return config;
     },
   ]);
-}
+};
 
-const withAdapty = (config, { replaceAndroidBackupConfig = false, fallbackFile } = {}) => {
+const withAdapty: ConfigPlugin<AdaptyPluginProps | undefined> = (
+  config,
+  props,
+) => {
+  const { replaceAndroidBackupConfig = false, fallbackFile } = props ?? {};
   const fallback = normalizeFallbackFile(fallbackFile);
+
   if (fallback) {
     if (fallback.ios) {
       config = withFallbackIos(config, fallback.ios);
@@ -82,40 +109,56 @@ const withAdapty = (config, { replaceAndroidBackupConfig = false, fallbackFile }
     }
   }
 
-  withAndroidManifest(config, (config) => {
+  withAndroidManifest(config, config => {
     if (!replaceAndroidBackupConfig) {
-      console.log('[react-native-adapty] Android backup config replacement disabled, skipping');
+      console.log(
+        '[react-native-adapty] Android backup config replacement disabled, skipping',
+      );
       return config;
     }
 
     const manifest = config.modResults.manifest;
-    const mainApplication = AndroidConfig.Manifest.getMainApplicationOrThrow(config.modResults);
+    const mainApplication = AndroidConfig.Manifest.getMainApplicationOrThrow(
+      config.modResults,
+    );
+
+    if (!manifest.$) {
+      manifest.$ = {} as typeof manifest.$;
+    }
+
+    const manifestAttrs = manifest.$ as Record<string, string | undefined>;
+    const appAttrs = mainApplication.$ as Record<string, string | undefined>;
 
     // Add tools namespace for manifest merging
-    if (!manifest.$) {
-      manifest.$ = {};
-    }
-    manifest.$['xmlns:tools'] = 'http://schemas.android.com/tools';
+    manifestAttrs['xmlns:tools'] = 'http://schemas.android.com/tools';
 
     // Apply backup rules with tools:replace to override any existing rules
-    mainApplication.$['android:fullBackupContent'] = BACKUP_RULES_PATH;
-    mainApplication.$['android:dataExtractionRules'] = EXTRACTION_RULES_PATH;
+    appAttrs['android:fullBackupContent'] = BACKUP_RULES_PATH;
+    appAttrs['android:dataExtractionRules'] = EXTRACTION_RULES_PATH;
 
     // Merge tools:replace with existing values from other plugins to avoid overwriting other attributes
-    const requiredReplaceAttrs = ['android:fullBackupContent', 'android:dataExtractionRules'];
-    const existingReplace = mainApplication.$['tools:replace'];
+    const requiredReplaceAttrs = [
+      'android:fullBackupContent',
+      'android:dataExtractionRules',
+    ];
+    const existingReplace = appAttrs['tools:replace'];
     if (existingReplace) {
       const existingAttrs = existingReplace.split(',').map(attr => attr.trim());
-      const mergedAttrs = [...new Set([...existingAttrs, ...requiredReplaceAttrs])];
-      mainApplication.$['tools:replace'] = mergedAttrs.join(',');
+      const mergedAttrs = [
+        ...new Set([...existingAttrs, ...requiredReplaceAttrs]),
+      ];
+      appAttrs['tools:replace'] = mergedAttrs.join(',');
     } else {
-      mainApplication.$['tools:replace'] = requiredReplaceAttrs.join(',');
+      appAttrs['tools:replace'] = requiredReplaceAttrs.join(',');
     }
 
-    console.log('[react-native-adapty] Successfully applied Android backup rules');
+    console.log(
+      '[react-native-adapty] Successfully applied Android backup rules',
+    );
     return config;
   });
+
   return config;
 };
 
-module.exports = createRunOncePlugin(withAdapty, pkg.name, pkg.version);
+export default createRunOncePlugin(withAdapty, pkg.name, pkg.version);

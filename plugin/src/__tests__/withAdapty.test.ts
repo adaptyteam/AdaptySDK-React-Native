@@ -1,7 +1,19 @@
-const { AndroidConfig } = require('expo/config-plugins');
-const XML = require('@expo/config-plugins/build/utils/XML');
+import { AndroidConfig } from 'expo/config-plugins';
+import * as XML from '@expo/config-plugins/build/utils/XML';
+import type { ExportedConfig } from '@expo/config-plugins/build/Plugin.types';
 
-const withAdapty = require('./with-adapty');
+import withAdapty, { type AdaptyPluginProps } from '../withAdapty';
+
+// Expo types `ConfigPlugin` as returning `ExpoConfig`, but in practice the
+// returned object is `ExportedConfig` (with `mods` attached). The helper
+// applies the plugin to a fresh fixture and asserts the richer return type
+// so tests can read `config.mods` without per-call casts.
+function applyPlugin(props?: AdaptyPluginProps): ExportedConfig {
+  return withAdapty(
+    { name: 'test-app', slug: 'test-app' },
+    props,
+  ) as ExportedConfig;
+}
 
 // Sample AndroidManifest.xml fixtures
 const SAMPLE_MANIFEST_XML = `<?xml version="1.0" encoding="utf-8"?>
@@ -60,13 +72,17 @@ const MANIFEST_WITH_EXISTING_TOOLS_REPLACE = `<?xml version="1.0" encoding="utf-
   </application>
 </manifest>`;
 
-async function getFixtureManifestAsync(xml = SAMPLE_MANIFEST_XML) {
-  return await XML.parseXMLAsync(xml);
+async function getFixtureManifestAsync(
+  xml = SAMPLE_MANIFEST_XML,
+): Promise<AndroidConfig.Manifest.AndroidManifest> {
+  return (await XML.parseXMLAsync(
+    xml,
+  )) as unknown as AndroidConfig.Manifest.AndroidManifest;
 }
 
 describe('withAdapty expo config plugin', () => {
   // Mock console.log to avoid cluttering test output
-  let consoleLogSpy;
+  let consoleLogSpy: jest.SpyInstance;
 
   beforeEach(() => {
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -81,13 +97,7 @@ describe('withAdapty expo config plugin', () => {
       const manifest = await getFixtureManifestAsync();
       const originalManifest = await getFixtureManifestAsync();
 
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: false }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: false });
 
       // Plugin adds mod, but mod should not modify the manifest
       expect(config.mods).toBeDefined();
@@ -96,29 +106,31 @@ describe('withAdapty expo config plugin', () => {
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: manifest,
-      });
+      } as any);
 
       const app = AndroidConfig.Manifest.getMainApplication(modResults);
-      const originalApp = AndroidConfig.Manifest.getMainApplication(originalManifest);
+      const originalApp =
+        AndroidConfig.Manifest.getMainApplication(originalManifest);
 
       // Manifest should not be modified
-      expect(app.$['android:fullBackupContent']).toBe(originalApp.$['android:fullBackupContent']);
-      expect(app.$['android:dataExtractionRules']).toBe(originalApp.$['android:dataExtractionRules']);
+      expect(app.$['android:fullBackupContent']).toBe(
+        originalApp.$['android:fullBackupContent'],
+      );
+      expect(app.$['android:dataExtractionRules']).toBe(
+        originalApp.$['android:dataExtractionRules'],
+      );
       expect(modResults.manifest.$['xmlns:tools']).toBeUndefined();
 
       // Console should show it's skipped
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        '[react-native-adapty] Android backup config replacement disabled, skipping'
+        '[react-native-adapty] Android backup config replacement disabled, skipping',
       );
     });
 
     it('should not modify manifest with default options', async () => {
       const manifest = await getFixtureManifestAsync();
 
-      const config = withAdapty({
-        name: 'test-app',
-        slug: 'test-app',
-      });
+      const config = applyPlugin();
 
       // Plugin adds mod even with default options
       expect(config.mods).toBeDefined();
@@ -126,25 +138,21 @@ describe('withAdapty expo config plugin', () => {
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: manifest,
-      });
+      } as any);
 
       const app = AndroidConfig.Manifest.getMainApplication(modResults);
 
       // Default behavior is disabled, so no changes should be made
-      expect(app.$['android:fullBackupContent']).not.toBe('@xml/rn_adapty_backup_rules');
+      expect(app.$['android:fullBackupContent']).not.toBe(
+        '@xml/rn_adapty_backup_rules',
+      );
       expect(modResults.manifest.$['xmlns:tools']).toBeUndefined();
     });
   });
 
   describe('when replaceAndroidBackupConfig is true', () => {
     it('should add backup rules to manifest', async () => {
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       // Plugin should add the manifest mod
       expect(config.mods).toBeDefined();
@@ -155,77 +163,87 @@ describe('withAdapty expo config plugin', () => {
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: await getFixtureManifestAsync(),
-      });
+      } as any);
 
       const manifestRoot = modResults.manifest;
       const app = AndroidConfig.Manifest.getMainApplication(modResults);
 
       // Verify tools namespace was added
-      expect(manifestRoot.$['xmlns:tools']).toBe('http://schemas.android.com/tools');
+      expect(manifestRoot.$['xmlns:tools']).toBe(
+        'http://schemas.android.com/tools',
+      );
 
       // Verify backup rules were set
-      expect(app.$['android:fullBackupContent']).toBe('@xml/rn_adapty_backup_rules');
-      expect(app.$['android:dataExtractionRules']).toBe('@xml/rn_adapty_data_extraction_rules');
+      expect(app.$['android:fullBackupContent']).toBe(
+        '@xml/rn_adapty_backup_rules',
+      );
+      expect(app.$['android:dataExtractionRules']).toBe(
+        '@xml/rn_adapty_data_extraction_rules',
+      );
 
       // Verify tools:replace was set
-      expect(app.$['tools:replace']).toBe('android:fullBackupContent,android:dataExtractionRules');
+      expect(app.$['tools:replace']).toBe(
+        'android:fullBackupContent,android:dataExtractionRules',
+      );
 
       // Verify console log was called
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        '[react-native-adapty] Successfully applied Android backup rules'
+        '[react-native-adapty] Successfully applied Android backup rules',
       );
     });
 
     it('should replace existing backup rules', async () => {
-      const manifest = await getFixtureManifestAsync(MANIFEST_WITH_EXISTING_BACKUP);
+      const manifest = await getFixtureManifestAsync(
+        MANIFEST_WITH_EXISTING_BACKUP,
+      );
       const app = AndroidConfig.Manifest.getMainApplication(manifest);
 
       // Verify initial state
-      expect(app.$['android:fullBackupContent']).toBe('@xml/existing_backup_rules');
-      expect(app.$['android:dataExtractionRules']).toBe('@xml/existing_extraction_rules');
+      expect(app.$['android:fullBackupContent']).toBe(
+        '@xml/existing_backup_rules',
+      );
+      expect(app.$['android:dataExtractionRules']).toBe(
+        '@xml/existing_extraction_rules',
+      );
 
       // Apply plugin
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: manifest,
-      });
+      } as any);
 
       const modifiedApp = AndroidConfig.Manifest.getMainApplication(modResults);
 
       // Verify old values were replaced
-      expect(modifiedApp.$['android:fullBackupContent']).toBe('@xml/rn_adapty_backup_rules');
-      expect(modifiedApp.$['android:dataExtractionRules']).toBe('@xml/rn_adapty_data_extraction_rules');
-      expect(modifiedApp.$['tools:replace']).toBe('android:fullBackupContent,android:dataExtractionRules');
+      expect(modifiedApp.$['android:fullBackupContent']).toBe(
+        '@xml/rn_adapty_backup_rules',
+      );
+      expect(modifiedApp.$['android:dataExtractionRules']).toBe(
+        '@xml/rn_adapty_data_extraction_rules',
+      );
+      expect(modifiedApp.$['tools:replace']).toBe(
+        'android:fullBackupContent,android:dataExtractionRules',
+      );
     });
 
     it('should merge with existing tools:replace attributes', async () => {
-      const manifest = await getFixtureManifestAsync(MANIFEST_WITH_EXISTING_TOOLS_REPLACE);
+      const manifest = await getFixtureManifestAsync(
+        MANIFEST_WITH_EXISTING_TOOLS_REPLACE,
+      );
       const app = AndroidConfig.Manifest.getMainApplication(manifest);
 
       // Verify initial tools:replace
       expect(app.$['tools:replace']).toBe('android:allowBackup');
 
       // Apply plugin
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: manifest,
-      });
+      } as any);
 
       const modifiedApp = AndroidConfig.Manifest.getMainApplication(modResults);
       const finalReplace = modifiedApp.$['tools:replace'];
@@ -247,42 +265,32 @@ describe('withAdapty expo config plugin', () => {
       // Remove the $ property to test initialization
       delete manifest.manifest.$;
 
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: manifest,
-      });
+      } as any);
 
       const manifestRoot = modResults.manifest;
 
       // Should create the $ property
       expect(manifestRoot.$).toBeDefined();
-      expect(manifestRoot.$['xmlns:tools']).toBe('http://schemas.android.com/tools');
+      expect(manifestRoot.$['xmlns:tools']).toBe(
+        'http://schemas.android.com/tools',
+      );
     });
 
     it('should be idempotent when applied multiple times', async () => {
       const manifest = await getFixtureManifestAsync();
 
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       // Apply once
       const { modResults: firstResult } = await config.mods.android.manifest({
         modRequest: {},
         modResults: await getFixtureManifestAsync(),
-      });
+      } as any);
 
       const firstFormatted = XML.format(firstResult);
       const firstApp = AndroidConfig.Manifest.getMainApplication(firstResult);
@@ -291,7 +299,7 @@ describe('withAdapty expo config plugin', () => {
       const { modResults: secondResult } = await config.mods.android.manifest({
         modRequest: {},
         modResults: firstResult,
-      });
+      } as any);
 
       const secondFormatted = XML.format(secondResult);
       const secondApp = AndroidConfig.Manifest.getMainApplication(secondResult);
@@ -299,7 +307,9 @@ describe('withAdapty expo config plugin', () => {
       // Results should be identical
       expect(secondFormatted).toBe(firstFormatted);
       expect(secondApp.$['tools:replace']).toBe(firstApp.$['tools:replace']);
-      expect(secondApp.$['tools:replace']).toBe('android:fullBackupContent,android:dataExtractionRules');
+      expect(secondApp.$['tools:replace']).toBe(
+        'android:fullBackupContent,android:dataExtractionRules',
+      );
     });
 
     it('should preserve other application attributes', async () => {
@@ -311,18 +321,12 @@ describe('withAdapty expo config plugin', () => {
       const originalIcon = app.$['android:icon'];
       const originalAllowBackup = app.$['android:allowBackup'];
 
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: manifest,
-      });
+      } as any);
 
       const modifiedApp = AndroidConfig.Manifest.getMainApplication(modResults);
 
@@ -332,8 +336,12 @@ describe('withAdapty expo config plugin', () => {
       expect(modifiedApp.$['android:allowBackup']).toBe(originalAllowBackup);
 
       // Verify new attributes are added
-      expect(modifiedApp.$['android:fullBackupContent']).toBe('@xml/rn_adapty_backup_rules');
-      expect(modifiedApp.$['android:dataExtractionRules']).toBe('@xml/rn_adapty_data_extraction_rules');
+      expect(modifiedApp.$['android:fullBackupContent']).toBe(
+        '@xml/rn_adapty_backup_rules',
+      );
+      expect(modifiedApp.$['android:dataExtractionRules']).toBe(
+        '@xml/rn_adapty_data_extraction_rules',
+      );
     });
 
     it('should handle empty tools:replace gracefully', async () => {
@@ -343,24 +351,22 @@ describe('withAdapty expo config plugin', () => {
       // Set empty tools:replace
       app.$['tools:replace'] = '';
 
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: manifest,
-      });
+      } as any);
 
       const modifiedApp = AndroidConfig.Manifest.getMainApplication(modResults);
 
       // Should handle empty string correctly
-      expect(modifiedApp.$['tools:replace']).toContain('android:fullBackupContent');
-      expect(modifiedApp.$['tools:replace']).toContain('android:dataExtractionRules');
+      expect(modifiedApp.$['tools:replace']).toContain(
+        'android:fullBackupContent',
+      );
+      expect(modifiedApp.$['tools:replace']).toContain(
+        'android:dataExtractionRules',
+      );
     });
   });
 
@@ -371,13 +377,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should have correct plugin metadata', () => {
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       // createRunOncePlugin adds _internal metadata
       expect(config._internal).toBeDefined();
@@ -385,21 +385,29 @@ describe('withAdapty expo config plugin', () => {
 
     it('should accept options parameter', () => {
       // Should work with no options
-      expect(() => withAdapty({ name: 'test', slug: 'test' })).not.toThrow();
+      expect(() =>
+        withAdapty({ name: 'test', slug: 'test' }, undefined),
+      ).not.toThrow();
 
       // Should work with empty options
-      expect(() => withAdapty({ name: 'test', slug: 'test' }, {})).not.toThrow();
+      expect(() =>
+        withAdapty({ name: 'test', slug: 'test' }, {}),
+      ).not.toThrow();
 
       // Should work with full options
       expect(() =>
-        withAdapty({ name: 'test', slug: 'test' }, { replaceAndroidBackupConfig: true })
+        withAdapty(
+          { name: 'test', slug: 'test' },
+          { replaceAndroidBackupConfig: true },
+        ),
       ).not.toThrow();
     });
   });
 
   describe('edge cases', () => {
     it('should handle manifest with minimal structure', async () => {
-      const minimalManifest = await XML.parseXMLAsync(`<?xml version="1.0" encoding="utf-8"?>
+      const minimalManifest =
+        await XML.parseXMLAsync(`<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.test">
   <application android:name=".MainApplication">
     <activity android:name=".MainActivity">
@@ -410,44 +418,38 @@ describe('withAdapty expo config plugin', () => {
   </application>
 </manifest>`);
 
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: minimalManifest,
-      });
+      } as any);
 
       const app = AndroidConfig.Manifest.getMainApplication(modResults);
 
-      expect(app.$['android:fullBackupContent']).toBe('@xml/rn_adapty_backup_rules');
-      expect(app.$['android:dataExtractionRules']).toBe('@xml/rn_adapty_data_extraction_rules');
+      expect(app.$['android:fullBackupContent']).toBe(
+        '@xml/rn_adapty_backup_rules',
+      );
+      expect(app.$['android:dataExtractionRules']).toBe(
+        '@xml/rn_adapty_data_extraction_rules',
+      );
     });
 
     it('should handle tools:replace with whitespace', async () => {
-      const manifest = await getFixtureManifestAsync(MANIFEST_WITH_EXISTING_TOOLS_REPLACE);
+      const manifest = await getFixtureManifestAsync(
+        MANIFEST_WITH_EXISTING_TOOLS_REPLACE,
+      );
       const app = AndroidConfig.Manifest.getMainApplication(manifest);
 
       // Add whitespace to tools:replace
       app.$['tools:replace'] = '  android:allowBackup  ,  android:theme  ';
 
-      const config = withAdapty(
-        {
-          name: 'test-app',
-          slug: 'test-app',
-        },
-        { replaceAndroidBackupConfig: true }
-      );
+      const config = applyPlugin({ replaceAndroidBackupConfig: true });
 
       const { modResults } = await config.mods.android.manifest({
         modRequest: {},
         modResults: manifest,
-      });
+      } as any);
 
       const modifiedApp = AndroidConfig.Manifest.getMainApplication(modResults);
       const finalReplace = modifiedApp.$['tools:replace'];
@@ -469,10 +471,9 @@ describe('withAdapty expo config plugin', () => {
     // createRunOncePlugin stamps `_internal` on the config it processes
     // and short-circuits on subsequent invocations of the same object,
     // so each test needs its own fresh config object.
-    const makeConfig = () => ({ name: 'test-app', slug: 'test-app' });
 
     it('should not register any fallback mods when fallbackFile is omitted', () => {
-      const config = withAdapty(makeConfig());
+      const config = applyPlugin();
 
       // Only the manifest mod from withAndroidManifest should be present
       expect(config.mods?.ios?.xcodeproj).toBeUndefined();
@@ -481,7 +482,9 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should register both iOS and Android mods when fallbackFile is a string', () => {
-      const config = withAdapty(makeConfig(), { fallbackFile: './assets/fallback.json' });
+      const config = applyPlugin({
+        fallbackFile: './assets/fallback.json',
+      });
 
       // withXcodeProject registers under mods.ios.xcodeproj
       expect(config.mods?.ios?.xcodeproj).toBeDefined();
@@ -490,7 +493,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should register only iOS mod when fallbackFile.ios is provided alone', () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: { ios: './assets/ios_fallback.json' },
       });
 
@@ -499,7 +502,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should register only Android mod when fallbackFile.android is provided alone', () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: { android: './assets/android_fallback.json' },
       });
 
@@ -508,7 +511,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should register both mods when fallbackFile object has both platforms', () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: {
           ios: './assets/ios_fallback.json',
           android: './assets/android_fallback.json',
@@ -520,7 +523,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should coexist with replaceAndroidBackupConfig', () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         replaceAndroidBackupConfig: true,
         fallbackFile: './assets/fallback.json',
       });
@@ -532,7 +535,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should treat null/undefined inside object as missing platform', () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: { ios: undefined, android: './assets/fallback.json' },
       });
 
@@ -541,14 +544,14 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should treat empty string fallbackFile as missing', () => {
-      const config = withAdapty(makeConfig(), { fallbackFile: '' });
+      const config = applyPlugin({ fallbackFile: '' });
 
       expect(config.mods?.ios?.xcodeproj).toBeUndefined();
       expect(config.mods?.android?.dangerous).toBeUndefined();
     });
 
     it('should treat empty string platform entries as missing', () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: { ios: '', android: './assets/fallback.json' },
       });
 
@@ -557,7 +560,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('should register no mods when both platform entries are empty', () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: { ios: '', android: '' },
       });
 
@@ -573,13 +576,16 @@ describe('withAdapty expo config plugin', () => {
     const nodePath = require('path');
     const { IOSConfig } = require('expo/config-plugins');
 
-    const makeConfig = () => ({ name: 'test-app', slug: 'test-app' });
-
-    let tmpRoot;
+    let tmpRoot: string;
     beforeEach(async () => {
-      tmpRoot = await fsp.mkdtemp(nodePath.join(os.tmpdir(), 'adapty-plugin-test-'));
+      tmpRoot = await fsp.mkdtemp(
+        nodePath.join(os.tmpdir(), 'adapty-plugin-test-'),
+      );
       await fsp.mkdir(nodePath.join(tmpRoot, 'assets'));
-      await fsp.writeFile(nodePath.join(tmpRoot, 'assets', 'fallback.json'), '{"a":1}');
+      await fsp.writeFile(
+        nodePath.join(tmpRoot, 'assets', 'fallback.json'),
+        '{"a":1}',
+      );
     });
 
     afterEach(async () => {
@@ -587,7 +593,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('Android dangerous mod copies the JSON to app/src/main/assets/<basename>', async () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: { android: './assets/fallback.json' },
       });
 
@@ -597,7 +603,7 @@ describe('withAdapty expo config plugin', () => {
           platformProjectRoot: nodePath.join(tmpRoot, 'android'),
         },
         modResults: {},
-      });
+      } as any);
 
       const expectedPath = nodePath.join(
         tmpRoot,
@@ -613,7 +619,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('Android dangerous mod creates the assets/ directory tree if missing', async () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: { android: './assets/fallback.json' },
       });
 
@@ -623,9 +629,13 @@ describe('withAdapty expo config plugin', () => {
       await config.mods.android.dangerous({
         modRequest: { projectRoot: tmpRoot, platformProjectRoot: platformRoot },
         modResults: {},
-      });
+      } as any);
 
-      expect(fs.existsSync(nodePath.join(platformRoot, 'app', 'src', 'main', 'assets'))).toBe(true);
+      expect(
+        fs.existsSync(
+          nodePath.join(platformRoot, 'app', 'src', 'main', 'assets'),
+        ),
+      ).toBe(true);
     });
 
     it('iOS xcodeproj mod registers the JSON via IOSConfig.XcodeUtils.addResourceFileToGroup', async () => {
@@ -637,7 +647,7 @@ describe('withAdapty expo config plugin', () => {
         .mockImplementation(() => null);
 
       try {
-        const config = withAdapty(makeConfig(), {
+        const config = applyPlugin({
           fallbackFile: { ios: './assets/fallback.json' },
         });
 
@@ -648,7 +658,7 @@ describe('withAdapty expo config plugin', () => {
             platformProjectRoot: nodePath.join(tmpRoot, 'ios'),
           },
           modResults: fakeProject,
-        });
+        } as any);
 
         // Group must exist before files are added to it.
         expect(ensureSpy).toHaveBeenCalledWith(fakeProject, 'Resources');
@@ -667,7 +677,7 @@ describe('withAdapty expo config plugin', () => {
     });
 
     it('Android dangerous mod throws when the source JSON is missing', async () => {
-      const config = withAdapty(makeConfig(), {
+      const config = applyPlugin({
         fallbackFile: { android: './assets/missing.json' },
       });
 
@@ -678,7 +688,7 @@ describe('withAdapty expo config plugin', () => {
             platformProjectRoot: nodePath.join(tmpRoot, 'android'),
           },
           modResults: {},
-        }),
+        } as any),
       ).rejects.toThrow(/ENOENT|no such file/i);
     });
   });
