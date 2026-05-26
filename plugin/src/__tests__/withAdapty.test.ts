@@ -2,7 +2,10 @@ import { AndroidConfig } from 'expo/config-plugins';
 import * as XML from '@expo/config-plugins/build/utils/XML';
 import type { ExportedConfig } from '@expo/config-plugins/build/Plugin.types';
 
-import withAdapty, { type AdaptyPluginProps } from '../withAdapty';
+import withAdapty, {
+  type AdaptyPluginProps,
+  type FallbackFileInput,
+} from '../withAdapty';
 
 // Expo types `ConfigPlugin` as returning `ExpoConfig`, but in practice the
 // returned object is `ExportedConfig` (with `mods` attached). The helper
@@ -481,15 +484,18 @@ describe('withAdapty expo config plugin', () => {
       expect(config.mods?.android?.manifest).toBeDefined();
     });
 
-    it('should register both iOS and Android mods when fallbackFile is a string', () => {
-      const config = applyPlugin({
-        fallbackFile: './assets/fallback.json',
-      });
+    it('should throw when fallbackFile is a string', () => {
+      expect(() =>
+        // Cast through unknown because the public type intentionally forbids
+        // the string form. The runtime guard is the contract this test pins.
+        applyPlugin({ fallbackFile: './assets/fallback.json' as unknown as FallbackFileInput }),
+      ).toThrow(/`fallbackFile` must be an object/);
+    });
 
-      // withXcodeProject registers under mods.ios.xcodeproj
-      expect(config.mods?.ios?.xcodeproj).toBeDefined();
-      // withDangerousMod registers under mods.android.dangerous
-      expect(config.mods?.android?.dangerous).toBeDefined();
+    it('should throw when fallbackFile is an array', () => {
+      expect(() =>
+        applyPlugin({ fallbackFile: [] as unknown as FallbackFileInput }),
+      ).toThrow(/`fallbackFile` must be an object/);
     });
 
     it('should register only iOS mod when fallbackFile.ios is provided alone', () => {
@@ -525,7 +531,10 @@ describe('withAdapty expo config plugin', () => {
     it('should coexist with replaceAndroidBackupConfig', () => {
       const config = applyPlugin({
         replaceAndroidBackupConfig: true,
-        fallbackFile: './assets/fallback.json',
+        fallbackFile: {
+          ios: './assets/ios_fallback.json',
+          android: './assets/android_fallback.json',
+        },
       });
 
       // Both Android mods should be present
@@ -543,11 +552,13 @@ describe('withAdapty expo config plugin', () => {
       expect(config.mods?.android?.dangerous).toBeDefined();
     });
 
-    it('should treat empty string fallbackFile as missing', () => {
-      const config = applyPlugin({ fallbackFile: '' });
-
-      expect(config.mods?.ios?.xcodeproj).toBeUndefined();
-      expect(config.mods?.android?.dangerous).toBeUndefined();
+    it('should throw when fallbackFile is an empty string', () => {
+      // Empty string used to be silently treated as missing while the string
+      // shorthand existed; now any non-object truthy value should throw, and
+      // the empty-string case isn't worth a special-case carve-out.
+      expect(() =>
+        applyPlugin({ fallbackFile: '' as unknown as FallbackFileInput }),
+      ).toThrow(/`fallbackFile` must be an object/);
     });
 
     it('should treat empty string platform entries as missing', () => {

@@ -21,7 +21,7 @@ const EXTRACTION_RULES_PATH = '@xml/rn_adapty_data_extraction_rules';
 const ANDROID_ASSETS_DIR = path.join('app', 'src', 'main', 'assets');
 const IOS_RESOURCES_GROUP = 'Resources';
 
-export type FallbackFileInput = string | { ios?: string; android?: string };
+export type FallbackFileInput = { ios?: string; android?: string };
 
 export interface AdaptyPluginProps {
   replaceAndroidBackupConfig?: boolean;
@@ -33,8 +33,12 @@ type NormalizedFallback = { ios?: string; android?: string } | null;
 function normalizeFallbackFile(
   input: FallbackFileInput | undefined,
 ): NormalizedFallback {
-  if (!input) return null;
-  if (typeof input === 'string') return { ios: input, android: input };
+  if (input == null) return null;
+  if (typeof input !== 'object' || Array.isArray(input)) {
+    throw new Error(
+      '[react-native-adapty] `fallbackFile` must be an object with `ios` and/or `android` keys',
+    );
+  }
   return { ios: input.ios, android: input.android };
 }
 
