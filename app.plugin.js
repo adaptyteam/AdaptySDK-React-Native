@@ -1,2 +1,1 @@
-module.exports = require('./plugin/with-adapty');
-
+module.exports = require('./plugin/build');
