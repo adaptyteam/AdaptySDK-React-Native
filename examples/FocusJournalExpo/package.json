@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "update-sdk-full": "../../scripts/build_and_install_pack.zsh",
-    "update-native-modules": "cd ./ios && pod update Adapty AdaptyUI AdaptyPlugin",
+    "update-native-modules": "cd ./ios && pod install --repo-update",
     "ios:preview": "expo run:ios --configuration Release",
     "android:preview": "expo run:android --variant release"
   },
@@ -15,12 +15,13 @@
     "@react-navigation/native": "^7.1.10",
     "@react-navigation/native-stack": "^7.3.14",
     "expo": "~54.0.20",
+    "expo-build-properties": "~1.0.10",
     "expo-dev-client": "6.0.16",
     "expo-secure-store": "~15.0.7",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
     "react-native": "0.81.5",
-    "react-native-adapty": "3.15.6",
+    "react-native-adapty": "3.17.0",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "4.18.0"
   },

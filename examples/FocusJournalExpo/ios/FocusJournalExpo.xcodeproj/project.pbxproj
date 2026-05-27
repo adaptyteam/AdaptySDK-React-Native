@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		044F18165227EEAE468751D8 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414508EAE6978623B5634FF1 /* ExpoModulesProvider.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		547EB25F796F855C35B76F1D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7AC2F6AF043E4C2AC8574964 /* PrivacyInfo.xcprivacy */; };
-		8122AF26347740CBA97232D7 /* ios_fallback.json in Resources */ = {isa = PBXBuildFile; fileRef = A4BBB7C14184453A883323DB /* ios_fallback.json */; };
+		8032D1459EC014343B8EB365 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 230D277B5BF72A5401E4EF36 /* PrivacyInfo.xcprivacy */; };
+		B34DA14B8C5D3871C8534D58 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222D023E03ECC5D8DC56962E /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		ED1B9050B87BB16B000AA41B /* libPods-FocusJournalExpo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A4D4AF352C097250DF02AF9 /* libPods-FocusJournalExpo.a */; };
+		D8F65A8784414003AF2AE7F3 /* ios_fallback.json in Resources */ = {isa = PBXBuildFile; fileRef = 870E733B3C0A4C1691149177 /* ios_fallback.json */; };
+		EEDEB0C1091330E6C9E2D9B9 /* Pods_FocusJournalExpo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EADDD98D463260C2E4AA657D /* Pods_FocusJournalExpo.framework */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -21,14 +21,14 @@
 		13B07F961A680F5B00A75B9A /* FocusJournalExpo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusJournalExpo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = FocusJournalExpo/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = FocusJournalExpo/Info.plist; sourceTree = "<group>"; };
-		414508EAE6978623B5634FF1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-FocusJournalExpo/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		5B7763E3EBE33D282DF6E497 /* Pods-FocusJournalExpo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FocusJournalExpo.debug.xcconfig"; path = "Target Support Files/Pods-FocusJournalExpo/Pods-FocusJournalExpo.debug.xcconfig"; sourceTree = "<group>"; };
-		6A4D4AF352C097250DF02AF9 /* libPods-FocusJournalExpo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FocusJournalExpo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7AC2F6AF043E4C2AC8574964 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = FocusJournalExpo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		A4BBB7C14184453A883323DB /* ios_fallback.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ios_fallback.json; path = ../assets/ios_fallback.json; sourceTree = "<group>"; };
+		222D023E03ECC5D8DC56962E /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-FocusJournalExpo/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		230D277B5BF72A5401E4EF36 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = FocusJournalExpo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		706E1B6CE24D0EC18A8CE8AB /* Pods-FocusJournalExpo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FocusJournalExpo.debug.xcconfig"; path = "Target Support Files/Pods-FocusJournalExpo/Pods-FocusJournalExpo.debug.xcconfig"; sourceTree = "<group>"; };
+		870E733B3C0A4C1691149177 /* ios_fallback.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ios_fallback.json; path = ../assets/ios_fallback.json; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = FocusJournalExpo/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B9DB2361B99E34938DE5A3C7 /* Pods-FocusJournalExpo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FocusJournalExpo.release.xcconfig"; path = "Target Support Files/Pods-FocusJournalExpo/Pods-FocusJournalExpo.release.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D157972F6FEACD66C6C883A3 /* Pods-FocusJournalExpo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FocusJournalExpo.release.xcconfig"; path = "Target Support Files/Pods-FocusJournalExpo/Pods-FocusJournalExpo.release.xcconfig"; sourceTree = "<group>"; };
+		EADDD98D463260C2E4AA657D /* Pods_FocusJournalExpo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FocusJournalExpo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = FocusJournalExpo/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* FocusJournalExpo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "FocusJournalExpo-Bridging-Header.h"; path = "FocusJournalExpo/FocusJournalExpo-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -39,7 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ED1B9050B87BB16B000AA41B /* libPods-FocusJournalExpo.a in Frameworks */,
+				EEDEB0C1091330E6C9E2D9B9 /* Pods_FocusJournalExpo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,42 +55,41 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				7AC2F6AF043E4C2AC8574964 /* PrivacyInfo.xcprivacy */,
+				230D277B5BF72A5401E4EF36 /* PrivacyInfo.xcprivacy */,
 			);
 			name = FocusJournalExpo;
-			sourceTree = "<group>";
-		};
-		1ABAA1D1ACC94AB283DF99E5 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				A4BBB7C14184453A883323DB /* ios_fallback.json */,
-			);
-			name = Resources;
-			path = "";
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				6A4D4AF352C097250DF02AF9 /* libPods-FocusJournalExpo.a */,
+				EADDD98D463260C2E4AA657D /* Pods_FocusJournalExpo.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		46153774E0450CA08F5ACE91 /* FocusJournalExpo */ = {
+		32088F71AE30B47C1B18D2C0 /* FocusJournalExpo */ = {
 			isa = PBXGroup;
 			children = (
-				414508EAE6978623B5634FF1 /* ExpoModulesProvider.swift */,
+				222D023E03ECC5D8DC56962E /* ExpoModulesProvider.swift */,
 			);
 			name = FocusJournalExpo;
 			sourceTree = "<group>";
 		};
-		5FD9575E4CA377C6EB7924B3 /* Pods */ = {
+		3D3C16A9F4DDAE0609FB9AC7 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				5B7763E3EBE33D282DF6E497 /* Pods-FocusJournalExpo.debug.xcconfig */,
-				D157972F6FEACD66C6C883A3 /* Pods-FocusJournalExpo.release.xcconfig */,
+				32088F71AE30B47C1B18D2C0 /* FocusJournalExpo */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		6947C6E3698AC567A5973EC1 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				706E1B6CE24D0EC18A8CE8AB /* Pods-FocusJournalExpo.debug.xcconfig */,
+				B9DB2361B99E34938DE5A3C7 /* Pods-FocusJournalExpo.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -110,9 +109,9 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				1ABAA1D1ACC94AB283DF99E5 /* Resources */,
-				5FD9575E4CA377C6EB7924B3 /* Pods */,
-				AB51263DE7E40211C2002922 /* ExpoModulesProviders */,
+				BFB0F1D2803E461FB75296DB /* Resources */,
+				6947C6E3698AC567A5973EC1 /* Pods */,
+				3D3C16A9F4DDAE0609FB9AC7 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -127,14 +126,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AB51263DE7E40211C2002922 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				46153774E0450CA08F5ACE91 /* FocusJournalExpo */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -142,6 +133,15 @@
 			);
 			name = Supporting;
 			path = FocusJournalExpo/Supporting;
+			sourceTree = "<group>";
+		};
+		BFB0F1D2803E461FB75296DB /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				870E733B3C0A4C1691149177 /* ios_fallback.json */,
+			);
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -152,13 +152,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "FocusJournalExpo" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				284BF07BD51CA46D8EA9A759 /* [Expo] Configure project */,
+				4472A3A035252A210B869AE2 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				B29F07D588085A875E23C606 /* [CP] Embed Pods Frameworks */,
+				BBCE8868425C41DE296421ED /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -208,8 +208,8 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				8122AF26347740CBA97232D7 /* ios_fallback.json in Resources */,
-				547EB25F796F855C35B76F1D /* PrivacyInfo.xcprivacy in Resources */,
+				D8F65A8784414003AF2AE7F3 /* ios_fallback.json in Resources */,
+				8032D1459EC014343B8EB365 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,7 +255,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		284BF07BD51CA46D8EA9A759 /* [Expo] Configure project */ = {
+		4472A3A035252A210B869AE2 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -286,8 +286,6 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FocusJournalExpo/Pods-FocusJournalExpo-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/Adapty/Adapty.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/AdaptyUI/AdaptyUI.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoFileSystem/ExpoFileSystem_privacy.bundle",
@@ -298,8 +296,6 @@
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Adapty.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AdaptyUI.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoConstants_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoFileSystem_privacy.bundle",
@@ -313,19 +309,27 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FocusJournalExpo/Pods-FocusJournalExpo-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B29F07D588085A875E23C606 /* [CP] Embed Pods Frameworks */ = {
+		BBCE8868425C41DE296421ED /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-FocusJournalExpo/Pods-FocusJournalExpo-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/RNScreens/RNScreens.framework",
+				"${BUILT_PRODUCTS_DIR}/ReactCodegen/ReactCodegen.framework",
+				"${BUILT_PRODUCTS_DIR}/react-native-adapty-sdk/react_native_adapty_sdk.framework",
+				"${BUILT_PRODUCTS_DIR}/react-native-safe-area-context/react_native_safe_area_context.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RNScreens.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactCodegen.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/react_native_adapty_sdk.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/react_native_safe_area_context.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
@@ -343,7 +347,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				044F18165227EEAE468751D8 /* ExpoModulesProvider.swift in Sources */,
+				B34DA14B8C5D3871C8534D58 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,7 +356,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B7763E3EBE33D282DF6E497 /* Pods-FocusJournalExpo.debug.xcconfig */;
+			baseConfigurationReference = 706E1B6CE24D0EC18A8CE8AB /* Pods-FocusJournalExpo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -377,7 +381,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.adapty.adaptydemoapp;
-				PRODUCT_NAME = "FocusJournalExpo";
+				PRODUCT_NAME = FocusJournalExpo;
 				SWIFT_OBJC_BRIDGING_HEADER = "FocusJournalExpo/FocusJournalExpo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -388,7 +392,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D157972F6FEACD66C6C883A3 /* Pods-FocusJournalExpo.release.xcconfig */;
+			baseConfigurationReference = B9DB2361B99E34938DE5A3C7 /* Pods-FocusJournalExpo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -408,7 +412,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.adapty.adaptydemoapp;
-				PRODUCT_NAME = "FocusJournalExpo";
+				PRODUCT_NAME = FocusJournalExpo;
 				SWIFT_OBJC_BRIDGING_HEADER = "FocusJournalExpo/FocusJournalExpo-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -463,6 +467,19 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_ROOT}/ReactCommon",
+					"${PODS_ROOT}/ReactCommon/react/nativemodule/core",
+					"${PODS_ROOT}/React-runtimeexecutor",
+					"${PODS_ROOT}/React-runtimeexecutor/platform/ios",
+					"${PODS_ROOT}/ReactCommon-Samples",
+					"${PODS_ROOT}/ReactCommon-Samples/platform/ios",
+					"${PODS_ROOT}/React-Fabric/react/renderer/components/view/platform/cxx",
+					"${PODS_ROOT}/React-NativeModulesApple",
+					"${PODS_ROOT}/React-graphics",
+					"${PODS_ROOT}/React-graphics/react/renderer/graphics/platform/ios",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
@@ -519,6 +536,19 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_ROOT}/ReactCommon",
+					"${PODS_ROOT}/ReactCommon/react/nativemodule/core",
+					"${PODS_ROOT}/React-runtimeexecutor",
+					"${PODS_ROOT}/React-runtimeexecutor/platform/ios",
+					"${PODS_ROOT}/ReactCommon-Samples",
+					"${PODS_ROOT}/ReactCommon-Samples/platform/ios",
+					"${PODS_ROOT}/React-Fabric/react/renderer/components/view/platform/cxx",
+					"${PODS_ROOT}/React-NativeModulesApple",
+					"${PODS_ROOT}/React-graphics",
+					"${PODS_ROOT}/React-graphics/react/renderer/graphics/platform/ios",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
