@@ -488,7 +488,10 @@ describe('withAdapty expo config plugin', () => {
       expect(() =>
         // Cast through unknown because the public type intentionally forbids
         // the string form. The runtime guard is the contract this test pins.
-        applyPlugin({ fallbackFile: './assets/fallback.json' as unknown as FallbackFileInput }),
+        applyPlugin({
+          fallbackFile:
+            './assets/fallback.json' as unknown as FallbackFileInput,
+        }),
       ).toThrow(/`fallbackFile` must be an object/);
     });
 
