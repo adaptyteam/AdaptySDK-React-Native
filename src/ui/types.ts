@@ -36,13 +36,9 @@ import type {
 /**
  * @internal
  */
-export const DEFAULT_EVENT_HANDLERS: Partial<EventHandlers> = {
+export const DEFAULT_EVENT_HANDLERS: EventHandlers = {
   onCloseButtonPress: () => true,
   onAndroidSystemBack: () => true,
-  onRestoreCompleted: () => true,
-  onRenderingFailed: () => true,
-  onPurchaseCompleted: (purchaseResult: AdaptyPurchaseResult) =>
-    purchaseResult.type !== 'user_cancelled',
   // `Linking.openURL` always opens an external browser (i.e. `browser_out_app`).
   // To honor `browser_in_app`, override this handler
   onUrlPress: (url, openIn) => {
@@ -56,6 +52,20 @@ export const DEFAULT_EVENT_HANDLERS: Partial<EventHandlers> = {
     Linking.openURL(url);
     return false; // Keep paywall open
   },
+  onCustomAction: () => false,
+  onProductSelected: () => false,
+  onPurchaseStarted: () => false,
+  onPurchaseCompleted: (purchaseResult: AdaptyPurchaseResult) =>
+    purchaseResult.type !== 'user_cancelled',
+  onPurchaseFailed: () => false,
+  onRestoreStarted: () => false,
+  onRestoreCompleted: () => true,
+  onRestoreFailed: () => false,
+  onAppeared: () => false,
+  onDisappeared: () => false,
+  onRenderingFailed: () => true,
+  onLoadingProductsFailed: () => false,
+  onWebPaymentNavigationFinished: () => false,
 };
 
 /**

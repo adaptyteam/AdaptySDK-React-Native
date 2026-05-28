@@ -71,9 +71,12 @@ describe('createPaywallEventHandlers', () => {
 
     createPaywallEventHandlers({}, 'test-id');
 
-    // Should register 6 default handlers:
-    // onCloseButtonPress, onAndroidSystemBack, onRestoreCompleted, onRenderingFailed, onPurchaseCompleted, onUrlPress
-    expect(addListener).toHaveBeenCalledTimes(6);
+    // Should register all 16 default handlers:
+    // onCloseButtonPress, onAndroidSystemBack, onUrlPress, onCustomAction,
+    // onProductSelected, onPurchaseStarted, onPurchaseCompleted, onPurchaseFailed,
+    // onRestoreStarted, onRestoreCompleted, onRestoreFailed, onAppeared,
+    // onDisappeared, onRenderingFailed, onLoadingProductsFailed, onWebPaymentNavigationFinished
+    expect(addListener).toHaveBeenCalledTimes(16);
 
     const calls = (addListener as jest.Mock).mock.calls;
     const registeredEvents = calls.map(call => call[0]);
@@ -105,8 +108,9 @@ describe('createPaywallEventHandlers', () => {
       'test-id',
     );
 
-    // Should register 6 defaults + 2 custom = 8 handlers
-    expect(addListener).toHaveBeenCalledTimes(8);
+    // 16 defaults already include onProductSelected and onPurchaseStarted,
+    // so custom handlers override defaults — total keys remain 16
+    expect(addListener).toHaveBeenCalledTimes(16);
 
     const calls = (addListener as jest.Mock).mock.calls;
     const productSelectedCall = calls.find(
@@ -182,8 +186,8 @@ describe('createPaywallEventHandlers', () => {
     expect(closeCall[1]).toBe(customCloseHandler);
     expect(restoreCall[1]).toBe(customRestoreHandler);
 
-    // Should still have only 6 handlers (not 8), because custom ones override defaults
-    expect(addListener).toHaveBeenCalledTimes(6);
+    // Should still have only 16 handlers, because custom ones override existing defaults
+    expect(addListener).toHaveBeenCalledTimes(16);
   });
 
   it('creates default onRequestClose when not provided', () => {

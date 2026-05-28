@@ -26,7 +26,7 @@ export type AdaptyPaywallViewProps = ViewProps & {
   onPurchaseCompleted?: EventHandlers['onPurchaseCompleted'];
   onPurchaseFailed?: EventHandlers['onPurchaseFailed'];
   onRestoreStarted?: EventHandlers['onRestoreStarted'];
-  onPaywallShown?: EventHandlers['onPaywallShown'];
+  onAppeared?: EventHandlers['onAppeared'];
   onWebPaymentNavigationFinished?: EventHandlers['onWebPaymentNavigationFinished'];
   onRestoreCompleted?: EventHandlers['onRestoreCompleted'];
   onRestoreFailed?: EventHandlers['onRestoreFailed'];
@@ -49,7 +49,7 @@ const AdaptyPaywallViewComponent: React.FC<AdaptyPaywallViewProps> = ({
   onPurchaseCompleted,
   onPurchaseFailed,
   onRestoreStarted,
-  onPaywallShown,
+  onAppeared,
   onWebPaymentNavigationFinished,
   onRestoreCompleted,
   onRestoreFailed,
@@ -82,7 +82,7 @@ const AdaptyPaywallViewComponent: React.FC<AdaptyPaywallViewProps> = ({
         onPurchaseCompleted,
         onPurchaseFailed,
         onRestoreStarted,
-        onPaywallShown,
+        onAppeared,
         onWebPaymentNavigationFinished,
         onRestoreCompleted,
         onRestoreFailed,
@@ -98,7 +98,7 @@ const AdaptyPaywallViewComponent: React.FC<AdaptyPaywallViewProps> = ({
       onPurchaseCompleted,
       onPurchaseFailed,
       onRestoreStarted,
-      onPaywallShown,
+      onAppeared,
       onWebPaymentNavigationFinished,
       onRestoreCompleted,
       onRestoreFailed,

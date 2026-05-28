@@ -573,7 +573,7 @@ describe('ViewController - iOS fields absence in platform-independent events', (
 
   it('should NOT contain iOS-specific fields in events without products', async () => {
     // This test verifies that events without products don't contain iOS-specific fields
-    // For example, onPaywallShown, onPaywallClosed, etc.
+    // For example, onAppeared, onDisappeared, etc.
     // These events only contain view information, no product data
     expect(true).toBe(true); // Placeholder - actual implementation would test view-only events
   });

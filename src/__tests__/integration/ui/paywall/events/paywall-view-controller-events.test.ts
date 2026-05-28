@@ -746,7 +746,7 @@ describe('ViewController - onCustomAction event', () => {
   });
 });
 
-describe('ViewController - onPaywallShown event', () => {
+describe('ViewController - onAppeared event', () => {
   let adapty: Adapty;
   let view: ViewController;
 
@@ -760,12 +760,12 @@ describe('ViewController - onPaywallShown event', () => {
     cleanupPaywallViewController(view, adapty);
   });
 
-  it('should call onPaywallShown handler when paywall appears', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPaywallShown']> = jest
+  it('should call onAppeared handler when paywall appears', async () => {
+    const handler: jest.MockedFunction<EventHandlers['onAppeared']> = jest
       .fn()
       .mockReturnValue(false);
 
-    view.setEventHandlers({ onPaywallShown: handler });
+    view.setEventHandlers({ onAppeared: handler });
 
     const viewId = (view as any).id;
     const sample = PAYWALL_VIEW_APPEARED;
@@ -777,7 +777,7 @@ describe('ViewController - onPaywallShown event', () => {
   });
 });
 
-describe('ViewController - onPaywallClosed event', () => {
+describe('ViewController - onDisappeared event', () => {
   let adapty: Adapty;
   let view: ViewController;
 
@@ -791,12 +791,12 @@ describe('ViewController - onPaywallClosed event', () => {
     cleanupPaywallViewController(view, adapty);
   });
 
-  it('should call onPaywallClosed handler when paywall disappears', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPaywallClosed']> = jest
+  it('should call onDisappeared handler when paywall disappears', async () => {
+    const handler: jest.MockedFunction<EventHandlers['onDisappeared']> = jest
       .fn()
       .mockReturnValue(false);
 
-    view.setEventHandlers({ onPaywallClosed: handler });
+    view.setEventHandlers({ onDisappeared: handler });
 
     const viewId = (view as any).id;
     const sample = PAYWALL_VIEW_DISAPPEARED;
@@ -1003,7 +1003,7 @@ describe('ViewController - event viewId filtering', () => {
     const onPurchaseCompletedHandler = jest.fn().mockReturnValue(false);
     const onRestoreStartedHandler = jest.fn().mockReturnValue(false);
     const onCloseHandler = jest.fn().mockReturnValue(false);
-    const onPaywallShownHandler = jest.fn().mockReturnValue(false);
+    const onAppearedHandler = jest.fn().mockReturnValue(false);
 
     // Register all handlers
     view.setEventHandlers({
@@ -1012,7 +1012,7 @@ describe('ViewController - event viewId filtering', () => {
       onPurchaseCompleted: onPurchaseCompletedHandler,
       onRestoreStarted: onRestoreStartedHandler,
       onCloseButtonPress: onCloseHandler,
-      onPaywallShown: onPaywallShownHandler,
+      onAppeared: onAppearedHandler,
     });
 
     // Use a different viewId
@@ -1046,7 +1046,7 @@ describe('ViewController - event viewId filtering', () => {
     expect(onPurchaseCompletedHandler).not.toHaveBeenCalled();
     expect(onRestoreStartedHandler).not.toHaveBeenCalled();
     expect(onCloseHandler).not.toHaveBeenCalled();
-    expect(onPaywallShownHandler).not.toHaveBeenCalled();
+    expect(onAppearedHandler).not.toHaveBeenCalled();
   });
 });
 
@@ -1065,8 +1065,11 @@ describe('ViewController - multiple views isolation', () => {
   });
 
   it('should isolate event handlers between view instances', async () => {
-    // Create a second view using the SAME adapty instance
-    const { paywall: paywall2 } = await createPaywallViewController();
+    // Create a second view using the SAME adapty instance.
+    // We get paywall2 directly from the existing adapty (re-creating it via
+    // createPaywallViewController would call createAdaptyInstance again and
+    // reset the bridge, invalidating the first view's listeners).
+    const paywall2 = await adapty.getPaywall('test_placement');
     const view2 = await (view.constructor as any).create(paywall2, {});
 
     try {
@@ -1372,7 +1375,7 @@ describe('ViewController - dismiss cleanup', () => {
     // Call dismiss
     await view.dismiss();
 
-    // Emit onPaywallClosed event - this triggers cleanup via internal handler
+    // Emit onDisappeared event - this triggers cleanup via internal handler
     emitPaywallViewDisappearedEvent(viewId, sample.view);
 
     // Emit events AFTER cleanup - handlers should NOT be called
@@ -1632,7 +1635,7 @@ describe('ViewController - setEventHandlers merge behavior', () => {
   });
 });
 
-describe('ViewController - onPaywallClosed after user action close', () => {
+describe('ViewController - onDisappeared after user action close', () => {
   let adapty: Adapty;
   let view: ViewController;
 
@@ -1646,7 +1649,7 @@ describe('ViewController - onPaywallClosed after user action close', () => {
     cleanupPaywallViewController(view, adapty);
   });
 
-  it('should call onPaywallClosed handler even after close button triggers dismiss', async () => {
+  it('should call onDisappeared handler even after close button triggers dismiss', async () => {
     const viewId = (view as any).id;
     const closeButtonSample = PAYWALL_USER_ACTION_CLOSE_BUTTON;
     const closedSample = PAYWALL_VIEW_DISAPPEARED;
@@ -1655,8 +1658,8 @@ describe('ViewController - onPaywallClosed after user action close', () => {
     const onCloseButtonPressHandler: jest.MockedFunction<
       EventHandlers['onCloseButtonPress']
     > = jest.fn().mockReturnValue(true); // Returns true to trigger dismiss
-    const onPaywallClosedHandler: jest.MockedFunction<
-      EventHandlers['onPaywallClosed']
+    const onDisappearedHandler: jest.MockedFunction<
+      EventHandlers['onDisappeared']
     > = jest.fn().mockReturnValue(false);
 
     // Spy on dismiss WITHOUT mocking - let it execute normally
@@ -1664,7 +1667,7 @@ describe('ViewController - onPaywallClosed after user action close', () => {
 
     view.setEventHandlers({
       onCloseButtonPress: onCloseButtonPressHandler,
-      onPaywallClosed: onPaywallClosedHandler,
+      onDisappeared: onDisappearedHandler,
     });
 
     // 1. User presses close button - this should trigger dismiss
@@ -1678,15 +1681,15 @@ describe('ViewController - onPaywallClosed after user action close', () => {
     expect(onCloseButtonPressHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).toHaveBeenCalledTimes(1);
 
-    // 2. Native code sends onPaywallClosed before dismiss resolves
+    // 2. Native code sends onDisappeared before dismiss resolves
     // (dismiss response is expected to be the last event)
     emitPaywallViewDisappearedEvent(viewId, closedSample.view);
 
     // 3. Wait for dismiss to complete (includes cleanup)
     await dismissSpy.mock.results[0]?.value;
 
-    // VERIFICATION: onPaywallClosed handler should be called
-    expect(onPaywallClosedHandler).toHaveBeenCalledTimes(1);
+    // VERIFICATION: onDisappeared handler should be called
+    expect(onDisappearedHandler).toHaveBeenCalledTimes(1);
 
     dismissSpy.mockRestore();
   });
