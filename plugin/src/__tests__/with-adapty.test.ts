@@ -5,7 +5,7 @@ import type { ExportedConfig } from '@expo/config-plugins/build/Plugin.types';
 import withAdapty, {
   type AdaptyPluginProps,
   type FallbackFileInput,
-} from '../withAdapty';
+} from '../with-adapty';
 
 // Expo types `ConfigPlugin` as returning `ExpoConfig`, but in practice the
 // returned object is `ExportedConfig` (with `mods` attached). The helper
