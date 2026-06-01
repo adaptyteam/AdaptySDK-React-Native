@@ -40,7 +40,11 @@
       [
         "react-native-adapty",
         {
-          "replaceAndroidBackupConfig": true
+          "replaceAndroidBackupConfig": true,
+          "fallbackFile": {
+            "ios": "./assets/ios_fallback.json",
+            "android": "./assets/android_fallback.json"
+          }
         }
       ]
     ]

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "react-native-adapty",
-  "version": "3.15.6",
+  "version": "3.17.0",
   "description": "Adapty React Native SDK",
   "license": "MIT",
   "author": "Adapty team <support@adapty.io>",
@@ -40,21 +40,23 @@
     "!android/gradle",
     "!android/gradlew*",
     "!android/local.properties",
-    "plugin/",
+    "plugin/build/",
     "app.plugin.js",
     "!**/.*"
   ],
   "main": "dist/index.js",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "tsc -p tsconfig.build.json && yarn run tsc-alias -p tsconfig.build.json",
+    "build": "yarn clean:plugin && yarn build:plugin && tsc -p tsconfig.build.json && yarn run tsc-alias -p tsconfig.build.json",
+    "build:plugin": "tsc -p plugin/tsconfig.json",
+    "clean:plugin": "rm -rf plugin/build",
     "clean": "./scripts/clean.sh",
-    "format": "prettier ./src -w --plugin=prettier-plugin-sort-json",
-    "format-check": "prettier ./src --check --plugin=prettier-plugin-sort-json",
-    "lint": "eslint ./src --ext .ts",
+    "format": "prettier ./src ./plugin/src -w --plugin=prettier-plugin-sort-json",
+    "format-check": "prettier ./src ./plugin/src --check --plugin=prettier-plugin-sort-json",
+    "lint": "eslint ./src ./plugin/src --ext .ts",
     "test": "jest",
     "test:coverage": "node ./scripts/check-bridge-api-test-coverage.js",
-    "tsc": "tsc --noEmit",
+    "tsc": "tsc --noEmit -p plugin/tsconfig.json && tsc --noEmit -p plugin/tsconfig.test.json && tsc --noEmit",
     "update-versions": "node ./scripts/update_versions.cjs",
     "publish-git": "./scripts/git-package_publish.zsh",
     "prepack": "yarn update-versions && yarn format-check && yarn tsc && yarn lint && yarn test && yarn build",
@@ -95,7 +97,7 @@
     "typescript": "5.1.6"
   },
   "dependencies": {
-    "@adapty/core": "3.15.0",
+    "@adapty/core": "3.17.0",
     "tslib": "^2.5.0"
   },
   "peerDependencies": {

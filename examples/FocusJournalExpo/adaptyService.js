@@ -10,6 +10,14 @@ export const activationPromise = (async () => {
       __ignoreActivationOnFastRefresh: __DEV__,
       logLevel: 'verbose',
     });
+
+    // Register fallback paywalls so the SDK can serve them
+    // when the network or Adapty servers are unreachable.
+    // Must be called before the first getPaywall / getOnboarding call.
+    await adapty.setFallback({
+      ios: { fileName: "ios_fallback.json" },
+      android: { relativeAssetPath: "android_fallback.json" },
+    });
   } catch (error) {
     console.error("Adapty activation failed:", error);
   }

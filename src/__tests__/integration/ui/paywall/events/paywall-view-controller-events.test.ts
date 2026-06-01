@@ -131,11 +131,15 @@ describe('ViewController - action mapping isolation', () => {
       'open_url',
       sample.action.value,
       sample.view,
+      sample.action.open_in,
     );
 
-    // ONLY onUrlPress should be called with URL
+    // ONLY onUrlPress should be called with URL + openIn
     expect(onUrlPressHandler).toHaveBeenCalledTimes(1);
-    expect(onUrlPressHandler).toHaveBeenCalledWith(sample.action.value);
+    expect(onUrlPressHandler).toHaveBeenCalledWith(
+      sample.action.value,
+      sample.action.open_in,
+    );
 
     // Others should NOT be called
     expect(onCloseHandler).not.toHaveBeenCalled();
@@ -699,10 +703,14 @@ describe('ViewController - onUrlPress event', () => {
       'open_url',
       sample.action.value,
       sample.view,
+      sample.action.open_in,
     );
 
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler).toHaveBeenCalledWith(sample.action.value);
+    expect(handler).toHaveBeenCalledWith(
+      sample.action.value,
+      sample.action.open_in,
+    );
   });
 });
 

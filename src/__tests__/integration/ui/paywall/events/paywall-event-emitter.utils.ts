@@ -43,12 +43,15 @@ export function emitPaywallProductSelectedEvent(
 /**
  * Emits mock paywall user action event for testing
  * Universal function for close/system_back/open_url/custom actions
+ *
+ * For `open_url`, `openIn` defaults to `'browser_in_app'` (matches native default).
  */
 export function emitPaywallUserActionEvent(
   viewId: string,
   actionType: 'close' | 'system_back' | 'open_url' | 'custom',
   actionValue: string | undefined,
   view: { id: string; placement_id: string; variation_id: string },
+  openIn: 'browser_in_app' | 'browser_out_app' = 'browser_in_app',
 ): void {
   const bridge = $bridge.testBridge;
 
@@ -68,6 +71,10 @@ export function emitPaywallUserActionEvent(
 
   if (actionValue !== undefined) {
     action['value'] = actionValue;
+  }
+
+  if (actionType === 'open_url') {
+    action['open_in'] = openIn;
   }
 
   const payload = {

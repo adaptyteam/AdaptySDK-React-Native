@@ -317,6 +317,9 @@ export function createMockOnboarding(
       data: { screens: ['Welcome', 'Features', 'Pricing'] },
       dataString: '{"screens":["Welcome","Features","Pricing"]}',
     },
+    onboardingBuilder: {
+      url: `https://mock.adapty.io/onboardings/${placementId}`,
+    },
     ...overrides,
   };
 }

@@ -69,3 +69,5 @@ docs
 
 # Worktrees
 .worktrees
+
+plugin/build/

@@ -26,6 +26,7 @@ export { AdaptyUiDialogActionType } from '@adapty/core';
 // RN-specific: Default event handlers
 import { Linking } from 'react-native';
 import type { ViewProps } from 'react-native';
+import { Log } from '@/logger';
 import type {
   EventHandlers,
   OnboardingEventHandlers,
@@ -42,7 +43,16 @@ export const DEFAULT_EVENT_HANDLERS: Partial<EventHandlers> = {
   onRenderingFailed: () => true,
   onPurchaseCompleted: (purchaseResult: AdaptyPurchaseResult) =>
     purchaseResult.type !== 'user_cancelled',
-  onUrlPress: url => {
+  // `Linking.openURL` always opens an external browser (i.e. `browser_out_app`).
+  // To honor `browser_in_app`, override this handler
+  onUrlPress: (url, openIn) => {
+    if (openIn === 'browser_in_app') {
+      Log.warn(
+        'onUrlPress',
+        () =>
+          'open_in=browser_in_app is not supported by the default onUrlPress handler. Override onUrlPress to support an in-app browser.',
+      );
+    }
     Linking.openURL(url);
     return false; // Keep paywall open
   },
