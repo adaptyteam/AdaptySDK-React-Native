@@ -46,6 +46,14 @@
             "android": "./assets/android_fallback.json"
           }
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "dynamic"
+          }
+        }
       ]
     ]
   }

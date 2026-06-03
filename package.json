@@ -101,7 +101,7 @@
     "tslib": "^2.5.0"
   },
   "peerDependencies": {
-    "react-native": ">= 0.73.0"
+    "react-native": ">= 0.75.0"
   },
   "peerDependenciesMeta": {},
   "resolutions": {
