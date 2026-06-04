@@ -10,12 +10,12 @@ import type { components } from '@/types/api';
 // Paywall UI Methods
 
 /**
- * AdaptyUICreatePaywallView.Request with default parameters
+ * AdaptyUICreateFlowView.Request with default parameters
  */
-export const ADAPTY_UI_CREATE_PAYWALL_VIEW_REQUEST: components['requests']['AdaptyUICreatePaywallView.Request'] =
+export const ADAPTY_UI_CREATE_FLOW_VIEW_REQUEST: components['requests']['AdaptyUICreateFlowView.Request'] =
   {
-    method: 'adapty_ui_create_paywall_view',
-    paywall: {
+    method: 'adapty_ui_create_flow_view',
+    flow: {
       placement: {
         developer_id: 'test_placement',
         ab_test_name: 'test_ab',
@@ -23,25 +23,34 @@ export const ADAPTY_UI_CREATE_PAYWALL_VIEW_REQUEST: components['requests']['Adap
         revision: 1,
         placement_audience_version_id: 'v1',
       },
-      paywall_id: 'paywall_test_placement',
-      paywall_name: 'test_placement',
+      flow_id: 'flow_test_placement',
+      flow_name: 'test_placement',
       variation_id: 'variation_123',
-      products: [],
+      variations: [
+        {
+          placement: {
+            developer_id: 'test_placement',
+            ab_test_name: 'test_ab',
+            audience_name: 'all_users',
+            revision: 1,
+            placement_audience_version_id: 'v1',
+          },
+          paywall_id: 'paywall_test_placement',
+          paywall_name: 'test_placement',
+          variation_id: 'variation_123',
+          products: [],
+        },
+      ],
       response_created_at: -1,
-      request_locale: 'en',
-      paywall_builder: {
-        paywall_builder_id: 'builder_123',
-        lang: 'en',
-      },
     },
     preload_products: true,
     load_timeout: 5,
   };
 
 /**
- * AdaptyUICreatePaywallView.Response
+ * AdaptyUICreateFlowView.Response
  */
-export const ADAPTY_UI_CREATE_PAYWALL_VIEW_RESPONSE: components['requests']['AdaptyUICreatePaywallView.Response'] =
+export const ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE: components['requests']['AdaptyUICreateFlowView.Response'] =
   {
     success: {
       id: 'mock_paywall_view_123',
@@ -51,47 +60,47 @@ export const ADAPTY_UI_CREATE_PAYWALL_VIEW_RESPONSE: components['requests']['Ada
   };
 
 /**
- * AdaptyUIPresentPaywallView.Request with full_screen style
+ * AdaptyUIPresentFlowView.Request with full_screen style
  */
-export const ADAPTY_UI_PRESENT_PAYWALL_VIEW_REQUEST_FULL_SCREEN: components['requests']['AdaptyUIPresentPaywallView.Request'] =
+export const ADAPTY_UI_PRESENT_FLOW_VIEW_REQUEST_FULL_SCREEN: components['requests']['AdaptyUIPresentFlowView.Request'] =
   {
-    method: 'adapty_ui_present_paywall_view',
+    method: 'adapty_ui_present_flow_view',
     id: 'mock_paywall_view_123',
     ios_presentation_style: 'full_screen',
   };
 
 /**
- * AdaptyUIPresentPaywallView.Request with page_sheet style
+ * AdaptyUIPresentFlowView.Request with page_sheet style
  */
-export const ADAPTY_UI_PRESENT_PAYWALL_VIEW_REQUEST_PAGE_SHEET: components['requests']['AdaptyUIPresentPaywallView.Request'] =
+export const ADAPTY_UI_PRESENT_FLOW_VIEW_REQUEST_PAGE_SHEET: components['requests']['AdaptyUIPresentFlowView.Request'] =
   {
-    method: 'adapty_ui_present_paywall_view',
+    method: 'adapty_ui_present_flow_view',
     id: 'mock_paywall_view_123',
     ios_presentation_style: 'page_sheet',
   };
 
 /**
- * AdaptyUIPresentPaywallView.Response
+ * AdaptyUIPresentFlowView.Response
  */
-export const ADAPTY_UI_PRESENT_PAYWALL_VIEW_RESPONSE: components['requests']['AdaptyUIPresentPaywallView.Response'] =
+export const ADAPTY_UI_PRESENT_FLOW_VIEW_RESPONSE: components['requests']['AdaptyUIPresentFlowView.Response'] =
   {
     success: true,
   };
 
 /**
- * AdaptyUIDismissPaywallView.Request
+ * AdaptyUIDismissFlowView.Request
  */
-export const ADAPTY_UI_DISMISS_PAYWALL_VIEW_REQUEST: components['requests']['AdaptyUIDismissPaywallView.Request'] =
+export const ADAPTY_UI_DISMISS_FLOW_VIEW_REQUEST: components['requests']['AdaptyUIDismissFlowView.Request'] =
   {
-    method: 'adapty_ui_dismiss_paywall_view',
+    method: 'adapty_ui_dismiss_flow_view',
     id: 'mock_paywall_view_123',
     destroy: false,
   };
 
 /**
- * AdaptyUIDismissPaywallView.Response
+ * AdaptyUIDismissFlowView.Response
  */
-export const ADAPTY_UI_DISMISS_PAYWALL_VIEW_RESPONSE: components['requests']['AdaptyUIDismissPaywallView.Response'] =
+export const ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE: components['requests']['AdaptyUIDismissFlowView.Response'] =
   {
     success: true,
   };

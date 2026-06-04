@@ -44,10 +44,10 @@ interface ResponseRegistry {
   is_activated?: components['requests']['IsActivated.Response'];
   get_profile?: components['requests']['GetProfile.Response'];
   update_profile?: components['requests']['UpdateProfile.Response'];
-  get_paywall?: components['requests']['GetPaywall.Response'];
-  get_paywall_for_default_audience?: components['requests']['GetPaywallForDefaultAudience.Response'];
+  get_flow?: components['requests']['GetFlow.Response'];
+  get_flow_for_default_audience?: components['requests']['GetFlowForDefaultAudience.Response'];
   get_paywall_products?: components['requests']['GetPaywallProducts.Response'];
-  log_show_paywall?: components['requests']['LogShowPaywall.Response'];
+  log_show_flow?: components['requests']['LogShowFlow.Response'];
   make_purchase?: components['requests']['MakePurchase.Response'];
   get_onboarding?: components['requests']['GetOnboarding.Response'];
   get_onboarding_for_default_audience?: components['requests']['GetOnboardingForDefaultAudience.Response'];
@@ -67,9 +67,9 @@ interface ResponseRegistry {
   get_current_installation_status?: components['requests']['GetCurrentInstallationStatus.Response'];
 
   // Adapty UI - Paywall methods
-  adapty_ui_create_paywall_view?: components['requests']['AdaptyUICreatePaywallView.Response'];
-  adapty_ui_present_paywall_view?: components['requests']['AdaptyUIPresentPaywallView.Response'];
-  adapty_ui_dismiss_paywall_view?: components['requests']['AdaptyUIDismissPaywallView.Response'];
+  adapty_ui_create_flow_view?: components['requests']['AdaptyUICreateFlowView.Response'];
+  adapty_ui_present_flow_view?: components['requests']['AdaptyUIPresentFlowView.Response'];
+  adapty_ui_dismiss_flow_view?: components['requests']['AdaptyUIDismissFlowView.Response'];
   adapty_ui_show_dialog?: components['requests']['AdaptyUIShowDialog.Response'];
 
   // Adapty UI - Onboarding methods
