@@ -6,26 +6,26 @@ import {
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AdaptyPaywallView } from 'react-native-adapty';
+import { AdaptyFlowView } from 'react-native-adapty';
 import type {
-  AdaptyPaywall,
+  AdaptyFlow,
   AdaptyPaywallProduct,
   AdaptyProfile,
   AdaptyPurchaseResult,
 } from 'react-native-adapty';
 import { styles } from './styles';
 
-interface AdaptyPaywallComponentScreenProps {
-  paywall: AdaptyPaywall;
+interface AdaptyFlowComponentScreenProps {
+  flow: AdaptyFlow;
   onSuccess: (profile: AdaptyProfile) => void;
   onClose: () => void;
 }
 
-export default function AdaptyPaywallComponentScreen({
-  paywall,
+export default function AdaptyFlowComponentScreen({
+  flow,
   onSuccess,
   onClose,
-}: AdaptyPaywallComponentScreenProps) {
+}: AdaptyFlowComponentScreenProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handlePurchaseCompleted = (
@@ -36,14 +36,14 @@ export default function AdaptyPaywallComponentScreen({
     if (purchaseResult.type === 'success') {
       // Update profile to reflect new access level
       onSuccess(purchaseResult.profile);
-      // Close paywall by returning true
+      // Close flow by returning true
       return true;
     }
     // Don't close for cancelled or pending purchases
     return false;
   };
 
-  const handleRenderingFailed = (error: Error) => {
+  const handleError = (error: Error) => {
     setError(error.message);
   };
 
@@ -72,7 +72,7 @@ export default function AdaptyPaywallComponentScreen({
             <Text style={styles.errorText}>{error}</Text>
           </View>
           <Text style={componentStyles.errorNote}>
-            The paywall component failed to render. This can happen in mock mode if the paywall doesn't have a view configuration.
+            The flow component failed to render. This can happen in mock mode if the flow doesn't have a view configuration.
           </Text>
           <TouchableOpacity
             style={styles.backButton}
@@ -82,12 +82,12 @@ export default function AdaptyPaywallComponentScreen({
           </TouchableOpacity>
         </View>
       ) : (
-        // Adapty Paywall View Component
+        // Adapty Flow View Component
         <View style={componentStyles.paywallContainer}>
-          <AdaptyPaywallView
-            paywall={paywall}
+          <AdaptyFlowView
+            flow={flow}
             onPurchaseCompleted={handlePurchaseCompleted}
-            onRenderingFailed={handleRenderingFailed}
+            onError={handleError}
             onLoadingProductsFailed={handleLoadingProductsFailed}
             onCloseButtonPress={onClose}
             style={componentStyles.paywallView}
