@@ -150,10 +150,7 @@ export class FlowViewEmitter {
       const handlerData = this.handlers.get(handlerName);
       if (handlerData) {
         const { handler, onRequestClose } = handlerData;
-        const callbackArgs = extractFlowCallbackArgs(
-          handlerName,
-          parsedEvent,
-        );
+        const callbackArgs = extractFlowCallbackArgs(handlerName, parsedEvent);
         const callback = handler as (
           ...args: Parameters<FlowEventHandlers[typeof handlerName]>
         ) => boolean;

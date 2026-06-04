@@ -165,9 +165,7 @@ export function createMockFlow(
 /**
  * Creates default mock products for a flow
  */
-export function createMockProducts(
-  flow: AdaptyFlow,
-): AdaptyPaywallProduct[] {
+export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
   return [
     {
       vendorProductId: MOCK_VENDOR_PRODUCT_ID_ANNUAL,

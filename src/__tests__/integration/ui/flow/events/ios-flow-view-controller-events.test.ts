@@ -168,8 +168,9 @@ describe('FlowViewController - onPurchaseCompleted event (iOS fields)', () => {
   });
 
   it('should call onPurchaseCompleted handler with iOS-specific purchase result fields', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
@@ -222,8 +223,9 @@ describe('FlowViewController - onPurchaseCompleted event (iOS fields)', () => {
   });
 
   it('should contain apple_jws_transaction in successful purchase result (iOS)', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
@@ -257,8 +259,9 @@ describe('FlowViewController - onPurchaseCompleted event (iOS fields)', () => {
   });
 
   it('should NOT contain apple_jws_transaction in cancelled purchase result (iOS)', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
@@ -286,8 +289,9 @@ describe('FlowViewController - onPurchaseCompleted event (iOS fields)', () => {
   });
 
   it('should contain iOS product fields in cancelled purchase result', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
@@ -331,9 +335,8 @@ describe('FlowViewController - onPurchaseFailed event (iOS fields)', () => {
   });
 
   it('should call onPurchaseFailed handler with iOS-specific product fields', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
@@ -388,8 +391,9 @@ describe('FlowViewController - onRestoreCompleted event (iOS fields)', () => {
   });
 
   it('should call onRestoreCompleted handler with iOS-specific profile fields', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
@@ -434,8 +438,9 @@ describe('FlowViewController - onRestoreCompleted event (iOS fields)', () => {
   });
 
   it('should contain store="app_store" in profile subscriptions and access levels (iOS)', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
@@ -472,8 +477,9 @@ describe('FlowViewController - onRestoreCompleted event (iOS fields)', () => {
   });
 
   it('should have iOS transaction IDs format in profile', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
@@ -615,8 +621,9 @@ describe('FlowViewController - Android fields absence in iOS events', () => {
   });
 
   it('should NOT contain Android-specific fields in iOS purchase completed event', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 

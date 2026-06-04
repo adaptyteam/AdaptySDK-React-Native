@@ -78,8 +78,9 @@ describe('FlowViewController - action mapping isolation', () => {
     const onSystemBackHandler: jest.MockedFunction<
       FlowEventHandlers['onAndroidSystemBack']
     > = jest.fn().mockReturnValue(false);
-    const onUrlPressHandler: jest.MockedFunction<FlowEventHandlers['onUrlPress']> =
-      jest.fn().mockReturnValue(false);
+    const onUrlPressHandler: jest.MockedFunction<
+      FlowEventHandlers['onUrlPress']
+    > = jest.fn().mockReturnValue(false);
     const onCustomHandler: jest.MockedFunction<
       FlowEventHandlers['onCustomAction']
     > = jest.fn().mockReturnValue(false);
@@ -110,8 +111,9 @@ describe('FlowViewController - action mapping isolation', () => {
     const onCloseHandler: jest.MockedFunction<
       FlowEventHandlers['onCloseButtonPress']
     > = jest.fn().mockReturnValue(false);
-    const onUrlPressHandler: jest.MockedFunction<FlowEventHandlers['onUrlPress']> =
-      jest.fn().mockReturnValue(false);
+    const onUrlPressHandler: jest.MockedFunction<
+      FlowEventHandlers['onUrlPress']
+    > = jest.fn().mockReturnValue(false);
     const onCustomHandler: jest.MockedFunction<
       FlowEventHandlers['onCustomAction']
     > = jest.fn().mockReturnValue(false);
@@ -153,8 +155,9 @@ describe('FlowViewController - action mapping isolation', () => {
     const onSystemBackHandler: jest.MockedFunction<
       FlowEventHandlers['onAndroidSystemBack']
     > = jest.fn().mockReturnValue(false);
-    const onUrlPressHandler: jest.MockedFunction<FlowEventHandlers['onUrlPress']> =
-      jest.fn().mockReturnValue(false);
+    const onUrlPressHandler: jest.MockedFunction<
+      FlowEventHandlers['onUrlPress']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({
       onCloseButtonPress: onCloseHandler,
@@ -365,8 +368,9 @@ describe('FlowViewController - onPurchaseCompleted event', () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific fields (iOS: appleJwsTransaction; Android: googlePurchaseToken)
     // are tested in platform-specific test files.
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
@@ -412,8 +416,9 @@ describe('FlowViewController - onPurchaseCompleted event', () => {
   });
 
   it('should call onPurchaseCompleted handler with user_cancelled result', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
@@ -450,9 +455,8 @@ describe('FlowViewController - onPurchaseFailed event', () => {
   it('should call onPurchaseFailed handler when purchase fails', async () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific product fields are tested in platform-specific test files.
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
@@ -509,9 +513,8 @@ describe('FlowViewController - onRestoreStarted event', () => {
   });
 
   it('should call onRestoreStarted handler when restore starts', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreStarted']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreStarted']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreStarted: handler });
 
@@ -543,8 +546,9 @@ describe('FlowViewController - onRestoreCompleted event', () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific fields (store: "app_store" vs "play_store", transaction ID formats)
     // are tested in platform-specific test files.
-    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
@@ -596,9 +600,8 @@ describe('FlowViewController - onRestoreFailed event', () => {
   });
 
   it('should call onRestoreFailed handler when restore fails', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreFailed']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreFailed']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreFailed: handler });
 
@@ -629,8 +632,9 @@ describe('FlowViewController - onCloseButtonPress event', () => {
   });
 
   it('should call onCloseButtonPress handler when close button is pressed', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onCloseButtonPress']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onCloseButtonPress']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onCloseButtonPress: handler });
 
@@ -659,8 +663,9 @@ describe('FlowViewController - onAndroidSystemBack event', () => {
   });
 
   it('should call onAndroidSystemBack handler when system back is pressed', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onAndroidSystemBack']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onAndroidSystemBack']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onAndroidSystemBack: handler });
 
@@ -729,9 +734,8 @@ describe('FlowViewController - onCustomAction event', () => {
   });
 
   it('should call onCustomAction handler with action value', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onCustomAction']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onCustomAction']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onCustomAction: handler });
 
@@ -792,9 +796,8 @@ describe('FlowViewController - onDisappeared event', () => {
   });
 
   it('should call onDisappeared handler when flow disappears', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onDisappeared']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onDisappeared']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onDisappeared: handler });
 
@@ -823,8 +826,9 @@ describe('FlowViewController - onError event', () => {
   });
 
   it('should call onError handler when rendering fails', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onError']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onError']> = jest
+      .fn()
+      .mockReturnValue(false);
 
     view.setEventHandlers({ onError: handler });
 
@@ -1020,11 +1024,7 @@ describe('FlowViewController - event viewId filtering', () => {
     const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Emit all event types with wrong viewId
-    emitFlowProductSelectedEvent(
-      wrongViewId,
-      sample.product_id,
-      sample.view,
-    );
+    emitFlowProductSelectedEvent(wrongViewId, sample.product_id, sample.view);
     emitFlowPurchaseStartedEvent(
       wrongViewId,
       FLOW_PURCHASE_STARTED.product,
@@ -1671,12 +1671,7 @@ describe('FlowViewController - onDisappeared after user action close', () => {
     });
 
     // 1. User presses close button - this should trigger dismiss
-    emitFlowUserActionEvent(
-      viewId,
-      'close',
-      undefined,
-      closeButtonSample.view,
-    );
+    emitFlowUserActionEvent(viewId, 'close', undefined, closeButtonSample.view);
 
     expect(onCloseButtonPressHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).toHaveBeenCalledTimes(1);

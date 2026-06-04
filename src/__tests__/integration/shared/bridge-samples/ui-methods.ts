@@ -1,7 +1,7 @@
 /**
  * Bridge samples for Adapty UI methods
  *
- * Covers ViewController and OnboardingViewController methods for bridge communication testing.
+ * Covers FlowViewController and OnboardingViewController methods for bridge communication testing.
  * Event samples are separate in events.ts
  */
 

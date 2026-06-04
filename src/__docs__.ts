@@ -27,10 +27,7 @@ export * from './mock/types';
 // UI functions & components
 export { createFlowView } from './ui/create-flow-view';
 export { createOnboardingView } from './ui/create-onboarding-view';
-export {
-  AdaptyFlowView,
-  type AdaptyFlowViewProps,
-} from './ui/AdaptyFlowView';
+export { AdaptyFlowView, type AdaptyFlowViewProps } from './ui/AdaptyFlowView';
 export {
   AdaptyOnboardingView,
   type AdaptyOnboardingViewProps,

@@ -129,8 +129,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           const flow = parsedParams.flow;
           const placementId: string =
             flow?.placement?.developer_id || 'default';
-          const variationId: string =
-            flow?.variation_id || 'mock_variation_id';
+          const variationId: string = flow?.variation_id || 'mock_variation_id';
           result = this.store.getPaywallProducts(placementId, variationId);
           break;
 

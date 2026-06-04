@@ -459,8 +459,5 @@ export function emitFlowLoadingProductsFailedEvent(
     error,
   };
 
-  emitter.emit(
-    'flow_view_did_fail_loading_products',
-    JSON.stringify(payload),
-  );
+  emitter.emit('flow_view_did_fail_loading_products', JSON.stringify(payload));
 }

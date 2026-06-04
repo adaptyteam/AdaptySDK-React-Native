@@ -54,8 +54,9 @@ describe('FlowViewController - onAndroidSystemBack event (Android fields)', () =
   });
 
   it('should call onAndroidSystemBack handler when system back is pressed', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onAndroidSystemBack']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onAndroidSystemBack']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onAndroidSystemBack: handler });
 
@@ -167,8 +168,9 @@ describe('FlowViewController - onPurchaseCompleted event (Android fields)', () =
   });
 
   it('should call onPurchaseCompleted handler with Android-specific purchase result fields', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
@@ -241,9 +243,8 @@ describe('FlowViewController - onPurchaseFailed event (Android fields)', () => {
   });
 
   it('should call onPurchaseFailed handler with Android-specific product fields', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
@@ -298,8 +299,9 @@ describe('FlowViewController - onRestoreCompleted event (Android fields)', () =>
   });
 
   it('should call onRestoreCompleted handler with Android-specific profile fields', async () => {
-    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 

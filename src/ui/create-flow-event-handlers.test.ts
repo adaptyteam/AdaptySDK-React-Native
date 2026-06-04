@@ -44,10 +44,7 @@ describe('createFlowEventHandlers', () => {
     }));
 
     const customHandler = jest.fn(() => false);
-    createFlowEventHandlers(
-      { onCloseButtonPress: customHandler },
-      'test-id',
-    );
+    createFlowEventHandlers({ onCloseButtonPress: customHandler }, 'test-id');
 
     // Should register default handlers + custom override
     expect(addListener).toHaveBeenCalled();
