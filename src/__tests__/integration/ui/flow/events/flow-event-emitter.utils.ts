@@ -1,16 +1,16 @@
 import { $bridge } from '@/bridge';
 
 /**
- * Paywall Event Emitters for Testing
+ * Flow Event Emitters for Testing
  *
- * These functions emit mock native paywall events in the correct format (snake_case)
- * to test event handling in PaywallViewController.
+ * These functions emit mock native flow events in the correct format (snake_case)
+ * to test event handling in FlowViewController.
  */
 
 /**
- * Emits mock paywall product selected event for testing
+ * Emits mock flow product selected event for testing
  */
-export function emitPaywallProductSelectedEvent(
+export function emitFlowProductSelectedEvent(
   viewId: string,
   productId: string,
   view: { id: string; placement_id: string; variation_id: string },
@@ -28,7 +28,7 @@ export function emitPaywallProductSelectedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_select_product',
+    id: 'flow_view_did_select_product',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -37,16 +37,16 @@ export function emitPaywallProductSelectedEvent(
     product_id: productId,
   };
 
-  emitter.emit('paywall_view_did_select_product', JSON.stringify(payload));
+  emitter.emit('flow_view_did_select_product', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall user action event for testing
+ * Emits mock flow user action event for testing
  * Universal function for close/system_back/open_url/custom actions
  *
  * For `open_url`, `openIn` defaults to `'browser_in_app'` (matches native default).
  */
-export function emitPaywallUserActionEvent(
+export function emitFlowUserActionEvent(
   viewId: string,
   actionType: 'close' | 'system_back' | 'open_url' | 'custom',
   actionValue: string | undefined,
@@ -78,7 +78,7 @@ export function emitPaywallUserActionEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_perform_action',
+    id: 'flow_view_did_perform_action',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -87,13 +87,13 @@ export function emitPaywallUserActionEvent(
     action,
   };
 
-  emitter.emit('paywall_view_did_perform_action', JSON.stringify(payload));
+  emitter.emit('flow_view_did_perform_action', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall purchase started event for testing
+ * Emits mock flow purchase started event for testing
  */
-export function emitPaywallPurchaseStartedEvent(
+export function emitFlowPurchaseStartedEvent(
   viewId: string,
   product: Record<string, any>,
   view: { id: string; placement_id: string; variation_id: string },
@@ -111,7 +111,7 @@ export function emitPaywallPurchaseStartedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_start_purchase',
+    id: 'flow_view_did_start_purchase',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -120,13 +120,13 @@ export function emitPaywallPurchaseStartedEvent(
     product,
   };
 
-  emitter.emit('paywall_view_did_start_purchase', JSON.stringify(payload));
+  emitter.emit('flow_view_did_start_purchase', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall purchase completed event for testing
+ * Emits mock flow purchase completed event for testing
  */
-export function emitPaywallPurchaseCompletedEvent(
+export function emitFlowPurchaseCompletedEvent(
   viewId: string,
   purchasedResult: Record<string, any>,
   product: Record<string, any>,
@@ -145,7 +145,7 @@ export function emitPaywallPurchaseCompletedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_finish_purchase',
+    id: 'flow_view_did_finish_purchase',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -155,13 +155,13 @@ export function emitPaywallPurchaseCompletedEvent(
     product,
   };
 
-  emitter.emit('paywall_view_did_finish_purchase', JSON.stringify(payload));
+  emitter.emit('flow_view_did_finish_purchase', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall purchase failed event for testing
+ * Emits mock flow purchase failed event for testing
  */
-export function emitPaywallPurchaseFailedEvent(
+export function emitFlowPurchaseFailedEvent(
   viewId: string,
   error: { adapty_code: number; message: string },
   product: Record<string, any>,
@@ -180,7 +180,7 @@ export function emitPaywallPurchaseFailedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_fail_purchase',
+    id: 'flow_view_did_fail_purchase',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -190,13 +190,13 @@ export function emitPaywallPurchaseFailedEvent(
     product,
   };
 
-  emitter.emit('paywall_view_did_fail_purchase', JSON.stringify(payload));
+  emitter.emit('flow_view_did_fail_purchase', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall restore started event for testing
+ * Emits mock flow restore started event for testing
  */
-export function emitPaywallRestoreStartedEvent(
+export function emitFlowRestoreStartedEvent(
   viewId: string,
   view: { id: string; placement_id: string; variation_id: string },
 ): void {
@@ -213,7 +213,7 @@ export function emitPaywallRestoreStartedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_start_restore',
+    id: 'flow_view_did_start_restore',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -221,13 +221,13 @@ export function emitPaywallRestoreStartedEvent(
     },
   };
 
-  emitter.emit('paywall_view_did_start_restore', JSON.stringify(payload));
+  emitter.emit('flow_view_did_start_restore', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall restore completed event for testing
+ * Emits mock flow restore completed event for testing
  */
-export function emitPaywallRestoreCompletedEvent(
+export function emitFlowRestoreCompletedEvent(
   viewId: string,
   profile: Record<string, any>,
   view: { id: string; placement_id: string; variation_id: string },
@@ -245,7 +245,7 @@ export function emitPaywallRestoreCompletedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_finish_restore',
+    id: 'flow_view_did_finish_restore',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -254,13 +254,13 @@ export function emitPaywallRestoreCompletedEvent(
     profile,
   };
 
-  emitter.emit('paywall_view_did_finish_restore', JSON.stringify(payload));
+  emitter.emit('flow_view_did_finish_restore', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall restore failed event for testing
+ * Emits mock flow restore failed event for testing
  */
-export function emitPaywallRestoreFailedEvent(
+export function emitFlowRestoreFailedEvent(
   viewId: string,
   error: { adapty_code: number; message: string },
   view: { id: string; placement_id: string; variation_id: string },
@@ -278,7 +278,7 @@ export function emitPaywallRestoreFailedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_fail_restore',
+    id: 'flow_view_did_fail_restore',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -287,13 +287,13 @@ export function emitPaywallRestoreFailedEvent(
     error,
   };
 
-  emitter.emit('paywall_view_did_fail_restore', JSON.stringify(payload));
+  emitter.emit('flow_view_did_fail_restore', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall view appeared event for testing
+ * Emits mock flow view appeared event for testing
  */
-export function emitPaywallViewAppearedEvent(
+export function emitFlowViewAppearedEvent(
   viewId: string,
   view: { id: string; placement_id: string; variation_id: string },
 ): void {
@@ -310,7 +310,7 @@ export function emitPaywallViewAppearedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_appear',
+    id: 'flow_view_did_appear',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -318,13 +318,13 @@ export function emitPaywallViewAppearedEvent(
     },
   };
 
-  emitter.emit('paywall_view_did_appear', JSON.stringify(payload));
+  emitter.emit('flow_view_did_appear', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall view disappeared event for testing
+ * Emits mock flow view disappeared event for testing
  */
-export function emitPaywallViewDisappearedEvent(
+export function emitFlowViewDisappearedEvent(
   viewId: string,
   view: { id: string; placement_id: string; variation_id: string },
 ): void {
@@ -341,7 +341,7 @@ export function emitPaywallViewDisappearedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_disappear',
+    id: 'flow_view_did_disappear',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -349,13 +349,13 @@ export function emitPaywallViewDisappearedEvent(
     },
   };
 
-  emitter.emit('paywall_view_did_disappear', JSON.stringify(payload));
+  emitter.emit('flow_view_did_disappear', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall web payment navigation finished event for testing
+ * Emits mock flow web payment navigation finished event for testing
  */
-export function emitPaywallWebPaymentNavigationFinishedEvent(
+export function emitFlowWebPaymentNavigationFinishedEvent(
   viewId: string,
   product: Record<string, any> | undefined,
   error: { adapty_code: number; message: string } | undefined,
@@ -374,7 +374,7 @@ export function emitPaywallWebPaymentNavigationFinishedEvent(
   }
 
   const payload: Record<string, any> = {
-    id: 'paywall_view_did_finish_web_payment_navigation',
+    id: 'flow_view_did_finish_web_payment_navigation',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -391,15 +391,15 @@ export function emitPaywallWebPaymentNavigationFinishedEvent(
   }
 
   emitter.emit(
-    'paywall_view_did_finish_web_payment_navigation',
+    'flow_view_did_finish_web_payment_navigation',
     JSON.stringify(payload),
   );
 }
 
 /**
- * Emits mock paywall rendering failed event for testing
+ * Emits mock flow rendering failed event for testing
  */
-export function emitPaywallRenderingFailedEvent(
+export function emitFlowRenderingFailedEvent(
   viewId: string,
   error: { adapty_code: number; message: string },
   view: { id: string; placement_id: string; variation_id: string },
@@ -417,7 +417,7 @@ export function emitPaywallRenderingFailedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_fail_rendering',
+    id: 'flow_view_did_receive_error',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -426,13 +426,13 @@ export function emitPaywallRenderingFailedEvent(
     error,
   };
 
-  emitter.emit('paywall_view_did_fail_rendering', JSON.stringify(payload));
+  emitter.emit('flow_view_did_receive_error', JSON.stringify(payload));
 }
 
 /**
- * Emits mock paywall loading products failed event for testing
+ * Emits mock flow loading products failed event for testing
  */
-export function emitPaywallLoadingProductsFailedEvent(
+export function emitFlowLoadingProductsFailedEvent(
   viewId: string,
   error: { adapty_code: number; message: string },
   view: { id: string; placement_id: string; variation_id: string },
@@ -450,7 +450,7 @@ export function emitPaywallLoadingProductsFailedEvent(
   }
 
   const payload = {
-    id: 'paywall_view_did_fail_loading_products',
+    id: 'flow_view_did_fail_loading_products',
     view: {
       id: viewId,
       placement_id: view.placement_id,
@@ -460,7 +460,7 @@ export function emitPaywallLoadingProductsFailedEvent(
   };
 
   emitter.emit(
-    'paywall_view_did_fail_loading_products',
+    'flow_view_did_fail_loading_products',
     JSON.stringify(payload),
   );
 }

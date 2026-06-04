@@ -1,10 +1,10 @@
 /**
- * Integration tests for Paywall ViewController events
+ * Integration tests for FlowViewController events
  *
  * This file contains tests for platform-independent fields only.
  * Platform-specific fields are tested in separate files:
- * - ios-paywall-view-controller-events.test.ts - iOS-specific fields (isFamilyShareable, subscriptionGroupIdentifier, appleJwsTransaction)
- * - android-paywall-view-controller-events.test.ts - Android-specific fields (basePlanId, renewalType, googlePurchaseToken)
+ * - ios-flow-view-controller-events.test.ts - iOS-specific fields (isFamilyShareable, subscriptionGroupIdentifier, appleJwsTransaction)
+ * - android-flow-view-controller-events.test.ts - Android-specific fields (basePlanId, renewalType, googlePurchaseToken)
  *
  * Platform-independent fields tested here:
  * - Product: vendorProductId, adaptyId, localizedTitle, localizedDescription, price, subscription.period
@@ -15,73 +15,73 @@
 
 import { Adapty } from '@/adapty-handler';
 import { AdaptyError } from '@/adapty-error';
-import { ViewController } from '@/ui/view-controller';
-import { EventHandlers } from '@/ui/types';
+import { FlowViewController } from '@/ui/flow-view-controller';
+import { FlowEventHandlers } from '@/ui/types';
 import {
-  createPaywallViewController,
-  cleanupPaywallViewController,
+  createFlowViewController,
+  cleanupFlowViewController,
 } from '../../setup.utils';
 import {
-  emitPaywallProductSelectedEvent,
-  emitPaywallUserActionEvent,
-  emitPaywallPurchaseStartedEvent,
-  emitPaywallPurchaseCompletedEvent,
-  emitPaywallPurchaseFailedEvent,
-  emitPaywallRestoreStartedEvent,
-  emitPaywallRestoreCompletedEvent,
-  emitPaywallRestoreFailedEvent,
-  emitPaywallViewAppearedEvent,
-  emitPaywallViewDisappearedEvent,
-  emitPaywallWebPaymentNavigationFinishedEvent,
-  emitPaywallRenderingFailedEvent,
-  emitPaywallLoadingProductsFailedEvent,
-} from './paywall-event-emitter.utils';
+  emitFlowProductSelectedEvent,
+  emitFlowUserActionEvent,
+  emitFlowPurchaseStartedEvent,
+  emitFlowPurchaseCompletedEvent,
+  emitFlowPurchaseFailedEvent,
+  emitFlowRestoreStartedEvent,
+  emitFlowRestoreCompletedEvent,
+  emitFlowRestoreFailedEvent,
+  emitFlowViewAppearedEvent,
+  emitFlowViewDisappearedEvent,
+  emitFlowWebPaymentNavigationFinishedEvent,
+  emitFlowRenderingFailedEvent,
+  emitFlowLoadingProductsFailedEvent,
+} from './flow-event-emitter.utils';
 import {
-  PAYWALL_PRODUCT_SELECTED_YEARLY,
-  PAYWALL_USER_ACTION_CLOSE,
-  PAYWALL_USER_ACTION_OPEN_URL,
-  PAYWALL_USER_ACTION_SYSTEM_BACK,
-  PAYWALL_USER_ACTION_CLOSE_BUTTON,
-  PAYWALL_PURCHASE_STARTED,
-  PAYWALL_PURCHASE_COMPLETED_SUCCESS,
-  PAYWALL_PURCHASE_COMPLETED_CANCELLED,
-  PAYWALL_PURCHASE_FAILED,
-  PAYWALL_RESTORE_STARTED,
-  PAYWALL_RESTORE_COMPLETED_SUCCESS,
-  PAYWALL_RESTORE_FAILED,
-  PAYWALL_VIEW_APPEARED,
-  PAYWALL_VIEW_DISAPPEARED,
-  PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED,
-  PAYWALL_RENDERING_FAILED,
-  PAYWALL_LOADING_PRODUCTS_FAILED,
-} from './paywall-bridge-event-samples';
+  FLOW_PRODUCT_SELECTED_YEARLY,
+  FLOW_USER_ACTION_CLOSE,
+  FLOW_USER_ACTION_OPEN_URL,
+  FLOW_USER_ACTION_SYSTEM_BACK,
+  FLOW_USER_ACTION_CLOSE_BUTTON,
+  FLOW_PURCHASE_STARTED,
+  FLOW_PURCHASE_COMPLETED_SUCCESS,
+  FLOW_PURCHASE_COMPLETED_CANCELLED,
+  FLOW_PURCHASE_FAILED,
+  FLOW_RESTORE_STARTED,
+  FLOW_RESTORE_COMPLETED_SUCCESS,
+  FLOW_RESTORE_FAILED,
+  FLOW_VIEW_APPEARED,
+  FLOW_VIEW_DISAPPEARED,
+  FLOW_WEB_PAYMENT_NAVIGATION_FINISHED,
+  FLOW_RENDERING_FAILED,
+  FLOW_LOADING_PRODUCTS_FAILED,
+} from './flow-bridge-event-samples';
 
-describe('ViewController - action mapping isolation', () => {
+describe('FlowViewController - action mapping isolation', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call ONLY onCloseButtonPress when action.type is "close"', async () => {
     // Register all 4 handlers for the same native event
     const onCloseHandler: jest.MockedFunction<
-      EventHandlers['onCloseButtonPress']
+      FlowEventHandlers['onCloseButtonPress']
     > = jest.fn().mockReturnValue(false);
     const onSystemBackHandler: jest.MockedFunction<
-      EventHandlers['onAndroidSystemBack']
+      FlowEventHandlers['onAndroidSystemBack']
     > = jest.fn().mockReturnValue(false);
-    const onUrlPressHandler: jest.MockedFunction<EventHandlers['onUrlPress']> =
+    const onUrlPressHandler: jest.MockedFunction<FlowEventHandlers['onUrlPress']> =
       jest.fn().mockReturnValue(false);
     const onCustomHandler: jest.MockedFunction<
-      EventHandlers['onCustomAction']
+      FlowEventHandlers['onCustomAction']
     > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({
@@ -92,10 +92,10 @@ describe('ViewController - action mapping isolation', () => {
     });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_CLOSE;
+    const sample = FLOW_USER_ACTION_CLOSE;
 
     // Emit event with action.type = 'close'
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
 
     // ONLY onCloseButtonPress should be called
     expect(onCloseHandler).toHaveBeenCalledTimes(1);
@@ -108,12 +108,12 @@ describe('ViewController - action mapping isolation', () => {
 
   it('should call ONLY onUrlPress when action.type is "open_url"', async () => {
     const onCloseHandler: jest.MockedFunction<
-      EventHandlers['onCloseButtonPress']
+      FlowEventHandlers['onCloseButtonPress']
     > = jest.fn().mockReturnValue(false);
-    const onUrlPressHandler: jest.MockedFunction<EventHandlers['onUrlPress']> =
+    const onUrlPressHandler: jest.MockedFunction<FlowEventHandlers['onUrlPress']> =
       jest.fn().mockReturnValue(false);
     const onCustomHandler: jest.MockedFunction<
-      EventHandlers['onCustomAction']
+      FlowEventHandlers['onCustomAction']
     > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({
@@ -123,10 +123,10 @@ describe('ViewController - action mapping isolation', () => {
     });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_OPEN_URL;
+    const sample = FLOW_USER_ACTION_OPEN_URL;
 
     // Emit event with action.type = 'open_url' and value = URL
-    emitPaywallUserActionEvent(
+    emitFlowUserActionEvent(
       viewId,
       'open_url',
       sample.action.value,
@@ -148,12 +148,12 @@ describe('ViewController - action mapping isolation', () => {
 
   it('should call ONLY onAndroidSystemBack when action.type is "system_back"', async () => {
     const onCloseHandler: jest.MockedFunction<
-      EventHandlers['onCloseButtonPress']
+      FlowEventHandlers['onCloseButtonPress']
     > = jest.fn().mockReturnValue(false);
     const onSystemBackHandler: jest.MockedFunction<
-      EventHandlers['onAndroidSystemBack']
+      FlowEventHandlers['onAndroidSystemBack']
     > = jest.fn().mockReturnValue(false);
-    const onUrlPressHandler: jest.MockedFunction<EventHandlers['onUrlPress']> =
+    const onUrlPressHandler: jest.MockedFunction<FlowEventHandlers['onUrlPress']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({
@@ -163,10 +163,10 @@ describe('ViewController - action mapping isolation', () => {
     });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_SYSTEM_BACK;
+    const sample = FLOW_USER_ACTION_SYSTEM_BACK;
 
     // Emit event with action.type = 'system_back'
-    emitPaywallUserActionEvent(viewId, 'system_back', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
     // ONLY onAndroidSystemBack should be called
     expect(onSystemBackHandler).toHaveBeenCalledTimes(1);
@@ -178,10 +178,10 @@ describe('ViewController - action mapping isolation', () => {
 
   it('should call ONLY onCustomAction when action.type is "custom"', async () => {
     const onCloseHandler: jest.MockedFunction<
-      EventHandlers['onCloseButtonPress']
+      FlowEventHandlers['onCloseButtonPress']
     > = jest.fn().mockReturnValue(false);
     const onCustomHandler: jest.MockedFunction<
-      EventHandlers['onCustomAction']
+      FlowEventHandlers['onCustomAction']
     > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({
@@ -190,10 +190,10 @@ describe('ViewController - action mapping isolation', () => {
     });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_CLOSE; // Reuse sample but change action type
+    const sample = FLOW_USER_ACTION_CLOSE; // Reuse sample but change action type
 
     // Emit event with action.type = 'custom' and custom value
-    emitPaywallUserActionEvent(
+    emitFlowUserActionEvent(
       viewId,
       'custom',
       'custom_action_value',
@@ -209,45 +209,45 @@ describe('ViewController - action mapping isolation', () => {
   });
 });
 
-describe('ViewController - onProductSelected event', () => {
+describe('FlowViewController - onProductSelected event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onProductSelected handler when product is selected', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onProductSelected']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onProductSelected']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onProductSelected: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith(sample.product_id);
   });
 
   it('should filter events by viewId', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onProductSelected']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onProductSelected']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onProductSelected: handler });
 
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Emit event for DIFFERENT view
-    emitPaywallProductSelectedEvent(
+    emitFlowProductSelectedEvent(
       'different_view_id',
       sample.product_id,
       sample.view,
@@ -258,33 +258,33 @@ describe('ViewController - onProductSelected event', () => {
   });
 });
 
-describe('ViewController - onPurchaseStarted event', () => {
+describe('FlowViewController - onPurchaseStarted event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseStarted handler when purchase starts', async () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific fields (iOS: isFamilyShareable, subscriptionGroupIdentifier;
     // Android: basePlanId, renewalType) are tested in platform-specific test files.
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseStarted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseStarted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseStarted: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_PURCHASE_STARTED;
+    const sample = FLOW_PURCHASE_STARTED;
 
-    emitPaywallPurchaseStartedEvent(viewId, sample.product, sample.view);
+    emitFlowPurchaseStartedEvent(viewId, sample.product, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [product] = handler.mock.calls[0]!;
@@ -347,33 +347,33 @@ describe('ViewController - onPurchaseStarted event', () => {
   });
 });
 
-describe('ViewController - onPurchaseCompleted event', () => {
+describe('FlowViewController - onPurchaseCompleted event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseCompleted handler with success result', async () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific fields (iOS: appleJwsTransaction; Android: googlePurchaseToken)
     // are tested in platform-specific test files.
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseCompleted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_PURCHASE_COMPLETED_SUCCESS;
+    const sample = FLOW_PURCHASE_COMPLETED_SUCCESS;
 
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
       sample.purchased_result,
       sample.product,
@@ -412,15 +412,15 @@ describe('ViewController - onPurchaseCompleted event', () => {
   });
 
   it('should call onPurchaseCompleted handler with user_cancelled result', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseCompleted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseCompleted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_PURCHASE_COMPLETED_CANCELLED;
+    const sample = FLOW_PURCHASE_COMPLETED_CANCELLED;
 
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
       sample.purchased_result,
       sample.product,
@@ -433,33 +433,33 @@ describe('ViewController - onPurchaseCompleted event', () => {
   });
 });
 
-describe('ViewController - onPurchaseFailed event', () => {
+describe('FlowViewController - onPurchaseFailed event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseFailed handler when purchase fails', async () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific product fields are tested in platform-specific test files.
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> = jest
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> = jest
       .fn()
       .mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_PURCHASE_FAILED;
+    const sample = FLOW_PURCHASE_FAILED;
 
-    emitPaywallPurchaseFailedEvent(
+    emitFlowPurchaseFailedEvent(
       viewId,
       sample.error,
       sample.product,
@@ -494,64 +494,64 @@ describe('ViewController - onPurchaseFailed event', () => {
   });
 });
 
-describe('ViewController - onRestoreStarted event', () => {
+describe('FlowViewController - onRestoreStarted event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onRestoreStarted handler when restore starts', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRestoreStarted']> = jest
+    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreStarted']> = jest
       .fn()
       .mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreStarted: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_RESTORE_STARTED;
+    const sample = FLOW_RESTORE_STARTED;
 
-    emitPaywallRestoreStartedEvent(viewId, sample.view);
+    emitFlowRestoreStartedEvent(viewId, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith();
   });
 });
 
-describe('ViewController - onRestoreCompleted event', () => {
+describe('FlowViewController - onRestoreCompleted event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onRestoreCompleted handler with profile', async () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific fields (store: "app_store" vs "play_store", transaction ID formats)
     // are tested in platform-specific test files.
-    const handler: jest.MockedFunction<EventHandlers['onRestoreCompleted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreCompleted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_RESTORE_COMPLETED_SUCCESS;
+    const sample = FLOW_RESTORE_COMPLETED_SUCCESS;
 
-    emitPaywallRestoreCompletedEvent(viewId, sample.profile, sample.view);
+    emitFlowRestoreCompletedEvent(viewId, sample.profile, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [profile] = handler.mock.calls[0]!;
@@ -581,31 +581,31 @@ describe('ViewController - onRestoreCompleted event', () => {
   });
 });
 
-describe('ViewController - onRestoreFailed event', () => {
+describe('FlowViewController - onRestoreFailed event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onRestoreFailed handler when restore fails', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRestoreFailed']> = jest
+    const handler: jest.MockedFunction<FlowEventHandlers['onRestoreFailed']> = jest
       .fn()
       .mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreFailed: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_RESTORE_FAILED;
+    const sample = FLOW_RESTORE_FAILED;
 
-    emitPaywallRestoreFailedEvent(viewId, sample.error, sample.view);
+    emitFlowRestoreFailedEvent(viewId, sample.error, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [error] = handler.mock.calls[0]!;
@@ -614,91 +614,91 @@ describe('ViewController - onRestoreFailed event', () => {
   });
 });
 
-describe('ViewController - onCloseButtonPress event', () => {
+describe('FlowViewController - onCloseButtonPress event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onCloseButtonPress handler when close button is pressed', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onCloseButtonPress']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onCloseButtonPress']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onCloseButtonPress: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_CLOSE_BUTTON;
+    const sample = FLOW_USER_ACTION_CLOSE_BUTTON;
 
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith();
   });
 });
 
-describe('ViewController - onAndroidSystemBack event', () => {
+describe('FlowViewController - onAndroidSystemBack event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onAndroidSystemBack handler when system back is pressed', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onAndroidSystemBack']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onAndroidSystemBack']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onAndroidSystemBack: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_SYSTEM_BACK;
+    const sample = FLOW_USER_ACTION_SYSTEM_BACK;
 
-    emitPaywallUserActionEvent(viewId, 'system_back', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith();
   });
 });
 
-describe('ViewController - onUrlPress event', () => {
+describe('FlowViewController - onUrlPress event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onUrlPress handler with URL when URL is pressed', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onUrlPress']> = jest
+    const handler: jest.MockedFunction<FlowEventHandlers['onUrlPress']> = jest
       .fn()
       .mockReturnValue(false);
 
     view.setEventHandlers({ onUrlPress: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_OPEN_URL;
+    const sample = FLOW_USER_ACTION_OPEN_URL;
 
-    emitPaywallUserActionEvent(
+    emitFlowUserActionEvent(
       viewId,
       'open_url',
       sample.action.value,
@@ -714,124 +714,124 @@ describe('ViewController - onUrlPress event', () => {
   });
 });
 
-describe('ViewController - onCustomAction event', () => {
+describe('FlowViewController - onCustomAction event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onCustomAction handler with action value', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onCustomAction']> = jest
+    const handler: jest.MockedFunction<FlowEventHandlers['onCustomAction']> = jest
       .fn()
       .mockReturnValue(false);
 
     view.setEventHandlers({ onCustomAction: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_CLOSE; // Reuse sample
+    const sample = FLOW_USER_ACTION_CLOSE; // Reuse sample
 
     const customValue = 'my_custom_action';
-    emitPaywallUserActionEvent(viewId, 'custom', customValue, sample.view);
+    emitFlowUserActionEvent(viewId, 'custom', customValue, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith(customValue);
   });
 });
 
-describe('ViewController - onAppeared event', () => {
+describe('FlowViewController - onAppeared event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
-  it('should call onAppeared handler when paywall appears', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onAppeared']> = jest
+  it('should call onAppeared handler when flow appears', async () => {
+    const handler: jest.MockedFunction<FlowEventHandlers['onAppeared']> = jest
       .fn()
       .mockReturnValue(false);
 
     view.setEventHandlers({ onAppeared: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_VIEW_APPEARED;
+    const sample = FLOW_VIEW_APPEARED;
 
-    emitPaywallViewAppearedEvent(viewId, sample.view);
+    emitFlowViewAppearedEvent(viewId, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith();
   });
 });
 
-describe('ViewController - onDisappeared event', () => {
+describe('FlowViewController - onDisappeared event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
-  it('should call onDisappeared handler when paywall disappears', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onDisappeared']> = jest
+  it('should call onDisappeared handler when flow disappears', async () => {
+    const handler: jest.MockedFunction<FlowEventHandlers['onDisappeared']> = jest
       .fn()
       .mockReturnValue(false);
 
     view.setEventHandlers({ onDisappeared: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_VIEW_DISAPPEARED;
+    const sample = FLOW_VIEW_DISAPPEARED;
 
-    emitPaywallViewDisappearedEvent(viewId, sample.view);
+    emitFlowViewDisappearedEvent(viewId, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith();
   });
 });
 
-describe('ViewController - onRenderingFailed event', () => {
+describe('FlowViewController - onError event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
-  it('should call onRenderingFailed handler when rendering fails', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRenderingFailed']> =
+  it('should call onError handler when rendering fails', async () => {
+    const handler: jest.MockedFunction<FlowEventHandlers['onError']> =
       jest.fn().mockReturnValue(false);
 
-    view.setEventHandlers({ onRenderingFailed: handler });
+    view.setEventHandlers({ onError: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_RENDERING_FAILED;
+    const sample = FLOW_RENDERING_FAILED;
 
-    emitPaywallRenderingFailedEvent(viewId, sample.error, sample.view);
+    emitFlowRenderingFailedEvent(viewId, sample.error, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [error] = handler.mock.calls[0]!;
@@ -840,31 +840,31 @@ describe('ViewController - onRenderingFailed event', () => {
   });
 });
 
-describe('ViewController - onLoadingProductsFailed event', () => {
+describe('FlowViewController - onLoadingProductsFailed event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onLoadingProductsFailed handler when loading products fails', async () => {
     const handler: jest.MockedFunction<
-      EventHandlers['onLoadingProductsFailed']
+      FlowEventHandlers['onLoadingProductsFailed']
     > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onLoadingProductsFailed: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_LOADING_PRODUCTS_FAILED;
+    const sample = FLOW_LOADING_PRODUCTS_FAILED;
 
-    emitPaywallLoadingProductsFailedEvent(viewId, sample.error, sample.view);
+    emitFlowLoadingProductsFailedEvent(viewId, sample.error, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [error] = handler.mock.calls[0]!;
@@ -873,33 +873,33 @@ describe('ViewController - onLoadingProductsFailed event', () => {
   });
 });
 
-describe('ViewController - onWebPaymentNavigationFinished event', () => {
+describe('FlowViewController - onWebPaymentNavigationFinished event', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onWebPaymentNavigationFinished handler with product', async () => {
     // NOTE: This test verifies platform-independent fields only.
     // Platform-specific product fields are tested in platform-specific test files.
     const handler: jest.MockedFunction<
-      EventHandlers['onWebPaymentNavigationFinished']
+      FlowEventHandlers['onWebPaymentNavigationFinished']
     > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onWebPaymentNavigationFinished: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED;
+    const sample = FLOW_WEB_PAYMENT_NAVIGATION_FINISHED;
 
-    emitPaywallWebPaymentNavigationFinishedEvent(
+    emitFlowWebPaymentNavigationFinishedEvent(
       viewId,
       sample.product,
       undefined,
@@ -959,16 +959,16 @@ describe('ViewController - onWebPaymentNavigationFinished event', () => {
 
   it('should call onWebPaymentNavigationFinished handler with error', async () => {
     const handler: jest.MockedFunction<
-      EventHandlers['onWebPaymentNavigationFinished']
+      FlowEventHandlers['onWebPaymentNavigationFinished']
     > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onWebPaymentNavigationFinished: handler });
 
     const viewId = (view as any).id;
-    const sample = PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED;
+    const sample = FLOW_WEB_PAYMENT_NAVIGATION_FINISHED;
 
     const mockError = { adapty_code: 999, message: 'Web payment error' };
-    emitPaywallWebPaymentNavigationFinishedEvent(
+    emitFlowWebPaymentNavigationFinishedEvent(
       viewId,
       undefined,
       mockError,
@@ -982,18 +982,18 @@ describe('ViewController - onWebPaymentNavigationFinished event', () => {
   });
 });
 
-describe('ViewController - event viewId filtering', () => {
+describe('FlowViewController - event viewId filtering', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should ignore events when viewId does not match', async () => {
@@ -1017,28 +1017,28 @@ describe('ViewController - event viewId filtering', () => {
 
     // Use a different viewId
     const wrongViewId = 'wrong_view_id_12345';
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Emit all event types with wrong viewId
-    emitPaywallProductSelectedEvent(
+    emitFlowProductSelectedEvent(
       wrongViewId,
       sample.product_id,
       sample.view,
     );
-    emitPaywallPurchaseStartedEvent(
+    emitFlowPurchaseStartedEvent(
       wrongViewId,
-      PAYWALL_PURCHASE_STARTED.product,
+      FLOW_PURCHASE_STARTED.product,
       sample.view,
     );
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       wrongViewId,
-      PAYWALL_PURCHASE_COMPLETED_SUCCESS.purchased_result,
-      PAYWALL_PURCHASE_COMPLETED_SUCCESS.product,
+      FLOW_PURCHASE_COMPLETED_SUCCESS.purchased_result,
+      FLOW_PURCHASE_COMPLETED_SUCCESS.product,
       sample.view,
     );
-    emitPaywallRestoreStartedEvent(wrongViewId, sample.view);
-    emitPaywallUserActionEvent(wrongViewId, 'close', undefined, sample.view);
-    emitPaywallViewAppearedEvent(wrongViewId, sample.view);
+    emitFlowRestoreStartedEvent(wrongViewId, sample.view);
+    emitFlowUserActionEvent(wrongViewId, 'close', undefined, sample.view);
+    emitFlowViewAppearedEvent(wrongViewId, sample.view);
 
     // Verify that NONE of the handlers were called
     expect(onProductSelectedHandler).not.toHaveBeenCalled();
@@ -1050,33 +1050,33 @@ describe('ViewController - event viewId filtering', () => {
   });
 });
 
-describe('ViewController - multiple views isolation', () => {
+describe('FlowViewController - multiple views isolation', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should isolate event handlers between view instances', async () => {
     // Create a second view using the SAME adapty instance.
-    // We get paywall2 directly from the existing adapty (re-creating it via
-    // createPaywallViewController would call createAdaptyInstance again and
+    // We get flow2 directly from the existing adapty (re-creating it via
+    // createFlowViewController would call createAdaptyInstance again and
     // reset the bridge, invalidating the first view's listeners).
-    const paywall2 = await adapty.getPaywall('test_placement');
-    const view2 = await (view.constructor as any).create(paywall2, {});
+    const flow2 = await adapty.getFlow('test_placement');
+    const view2 = await (view.constructor as any).create(flow2, {});
 
     try {
       const viewId1 = (view as any).id;
       const viewId2 = (view2 as any).id;
 
-      const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+      const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
       // Create handlers for both views
       const handler1 = jest.fn().mockReturnValue(false);
@@ -1089,8 +1089,8 @@ describe('ViewController - multiple views isolation', () => {
       view2.setEventHandlers({ onProductSelected: handler2 });
 
       // Emit events to both views - both should receive
-      emitPaywallProductSelectedEvent(viewId1, sample.product_id, sample.view);
-      emitPaywallProductSelectedEvent(viewId2, sample.product_id, sample.view);
+      emitFlowProductSelectedEvent(viewId1, sample.product_id, sample.view);
+      emitFlowProductSelectedEvent(viewId2, sample.product_id, sample.view);
 
       expect(handler1).toHaveBeenCalledTimes(1);
       expect(handler2).toHaveBeenCalledTimes(1);
@@ -1103,8 +1103,8 @@ describe('ViewController - multiple views isolation', () => {
       unsubscribe1();
 
       // Emit events again
-      emitPaywallProductSelectedEvent(viewId1, sample.product_id, sample.view);
-      emitPaywallProductSelectedEvent(viewId2, sample.product_id, sample.view);
+      emitFlowProductSelectedEvent(viewId1, sample.product_id, sample.view);
+      emitFlowProductSelectedEvent(viewId2, sample.product_id, sample.view);
 
       // First view should not receive (unsubscribed)
       expect(handler1).not.toHaveBeenCalled();
@@ -1117,23 +1117,23 @@ describe('ViewController - multiple views isolation', () => {
   });
 });
 
-describe('ViewController - unsubscribe functionality', () => {
+describe('FlowViewController - unsubscribe functionality', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should unsubscribe all handlers using returned unsubscribe function', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Set up multiple handlers
     const onProductSelectedHandler = jest.fn().mockReturnValue(false);
@@ -1147,13 +1147,13 @@ describe('ViewController - unsubscribe functionality', () => {
     });
 
     // Emit events BEFORE unsubscribe - handlers should be called
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
-    emitPaywallPurchaseStartedEvent(
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowPurchaseStartedEvent(
       viewId,
-      PAYWALL_PURCHASE_STARTED.product,
+      FLOW_PURCHASE_STARTED.product,
       sample.view,
     );
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
 
     expect(onProductSelectedHandler).toHaveBeenCalledTimes(1);
     expect(onPurchaseStartedHandler).toHaveBeenCalledTimes(1);
@@ -1170,13 +1170,13 @@ describe('ViewController - unsubscribe functionality', () => {
     expect(() => unsubscribe()).not.toThrow();
 
     // Emit events AFTER unsubscribe - handlers should NOT be called
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
-    emitPaywallPurchaseStartedEvent(
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowPurchaseStartedEvent(
       viewId,
-      PAYWALL_PURCHASE_STARTED.product,
+      FLOW_PURCHASE_STARTED.product,
       sample.view,
     );
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
 
     expect(onProductSelectedHandler).not.toHaveBeenCalled();
     expect(onPurchaseStartedHandler).not.toHaveBeenCalled();
@@ -1185,7 +1185,7 @@ describe('ViewController - unsubscribe functionality', () => {
 
   it('should allow re-subscribing after unsubscribe', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // First subscription
     const onProductSelectedHandler1 = jest.fn().mockReturnValue(false);
@@ -1194,7 +1194,7 @@ describe('ViewController - unsubscribe functionality', () => {
     });
 
     // Emit event - should be handled
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
     expect(onProductSelectedHandler1).toHaveBeenCalledTimes(1);
 
     // Unsubscribe
@@ -1202,7 +1202,7 @@ describe('ViewController - unsubscribe functionality', () => {
     onProductSelectedHandler1.mockClear();
 
     // Emit event - should NOT be handled
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
     expect(onProductSelectedHandler1).not.toHaveBeenCalled();
 
     // Re-subscribe with new handler
@@ -1212,36 +1212,36 @@ describe('ViewController - unsubscribe functionality', () => {
     });
 
     // Emit event - new handler should be called
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
     expect(onProductSelectedHandler1).not.toHaveBeenCalled(); // Old handler still not called
     expect(onProductSelectedHandler2).toHaveBeenCalledTimes(1); // New handler called
   });
 });
 
-describe('ViewController - dismiss on handler return value', () => {
+describe('FlowViewController - dismiss on handler return value', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call dismiss when any handler returns true', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Test onProductSelected returning true
     const onProductSelectedHandler = jest.fn().mockReturnValue(true);
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
     view.setEventHandlers({ onProductSelected: onProductSelectedHandler });
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
     expect(onProductSelectedHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).toHaveBeenCalledTimes(1);
 
@@ -1252,7 +1252,7 @@ describe('ViewController - dismiss on handler return value', () => {
     // Test onCloseButtonPress returning true
     const onCloseHandler = jest.fn().mockReturnValue(true);
     view.setEventHandlers({ onCloseButtonPress: onCloseHandler });
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
     expect(onCloseHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).toHaveBeenCalledTimes(1);
 
@@ -1263,10 +1263,10 @@ describe('ViewController - dismiss on handler return value', () => {
     // Test onPurchaseCompleted returning true
     const onPurchaseCompletedHandler = jest.fn().mockReturnValue(true);
     view.setEventHandlers({ onPurchaseCompleted: onPurchaseCompletedHandler });
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
-      PAYWALL_PURCHASE_COMPLETED_SUCCESS.purchased_result,
-      PAYWALL_PURCHASE_COMPLETED_SUCCESS.product,
+      FLOW_PURCHASE_COMPLETED_SUCCESS.purchased_result,
+      FLOW_PURCHASE_COMPLETED_SUCCESS.product,
       sample.view,
     );
     expect(onPurchaseCompletedHandler).toHaveBeenCalledTimes(1);
@@ -1277,13 +1277,13 @@ describe('ViewController - dismiss on handler return value', () => {
 
   it('should NOT call dismiss when handlers return false', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
     // Test onProductSelected returning false
     const onProductSelectedHandler = jest.fn().mockReturnValue(false);
     view.setEventHandlers({ onProductSelected: onProductSelectedHandler });
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
     expect(onProductSelectedHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).not.toHaveBeenCalled();
 
@@ -1292,7 +1292,7 @@ describe('ViewController - dismiss on handler return value', () => {
     // Test onCloseButtonPress returning false
     const onCloseHandler = jest.fn().mockReturnValue(false);
     view.setEventHandlers({ onCloseButtonPress: onCloseHandler });
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
     expect(onCloseHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).not.toHaveBeenCalled();
 
@@ -1301,13 +1301,13 @@ describe('ViewController - dismiss on handler return value', () => {
 
   it('should NOT call dismiss when handlers return undefined', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
     // Test onProductSelected returning undefined
     const onProductSelectedHandler = jest.fn().mockReturnValue(undefined);
     view.setEventHandlers({ onProductSelected: onProductSelectedHandler });
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
     expect(onProductSelectedHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).not.toHaveBeenCalled();
 
@@ -1316,7 +1316,7 @@ describe('ViewController - dismiss on handler return value', () => {
     // Test onRestoreStarted returning undefined
     const onRestoreStartedHandler = jest.fn().mockReturnValue(undefined);
     view.setEventHandlers({ onRestoreStarted: onRestoreStartedHandler });
-    emitPaywallRestoreStartedEvent(viewId, sample.view);
+    emitFlowRestoreStartedEvent(viewId, sample.view);
     expect(onRestoreStartedHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).not.toHaveBeenCalled();
 
@@ -1324,23 +1324,23 @@ describe('ViewController - dismiss on handler return value', () => {
   });
 });
 
-describe('ViewController - dismiss cleanup', () => {
+describe('FlowViewController - dismiss cleanup', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should unsubscribe all event listeners after dismiss', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Set up handlers for multiple event types
     const onProductSelectedHandler = jest.fn().mockReturnValue(false);
@@ -1356,10 +1356,10 @@ describe('ViewController - dismiss cleanup', () => {
     });
 
     // Emit events BEFORE dismiss - handlers should be called
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
-    emitPaywallPurchaseStartedEvent(
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowPurchaseStartedEvent(
       viewId,
-      PAYWALL_PURCHASE_STARTED.product,
+      FLOW_PURCHASE_STARTED.product,
       sample.view,
     );
 
@@ -1376,17 +1376,17 @@ describe('ViewController - dismiss cleanup', () => {
     await view.dismiss();
 
     // Emit onDisappeared event - this triggers cleanup via internal handler
-    emitPaywallViewDisappearedEvent(viewId, sample.view);
+    emitFlowViewDisappearedEvent(viewId, sample.view);
 
     // Emit events AFTER cleanup - handlers should NOT be called
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
-    emitPaywallPurchaseStartedEvent(
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowPurchaseStartedEvent(
       viewId,
-      PAYWALL_PURCHASE_STARTED.product,
+      FLOW_PURCHASE_STARTED.product,
       sample.view,
     );
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
-    emitPaywallRestoreStartedEvent(viewId, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowRestoreStartedEvent(viewId, sample.view);
 
     // Verify that NONE of the handlers were called after cleanup
     expect(onProductSelectedHandler).not.toHaveBeenCalled();
@@ -1407,30 +1407,30 @@ describe('ViewController - dismiss cleanup', () => {
   });
 });
 
-describe('ViewController - default event handlers', () => {
+describe('FlowViewController - default event handlers', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
-  it('should auto-dismiss paywall when onCloseButtonPress event is emitted with default handler', async () => {
+  it('should auto-dismiss flow when onCloseButtonPress event is emitted with default handler', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_CLOSE;
+    const sample = FLOW_USER_ACTION_CLOSE;
 
     // Spy on dismiss method to verify it's called
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
     // Emit close event WITHOUT setting custom handler
     // Default handler (onCloseButtonPress: () => true) should be active from create()
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
 
     // Verify dismiss was called due to default handler returning true
     expect(dismissSpy).toHaveBeenCalledTimes(1);
@@ -1438,16 +1438,16 @@ describe('ViewController - default event handlers', () => {
     dismissSpy.mockRestore();
   });
 
-  it('should auto-dismiss paywall when onAndroidSystemBack event is emitted with default handler', async () => {
+  it('should auto-dismiss flow when onAndroidSystemBack event is emitted with default handler', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_SYSTEM_BACK;
+    const sample = FLOW_USER_ACTION_SYSTEM_BACK;
 
     // Spy on dismiss method to verify it's called
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
     // Emit system_back event WITHOUT setting custom handler
     // Default handler (onAndroidSystemBack: () => true) should be active from create()
-    emitPaywallUserActionEvent(viewId, 'system_back', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
     // Verify dismiss was called due to default handler returning true
     expect(dismissSpy).toHaveBeenCalledTimes(1);
@@ -1455,16 +1455,16 @@ describe('ViewController - default event handlers', () => {
     dismissSpy.mockRestore();
   });
 
-  it('should auto-dismiss paywall when onRenderingFailed event is emitted with default handler', async () => {
+  it('should auto-dismiss flow when onError event is emitted with default handler', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_RENDERING_FAILED;
+    const sample = FLOW_RENDERING_FAILED;
 
     // Spy on dismiss method to verify it's called
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
     // Emit rendering_failed event WITHOUT setting custom handler
-    // Default handler (onRenderingFailed: () => true) should be active from create()
-    emitPaywallRenderingFailedEvent(viewId, sample.error, sample.view);
+    // Default handler (onError: () => true) should be active from create()
+    emitFlowRenderingFailedEvent(viewId, sample.error, sample.view);
 
     // Verify dismiss was called due to default handler returning true
     expect(dismissSpy).toHaveBeenCalledTimes(1);
@@ -1474,7 +1474,7 @@ describe('ViewController - default event handlers', () => {
 
   it('should allow overriding default onCloseButtonPress handler', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_CLOSE;
+    const sample = FLOW_USER_ACTION_CLOSE;
 
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
@@ -1483,7 +1483,7 @@ describe('ViewController - default event handlers', () => {
     view.setEventHandlers({ onCloseButtonPress: customHandler });
 
     // Emit close event
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
 
     // Custom handler should be called
     expect(customHandler).toHaveBeenCalledTimes(1);
@@ -1496,7 +1496,7 @@ describe('ViewController - default event handlers', () => {
 
   it('should allow overriding default onAndroidSystemBack handler', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_USER_ACTION_SYSTEM_BACK;
+    const sample = FLOW_USER_ACTION_SYSTEM_BACK;
 
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
@@ -1505,7 +1505,7 @@ describe('ViewController - default event handlers', () => {
     view.setEventHandlers({ onAndroidSystemBack: customHandler });
 
     // Emit system_back event
-    emitPaywallUserActionEvent(viewId, 'system_back', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
     // Custom handler should be called
     expect(customHandler).toHaveBeenCalledTimes(1);
@@ -1516,18 +1516,18 @@ describe('ViewController - default event handlers', () => {
     dismissSpy.mockRestore();
   });
 
-  it('should allow overriding default onRenderingFailed handler', async () => {
+  it('should allow overriding default onError handler', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_RENDERING_FAILED;
+    const sample = FLOW_RENDERING_FAILED;
 
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
     // Override default handler with one that returns false
     const customHandler = jest.fn().mockReturnValue(false);
-    view.setEventHandlers({ onRenderingFailed: customHandler });
+    view.setEventHandlers({ onError: customHandler });
 
     // Emit rendering_failed event
-    emitPaywallRenderingFailedEvent(viewId, sample.error, sample.view);
+    emitFlowRenderingFailedEvent(viewId, sample.error, sample.view);
 
     // Custom handler should be called
     expect(customHandler).toHaveBeenCalledTimes(1);
@@ -1539,23 +1539,23 @@ describe('ViewController - default event handlers', () => {
   });
 });
 
-describe('ViewController - setEventHandlers merge behavior', () => {
+describe('FlowViewController - setEventHandlers merge behavior', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should preserve previously set handlers when adding new ones', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Set first handler
     const onProductSelectedHandler = jest.fn().mockReturnValue(false);
@@ -1566,10 +1566,10 @@ describe('ViewController - setEventHandlers merge behavior', () => {
     view.setEventHandlers({ onPurchaseStarted: onPurchaseStartedHandler });
 
     // Emit events for both handlers
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
-    emitPaywallPurchaseStartedEvent(
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowPurchaseStartedEvent(
       viewId,
-      PAYWALL_PURCHASE_STARTED.product,
+      FLOW_PURCHASE_STARTED.product,
       sample.view,
     );
 
@@ -1581,7 +1581,7 @@ describe('ViewController - setEventHandlers merge behavior', () => {
 
   it('should replace handler when setting same event type again', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Set first onProductSelected handler
     const onProductSelectedHandler1 = jest.fn().mockReturnValue(false);
@@ -1592,7 +1592,7 @@ describe('ViewController - setEventHandlers merge behavior', () => {
     view.setEventHandlers({ onProductSelected: onProductSelectedHandler2 });
 
     // Emit product selected event
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
 
     // Only the second handler should be called
     expect(onProductSelectedHandler1).not.toHaveBeenCalled();
@@ -1602,7 +1602,7 @@ describe('ViewController - setEventHandlers merge behavior', () => {
 
   it('should preserve multiple handlers across successive setEventHandlers calls', async () => {
     const viewId = (view as any).id;
-    const sample = PAYWALL_PRODUCT_SELECTED_YEARLY;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
 
     // Set handlers one by one
     const onProductSelectedHandler = jest.fn().mockReturnValue(false);
@@ -1618,14 +1618,14 @@ describe('ViewController - setEventHandlers merge behavior', () => {
     view.setEventHandlers({ onCloseButtonPress: onCloseHandler });
 
     // Emit all events
-    emitPaywallProductSelectedEvent(viewId, sample.product_id, sample.view);
-    emitPaywallPurchaseStartedEvent(
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+    emitFlowPurchaseStartedEvent(
       viewId,
-      PAYWALL_PURCHASE_STARTED.product,
+      FLOW_PURCHASE_STARTED.product,
       sample.view,
     );
-    emitPaywallRestoreStartedEvent(viewId, sample.view);
-    emitPaywallUserActionEvent(viewId, 'close', undefined, sample.view);
+    emitFlowRestoreStartedEvent(viewId, sample.view);
+    emitFlowUserActionEvent(viewId, 'close', undefined, sample.view);
 
     // All handlers should have been called
     expect(onProductSelectedHandler).toHaveBeenCalledTimes(1);
@@ -1635,31 +1635,31 @@ describe('ViewController - setEventHandlers merge behavior', () => {
   });
 });
 
-describe('ViewController - onDisappeared after user action close', () => {
+describe('FlowViewController - onDisappeared after user action close', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onDisappeared handler even after close button triggers dismiss', async () => {
     const viewId = (view as any).id;
-    const closeButtonSample = PAYWALL_USER_ACTION_CLOSE_BUTTON;
-    const closedSample = PAYWALL_VIEW_DISAPPEARED;
+    const closeButtonSample = FLOW_USER_ACTION_CLOSE_BUTTON;
+    const closedSample = FLOW_VIEW_DISAPPEARED;
 
     // Set up handlers
     const onCloseButtonPressHandler: jest.MockedFunction<
-      EventHandlers['onCloseButtonPress']
+      FlowEventHandlers['onCloseButtonPress']
     > = jest.fn().mockReturnValue(true); // Returns true to trigger dismiss
     const onDisappearedHandler: jest.MockedFunction<
-      EventHandlers['onDisappeared']
+      FlowEventHandlers['onDisappeared']
     > = jest.fn().mockReturnValue(false);
 
     // Spy on dismiss WITHOUT mocking - let it execute normally
@@ -1671,7 +1671,7 @@ describe('ViewController - onDisappeared after user action close', () => {
     });
 
     // 1. User presses close button - this should trigger dismiss
-    emitPaywallUserActionEvent(
+    emitFlowUserActionEvent(
       viewId,
       'close',
       undefined,
@@ -1683,7 +1683,7 @@ describe('ViewController - onDisappeared after user action close', () => {
 
     // 2. Native code sends onDisappeared before dismiss resolves
     // (dismiss response is expected to be the last event)
-    emitPaywallViewDisappearedEvent(viewId, closedSample.view);
+    emitFlowViewDisappearedEvent(viewId, closedSample.view);
 
     // 3. Wait for dismiss to complete (includes cleanup)
     await dismissSpy.mock.results[0]?.value;
