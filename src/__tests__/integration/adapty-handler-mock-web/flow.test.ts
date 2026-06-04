@@ -110,9 +110,9 @@ describe('Adapty - Flow', () => {
 
   describe('API parameters smoke-test', () => {
     it('should accept all parameters without errors', async () => {
-      // Test that method accepts all parameters (locale, fetchPolicy, loadTimeoutMs)
+      // Test that method accepts all parameters (fetchPolicy, loadTimeoutMs)
       // Note: Mock ignores these parameters, but we verify API contract is stable
-      const flow = await adapty.getFlow('test_placement', 'ru', {
+      const flow = await adapty.getFlow('test_placement', {
         fetchPolicy: FetchPolicy.ReturnCacheDataIfNotExpiredElseLoad,
         maxAgeSeconds: 300,
         loadTimeoutMs: 3000,
@@ -123,7 +123,7 @@ describe('Adapty - Flow', () => {
       expect(flow.id).toContain('test_placement');
       expect(flow.placement.id).toBe('test_placement');
 
-      // Note: We don't check that locale/fetchPolicy/timeout affected the result
+      // Note: We don't check that fetchPolicy/timeout affected the result
       // because mock implementation ignores them. This is just a smoke-test
       // to ensure API contract is stable and TypeScript compiles correctly.
     });

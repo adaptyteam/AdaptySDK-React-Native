@@ -297,7 +297,6 @@ export class Adapty {
    * @param {string} placementId - The identifier of the desired placement.
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
-   * @param {string | undefined} [locale] - The locale of the desired flow.
    * @param {GetPlacementParamsInput} [params] - Additional parameters for retrieving flow.
    * @returns {Promise<Model.AdaptyFlow>}
    * A promise that resolves with a requested flow.
@@ -309,7 +308,6 @@ export class Adapty {
    */
   public async getFlow(
     placementId: string,
-    locale?: string,
     params: GetPlacementParamsInput = {
       fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
       loadTimeoutMs: 5000,
@@ -318,7 +316,7 @@ export class Adapty {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getFlow' });
 
-    log.start(() => ({ placementId, locale, params }));
+    log.start(() => ({ placementId, params }));
 
     const methodKey = 'get_flow';
     const data: Req['GetFlow.Request'] = {
@@ -326,9 +324,6 @@ export class Adapty {
       placement_id: placementId,
       load_timeout: (params.loadTimeoutMs ?? 5000) / 1000,
     };
-    if (locale) {
-      data['locale'] = locale;
-    }
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
         type: params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
@@ -371,7 +366,6 @@ export class Adapty {
    * @param {string} placementId - The identifier of the desired placement.
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
-   * @param {string | undefined} [locale] - The locale of the desired flow.
    * @param {GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving flow.
    * @returns {Promise<Model.AdaptyFlow>}
    * A promise that resolves with a requested flow.
@@ -383,7 +377,6 @@ export class Adapty {
    */
   public async getFlowForDefaultAudience(
     placementId: string,
-    locale?: string,
     params: GetPlacementForDefaultAudienceParamsInput = {
       fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
     },
@@ -391,16 +384,13 @@ export class Adapty {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getFlowForDefaultAudience' });
 
-    log.start(() => ({ placementId, locale, params }));
+    log.start(() => ({ placementId, params }));
 
     const methodKey = 'get_flow_for_default_audience';
     const data: Req['GetFlowForDefaultAudience.Request'] = {
       method: methodKey,
       placement_id: placementId,
     };
-    if (locale) {
-      data['locale'] = locale;
-    }
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
         type: params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,

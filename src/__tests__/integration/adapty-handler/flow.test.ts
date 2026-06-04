@@ -150,8 +150,8 @@ describe('Adapty - Flow (Bridge Integration)', () => {
 
   describe('API parameters smoke-test', () => {
     it('should accept all parameters without errors', async () => {
-      // Test that method accepts all parameters (locale, fetchPolicy, loadTimeoutMs)
-      const flow = await adapty.getFlow('test_placement', 'ru', {
+      // Test that method accepts all parameters (fetchPolicy, loadTimeoutMs)
+      const flow = await adapty.getFlow('test_placement', {
         fetchPolicy: FetchPolicy.ReturnCacheDataIfNotExpiredElseLoad,
         maxAgeSeconds: 300,
         loadTimeoutMs: 3000,
@@ -165,8 +165,6 @@ describe('Adapty - Flow (Bridge Integration)', () => {
       });
 
       expect(request.placement_id).toBe('test_placement');
-      // locale is forwarded to native at runtime (not part of the typed wire shape)
-      expect((request as { locale?: string }).locale).toBe('ru');
       // load_timeout is converted from ms to seconds (3000ms -> 3s)
       expect(request.load_timeout).toBe(3);
 
@@ -198,21 +196,6 @@ describe('Adapty - Flow (Bridge Integration)', () => {
       expect(flow.placement.audienceName).toBe('default_audience');
       expect(flow.variationId).toBe('default_variation_123');
     });
-
-    it('should include locale when provided', async () => {
-      await adapty.getFlowForDefaultAudience('test_placement_default', 'ru');
-
-      const request = extractNativeRequest<
-        components['requests']['GetFlowForDefaultAudience.Request']
-      >({
-        nativeModule: nativeMock,
-      });
-
-      expect(request.method).toBe('get_flow_for_default_audience');
-      expect(request.placement_id).toBe('test_placement_default');
-      // locale is forwarded to native at runtime (not part of the typed wire shape)
-      expect((request as { locale?: string }).locale).toBe('ru');
-    });
   });
 
   describe('logShowFlow', () => {
@@ -231,8 +214,8 @@ describe('Adapty - Flow (Bridge Integration)', () => {
       });
 
       expect(request.method).toBe('log_show_flow');
-      expect(request.flow.flow_id).toBeDefined();
-      expect(request.flow.variation_id).toBeDefined();
+      expect(request.flow.flow_id).toBe('flow_test_placement');
+      expect(request.flow.variation_id).toBe('variation_123');
 
       // Note: result is actually `true` (from obj.success in parseMethodResult),
       // not undefined, even though TypeScript signature is Promise<void>
