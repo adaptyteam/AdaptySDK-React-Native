@@ -2,7 +2,7 @@ import { EmitterSubscription } from 'react-native';
 import { LogContext } from '@/logger';
 import type { AdaptyType } from '@/coders/parse';
 import { parseCommonEvent } from '@/coders/parse';
-import { parsePaywallEvent } from '@/coders/parse-paywall';
+import { parseFlowEvent } from '@/coders/parse-flow';
 import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 import { MockStore } from './mock-store';
 import type { AdaptyMockConfig } from './types';
@@ -119,18 +119,18 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = this.store.getProfile();
           break;
 
-        case 'get_paywall':
-        case 'get_paywall_for_default_audience':
-          const paywallPlacementId = parsedParams.placement_id;
-          result = this.store.getPaywall(paywallPlacementId);
+        case 'get_flow':
+        case 'get_flow_for_default_audience':
+          const flowPlacementId = parsedParams.placement_id;
+          result = this.store.getFlow(flowPlacementId);
           break;
 
         case 'get_paywall_products':
-          const paywall = parsedParams.paywall;
+          const flow = parsedParams.flow;
           const placementId: string =
-            paywall?.placement?.developer_id || 'default';
+            flow?.placement?.developer_id || 'default';
           const variationId: string =
-            paywall?.variation_id || 'mock_variation_id';
+            flow?.variation_id || 'mock_variation_id';
           result = this.store.getPaywallProducts(placementId, variationId);
           break;
 
@@ -181,7 +181,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = undefined; // void
           break;
 
-        case 'log_show_paywall':
+        case 'log_show_flow':
         case 'set_log_level':
         case 'update_attribution_data':
         case 'set_fallback':
@@ -210,15 +210,15 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           break;
 
         // UI methods
-        case 'adapty_ui_create_paywall_view':
-          result = { id: `mock-paywall-${generateId()}` };
+        case 'adapty_ui_create_flow_view':
+          result = { id: `mock-flow-${generateId()}` };
           break;
         case 'adapty_ui_create_onboarding_view':
           result = { id: `mock-onboarding-${generateId()}` };
           break;
-        case 'adapty_ui_present_paywall_view':
+        case 'adapty_ui_present_flow_view':
         case 'adapty_ui_present_onboarding_view':
-        case 'adapty_ui_dismiss_paywall_view':
+        case 'adapty_ui_dismiss_flow_view':
         case 'adapty_ui_dismiss_onboarding_view':
         case 'adapty_ui_activate':
           result = undefined; // void
@@ -280,8 +280,8 @@ export class MockRequestHandler<Method extends string, Params extends string> {
             return onboardingEvent;
           }
 
-          const paywallEvent = parsePaywallEvent(arg, ctx);
-          return paywallEvent;
+          const flowEvent = parseFlowEvent(arg, ctx);
+          return flowEvent;
         } catch (error) {
           log.failed(() => ({ error }));
 

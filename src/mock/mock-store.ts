@@ -1,6 +1,6 @@
 import type {
   AdaptyProfile,
-  AdaptyPaywall,
+  AdaptyFlow,
   AdaptyPaywallProduct,
   AdaptyOnboarding,
   AdaptyProfileParameters,
@@ -9,7 +9,7 @@ import type { AdaptyMockConfig } from './types';
 import {
   createMockProfile,
   createMockPremiumAccessLevel,
-  createMockPaywall,
+  createMockFlow,
   createMockProducts,
   createMockOnboarding,
   createSubscriptionDates,
@@ -121,11 +121,11 @@ export class MockStore {
   }
 
   /**
-   * Get paywall for placement
+   * Get flow for placement
    */
-  getPaywall(placementId: string): AdaptyPaywall {
-    const customPaywall = this.config.paywalls?.[placementId];
-    return createMockPaywall(placementId, customPaywall);
+  getFlow(placementId: string): AdaptyFlow {
+    const customFlow = this.config.flows?.[placementId];
+    return createMockFlow(placementId, customFlow);
   }
 
   /**
@@ -142,8 +142,8 @@ export class MockStore {
     }
 
     // Otherwise, generate default products
-    const paywall = this.getPaywall(placementId);
-    return createMockProducts(paywall);
+    const flow = this.getFlow(placementId);
+    return createMockProducts(flow);
   }
 
   /**

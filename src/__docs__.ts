@@ -21,16 +21,16 @@ export {
   type AdaptyAndroidSubscriptionUpdateParameters,
 } from '@adapty/core';
 export * from './ui/types';
-export { ViewController } from './ui/view-controller';
+export { FlowViewController } from './ui/flow-view-controller';
 export { OnboardingViewController } from './ui/onboarding-view-controller';
 export * from './mock/types';
 // UI functions & components
-export { createPaywallView } from './ui/create-paywall-view';
+export { createFlowView } from './ui/create-flow-view';
 export { createOnboardingView } from './ui/create-onboarding-view';
 export {
-  AdaptyPaywallView,
-  type AdaptyPaywallViewProps,
-} from './ui/AdaptyPaywallView';
+  AdaptyFlowView,
+  type AdaptyFlowViewProps,
+} from './ui/AdaptyFlowView';
 export {
   AdaptyOnboardingView,
   type AdaptyOnboardingViewProps,
