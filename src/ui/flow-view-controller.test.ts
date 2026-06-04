@@ -1,5 +1,5 @@
-import { ViewController } from './view-controller';
-import type { AdaptyPaywall } from '@/types';
+import { FlowViewController } from './flow-view-controller';
+import type { AdaptyFlow } from '@/types';
 import { $bridge } from '@/bridge';
 
 jest.mock('@/bridge', () => {
@@ -17,10 +17,10 @@ jest.mock('@/bridge', () => {
 jest.mock('@/coders/factory', () => {
   return {
     coderFactory: {
-      createPaywallCoder: jest.fn(() => ({
+      createFlowCoder: jest.fn(() => ({
         encode: jest.fn().mockReturnValue({ encoded: true }),
       })),
-      createUiCreatePaywallViewParamsCoder: jest.fn(() => ({
+      createUiCreateFlowViewParamsCoder: jest.fn(() => ({
         encode: jest.fn().mockReturnValue({}),
       })),
       createUiDialogConfigCoder: jest.fn(() => ({
@@ -30,9 +30,9 @@ jest.mock('@/coders/factory', () => {
   };
 });
 
-jest.mock('./view-emitter', () => {
+jest.mock('./flow-view-emitter', () => {
   return {
-    ViewEmitter: jest.fn().mockImplementation(() => ({
+    FlowViewEmitter: jest.fn().mockImplementation(() => ({
       addListener: jest.fn(),
       addInternalListener: jest.fn(),
       removeAllListeners: jest.fn(),
@@ -40,25 +40,20 @@ jest.mock('./view-emitter', () => {
   };
 });
 
-describe('ViewController', () => {
-  const paywall: AdaptyPaywall = {
-    id: 'pw-id',
-    name: 'PW Name',
+describe('FlowViewController', () => {
+  const flow: AdaptyFlow = {
+    id: 'flow-id',
+    name: 'Flow Name',
     placement: {
       id: 'pl-id',
-      name: 'pl-name',
-      channel: 'paywall_builder',
-      locale: 'en',
+      abTestName: 'pl-ab',
+      audienceName: 'all',
+      revision: 1,
+      audienceVersionId: 'v1',
     },
-    remoteConfig: undefined,
     variationId: 'var',
-    version: 1,
-    hasViewConfiguration: true,
-    paywallBuilder: undefined,
-    payloadData: undefined,
-    requestLocale: 'en',
-    products: [],
-    productIdentifiers: [],
+    variations: [],
+    responseCreatedAt: 1704067200000,
   } as any;
 
   beforeEach(() => {
@@ -71,11 +66,11 @@ describe('ViewController', () => {
         id: 'uuid-1',
       });
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
 
       expect($bridge.request).toHaveBeenCalledWith(
-        'adapty_ui_create_paywall_view',
-        expect.stringContaining('"method":"adapty_ui_create_paywall_view"'),
+        'adapty_ui_create_flow_view',
+        expect.stringContaining('"method":"adapty_ui_create_flow_view"'),
         'AdaptyUiView',
         expect.any(Object),
       );
@@ -87,7 +82,7 @@ describe('ViewController', () => {
         new Error('boom'),
       );
 
-      await expect(ViewController.create(paywall, {} as any)).rejects.toThrow(
+      await expect(FlowViewController.create(flow, {} as any)).rejects.toThrow(
         'boom',
       );
     });
@@ -99,11 +94,11 @@ describe('ViewController', () => {
         .mockResolvedValueOnce({ id: 'uuid-2' }) // create
         .mockResolvedValueOnce(undefined); // present
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
       await expect(view.present()).resolves.toBeUndefined();
 
       expect($bridge.request).toHaveBeenLastCalledWith(
-        'adapty_ui_present_paywall_view',
+        'adapty_ui_present_flow_view',
         expect.stringContaining('"id":"uuid-2"'),
         'Void',
         expect.any(Object),
@@ -111,8 +106,8 @@ describe('ViewController', () => {
     });
 
     it('throws if id is null', async () => {
-      const viewProto = (ViewController as any).prototype;
-      const fresh = Object.create(viewProto) as ViewController;
+      const viewProto = (FlowViewController as any).prototype;
+      const fresh = Object.create(viewProto) as FlowViewController;
       (fresh as any).id = null;
 
       await expect(fresh.present()).rejects.toThrow('View reference not found');
@@ -125,21 +120,21 @@ describe('ViewController', () => {
         .mockResolvedValueOnce({ id: 'uuid-3' }) // create
         .mockResolvedValueOnce(undefined); // dismiss
 
-      const { ViewEmitter } = jest.requireMock('./view-emitter');
+      const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
       const removeAllListenersMock = jest.fn();
-      (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+      (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener: jest.fn(),
         addInternalListener: jest.fn(),
         removeAllListeners: removeAllListenersMock,
       }));
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
       view.setEventHandlers({ onCloseButtonPress: () => true });
 
       await view.dismiss();
 
       expect($bridge.request).toHaveBeenLastCalledWith(
-        'adapty_ui_dismiss_paywall_view',
+        'adapty_ui_dismiss_flow_view',
         expect.stringContaining('"destroy":false'),
         'Void',
         expect.any(Object),
@@ -149,8 +144,8 @@ describe('ViewController', () => {
     });
 
     it('throws if id is null', async () => {
-      const viewProto = (ViewController as any).prototype;
-      const fresh = Object.create(viewProto) as ViewController;
+      const viewProto = (FlowViewController as any).prototype;
+      const fresh = Object.create(viewProto) as FlowViewController;
       (fresh as any).id = null;
       await expect(fresh.dismiss()).rejects.toThrow('View reference not found');
     });
@@ -158,9 +153,9 @@ describe('ViewController', () => {
 
   describe('setEventHandlers', () => {
     it('registers provided handlers', async () => {
-      const { ViewEmitter } = jest.requireMock('./view-emitter');
+      const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
       const addListener = jest.fn();
-      (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+      (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
         addInternalListener: jest.fn(),
         removeAllListeners: jest.fn(),
@@ -170,10 +165,10 @@ describe('ViewController', () => {
         id: 'uuid-4',
       });
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
 
-      // ViewEmitter is created during create() with DEFAULT_EVENT_HANDLERS
-      expect(ViewEmitter).toHaveBeenCalledWith('uuid-4');
+      // FlowViewEmitter is created during create() with DEFAULT_FLOW_EVENT_HANDLERS
+      expect(FlowViewEmitter).toHaveBeenCalledWith('uuid-4');
 
       const handler = jest.fn(() => true);
       const unsubscribe = view.setEventHandlers({
@@ -188,21 +183,21 @@ describe('ViewController', () => {
     });
 
     it('throws if called before create (no id)', () => {
-      const viewProto = (ViewController as any).prototype;
-      const fresh = Object.create(viewProto) as ViewController;
+      const viewProto = (FlowViewController as any).prototype;
+      const fresh = Object.create(viewProto) as FlowViewController;
       (fresh as any).id = null;
       expect(() => fresh.setEventHandlers()).toThrow(
         'View reference not found',
       );
     });
 
-    it('reuses same ViewEmitter and overrides handlers when called multiple times', async () => {
-      const { ViewEmitter } = jest.requireMock('./view-emitter');
+    it('reuses same FlowViewEmitter and overrides handlers when called multiple times', async () => {
+      const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
       const addListener = jest.fn();
       const removeAllListeners = jest.fn();
 
-      // Mock ViewEmitter instance BEFORE create
-      (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+      // Mock FlowViewEmitter instance BEFORE create
+      (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
         addInternalListener: jest.fn(),
         removeAllListeners,
@@ -212,21 +207,21 @@ describe('ViewController', () => {
         id: 'uuid-5',
       });
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
 
-      // ViewEmitter created once during create()
-      expect(ViewEmitter).toHaveBeenCalledTimes(1);
-      expect(ViewEmitter).toHaveBeenCalledWith('uuid-5');
+      // FlowViewEmitter created once during create()
+      expect(FlowViewEmitter).toHaveBeenCalledTimes(1);
+      expect(FlowViewEmitter).toHaveBeenCalledWith('uuid-5');
 
       // Clear for tracking subsequent calls
-      (ViewEmitter as unknown as jest.Mock).mockClear();
+      (FlowViewEmitter as unknown as jest.Mock).mockClear();
       addListener.mockClear();
 
       const firstHandler = jest.fn(() => true);
       view.setEventHandlers({ onCloseButtonPress: firstHandler });
 
-      // Should NOT have created new ViewEmitter
-      expect(ViewEmitter).toHaveBeenCalledTimes(0);
+      // Should NOT have created new FlowViewEmitter
+      expect(FlowViewEmitter).toHaveBeenCalledTimes(0);
 
       // Should have called addListener for the first handler
       expect(addListener).toHaveBeenCalledWith(
@@ -241,8 +236,8 @@ describe('ViewController', () => {
       const secondHandler = jest.fn(() => false);
       view.setEventHandlers({ onCloseButtonPress: secondHandler });
 
-      // Should still NOT have created new ViewEmitter
-      expect(ViewEmitter).toHaveBeenCalledTimes(0);
+      // Should still NOT have created new FlowViewEmitter
+      expect(FlowViewEmitter).toHaveBeenCalledTimes(0);
 
       // Should have called addListener for the second handler
       expect(addListener).toHaveBeenCalledWith(
@@ -253,13 +248,13 @@ describe('ViewController', () => {
     });
 
     it('replaces handler when same event is registered multiple times', async () => {
-      const { ViewEmitter } = jest.requireMock('./view-emitter');
+      const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
       const handlers = new Map();
       const addListener = jest.fn((event, callback) => {
-        // Simulate ViewEmitter behavior: replace existing handler
+        // Simulate FlowViewEmitter behavior: replace existing handler
         handlers.set(event, callback);
       });
-      (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+      (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
         addInternalListener: jest.fn(),
         removeAllListeners: jest.fn(),
@@ -269,7 +264,7 @@ describe('ViewController', () => {
         id: 'uuid-7',
       });
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
 
       // Clear handlers set during create
       handlers.clear();
@@ -302,13 +297,13 @@ describe('ViewController', () => {
     });
 
     it('preserves default handlers when setting custom handlers for different events', async () => {
-      const { ViewEmitter } = jest.requireMock('./view-emitter');
+      const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
       const handlers = new Map();
       const addListener = jest.fn((event, callback) => {
-        // Simulate ViewEmitter behavior: store handlers in a map
+        // Simulate FlowViewEmitter behavior: store handlers in a map
         handlers.set(event, callback);
       });
-      (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+      (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
         addInternalListener: jest.fn(),
         removeAllListeners: jest.fn(),
@@ -318,20 +313,20 @@ describe('ViewController', () => {
         id: 'uuid-8',
       });
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
 
       // After create, default handlers should be registered
-      // (onCloseButtonPress, onAndroidSystemBack, onRestoreCompleted, onRenderingFailed, onPurchaseCompleted, onUrlPress)
+      // (onCloseButtonPress, onAndroidSystemBack, onRestoreCompleted, onError, onPurchaseCompleted, onUrlPress)
       expect(handlers.has('onCloseButtonPress')).toBe(true);
       expect(handlers.has('onAndroidSystemBack')).toBe(true);
       expect(handlers.has('onRestoreCompleted')).toBe(true);
-      expect(handlers.has('onRenderingFailed')).toBe(true);
+      expect(handlers.has('onError')).toBe(true);
       expect(handlers.has('onPurchaseCompleted')).toBe(true);
       expect(handlers.has('onUrlPress')).toBe(true);
 
       const defaultOnAndroidSystemBack = handlers.get('onAndroidSystemBack');
       const defaultOnRestoreCompleted = handlers.get('onRestoreCompleted');
-      const defaultOnRenderingFailed = handlers.get('onRenderingFailed');
+      const defaultOnError = handlers.get('onError');
       const defaultOnUrlPress = handlers.get('onUrlPress');
 
       // Now override only onCloseButtonPress
@@ -348,15 +343,15 @@ describe('ViewController', () => {
       expect(handlers.get('onRestoreCompleted')).toBe(
         defaultOnRestoreCompleted,
       );
-      expect(handlers.get('onRenderingFailed')).toBe(defaultOnRenderingFailed);
+      expect(handlers.get('onError')).toBe(defaultOnError);
       expect(handlers.get('onUrlPress')).toBe(defaultOnUrlPress);
       expect(handlers.has('onPurchaseCompleted')).toBe(true);
     });
 
     it('registers only provided handlers without merging defaults', async () => {
-      const { ViewEmitter } = jest.requireMock('./view-emitter');
+      const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
       const addListener = jest.fn();
-      (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+      (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
         addListener,
         addInternalListener: jest.fn(),
         removeAllListeners: jest.fn(),
@@ -366,7 +361,7 @@ describe('ViewController', () => {
         id: 'uuid-6',
       });
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
 
       // Clear mock call count from default handlers registration during create
       addListener.mockClear();
@@ -394,7 +389,7 @@ describe('ViewController', () => {
         .mockResolvedValueOnce({ id: 'uuid-5' }) // create
         .mockResolvedValueOnce('primary'); // showDialog result
 
-      const view = await ViewController.create(paywall, {} as any);
+      const view = await FlowViewController.create(flow, {} as any);
 
       const result = await view.showDialog({
         primaryActionTitle: 'OK',
@@ -411,8 +406,8 @@ describe('ViewController', () => {
     });
 
     it('throws if id is null', async () => {
-      const viewProto = (ViewController as any).prototype;
-      const fresh = Object.create(viewProto) as ViewController;
+      const viewProto = (FlowViewController as any).prototype;
+      const fresh = Object.create(viewProto) as FlowViewController;
       (fresh as any).id = null;
       await expect(
         fresh.showDialog({ primaryActionTitle: 'OK' } as any),

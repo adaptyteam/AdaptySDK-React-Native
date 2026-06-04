@@ -1,4 +1,4 @@
-import type { AdaptyPaywallProduct, AdaptyPaywall } from '@/types';
+import type { AdaptyPaywallProduct, AdaptyFlow } from '@/types';
 
 /**
  * Creates a mock AdaptyPaywallProduct with default values
@@ -33,44 +33,44 @@ export function createMockProduct(
 }
 
 /**
- * Creates a mock AdaptyPaywall with default values
+ * Creates a mock AdaptyFlow with default values
  */
-export function createMockPaywall(
-  overrides?: Partial<AdaptyPaywall>,
-): AdaptyPaywall {
+export function createMockFlow(overrides?: Partial<AdaptyFlow>): AdaptyFlow {
+  const placement = {
+    id: 'test_placement',
+    abTestName: 'test_ab',
+    audienceName: 'all_users',
+    revision: 1,
+    audienceVersionId: 'v1',
+  };
   return {
-    hasViewConfiguration: false,
-    id: 'test_paywall',
-    name: 'Test Paywall',
+    id: 'test_flow',
+    name: 'Test Flow',
     variationId: 'variation_1',
-    version: 1,
-    requestLocale: 'en',
-    productIdentifiers: [
+    placement,
+    responseCreatedAt: 1704067200000,
+    variations: [
       {
-        vendorProductId: 'com.example.product',
-        adaptyProductId: 'adapty_product',
+        placement,
+        id: 'test_paywall',
+        name: 'Test Paywall',
+        variationId: 'variation_1',
+        productIdentifiers: [
+          {
+            vendorProductId: 'com.example.product',
+            adaptyProductId: 'adapty_product',
+          },
+        ],
+        products: [
+          {
+            vendorId: 'com.example.product',
+            adaptyId: 'adapty_product',
+            accessLevelId: 'premium',
+            productType: 'subscription',
+          },
+        ],
       },
     ],
-    products: [
-      {
-        vendorId: 'com.example.product',
-        adaptyId: 'adapty_product',
-        accessLevelId: 'premium',
-        productType: 'subscription',
-      },
-    ],
-    remoteConfig: {
-      lang: 'en',
-      data: {},
-      dataString: '{}',
-    },
-    placement: {
-      id: 'test_placement',
-      abTestName: 'test_ab',
-      audienceName: 'all_users',
-      revision: 1,
-      audienceVersionId: 'v1',
-    },
     ...overrides,
   };
 }
