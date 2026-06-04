@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "react-native-adapty",
-  "version": "3.17.0",
+  "version": "4.0.0",
   "description": "Adapty React Native SDK",
   "license": "MIT",
   "author": "Adapty team <support@adapty.io>",
@@ -97,7 +97,7 @@
     "typescript": "5.1.6"
   },
   "dependencies": {
-    "@adapty/core": "4.0.0-dev.be3bfb2d97c35a578f09706e179187ebdb312943",
+    "@adapty/core": "4.0.0",
     "tslib": "^2.5.0"
   },
   "peerDependencies": {
