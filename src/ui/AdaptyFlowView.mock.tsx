@@ -1,28 +1,28 @@
 import React, { useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { NativeAdaptyPaywallViewProps } from './types';
+import { NativeAdaptyFlowViewProps } from './types';
 import { mockStyles } from './mock-styles';
 
 /**
- * Mock implementation of AdaptyPaywallView component.
+ * Mock implementation of AdaptyFlowView component.
  *
  * This component is used in environments where native modules are not available:
  * - Expo Go
  * - Web browsers
  *
  * In builds with native dependencies (Expo EAS or dev-client), the actual native
- * AdaptyPaywallView component will be used instead, which renders the real paywall
+ * AdaptyFlowView component will be used instead, which renders the real paywall
  * UI configured in the Adapty Dashboard.
  *
  * @see {@link https://docs.adapty.io/docs/paywall-builder-getting-started Adapty Paywall Builder Documentation}
  */
-export const AdaptyPaywallViewMock: React.FC<
-  NativeAdaptyPaywallViewProps
+export const AdaptyFlowViewMock: React.FC<
+  NativeAdaptyFlowViewProps
 > = props => {
   useEffect(() => {
-    console.info('[Adapty Mock] AdaptyPaywallView mounted');
+    console.info('[Adapty Mock] AdaptyFlowView mounted');
     return () => {
-      console.info('[Adapty Mock] AdaptyPaywallView unmounted');
+      console.info('[Adapty Mock] AdaptyFlowView unmounted');
     };
   }, []);
 
@@ -32,7 +32,7 @@ export const AdaptyPaywallViewMock: React.FC<
         <View style={mockStyles.iconContainer}>
           <Text style={mockStyles.icon}>📦</Text>
         </View>
-        <Text style={mockStyles.title}>AdaptyPaywallView</Text>
+        <Text style={mockStyles.title}>AdaptyFlowView</Text>
         <View style={mockStyles.infoBox}>
           <Text style={mockStyles.infoText}>
             This is a mock component. The real Adapty paywall will be displayed

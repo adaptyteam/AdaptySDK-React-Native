@@ -1,36 +1,36 @@
-import { AdaptyPaywall } from '@/types';
-import { CreatePaywallViewParamsInput } from './types';
-import { ViewController } from './view-controller';
+import { AdaptyFlow } from '@/types';
+import { CreateFlowViewParamsInput } from './types';
+import { FlowViewController } from './flow-view-controller';
 
 /**
- * Creates a paywall view controller.
+ * Creates a flow view controller.
  * You can use it to further configure a view or present it.
  *
- * @see {@link https://docs.adapty.io/docs/paywall-builder-fetching | [DOC] Creating a paywall view}
+ * @see {@link https://docs.adapty.io/docs/paywall-builder-fetching | [DOC] Creating a flow view}
  *
- * @param {AdaptyPaywall} paywall - paywall that you want to present.
- * @param {CreatePaywallViewParamsInput | undefined} [params] - additional params.
- * @returns {Promise<ViewController>} ViewController — A promise that resolves to a ViewController instance.
+ * @param {AdaptyFlow} flow - flow that you want to present.
+ * @param {CreateFlowViewParamsInput | undefined} [params] - additional params.
+ * @returns {Promise<FlowViewController>} FlowViewController — A promise that resolves to a FlowViewController instance.
  *
  * @example
  * ```ts
- * const paywall = await adapty.getPaywall("MY_PAYWALL");
- * const view = await createPaywallView(paywall);
+ * const flow = await adapty.getFlow("MY_PLACEMENT");
+ * const view = await createFlowView(flow);
  * // Present with default full-screen style
  * view.present();
  * // Or present with custom style (iOS only)
  * view.present({ iosPresentationStyle: 'page_sheet' }); // or 'full_screen'
  * ```
  *
- * @throws {AdaptyError} — If paywall is not found,
+ * @throws {AdaptyError} — If flow is not found,
  * does not have a no-code view configured
  * or if there is an error while creating a view.
  */
-export async function createPaywallView(
-  paywall: AdaptyPaywall,
-  params: CreatePaywallViewParamsInput = {},
-): Promise<ViewController> {
-  const controller = await ViewController.create(paywall, params);
+export async function createFlowView(
+  flow: AdaptyFlow,
+  params: CreateFlowViewParamsInput = {},
+): Promise<FlowViewController> {
+  const controller = await FlowViewController.create(flow, params);
 
   return controller;
 }

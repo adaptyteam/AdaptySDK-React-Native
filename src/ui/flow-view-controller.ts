@@ -3,12 +3,12 @@ import {
   AdaptyUiDialogActionType,
   AdaptyUiDialogConfig,
   AdaptyUiView,
-  CreatePaywallViewParamsInput,
-  DEFAULT_EVENT_HANDLERS,
-  EventHandlers,
+  CreateFlowViewParamsInput,
+  DEFAULT_FLOW_EVENT_HANDLERS,
+  FlowEventHandlers,
 } from './types';
-import { ViewEmitter } from './view-emitter';
-import { AdaptyPaywall } from '@/types';
+import { FlowViewEmitter } from './flow-view-emitter';
+import { AdaptyFlow } from '@/types';
 import { LogContext, LogScope } from '@/logger';
 import { coderFactory } from '@/coders/factory';
 import { MethodName } from '@/types/bridge';
@@ -17,46 +17,46 @@ import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
 import { Req } from '@/types/schema';
 
-export const DEFAULT_PARAMS: CreatePaywallViewParamsInput = {
+export const DEFAULT_PARAMS: CreateFlowViewParamsInput = {
   prefetchProducts: true,
   loadTimeoutMs: 5000,
 };
 
 /**
- * Provides methods to control created paywall view
+ * Provides methods to control created flow view
  * @public
  */
-export class ViewController {
+export class FlowViewController {
   /**
-   * Intended way to create a ViewController instance.
+   * Intended way to create a FlowViewController instance.
    * It prepares a native controller to be presented
    * and creates reference between native controller and JS instance
    * @internal
    */
   static async create(
-    paywall: AdaptyPaywall,
-    params: CreatePaywallViewParamsInput,
-  ): Promise<ViewController> {
+    flow: AdaptyFlow,
+    params: CreateFlowViewParamsInput,
+  ): Promise<FlowViewController> {
     const ctx = new LogContext();
 
-    const log = ctx.call({ methodName: 'createPaywallView' });
-    log.start(() => ({ paywall, params }));
+    const log = ctx.call({ methodName: 'createFlowView' });
+    log.start(() => ({ flow, params }));
 
-    const view = new ViewController();
+    const view = new FlowViewController();
 
-    const paywallCoder = coderFactory.createPaywallCoder();
-    const paramsCoder = coderFactory.createUiCreatePaywallViewParamsCoder();
-    const methodKey = 'adapty_ui_create_paywall_view';
+    const flowCoder = coderFactory.createFlowCoder();
+    const paramsCoder = coderFactory.createUiCreateFlowViewParamsCoder();
+    const methodKey = 'adapty_ui_create_flow_view';
 
     // Set default values for required parameters
-    const paramsWithDefaults: CreatePaywallViewParamsInput = {
+    const paramsWithDefaults: CreateFlowViewParamsInput = {
       ...DEFAULT_PARAMS,
       ...params,
     };
 
-    const data: Req['AdaptyUICreatePaywallView.Request'] = {
+    const data: Req['AdaptyUICreateFlowView.Request'] = {
       method: methodKey,
-      paywall: paywallCoder.encode(paywall),
+      flow: flowCoder.encode(flow),
       ...paramsCoder.encode(paramsWithDefaults),
     };
     const body = JSON.stringify(data);
@@ -70,23 +70,23 @@ export class ViewController {
     );
 
     view.id = result.id;
-    view.viewEmitter = new ViewEmitter(result.id);
+    view.viewEmitter = new FlowViewEmitter(result.id);
 
-    view.setEventHandlers(DEFAULT_EVENT_HANDLERS);
+    view.setEventHandlers(DEFAULT_FLOW_EVENT_HANDLERS);
 
     return view;
   }
 
   private id: string | null; // reference to a native view. UUID
-  private viewEmitter: ViewEmitter | null = null;
+  private viewEmitter: FlowViewEmitter | null = null;
 
   /**
    * Since constructors in JS cannot be async, it is not
    * preferred to create ViewControllers in direct way.
-   * Consider using @link{ViewController.create} instead
+   * Consider using @link{FlowViewController.create} instead
    *
    * @remarks
-   * Creating ViewController this way does not let you
+   * Creating FlowViewController this way does not let you
    * to make native create request and set _id.
    * It is intended to avoid usage
    *
@@ -119,7 +119,7 @@ export class ViewController {
   }
 
   /**
-   * Presents a paywall view as a modal
+   * Presents a flow view as a modal
    *
    * @param {Object} options - Presentation options
    * @param {AdaptyIOSPresentationStyle} [options.iosPresentationStyle] - iOS presentation style.
@@ -127,7 +127,7 @@ export class ViewController {
    * Only affects iOS platform.
    *
    * @remarks
-   * Calling `present` upon already visible paywall view
+   * Calling `present` upon already visible flow view
    * would result in an error
    *
    * @throws {AdaptyError}
@@ -148,19 +148,19 @@ export class ViewController {
       throw this.errNoViewReference();
     }
 
-    const methodKey = 'adapty_ui_present_paywall_view';
+    const methodKey = 'adapty_ui_present_flow_view';
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
       ios_presentation_style: options.iosPresentationStyle ?? 'full_screen',
-    } satisfies Req['AdaptyUIPresentPaywallView.Request']);
+    } satisfies Req['AdaptyUIPresentFlowView.Request']);
 
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
     return result;
   }
 
   /**
-   * Dismisses a paywall view
+   * Dismisses a flow view
    *
    * @throws {AdaptyError}
    */
@@ -175,12 +175,12 @@ export class ViewController {
       throw this.errNoViewReference();
     }
 
-    const methodKey = 'adapty_ui_dismiss_paywall_view';
+    const methodKey = 'adapty_ui_dismiss_flow_view';
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
       destroy: false,
-    } satisfies Req['AdaptyUIDismissPaywallView.Request']);
+    } satisfies Req['AdaptyUIDismissFlowView.Request']);
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
@@ -195,9 +195,9 @@ export class ViewController {
    * @param {AdaptyUiDialogConfig} config - A config for showing the dialog.
    *
    * @remarks
-   * Use this method instead of RN alert dialogs when paywall view is presented.
-   * On Android, built-in RN alerts appear behind the paywall view, making them invisible to users.
-   * This method ensures proper dialog presentation above the paywall on all platforms.
+   * Use this method instead of RN alert dialogs when flow view is presented.
+   * On Android, built-in RN alerts appear behind the flow view, making them invisible to users.
+   * This method ensures proper dialog presentation above the flow view on all platforms.
    *
    * If you provide two actions in the config, be sure `primaryAction` cancels the operation
    * and leaves things unchanged.
@@ -243,24 +243,24 @@ export class ViewController {
       // Log error but don't re-throw to avoid breaking event handling
       const ctx = new LogContext();
       const log = ctx.call({ methodName: 'onRequestClose' });
-      log.failed(() => ({ error, message: 'Failed to dismiss paywall' }));
+      log.failed(() => ({ error, message: 'Failed to dismiss flow view' }));
     }
   };
 
   /**
-   * Sets event handlers for paywall view events
+   * Sets event handlers for flow view events
    *
    * @see {@link https://adapty.io/docs/react-native-handling-events-1 | [DOC] Handling View Events}
    *
    * @remarks
    * Each event type can have only one handler — new handlers replace existing ones.
-   * Default handlers are set during view creation: {@link DEFAULT_EVENT_HANDLERS}
-   * - `onCloseButtonPress` - closes paywall (returns `true`)
-   * - `onAndroidSystemBack` - closes paywall (returns `true`)
-   * - `onRestoreCompleted` - closes paywall (returns `true`)
-   * - `onRenderingFailed` - closes paywall (returns `true`)
-   * - `onPurchaseCompleted` - closes paywall on success (returns `purchaseResult.type !== 'user_cancelled'`)
-   * - `onUrlPress` - opens URL and keeps paywall open (returns `false`)
+   * Default handlers are set during view creation: {@link DEFAULT_FLOW_EVENT_HANDLERS}
+   * - `onCloseButtonPress` - closes the view (returns `true`)
+   * - `onAndroidSystemBack` - closes the view (returns `true`)
+   * - `onRestoreCompleted` - closes the view (returns `true`)
+   * - `onError` - closes the view (returns `true`)
+   * - `onPurchaseCompleted` - closes the view on success (returns `purchaseResult.type !== 'user_cancelled'`)
+   * - `onUrlPress` - opens URL and keeps the view open (returns `false`)
    *
    * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
    * from your custom listener to retain default behavior.
@@ -268,11 +268,11 @@ export class ViewController {
    * **Important**: Calling this method multiple times will override only the handlers you provide,
    * keeping previously set handlers intact.
    *
-   * @param {Partial<EventHandlers>} [eventHandlers] - set of event handling callbacks
+   * @param {Partial<FlowEventHandlers>} [eventHandlers] - set of event handling callbacks
    * @returns {() => void} unsubscribe - function to unsubscribe all listeners
    */
   public setEventHandlers(
-    eventHandlers: Partial<EventHandlers> = {},
+    eventHandlers: Partial<FlowEventHandlers> = {},
   ): () => void {
     const ctx = new LogContext();
 
@@ -285,18 +285,18 @@ export class ViewController {
 
     // Create viewEmitter on first call
     if (!this.viewEmitter) {
-      this.viewEmitter = new ViewEmitter(this.id);
+      this.viewEmitter = new FlowViewEmitter(this.id);
     }
 
     // Register only provided handlers (they will replace existing ones for same events)
     Object.keys(eventHandlers).forEach(eventStr => {
-      const event = eventStr as keyof EventHandlers;
+      const event = eventStr as keyof FlowEventHandlers;
       if (!eventHandlers.hasOwnProperty(event)) {
         return;
       }
       const handler = eventHandlers[
         event
-      ] as EventHandlers[keyof EventHandlers];
+      ] as FlowEventHandlers[keyof FlowEventHandlers];
       this.viewEmitter!.addListener(event, handler, this.onRequestClose);
     });
 

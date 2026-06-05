@@ -1,32 +1,32 @@
-import { ViewEmitter } from './view-emitter';
-import { DEFAULT_EVENT_HANDLERS, EventHandlers } from './types';
+import { FlowViewEmitter } from './flow-view-emitter';
+import { DEFAULT_FLOW_EVENT_HANDLERS, FlowEventHandlers } from './types';
 
 /**
- * Creates and configures event handlers for a paywall view without using the controller class.
+ * Creates and configures event handlers for a flow view without using the controller class.
  * Returns a function that unsubscribes all listeners.
  * @private
  */
-export function createPaywallEventHandlers(
-  eventHandlers: Partial<EventHandlers>,
+export function createFlowEventHandlers(
+  eventHandlers: Partial<FlowEventHandlers>,
   viewId: string,
   onRequestClose?: () => Promise<void>,
 ): () => void {
-  const finalEventHandlers: Partial<EventHandlers> = {
-    ...DEFAULT_EVENT_HANDLERS,
+  const finalEventHandlers: Partial<FlowEventHandlers> = {
+    ...DEFAULT_FLOW_EVENT_HANDLERS,
     ...eventHandlers,
   };
 
   const requestClose: () => Promise<void> = onRequestClose ?? (async () => {});
-  const viewEmitter = new ViewEmitter(viewId);
+  const viewEmitter = new FlowViewEmitter(viewId);
 
   Object.keys(finalEventHandlers).forEach(eventStr => {
-    const event = eventStr as keyof EventHandlers;
+    const event = eventStr as keyof FlowEventHandlers;
     if (!finalEventHandlers.hasOwnProperty(event)) {
       return;
     }
     const handler = finalEventHandlers[
       event
-    ] as EventHandlers[keyof EventHandlers];
+    ] as FlowEventHandlers[keyof FlowEventHandlers];
     viewEmitter.addListener(event, handler, requestClose);
   });
 
