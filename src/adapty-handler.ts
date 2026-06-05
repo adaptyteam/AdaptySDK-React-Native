@@ -457,6 +457,19 @@ export class Adapty {
     return result;
   }
 
+  /**
+   * Fetches the onboarding by the specified placement.
+   *
+   * @deprecated Since 4.0.0. The legacy onboarding API is deprecated — migrate to the Flow
+   * Builder API, which renders onboardings and paywalls natively instead of in a WebView.
+   * This method will be removed in a future version.
+   *
+   * @param {string} placementId - The identifier of the desired placement.
+   * @param {string} [locale] - The locale of the desired onboarding.
+   * @param {GetPlacementParamsInput} [params] - Additional parameters for retrieving the onboarding.
+   * @returns {Promise<Model.AdaptyOnboarding>} A promise that resolves with a requested onboarding.
+   * @throws {@link AdaptyError}
+   */
   public async getOnboarding(
     placementId: string,
     locale?: string,
@@ -503,6 +516,19 @@ export class Adapty {
     return result;
   }
 
+  /**
+   * Fetches the onboarding of the specified placement for the **All Users** audience.
+   *
+   * @deprecated Since 4.0.0. The legacy onboarding API is deprecated — migrate to the Flow
+   * Builder API, which renders onboardings and paywalls natively instead of in a WebView.
+   * This method will be removed in a future version.
+   *
+   * @param {string} placementId - The identifier of the desired placement.
+   * @param {string} [locale] - The locale of the desired onboarding.
+   * @param {GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters.
+   * @returns {Promise<Model.AdaptyOnboarding>} A promise that resolves with a requested onboarding.
+   * @throws {@link AdaptyError}
+   */
   public async getOnboardingForDefaultAudience(
     placementId: string,
     locale?: string,

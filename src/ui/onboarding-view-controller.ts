@@ -21,6 +21,10 @@ export const DEFAULT_ONBOARDING_PARAMS: CreateOnboardingViewParamsInput = {
 
 /**
  * Provides methods to control created onboarding view
+ *
+ * @deprecated Since 4.0.0. The legacy onboarding view controller is deprecated — migrate to the
+ * Flow Builder API, which renders onboardings and paywalls natively instead of in a WebView.
+ * This class will be removed in a future version.
  * @public
  */
 export class OnboardingViewController {

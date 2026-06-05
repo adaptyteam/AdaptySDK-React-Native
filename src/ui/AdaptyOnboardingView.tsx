@@ -124,6 +124,10 @@ const AdaptyOnboardingViewComponent: React.FC<AdaptyOnboardingViewProps> = ({
  * Accepts an onboarding object and optional event handler props.
  * Under the hood, it creates a native view and subscribes to onboarding events.
  *
+ * @deprecated Since 4.0.0. The legacy onboarding view is deprecated — migrate to the Flow
+ * Builder API, which renders onboardings and paywalls natively instead of in a WebView.
+ * This component will be removed in a future version.
+ *
  * @see {@link AdaptyOnboardingViewProps} for available props
  * @public
  */
