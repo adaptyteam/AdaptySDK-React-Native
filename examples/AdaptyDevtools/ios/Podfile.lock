@@ -1,19 +1,19 @@
 PODS:
-  - Adapty (3.17.0):
-    - AdaptyLogger (= 3.17.0)
-    - AdaptyUIBuilder (= 3.17.0)
-  - AdaptyLogger (3.17.0)
-  - AdaptyPlugin (3.17.0):
-    - Adapty (= 3.17.0)
-    - AdaptyLogger (= 3.17.0)
-    - AdaptyUI (= 3.17.0)
-    - AdaptyUIBuilder (= 3.17.0)
-  - AdaptyUI (3.17.0):
-    - Adapty (= 3.17.0)
-    - AdaptyLogger (= 3.17.0)
-    - AdaptyUIBuilder (= 3.17.0)
-  - AdaptyUIBuilder (3.17.0):
-    - AdaptyLogger (= 3.17.0)
+  - Adapty (3.17.2):
+    - AdaptyLogger (= 3.17.2)
+    - AdaptyUIBuilder (= 3.17.2)
+  - AdaptyLogger (3.17.2)
+  - AdaptyPlugin (3.17.2):
+    - Adapty (= 3.17.2)
+    - AdaptyLogger (= 3.17.2)
+    - AdaptyUI (= 3.17.2)
+    - AdaptyUIBuilder (= 3.17.2)
+  - AdaptyUI (3.17.2):
+    - Adapty (= 3.17.2)
+    - AdaptyLogger (= 3.17.2)
+    - AdaptyUIBuilder (= 3.17.2)
+  - AdaptyUIBuilder (3.17.2):
+    - AdaptyLogger (= 3.17.2)
   - FBLazyVector (0.84.1)
   - hermes-engine (250829098.0.9):
     - hermes-engine/Pre-built (= 250829098.0.9)
@@ -1415,10 +1415,10 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-  - react-native-adapty-sdk (3.15.6):
-    - Adapty (= 3.17.0)
-    - AdaptyPlugin (= 3.17.0)
-    - AdaptyUI (= 3.17.0)
+  - react-native-adapty-sdk (3.17.0):
+    - Adapty (= 3.17.2)
+    - AdaptyPlugin (= 3.17.2)
+    - AdaptyUI (= 3.17.2)
     - React
   - react-native-safe-area-context (5.7.0):
     - hermes-engine
@@ -2166,11 +2166,11 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Adapty: ae0038fac37a10f3916824b508578be0459d03ea
-  AdaptyLogger: 8de7cf207476715ef97c1f5d5b1476af21dc8691
-  AdaptyPlugin: 67b9afd1639599f808eb707341f6ce0418e02a3d
-  AdaptyUI: 6f0fd0494bed813952bd3008cbbd0ff8b961ecbb
-  AdaptyUIBuilder: c2f9e2b57383d7945ab912d9cf78ebd6ee0c3652
+  Adapty: fd1e8130a1298abba9bc084a69a63c80fcc5275a
+  AdaptyLogger: c59354e1e6b602d08eae91b79bd1492d78c46820
+  AdaptyPlugin: 87183239c885f4a251acbd354631fd2d6f281a5b
+  AdaptyUI: ecd9614d961257d4608315510e8030e40efbbcd5
+  AdaptyUIBuilder: 7425b23c8039d62f02463a4d236e86c8e08d61f8
   FBLazyVector: e97c19a5a442429d1988f182a1940fb08df514da
   hermes-engine: 34d77201bbd87065e48e077de1de09caea442154
   RCTDeprecation: af44b104091a34482596cd9bd7e8d90c4e9b4bd7
@@ -2181,7 +2181,7 @@ SPEC CHECKSUMS:
   React: 1ba7d364ade7d883a1ec055bfc3606f35fdee17b
   React-callinvoker: bc2a26f8d84fb01f003fc6de6c9337b64715f95b
   React-Core: 7840d3a80b43a95c5e80ef75146bd70925ebab0f
-  React-Core-prebuilt: eb403aaccb34127adb2bf0b96b1e441984e7dc11
+  React-Core-prebuilt: ca83b451ef7fa9524f24d74b04b9f3135098b148
   React-CoreModules: 2eb010400b63b89e53a324ffb3c112e4c7c3ce42
   React-cxxreact: a558e92199d26f145afa9e62c4233cf8e7950efe
   React-debug: 755200a6e7f5e6e0a40ff8d215493d43cce285fc
@@ -2209,7 +2209,7 @@ SPEC CHECKSUMS:
   React-logger: b5521614afb8690420146dfc61a1447bb5d65419
   React-Mapbuffer: f4ee8c62e0ef8359d139124f35a471518a172cd3
   React-microtasksnativemodule: d1956f0eec54c619b63a379520fb4c618a55ccb9
-  react-native-adapty-sdk: 77e605ee0d1dc9178baf018b06a6ecb1a9dc2660
+  react-native-adapty-sdk: 9f5e98cf4454fc4867d8028c8ca84f54c68a08d0
   react-native-safe-area-context: ae7587b95fb580d1800c5b0b2a7bd48c2868e67a
   React-NativeModulesApple: 5ba0903927f6b8d335a091700e9fda143980f819
   React-networking: 3a4b7f9ed2b2d1c0441beacb79674323a24bcca6
