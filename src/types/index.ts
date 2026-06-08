@@ -19,6 +19,7 @@ export type {
   AdaptyOnboardingBuilder,
   AdaptyPurchaseResult,
   AdaptyProfile,
+  AttributionSource,
   AdaptyAccessLevel,
   AdaptyNonSubscription,
   AdaptySubscription,

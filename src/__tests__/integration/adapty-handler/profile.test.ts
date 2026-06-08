@@ -107,6 +107,9 @@ describe('Adapty - Profile', () => {
         user_level: 42,
         referral_code: 'FRIEND2024',
       });
+
+      // appliedAttributionSources decoded from native applied_attribution_sources
+      expect(profile.appliedAttributionSources).toEqual(['apple_search_ads']);
     });
   });
 
