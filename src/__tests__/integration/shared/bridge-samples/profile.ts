@@ -26,6 +26,7 @@ export const GET_PROFILE_RESPONSE_WITH_CUSTOM_ATTRS: components['requests']['Get
       segment_hash: 'segment_abc',
       is_test_user: false,
       timestamp: 1704067200000,
+      applied_attribution_sources: ['apple_search_ads'],
       custom_attributes: {
         user_level: 42,
         referral_code: 'FRIEND2024',
