@@ -8,10 +8,10 @@
  */
 
 /**
- * Sample for PaywallViewEvent.DidUserAction with system_back action (Android)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidUserAction
+ * Sample for FlowViewEvent.DidUserAction with system_back action (Android)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidUserAction
  */
-export const ANDROID_PAYWALL_USER_ACTION_SYSTEM_BACK = {
+export const ANDROID_FLOW_USER_ACTION_SYSTEM_BACK = {
   view: {
     id: '99cc6779-cf80-4fca-ae3c-9d7a7bca0fed',
     placement_id: 'AdaptyRnSdkExample1',
@@ -20,14 +20,14 @@ export const ANDROID_PAYWALL_USER_ACTION_SYSTEM_BACK = {
   action: {
     type: 'system_back',
   },
-  id: 'paywall_view_did_perform_action',
+  id: 'flow_view_did_perform_action',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidPurchase with successful purchase result (Android)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidPurchase
+ * Sample for FlowViewEvent.DidPurchase with successful purchase result (Android)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidPurchase
  */
-export const ANDROID_PAYWALL_PURCHASE_COMPLETED_SUCCESS = {
+export const ANDROID_FLOW_PURCHASE_COMPLETED_SUCCESS = {
   view: {
     id: '88df97f8-ca94-43a4-bd4a-1749a89988e8',
     placement_id: 'AdaptyRnSdkExample1',
@@ -111,14 +111,14 @@ export const ANDROID_PAYWALL_PURCHASE_COMPLETED_SUCCESS = {
       timestamp: -1,
     },
   },
-  id: 'paywall_view_did_finish_purchase',
+  id: 'flow_view_did_finish_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFailPurchase (Android)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFailPurchase
+ * Sample for FlowViewEvent.DidFailPurchase (Android)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidFailPurchase
  */
-export const ANDROID_PAYWALL_PURCHASE_FAILED = {
+export const ANDROID_FLOW_PURCHASE_FAILED = {
   view: {
     id: '2064bb24-39e4-4c06-a9aa-4417357edfb4',
     placement_id: 'test_placement',
@@ -158,14 +158,14 @@ export const ANDROID_PAYWALL_PURCHASE_FAILED = {
     adapty_code: 103,
     message: 'Play Market request failed on purchases updated: responseCode=3',
   },
-  id: 'paywall_view_did_fail_purchase',
+  id: 'flow_view_did_fail_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.WillPurchase (Android)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.WillPurchase
+ * Sample for FlowViewEvent.WillPurchase (Android)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.WillPurchase
  */
-export const ANDROID_PAYWALL_PURCHASE_STARTED = {
+export const ANDROID_FLOW_PURCHASE_STARTED = {
   product: {
     subscription: {
       base_plan_id: 'yearly-premium-6999-base',
@@ -200,14 +200,14 @@ export const ANDROID_PAYWALL_PURCHASE_STARTED = {
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     id: '9EC086AC-BE4F-4FB2-AABE-8AD31AF03BDF',
   },
-  id: 'paywall_view_did_start_purchase',
+  id: 'flow_view_did_start_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidRestorePurchase with successful restore (Android)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidRestorePurchase
+ * Sample for FlowViewEvent.DidRestorePurchase with successful restore (Android)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidRestorePurchase
  */
-export const ANDROID_PAYWALL_RESTORE_COMPLETED_SUCCESS = {
+export const ANDROID_FLOW_RESTORE_COMPLETED_SUCCESS = {
   view: {
     id: '3980be37-7a25-4c38-aace-68ee46b2927c',
     placement_id: 'test_placement',
@@ -273,14 +273,14 @@ export const ANDROID_PAYWALL_RESTORE_COMPLETED_SUCCESS = {
     segment_hash: 'not implemented',
     timestamp: -1,
   },
-  id: 'paywall_view_did_finish_restore',
+  id: 'flow_view_did_finish_restore',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFinishWebPaymentNavigation (Android)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFinishWebPaymentNavigation
+ * Sample for FlowViewEvent.DidFinishWebPaymentNavigation (Android)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidFinishWebPaymentNavigation
  */
-export const ANDROID_PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED = {
+export const ANDROID_FLOW_WEB_PAYMENT_NAVIGATION_FINISHED = {
   view: {
     id: '2442A0E9-FB7F-4369-87BB-61C80222AFA1',
     variation_id: '5b4f588f-1ea3-4000-9de9-0e82e2fe7a48',
@@ -316,5 +316,5 @@ export const ANDROID_PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED = {
     },
     paywall_product_index: 0,
   },
-  id: 'paywall_view_did_finish_web_payment_navigation',
+  id: 'flow_view_did_finish_web_payment_navigation',
 } as const;

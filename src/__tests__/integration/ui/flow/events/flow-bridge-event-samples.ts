@@ -5,20 +5,20 @@
  *
  * NOTE: These samples may contain platform-specific fields (iOS: is_family_shareable, group_identifier;
  * Android: base_plan_id, renewal_type, google_purchase_token). When used in base tests
- * (paywall-view-controller-events.test.ts), only platform-independent fields are verified.
+ * (flow-view-controller-events.test.ts), only platform-independent fields are verified.
  * Platform-specific fields are tested in:
- * - ios-paywall-view-controller-events.test.ts
- * - android-paywall-view-controller-events.test.ts
+ * - ios-flow-view-controller-events.test.ts
+ * - android-flow-view-controller-events.test.ts
  *
  * Use these samples for integration tests to verify event handling.
  */
 
 /**
- * Sample for PaywallViewEvent.DidSelectProduct
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidSelectProduct
+ * Sample for FlowViewEvent.DidSelectProduct
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidSelectProduct
  */
-export const PAYWALL_PRODUCT_SELECTED_YEARLY = {
-  id: 'paywall_view_did_select_product',
+export const FLOW_PRODUCT_SELECTED_YEARLY = {
+  id: 'flow_view_did_select_product',
   product_id: 'yearly.premium.6999',
   view: {
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
@@ -28,37 +28,37 @@ export const PAYWALL_PRODUCT_SELECTED_YEARLY = {
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidSelectProduct (six month product)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidSelectProduct
+ * Sample for FlowViewEvent.DidSelectProduct (six month product)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidSelectProduct
  */
-export const PAYWALL_PRODUCT_SELECTED_SIXMONTH = {
+export const FLOW_PRODUCT_SELECTED_SIXMONTH = {
   view: {
     id: '9EC086AC-BE4F-4FB2-AABE-8AD31AF03BDF',
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     variation_id: '3968c273-f247-4b9f-bd90-305be39d6414',
   },
-  id: 'paywall_view_did_select_product',
+  id: 'flow_view_did_select_product',
   product_id: 'sixmonth.premium.999',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidDisappear
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidDisappear
+ * Sample for FlowViewEvent.DidDisappear
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidDisappear
  */
-export const PAYWALL_VIEW_DISAPPEARED = {
+export const FLOW_VIEW_DISAPPEARED = {
   view: {
     variation_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     id: '9EC086AC-BE4F-4FB2-AABE-8AD31AF03BDF',
   },
-  id: 'paywall_view_did_disappear',
+  id: 'flow_view_did_disappear',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidUserAction with close action
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidUserAction
+ * Sample for FlowViewEvent.DidUserAction with close action
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidUserAction
  */
-export const PAYWALL_USER_ACTION_CLOSE = {
+export const FLOW_USER_ACTION_CLOSE = {
   view: {
     variation_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     id: '9EC086AC-BE4F-4FB2-AABE-8AD31AF03BDF',
@@ -67,15 +67,15 @@ export const PAYWALL_USER_ACTION_CLOSE = {
   action: {
     type: 'close',
   },
-  id: 'paywall_view_did_perform_action',
+  id: 'flow_view_did_perform_action',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidUserAction with open_url action
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidUserAction
+ * Sample for FlowViewEvent.DidUserAction with open_url action
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidUserAction
  */
-export const PAYWALL_USER_ACTION_OPEN_URL = {
-  id: 'paywall_view_did_perform_action',
+export const FLOW_USER_ACTION_OPEN_URL = {
+  id: 'flow_view_did_perform_action',
   action: {
     value: 'https://example.com/terms',
     type: 'open_url',
@@ -89,10 +89,10 @@ export const PAYWALL_USER_ACTION_OPEN_URL = {
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidUserAction with system_back action (Android)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidUserAction
+ * Sample for FlowViewEvent.DidUserAction with system_back action (Android)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidUserAction
  */
-export const PAYWALL_USER_ACTION_SYSTEM_BACK = {
+export const FLOW_USER_ACTION_SYSTEM_BACK = {
   view: {
     id: '99cc6779-cf80-4fca-ae3c-9d7a7bca0fed',
     placement_id: 'AdaptyRnSdkExample1',
@@ -101,14 +101,14 @@ export const PAYWALL_USER_ACTION_SYSTEM_BACK = {
   action: {
     type: 'system_back',
   },
-  id: 'paywall_view_did_perform_action',
+  id: 'flow_view_did_perform_action',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidUserAction with close action
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidUserAction
+ * Sample for FlowViewEvent.DidUserAction with close action
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidUserAction
  */
-export const PAYWALL_USER_ACTION_CLOSE_BUTTON = {
+export const FLOW_USER_ACTION_CLOSE_BUTTON = {
   view: {
     id: 'dc654d38-2970-4f56-a9e8-5d00bd94e7ad',
     placement_id: 'AdaptyRnSdkExample1',
@@ -117,14 +117,14 @@ export const PAYWALL_USER_ACTION_CLOSE_BUTTON = {
   action: {
     type: 'close',
   },
-  id: 'paywall_view_did_perform_action',
+  id: 'flow_view_did_perform_action',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidPurchase with user_cancelled result
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidPurchase
+ * Sample for FlowViewEvent.DidPurchase with user_cancelled result
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidPurchase
  */
-export const PAYWALL_PURCHASE_COMPLETED_CANCELLED = {
+export const FLOW_PURCHASE_COMPLETED_CANCELLED = {
   view: {
     variation_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
@@ -183,14 +183,14 @@ export const PAYWALL_PURCHASE_COMPLETED_CANCELLED = {
     adapty_product_id: '4f930955-b0e4-47c3-8bb9-abd1bbdccabd',
     paywall_name: 'rt.Short.Overlay.Video.DarkMode.Toggle2 (Copy)',
   },
-  id: 'paywall_view_did_finish_purchase',
+  id: 'flow_view_did_finish_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidPurchase with successful purchase result
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidPurchase
+ * Sample for FlowViewEvent.DidPurchase with successful purchase result
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidPurchase
  */
-export const PAYWALL_PURCHASE_COMPLETED_SUCCESS = {
+export const FLOW_PURCHASE_COMPLETED_SUCCESS = {
   view: {
     id: '88df97f8-ca94-43a4-bd4a-1749a89988e8',
     placement_id: 'AdaptyRnSdkExample1',
@@ -275,14 +275,14 @@ export const PAYWALL_PURCHASE_COMPLETED_SUCCESS = {
       timestamp: -1,
     },
   },
-  id: 'paywall_view_did_finish_purchase',
+  id: 'flow_view_did_finish_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFailPurchase
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFailPurchase
+ * Sample for FlowViewEvent.DidFailPurchase
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidFailPurchase
  */
-export const PAYWALL_PURCHASE_FAILED = {
+export const FLOW_PURCHASE_FAILED = {
   view: {
     id: '2064bb24-39e4-4c06-a9aa-4417357edfb4',
     placement_id: 'test_placement',
@@ -323,14 +323,14 @@ export const PAYWALL_PURCHASE_FAILED = {
     adapty_code: 103,
     message: 'Play Market request failed on purchases updated: responseCode=3',
   },
-  id: 'paywall_view_did_fail_purchase',
+  id: 'flow_view_did_fail_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.WillPurchase
- * @see cross_platform.yaml#/$events/PaywallViewEvent.WillPurchase
+ * Sample for FlowViewEvent.WillPurchase
+ * @see cross_platform.yaml#/$events/FlowViewEvent.WillPurchase
  */
-export const PAYWALL_PURCHASE_STARTED = {
+export const FLOW_PURCHASE_STARTED = {
   product: {
     subscription: {
       offer: {
@@ -386,15 +386,15 @@ export const PAYWALL_PURCHASE_STARTED = {
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     id: '9EC086AC-BE4F-4FB2-AABE-8AD31AF03BDF',
   },
-  id: 'paywall_view_did_start_purchase',
+  id: 'flow_view_did_start_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidAppear
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidAppear
+ * Sample for FlowViewEvent.DidAppear
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidAppear
  */
-export const PAYWALL_VIEW_APPEARED = {
-  id: 'paywall_view_did_appear',
+export const FLOW_VIEW_APPEARED = {
+  id: 'flow_view_did_appear',
   view: {
     id: '9EC086AC-BE4F-4FB2-AABE-8AD31AF03BDF',
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
@@ -403,23 +403,23 @@ export const PAYWALL_VIEW_APPEARED = {
 } as const;
 
 /**
- * Sample for PaywallViewEvent.WillRestorePurchase
- * @see cross_platform.yaml#/$events/PaywallViewEvent.WillRestorePurchase
+ * Sample for FlowViewEvent.WillRestorePurchase
+ * @see cross_platform.yaml#/$events/FlowViewEvent.WillRestorePurchase
  */
-export const PAYWALL_RESTORE_STARTED = {
+export const FLOW_RESTORE_STARTED = {
   view: {
     id: '3980be37-7a25-4c38-aace-68ee46b2927c',
     placement_id: 'test_placement',
     variation_id: '61d30b4d-d92e-4494-8d78-f3b0f4356fae',
   },
-  id: 'paywall_view_did_start_restore',
+  id: 'flow_view_did_start_restore',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidRestorePurchase with successful restore
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidRestorePurchase
+ * Sample for FlowViewEvent.DidRestorePurchase with successful restore
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidRestorePurchase
  */
-export const PAYWALL_RESTORE_COMPLETED_SUCCESS = {
+export const FLOW_RESTORE_COMPLETED_SUCCESS = {
   view: {
     id: '3980be37-7a25-4c38-aace-68ee46b2927c',
     placement_id: 'test_placement',
@@ -485,14 +485,14 @@ export const PAYWALL_RESTORE_COMPLETED_SUCCESS = {
     segment_hash: 'not implemented',
     timestamp: -1,
   },
-  id: 'paywall_view_did_finish_restore',
+  id: 'flow_view_did_finish_restore',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFailRestorePurchase
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFailRestorePurchase
+ * Sample for FlowViewEvent.DidFailRestorePurchase
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidFailRestorePurchase
  */
-export const PAYWALL_RESTORE_FAILED = {
+export const FLOW_RESTORE_FAILED = {
   view: {
     id: '0316c394-5e33-49bf-8fdd-49f07d74c065',
     placement_id: 'test_placement',
@@ -503,14 +503,14 @@ export const PAYWALL_RESTORE_FAILED = {
     message:
       'Play Market request failed: Billing service unavailable on device.',
   },
-  id: 'paywall_view_did_fail_restore',
+  id: 'flow_view_did_fail_restore',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFailLoadingProducts
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFailLoadingProducts
+ * Sample for FlowViewEvent.DidFailLoadingProducts
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidFailLoadingProducts
  */
-export const PAYWALL_LOADING_PRODUCTS_FAILED = {
+export const FLOW_LOADING_PRODUCTS_FAILED = {
   view: {
     id: '0316c394-5e33-49bf-8fdd-49f07d74c065',
     placement_id: 'test_placement',
@@ -521,14 +521,14 @@ export const PAYWALL_LOADING_PRODUCTS_FAILED = {
     message:
       'Play Market request failed: Billing service unavailable on device.',
   },
-  id: 'paywall_view_did_fail_loading_products',
+  id: 'flow_view_did_fail_loading_products',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFailRendering
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFailRendering
+ * Sample for FlowViewEvent.DidReceiveError
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidReceiveError
  */
-export const PAYWALL_RENDERING_FAILED = {
+export const FLOW_RENDERING_FAILED = {
   view: {
     id: '2064bb24-39e4-4c06-a9aa-4417357edfb4',
     placement_id: 'test_placement',
@@ -539,14 +539,14 @@ export const PAYWALL_RENDERING_FAILED = {
     message:
       'The paywall JSON is not valid. Fix it in the Adapty Dashboard. Refer to the Customize paywall with remote config topic for details on how to fix it.',
   },
-  id: 'paywall_view_did_fail_rendering',
+  id: 'flow_view_did_receive_error',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFinishWebPaymentNavigation
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFinishWebPaymentNavigation
+ * Sample for FlowViewEvent.DidFinishWebPaymentNavigation
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidFinishWebPaymentNavigation
  */
-export const PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED = {
+export const FLOW_WEB_PAYMENT_NAVIGATION_FINISHED = {
   view: {
     id: '2442A0E9-FB7F-4369-87BB-61C80222AFA1',
     variation_id: '5b4f588f-1ea3-4000-9de9-0e82e2fe7a48',
@@ -582,7 +582,7 @@ export const PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED = {
     is_family_shareable: false,
     paywall_product_index: 0,
   },
-  id: 'paywall_view_did_finish_web_payment_navigation',
+  id: 'flow_view_did_finish_web_payment_navigation',
 } as const;
 
 /**

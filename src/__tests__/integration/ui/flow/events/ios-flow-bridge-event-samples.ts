@@ -8,10 +8,10 @@
  */
 
 /**
- * Sample for PaywallViewEvent.WillPurchase (iOS)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.WillPurchase
+ * Sample for FlowViewEvent.WillPurchase (iOS)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.WillPurchase
  */
-export const IOS_PAYWALL_PURCHASE_STARTED = {
+export const IOS_FLOW_PURCHASE_STARTED = {
   view: {
     variation_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
@@ -67,14 +67,14 @@ export const IOS_PAYWALL_PURCHASE_STARTED = {
       localized_period: '1 year',
     },
   },
-  id: 'paywall_view_did_start_purchase',
+  id: 'flow_view_did_start_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidPurchase with successful purchase result (iOS)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidPurchase
+ * Sample for FlowViewEvent.DidPurchase with successful purchase result (iOS)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidPurchase
  */
-export const IOS_PAYWALL_PURCHASE_COMPLETED_SUCCESS = {
+export const IOS_FLOW_PURCHASE_COMPLETED_SUCCESS = {
   view: {
     id: '88df97f8-ca94-43a4-bd4a-1749a89988e8',
     placement_id: 'AdaptyRnSdkExample1',
@@ -176,14 +176,14 @@ export const IOS_PAYWALL_PURCHASE_COMPLETED_SUCCESS = {
       timestamp: -1,
     },
   },
-  id: 'paywall_view_did_finish_purchase',
+  id: 'flow_view_did_finish_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidPurchase with user_cancelled result (iOS)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidPurchase
+ * Sample for FlowViewEvent.DidPurchase with user_cancelled result (iOS)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidPurchase
  */
-export const IOS_PAYWALL_PURCHASE_COMPLETED_CANCELLED = {
+export const IOS_FLOW_PURCHASE_COMPLETED_CANCELLED = {
   view: {
     variation_id: '3968c273-f247-4b9f-bd90-305be39d6414',
     placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
@@ -242,14 +242,14 @@ export const IOS_PAYWALL_PURCHASE_COMPLETED_CANCELLED = {
     adapty_product_id: '4f930955-b0e4-47c3-8bb9-abd1bbdccabd',
     paywall_name: 'rt.Short.Overlay.Video.DarkMode.Toggle2 (Copy)',
   },
-  id: 'paywall_view_did_finish_purchase',
+  id: 'flow_view_did_finish_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFailPurchase (iOS)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFailPurchase
+ * Sample for FlowViewEvent.DidFailPurchase (iOS)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidFailPurchase
  */
-export const IOS_PAYWALL_PURCHASE_FAILED = {
+export const IOS_FLOW_PURCHASE_FAILED = {
   view: {
     id: '2064bb24-39e4-4c06-a9aa-4417357edfb4',
     placement_id: 'test_placement',
@@ -311,14 +311,14 @@ export const IOS_PAYWALL_PURCHASE_FAILED = {
     adapty_code: 103,
     message: 'StoreKit purchase failed: User cancelled',
   },
-  id: 'paywall_view_did_fail_purchase',
+  id: 'flow_view_did_fail_purchase',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidRestorePurchase with successful restore (iOS)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidRestorePurchase
+ * Sample for FlowViewEvent.DidRestorePurchase with successful restore (iOS)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidRestorePurchase
  */
-export const IOS_PAYWALL_RESTORE_COMPLETED_SUCCESS = {
+export const IOS_FLOW_RESTORE_COMPLETED_SUCCESS = {
   view: {
     id: '3980be37-7a25-4c38-aace-68ee46b2927c',
     placement_id: 'test_placement',
@@ -384,14 +384,14 @@ export const IOS_PAYWALL_RESTORE_COMPLETED_SUCCESS = {
     segment_hash: 'not implemented',
     timestamp: -1,
   },
-  id: 'paywall_view_did_finish_restore',
+  id: 'flow_view_did_finish_restore',
 } as const;
 
 /**
- * Sample for PaywallViewEvent.DidFinishWebPaymentNavigation (iOS)
- * @see cross_platform.yaml#/$events/PaywallViewEvent.DidFinishWebPaymentNavigation
+ * Sample for FlowViewEvent.DidFinishWebPaymentNavigation (iOS)
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidFinishWebPaymentNavigation
  */
-export const IOS_PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED = {
+export const IOS_FLOW_WEB_PAYMENT_NAVIGATION_FINISHED = {
   view: {
     id: '2442A0E9-FB7F-4369-87BB-61C80222AFA1',
     variation_id: '5b4f588f-1ea3-4000-9de9-0e82e2fe7a48',
@@ -427,5 +427,5 @@ export const IOS_PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED = {
     is_family_shareable: false,
     paywall_product_index: 0,
   },
-  id: 'paywall_view_did_finish_web_payment_navigation',
+  id: 'flow_view_did_finish_web_payment_navigation',
 } as const;

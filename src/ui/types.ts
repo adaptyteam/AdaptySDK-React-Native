@@ -2,13 +2,13 @@
 export type {
   EventHandlerResult,
   ProductPurchaseParams,
-  EventHandlers,
+  FlowEventHandlers,
   OnboardingEventHandlers,
   OnboardingAnalyticsEventName,
   AdaptyUiOnboardingMeta,
   AdaptyUiOnboardingStateParams,
   OnboardingStateUpdatedAction,
-  CreatePaywallViewParamsInput,
+  CreateFlowViewParamsInput,
   CreateOnboardingViewParamsInput,
   AdaptyUiView,
   AdaptyUiMediaCache,
@@ -28,7 +28,7 @@ import { Linking } from 'react-native';
 import type { ViewProps } from 'react-native';
 import { Log } from '@/logger';
 import type {
-  EventHandlers,
+  FlowEventHandlers,
   OnboardingEventHandlers,
   AdaptyPurchaseResult,
 } from '@adapty/core';
@@ -36,7 +36,7 @@ import type {
 /**
  * @internal
  */
-export const DEFAULT_EVENT_HANDLERS: EventHandlers = {
+export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   onCloseButtonPress: () => true,
   onAndroidSystemBack: () => true,
   // `Linking.openURL` always opens an external browser (i.e. `browser_out_app`).
@@ -63,7 +63,7 @@ export const DEFAULT_EVENT_HANDLERS: EventHandlers = {
   onRestoreFailed: () => false,
   onAppeared: () => false,
   onDisappeared: () => false,
-  onRenderingFailed: () => true,
+  onError: () => true,
   onLoadingProductsFailed: () => false,
   onWebPaymentNavigationFinished: () => false,
 };
@@ -76,7 +76,7 @@ export const DEFAULT_ONBOARDING_EVENT_HANDLERS: Partial<OnboardingEventHandlers>
     onClose: () => true,
   };
 
-export type NativeAdaptyPaywallViewProps = ViewProps & {
+export type NativeAdaptyFlowViewProps = ViewProps & {
   viewId: string;
   paywallJson: string;
 };

@@ -1,6 +1,6 @@
 import type {
   AdaptyProfile,
-  AdaptyPaywall,
+  AdaptyFlow,
   AdaptyPaywallProduct,
   AdaptyOnboarding,
 } from '@/types';
@@ -16,12 +16,12 @@ export interface AdaptyMockConfig {
   profile?: Partial<AdaptyProfile>;
 
   /**
-   * Custom paywall data by placement ID
+   * Custom flow data by placement ID
    */
-  paywalls?: Record<string, Partial<AdaptyPaywall>>;
+  flows?: Record<string, Partial<AdaptyFlow>>;
 
   /**
-   * Custom products data by paywall variation ID
+   * Custom products data by flow variation ID
    */
   products?: Record<string, AdaptyPaywallProduct[]>;
 

@@ -20,7 +20,7 @@ Two sub-categories:
 ## Shared Utilities (`shared/`)
 
 ### `bridge-samples/` — Typed Request/Response Fixtures
-Organized by domain: `activation.ts`, `profile.ts`, `paywall.ts`, `purchase.ts`, etc.
+Organized by domain: `activation.ts`, `profile.ts`, `flow.ts`, `purchase.ts`, etc.
 All samples are **strictly typed** against `api.d.ts` — compile-time validation catches API drift.
 Re-exported via `index.ts` barrel.
 
@@ -52,9 +52,9 @@ expect(profile.customAttributes).toBeDefined();
 
 ### Event Emission (ui/events)
 ```ts
-const { view } = await createPaywallViewController();
+const { view } = await createFlowViewController();
 view.setEventHandlers({ onPurchaseStarted: handler });
-emitPaywallPurchaseStartedEvent(viewId, product, view);
+emitFlowPurchaseStartedEvent(viewId, product, view);
 expect(handler).toHaveBeenCalledWith(expect.objectContaining({ adaptyId: 'adapty_vip' }));
 ```
 
@@ -72,7 +72,7 @@ JS API call (camelCase)
 ## Conventions
 - Samples use `api.d.ts` types (`components['requests']['Method.Request']`)
 - Each `adapty-handler` test creates its own mock for isolation
-- `ui/` tests use `createPaywallViewController()` / `createOnboardingViewController()` from local `setup.utils.ts`
+- `ui/` tests use `createFlowViewController()` / `createOnboardingViewController()` from local `setup.utils.ts`
 - Field transformation (snake_case ↔ camelCase) is verified explicitly in tests
 - Cleanup: `adapty.removeAllListeners()` via `cleanupAdapty()`
 

@@ -1,15 +1,15 @@
-import type { EventHandlers } from './types';
+import type { FlowEventHandlers } from './types';
 import { $bridge } from '@/bridge';
 import { EmitterSubscription } from 'react-native';
-import { ParsedPaywallEvent, PaywallEventIdType } from '@/types/paywall-events';
+import { ParsedFlowEvent, FlowEventIdType } from '@/types/flow-events';
 import { LogContext } from '@/logger';
 import {
   NATIVE_EVENT_RESOLVER,
   HANDLER_TO_NATIVE_EVENT,
-  extractPaywallCallbackArgs,
+  extractFlowCallbackArgs,
 } from '@adapty/core';
 
-type EventName = keyof EventHandlers;
+type EventName = keyof FlowEventHandlers;
 
 // Emitting view ID is passed in JSON["_view_id"]
 // So that no all visible views would emit this event
@@ -17,7 +17,7 @@ type EventName = keyof EventHandlers;
 // const KEY_VIEW = 'view_id';
 
 /**
- * ViewEmitter manages event handlers for paywall view events.
+ * FlowViewEmitter manages event handlers for flow view events.
  * Each event type can have only one handler - new handlers replace existing ones.
  *
  * @remarks
@@ -30,20 +30,20 @@ type EventName = keyof EventHandlers;
  *
  * @internal
  */
-export class ViewEmitter {
+export class FlowViewEmitter {
   private viewId: string;
   private eventListeners: Map<string, EmitterSubscription> = new Map();
   private handlers: Map<
     EventName,
     {
-      handler: EventHandlers[EventName];
+      handler: FlowEventHandlers[EventName];
       onRequestClose: () => Promise<void>;
     }
   > = new Map();
   private internalHandlers: Map<
     EventName,
     {
-      handler: (event: ParsedPaywallEvent) => void;
+      handler: (event: ParsedFlowEvent) => void;
     }
   > = new Map();
 
@@ -53,7 +53,7 @@ export class ViewEmitter {
 
   public addListener(
     event: EventName,
-    callback: EventHandlers[EventName],
+    callback: FlowEventHandlers[EventName],
     onRequestClose: () => Promise<void>,
   ): EmitterSubscription {
     const nativeEvent = HANDLER_TO_NATIVE_EVENT[event];
@@ -90,7 +90,7 @@ export class ViewEmitter {
    */
   public addInternalListener(
     event: EventName,
-    callback: (event: ParsedPaywallEvent) => void,
+    callback: (event: ParsedFlowEvent) => void,
   ): void {
     const nativeEvent = HANDLER_TO_NATIVE_EVENT[event];
 
@@ -113,8 +113,8 @@ export class ViewEmitter {
     }
   }
 
-  private createEventHandler(nativeEvent: PaywallEventIdType) {
-    return (parsedEvent: ParsedPaywallEvent | null) => {
+  private createEventHandler(nativeEvent: FlowEventIdType) {
+    return (parsedEvent: ParsedFlowEvent | null) => {
       if (!parsedEvent) {
         return;
       }
@@ -150,12 +150,9 @@ export class ViewEmitter {
       const handlerData = this.handlers.get(handlerName);
       if (handlerData) {
         const { handler, onRequestClose } = handlerData;
-        const callbackArgs = extractPaywallCallbackArgs(
-          handlerName,
-          parsedEvent,
-        );
+        const callbackArgs = extractFlowCallbackArgs(handlerName, parsedEvent);
         const callback = handler as (
-          ...args: Parameters<EventHandlers[typeof handlerName]>
+          ...args: Parameters<FlowEventHandlers[typeof handlerName]>
         ) => boolean;
 
         try {

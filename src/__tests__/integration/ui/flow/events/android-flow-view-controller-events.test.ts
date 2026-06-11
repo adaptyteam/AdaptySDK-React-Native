@@ -1,29 +1,29 @@
 import { Platform } from 'react-native';
 import { Adapty } from '@/adapty-handler';
 import { AdaptyError } from '@/adapty-error';
-import { ViewController } from '@/ui/view-controller';
-import { EventHandlers } from '@/ui/types';
+import { FlowViewController } from '@/ui/flow-view-controller';
+import { FlowEventHandlers } from '@/ui/types';
 import type { AdaptySubscription, AdaptyAccessLevel } from '@/types';
 import {
-  createPaywallViewController,
-  cleanupPaywallViewController,
+  createFlowViewController,
+  cleanupFlowViewController,
 } from '../../setup.utils';
 import {
-  emitPaywallUserActionEvent,
-  emitPaywallPurchaseStartedEvent,
-  emitPaywallPurchaseCompletedEvent,
-  emitPaywallPurchaseFailedEvent,
-  emitPaywallRestoreCompletedEvent,
-  emitPaywallWebPaymentNavigationFinishedEvent,
-} from './paywall-event-emitter.utils';
+  emitFlowUserActionEvent,
+  emitFlowPurchaseStartedEvent,
+  emitFlowPurchaseCompletedEvent,
+  emitFlowPurchaseFailedEvent,
+  emitFlowRestoreCompletedEvent,
+  emitFlowWebPaymentNavigationFinishedEvent,
+} from './flow-event-emitter.utils';
 import {
-  ANDROID_PAYWALL_USER_ACTION_SYSTEM_BACK,
-  ANDROID_PAYWALL_PURCHASE_COMPLETED_SUCCESS,
-  ANDROID_PAYWALL_PURCHASE_FAILED,
-  ANDROID_PAYWALL_PURCHASE_STARTED,
-  ANDROID_PAYWALL_RESTORE_COMPLETED_SUCCESS,
-  ANDROID_PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED,
-} from './android-paywall-bridge-event-samples';
+  ANDROID_FLOW_USER_ACTION_SYSTEM_BACK,
+  ANDROID_FLOW_PURCHASE_COMPLETED_SUCCESS,
+  ANDROID_FLOW_PURCHASE_FAILED,
+  ANDROID_FLOW_PURCHASE_STARTED,
+  ANDROID_FLOW_RESTORE_COMPLETED_SUCCESS,
+  ANDROID_FLOW_WEB_PAYMENT_NAVIGATION_FINISHED,
+} from './android-flow-bridge-event-samples';
 
 // Override Platform.OS for Android tests
 const originalOS = Platform.OS;
@@ -39,42 +39,43 @@ afterAll(() => {
   Platform.select = originalSelect;
 });
 
-describe('ViewController - onAndroidSystemBack event (Android fields)', () => {
+describe('FlowViewController - onAndroidSystemBack event (Android fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onAndroidSystemBack handler when system back is pressed', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onAndroidSystemBack']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onAndroidSystemBack']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onAndroidSystemBack: handler });
 
     const viewId = (view as any).id;
-    const sample = ANDROID_PAYWALL_USER_ACTION_SYSTEM_BACK;
+    const sample = ANDROID_FLOW_USER_ACTION_SYSTEM_BACK;
 
-    emitPaywallUserActionEvent(viewId, 'system_back', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith();
   });
 
-  it('should auto-dismiss paywall when onAndroidSystemBack event is emitted with default handler', async () => {
+  it('should auto-dismiss flow when onAndroidSystemBack event is emitted with default handler', async () => {
     const viewId = (view as any).id;
-    const sample = ANDROID_PAYWALL_USER_ACTION_SYSTEM_BACK;
+    const sample = ANDROID_FLOW_USER_ACTION_SYSTEM_BACK;
 
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue(undefined);
 
-    emitPaywallUserActionEvent(viewId, 'system_back', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
     expect(dismissSpy).toHaveBeenCalledTimes(1);
 
@@ -83,14 +84,14 @@ describe('ViewController - onAndroidSystemBack event (Android fields)', () => {
 
   it('should allow overriding default onAndroidSystemBack handler', async () => {
     const viewId = (view as any).id;
-    const sample = ANDROID_PAYWALL_USER_ACTION_SYSTEM_BACK;
+    const sample = ANDROID_FLOW_USER_ACTION_SYSTEM_BACK;
 
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue(undefined);
 
     const customHandler = jest.fn().mockReturnValue(false);
     view.setEventHandlers({ onAndroidSystemBack: customHandler });
 
-    emitPaywallUserActionEvent(viewId, 'system_back', undefined, sample.view);
+    emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
     expect(customHandler).toHaveBeenCalledTimes(1);
     expect(dismissSpy).not.toHaveBeenCalled();
@@ -99,30 +100,30 @@ describe('ViewController - onAndroidSystemBack event (Android fields)', () => {
   });
 });
 
-describe('ViewController - onPurchaseStarted event (Android fields)', () => {
+describe('FlowViewController - onPurchaseStarted event (Android fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseStarted handler with Android-specific subscription fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseStarted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseStarted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseStarted: handler });
 
     const viewId = (view as any).id;
-    const sample = ANDROID_PAYWALL_PURCHASE_STARTED;
+    const sample = ANDROID_FLOW_PURCHASE_STARTED;
 
-    emitPaywallPurchaseStartedEvent(viewId, sample.product, sample.view);
+    emitFlowPurchaseStartedEvent(viewId, sample.product, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [product] = handler.mock.calls[0]!;
@@ -152,30 +153,31 @@ describe('ViewController - onPurchaseStarted event (Android fields)', () => {
   });
 });
 
-describe('ViewController - onPurchaseCompleted event (Android fields)', () => {
+describe('FlowViewController - onPurchaseCompleted event (Android fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseCompleted handler with Android-specific purchase result fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = ANDROID_PAYWALL_PURCHASE_COMPLETED_SUCCESS;
+    const sample = ANDROID_FLOW_PURCHASE_COMPLETED_SUCCESS;
 
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
       sample.purchased_result,
       sample.product,
@@ -226,31 +228,30 @@ describe('ViewController - onPurchaseCompleted event (Android fields)', () => {
   });
 });
 
-describe('ViewController - onPurchaseFailed event (Android fields)', () => {
+describe('FlowViewController - onPurchaseFailed event (Android fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseFailed handler with Android-specific product fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
     const viewId = (view as any).id;
-    const sample = ANDROID_PAYWALL_PURCHASE_FAILED;
+    const sample = ANDROID_FLOW_PURCHASE_FAILED;
 
-    emitPaywallPurchaseFailedEvent(
+    emitFlowPurchaseFailedEvent(
       viewId,
       sample.error,
       sample.product,
@@ -283,30 +284,31 @@ describe('ViewController - onPurchaseFailed event (Android fields)', () => {
   });
 });
 
-describe('ViewController - onRestoreCompleted event (Android fields)', () => {
+describe('FlowViewController - onRestoreCompleted event (Android fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onRestoreCompleted handler with Android-specific profile fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = ANDROID_PAYWALL_RESTORE_COMPLETED_SUCCESS;
+    const sample = ANDROID_FLOW_RESTORE_COMPLETED_SUCCESS;
 
-    emitPaywallRestoreCompletedEvent(viewId, sample.profile, sample.view);
+    emitFlowRestoreCompletedEvent(viewId, sample.profile, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [profile] = handler.mock.calls[0]!;
@@ -339,31 +341,31 @@ describe('ViewController - onRestoreCompleted event (Android fields)', () => {
   });
 });
 
-describe('ViewController - onWebPaymentNavigationFinished event (Android fields)', () => {
+describe('FlowViewController - onWebPaymentNavigationFinished event (Android fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onWebPaymentNavigationFinished handler with Android-specific product fields', async () => {
     const handler: jest.MockedFunction<
-      EventHandlers['onWebPaymentNavigationFinished']
+      FlowEventHandlers['onWebPaymentNavigationFinished']
     > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onWebPaymentNavigationFinished: handler });
 
     const viewId = (view as any).id;
-    const sample = ANDROID_PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED;
+    const sample = ANDROID_FLOW_WEB_PAYMENT_NAVIGATION_FINISHED;
 
-    emitPaywallWebPaymentNavigationFinishedEvent(
+    emitFlowWebPaymentNavigationFinishedEvent(
       viewId,
       sample.product,
       undefined,

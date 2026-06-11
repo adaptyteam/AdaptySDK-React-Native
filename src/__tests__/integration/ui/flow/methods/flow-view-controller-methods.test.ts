@@ -1,7 +1,7 @@
 import { resetBridge } from '@/bridge';
-import { createPaywallView } from '@/ui/create-paywall-view';
+import { createFlowView } from '@/ui/create-flow-view';
 import type { components } from '@/types/api';
-import type { AdaptyPaywall } from '@/types';
+import type { AdaptyFlow } from '@/types';
 import {
   createNativeModuleMock,
   extractNativeRequest,
@@ -10,29 +10,29 @@ import {
 } from '../../../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
-  GET_PAYWALL_RESPONSE,
-  ADAPTY_UI_CREATE_PAYWALL_VIEW_RESPONSE,
-  ADAPTY_UI_PRESENT_PAYWALL_VIEW_RESPONSE,
-  ADAPTY_UI_DISMISS_PAYWALL_VIEW_RESPONSE,
+  GET_FLOW_RESPONSE,
+  ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE,
+  ADAPTY_UI_PRESENT_FLOW_VIEW_RESPONSE,
+  ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE,
   ADAPTY_UI_SHOW_DIALOG_RESPONSE_PRIMARY,
 } from '../../../shared/bridge-samples';
 import { Adapty } from '@/adapty-handler';
 import { cleanupAdapty } from '../../../adapty-handler/setup.utils';
 
 /**
- * Integration tests for ViewController methods (Paywall UI)
+ * Integration tests for FlowViewController methods (Flow UI)
  *
  * Tests verify bridge communication for UI methods:
  * - Request encoding (camelCase → snake_case)
  * - Response parsing (snake_case → camelCase)
  * - Parameter handling (prefetchProducts, loadTimeoutMs, iOS styles)
  *
- * Note: Event handling tests are separate in paywall/events/
+ * Note: Event handling tests are separate in flow/events/
  */
-describe('ViewController Methods (Bridge Integration)', () => {
+describe('FlowViewController Methods (Bridge Integration)', () => {
   let adapty: Adapty;
   let nativeMock: MockNativeModule;
-  let paywall: AdaptyPaywall;
+  let flow: AdaptyFlow;
 
   beforeEach(async () => {
     resetBridge();
@@ -40,15 +40,15 @@ describe('ViewController Methods (Bridge Integration)', () => {
 
     nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,
-      get_paywall: GET_PAYWALL_RESPONSE,
-      adapty_ui_create_paywall_view: ADAPTY_UI_CREATE_PAYWALL_VIEW_RESPONSE,
-      adapty_ui_present_paywall_view: ADAPTY_UI_PRESENT_PAYWALL_VIEW_RESPONSE,
-      adapty_ui_dismiss_paywall_view: ADAPTY_UI_DISMISS_PAYWALL_VIEW_RESPONSE,
+      get_flow: GET_FLOW_RESPONSE,
+      adapty_ui_create_flow_view: ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE,
+      adapty_ui_present_flow_view: ADAPTY_UI_PRESENT_FLOW_VIEW_RESPONSE,
+      adapty_ui_dismiss_flow_view: ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE,
       adapty_ui_show_dialog: ADAPTY_UI_SHOW_DIALOG_RESPONSE_PRIMARY,
     });
 
     await adapty.activate('test_api_key', { logLevel: 'error' });
-    paywall = await adapty.getPaywall('test_placement');
+    flow = await adapty.getFlow('test_placement');
     nativeMock.handler.mockClear();
   });
 
@@ -58,20 +58,20 @@ describe('ViewController Methods (Bridge Integration)', () => {
     resetBridge();
   });
 
-  describe('createPaywallView', () => {
-    it('should send AdaptyUICreatePaywallView.Request with default parameters', async () => {
-      const view = await createPaywallView(paywall);
+  describe('createFlowView', () => {
+    it('should send AdaptyUICreateFlowView.Request with default parameters', async () => {
+      const view = await createFlowView(flow);
 
       const request = extractNativeRequest<
-        components['requests']['AdaptyUICreatePaywallView.Request']
+        components['requests']['AdaptyUICreateFlowView.Request']
       >({
         nativeModule: nativeMock,
       });
 
-      expect(request.method).toBe('adapty_ui_create_paywall_view');
-      expect(request.paywall).toBeDefined();
-      expect(request.paywall.paywall_id).toBe('paywall_test_placement');
-      expect(request.paywall.variation_id).toBe('variation_123');
+      expect(request.method).toBe('adapty_ui_create_flow_view');
+      expect(request.flow).toBeDefined();
+      expect(request.flow.flow_id).toBe('flow_test_placement');
+      expect(request.flow.variation_id).toBe('variation_123');
       expect(request.preload_products).toBe(true); // default
       expect(request.load_timeout).toBe(5); // 5000ms → 5s
 
@@ -80,13 +80,13 @@ describe('ViewController Methods (Bridge Integration)', () => {
     });
 
     it('should encode custom parameters', async () => {
-      await createPaywallView(paywall, {
+      await createFlowView(flow, {
         prefetchProducts: false,
         loadTimeoutMs: 3000,
       });
 
       const request = extractNativeRequest<
-        components['requests']['AdaptyUICreatePaywallView.Request']
+        components['requests']['AdaptyUICreateFlowView.Request']
       >({
         nativeModule: nativeMock,
       });
@@ -98,30 +98,30 @@ describe('ViewController Methods (Bridge Integration)', () => {
 
   describe('present', () => {
     it('should send request with default full_screen presentation style', async () => {
-      const view = await createPaywallView(paywall);
+      const view = await createFlowView(flow);
       nativeMock.handler.mockClear();
 
       await view.present();
 
       const request = extractNativeRequest<
-        components['requests']['AdaptyUIPresentPaywallView.Request']
+        components['requests']['AdaptyUIPresentFlowView.Request']
       >({
         nativeModule: nativeMock,
       });
 
-      expect(request.method).toBe('adapty_ui_present_paywall_view');
+      expect(request.method).toBe('adapty_ui_present_flow_view');
       expect(request.id).toBe('mock_paywall_view_123');
       expect(request.ios_presentation_style).toBe('full_screen');
     });
 
     it('should encode page_sheet presentation style', async () => {
-      const view = await createPaywallView(paywall);
+      const view = await createFlowView(flow);
       nativeMock.handler.mockClear();
 
       await view.present({ iosPresentationStyle: 'page_sheet' });
 
       const request = extractNativeRequest<
-        components['requests']['AdaptyUIPresentPaywallView.Request']
+        components['requests']['AdaptyUIPresentFlowView.Request']
       >({
         nativeModule: nativeMock,
       });
@@ -131,19 +131,19 @@ describe('ViewController Methods (Bridge Integration)', () => {
   });
 
   describe('dismiss', () => {
-    it('should send AdaptyUIDismissPaywallView.Request', async () => {
-      const view = await createPaywallView(paywall);
+    it('should send AdaptyUIDismissFlowView.Request', async () => {
+      const view = await createFlowView(flow);
       nativeMock.handler.mockClear();
 
       await view.dismiss();
 
       const request = extractNativeRequest<
-        components['requests']['AdaptyUIDismissPaywallView.Request']
+        components['requests']['AdaptyUIDismissFlowView.Request']
       >({
         nativeModule: nativeMock,
       });
 
-      expect(request.method).toBe('adapty_ui_dismiss_paywall_view');
+      expect(request.method).toBe('adapty_ui_dismiss_flow_view');
       expect(request.id).toBe('mock_paywall_view_123');
       expect(request.destroy).toBe(false);
     });
@@ -151,7 +151,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
 
   describe('showDialog', () => {
     it('should encode dialog configuration correctly', async () => {
-      const view = await createPaywallView(paywall);
+      const view = await createFlowView(flow);
       nativeMock.handler.mockClear();
 
       const result = await view.showDialog({
@@ -179,7 +179,7 @@ describe('ViewController Methods (Bridge Integration)', () => {
     });
 
     it('should handle dialog with only primary action', async () => {
-      const view = await createPaywallView(paywall);
+      const view = await createFlowView(flow);
       nativeMock.handler.mockClear();
 
       await view.showDialog({

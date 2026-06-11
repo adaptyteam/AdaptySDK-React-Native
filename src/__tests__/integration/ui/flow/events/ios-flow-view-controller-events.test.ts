@@ -1,28 +1,28 @@
 import { Platform } from 'react-native';
 import { Adapty } from '@/adapty-handler';
 import { AdaptyError } from '@/adapty-error';
-import { ViewController } from '@/ui/view-controller';
-import { EventHandlers } from '@/ui/types';
+import { FlowViewController } from '@/ui/flow-view-controller';
+import { FlowEventHandlers } from '@/ui/types';
 import type { AdaptySubscription, AdaptyAccessLevel } from '@/types';
 import {
-  createPaywallViewController,
-  cleanupPaywallViewController,
+  createFlowViewController,
+  cleanupFlowViewController,
 } from '../../setup.utils';
 import {
-  emitPaywallPurchaseStartedEvent,
-  emitPaywallPurchaseCompletedEvent,
-  emitPaywallPurchaseFailedEvent,
-  emitPaywallRestoreCompletedEvent,
-  emitPaywallWebPaymentNavigationFinishedEvent,
-} from './paywall-event-emitter.utils';
+  emitFlowPurchaseStartedEvent,
+  emitFlowPurchaseCompletedEvent,
+  emitFlowPurchaseFailedEvent,
+  emitFlowRestoreCompletedEvent,
+  emitFlowWebPaymentNavigationFinishedEvent,
+} from './flow-event-emitter.utils';
 import {
-  IOS_PAYWALL_PURCHASE_STARTED,
-  IOS_PAYWALL_PURCHASE_COMPLETED_SUCCESS,
-  IOS_PAYWALL_PURCHASE_COMPLETED_CANCELLED,
-  IOS_PAYWALL_PURCHASE_FAILED,
-  IOS_PAYWALL_RESTORE_COMPLETED_SUCCESS,
-  IOS_PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED,
-} from './ios-paywall-bridge-event-samples';
+  IOS_FLOW_PURCHASE_STARTED,
+  IOS_FLOW_PURCHASE_COMPLETED_SUCCESS,
+  IOS_FLOW_PURCHASE_COMPLETED_CANCELLED,
+  IOS_FLOW_PURCHASE_FAILED,
+  IOS_FLOW_RESTORE_COMPLETED_SUCCESS,
+  IOS_FLOW_WEB_PAYMENT_NAVIGATION_FINISHED,
+} from './ios-flow-bridge-event-samples';
 
 // Override Platform.OS for iOS tests
 const originalOS = Platform.OS;
@@ -38,30 +38,30 @@ afterAll(() => {
   Platform.select = originalSelect;
 });
 
-describe('ViewController - onPurchaseStarted event (iOS fields)', () => {
+describe('FlowViewController - onPurchaseStarted event (iOS fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseStarted handler with iOS-specific subscription fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseStarted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseStarted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseStarted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_STARTED;
+    const sample = IOS_FLOW_PURCHASE_STARTED;
 
-    emitPaywallPurchaseStartedEvent(viewId, sample.product, sample.view);
+    emitFlowPurchaseStartedEvent(viewId, sample.product, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [product] = handler.mock.calls[0]!;
@@ -92,15 +92,15 @@ describe('ViewController - onPurchaseStarted event (iOS fields)', () => {
   });
 
   it('should contain is_family_shareable field in product (iOS)', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseStarted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseStarted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseStarted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_STARTED;
+    const sample = IOS_FLOW_PURCHASE_STARTED;
 
-    emitPaywallPurchaseStartedEvent(viewId, sample.product, sample.view);
+    emitFlowPurchaseStartedEvent(viewId, sample.product, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [product] = handler.mock.calls[0]!;
@@ -127,15 +127,15 @@ describe('ViewController - onPurchaseStarted event (iOS fields)', () => {
   });
 
   it('should contain group_identifier in subscription (iOS)', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseStarted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseStarted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseStarted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_STARTED;
+    const sample = IOS_FLOW_PURCHASE_STARTED;
 
-    emitPaywallPurchaseStartedEvent(viewId, sample.product, sample.view);
+    emitFlowPurchaseStartedEvent(viewId, sample.product, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [product] = handler.mock.calls[0]!;
@@ -153,30 +153,31 @@ describe('ViewController - onPurchaseStarted event (iOS fields)', () => {
   });
 });
 
-describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
+describe('FlowViewController - onPurchaseCompleted event (iOS fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseCompleted handler with iOS-specific purchase result fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_COMPLETED_SUCCESS;
+    const sample = IOS_FLOW_PURCHASE_COMPLETED_SUCCESS;
 
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
       sample.purchased_result,
       sample.product,
@@ -222,15 +223,16 @@ describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
   });
 
   it('should contain apple_jws_transaction in successful purchase result (iOS)', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_COMPLETED_SUCCESS;
+    const sample = IOS_FLOW_PURCHASE_COMPLETED_SUCCESS;
 
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
       sample.purchased_result,
       sample.product,
@@ -257,15 +259,16 @@ describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
   });
 
   it('should NOT contain apple_jws_transaction in cancelled purchase result (iOS)', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_COMPLETED_CANCELLED;
+    const sample = IOS_FLOW_PURCHASE_COMPLETED_CANCELLED;
 
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
       sample.purchased_result,
       sample.product,
@@ -286,15 +289,16 @@ describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
   });
 
   it('should contain iOS product fields in cancelled purchase result', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_COMPLETED_CANCELLED;
+    const sample = IOS_FLOW_PURCHASE_COMPLETED_CANCELLED;
 
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
       sample.purchased_result,
       sample.product,
@@ -316,31 +320,30 @@ describe('ViewController - onPurchaseCompleted event (iOS fields)', () => {
   });
 });
 
-describe('ViewController - onPurchaseFailed event (iOS fields)', () => {
+describe('FlowViewController - onPurchaseFailed event (iOS fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onPurchaseFailed handler with iOS-specific product fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseFailed']> = jest
-      .fn()
-      .mockReturnValue(false);
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseFailed']> =
+      jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseFailed: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_FAILED;
+    const sample = IOS_FLOW_PURCHASE_FAILED;
 
-    emitPaywallPurchaseFailedEvent(
+    emitFlowPurchaseFailedEvent(
       viewId,
       sample.error,
       sample.product,
@@ -373,30 +376,31 @@ describe('ViewController - onPurchaseFailed event (iOS fields)', () => {
   });
 });
 
-describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
+describe('FlowViewController - onRestoreCompleted event (iOS fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onRestoreCompleted handler with iOS-specific profile fields', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_RESTORE_COMPLETED_SUCCESS;
+    const sample = IOS_FLOW_RESTORE_COMPLETED_SUCCESS;
 
-    emitPaywallRestoreCompletedEvent(viewId, sample.profile, sample.view);
+    emitFlowRestoreCompletedEvent(viewId, sample.profile, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [profile] = handler.mock.calls[0]!;
@@ -434,15 +438,16 @@ describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
   });
 
   it('should contain store="app_store" in profile subscriptions and access levels (iOS)', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_RESTORE_COMPLETED_SUCCESS;
+    const sample = IOS_FLOW_RESTORE_COMPLETED_SUCCESS;
 
-    emitPaywallRestoreCompletedEvent(viewId, sample.profile, sample.view);
+    emitFlowRestoreCompletedEvent(viewId, sample.profile, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
 
@@ -472,15 +477,16 @@ describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
   });
 
   it('should have iOS transaction IDs format in profile', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onRestoreCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onRestoreCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onRestoreCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_RESTORE_COMPLETED_SUCCESS;
+    const sample = IOS_FLOW_RESTORE_COMPLETED_SUCCESS;
 
-    emitPaywallRestoreCompletedEvent(viewId, sample.profile, sample.view);
+    emitFlowRestoreCompletedEvent(viewId, sample.profile, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [profile] = handler.mock.calls[0]!;
@@ -499,31 +505,31 @@ describe('ViewController - onRestoreCompleted event (iOS fields)', () => {
   });
 });
 
-describe('ViewController - onWebPaymentNavigationFinished event (iOS fields)', () => {
+describe('FlowViewController - onWebPaymentNavigationFinished event (iOS fields)', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should call onWebPaymentNavigationFinished handler with iOS-specific product fields', async () => {
     const handler: jest.MockedFunction<
-      EventHandlers['onWebPaymentNavigationFinished']
+      FlowEventHandlers['onWebPaymentNavigationFinished']
     > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onWebPaymentNavigationFinished: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_WEB_PAYMENT_NAVIGATION_FINISHED;
+    const sample = IOS_FLOW_WEB_PAYMENT_NAVIGATION_FINISHED;
 
-    emitPaywallWebPaymentNavigationFinishedEvent(
+    emitFlowWebPaymentNavigationFinishedEvent(
       viewId,
       sample.product,
       undefined,
@@ -557,18 +563,18 @@ describe('ViewController - onWebPaymentNavigationFinished event (iOS fields)', (
   });
 });
 
-describe('ViewController - iOS fields absence in platform-independent events', () => {
+describe('FlowViewController - iOS fields absence in platform-independent events', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should NOT contain iOS-specific fields in events without products', async () => {
@@ -579,30 +585,30 @@ describe('ViewController - iOS fields absence in platform-independent events', (
   });
 });
 
-describe('ViewController - Android fields absence in iOS events', () => {
+describe('FlowViewController - Android fields absence in iOS events', () => {
   let adapty: Adapty;
-  let view: ViewController;
+  let view: FlowViewController;
 
   beforeEach(async () => {
-    const result = await createPaywallViewController();
+    const result = await createFlowViewController();
     adapty = result.adapty;
     view = result.view;
   });
 
   afterEach(() => {
-    cleanupPaywallViewController(view, adapty);
+    cleanupFlowViewController(view, adapty);
   });
 
   it('should NOT contain Android-specific fields in iOS purchase started event', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseStarted']> =
+    const handler: jest.MockedFunction<FlowEventHandlers['onPurchaseStarted']> =
       jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseStarted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_STARTED;
+    const sample = IOS_FLOW_PURCHASE_STARTED;
 
-    emitPaywallPurchaseStartedEvent(viewId, sample.product, sample.view);
+    emitFlowPurchaseStartedEvent(viewId, sample.product, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
     const [product] = handler.mock.calls[0]!;
@@ -615,15 +621,16 @@ describe('ViewController - Android fields absence in iOS events', () => {
   });
 
   it('should NOT contain Android-specific fields in iOS purchase completed event', async () => {
-    const handler: jest.MockedFunction<EventHandlers['onPurchaseCompleted']> =
-      jest.fn().mockReturnValue(false);
+    const handler: jest.MockedFunction<
+      FlowEventHandlers['onPurchaseCompleted']
+    > = jest.fn().mockReturnValue(false);
 
     view.setEventHandlers({ onPurchaseCompleted: handler });
 
     const viewId = (view as any).id;
-    const sample = IOS_PAYWALL_PURCHASE_COMPLETED_SUCCESS;
+    const sample = IOS_FLOW_PURCHASE_COMPLETED_SUCCESS;
 
-    emitPaywallPurchaseCompletedEvent(
+    emitFlowPurchaseCompletedEvent(
       viewId,
       sample.purchased_result,
       sample.product,

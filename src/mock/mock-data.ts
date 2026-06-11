@@ -1,6 +1,6 @@
 import type {
   AdaptyProfile,
-  AdaptyPaywall,
+  AdaptyFlow,
   AdaptyPaywallProduct,
   AdaptyOnboarding,
   AdaptyAccessLevel,
@@ -100,23 +100,24 @@ export function createMockPremiumAccessLevel(
 }
 
 /**
- * Creates a default mock paywall
+ * Creates a default mock flow
  */
-export function createMockPaywall(
+export function createMockFlow(
   placementId: string,
-  overrides?: Partial<AdaptyPaywall>,
-): AdaptyPaywall {
-  return {
+  overrides?: Partial<AdaptyFlow>,
+): AdaptyFlow {
+  const placement = {
+    id: placementId,
+    abTestName: placementId,
+    audienceName: 'All Users',
+    revision: 0,
+    audienceVersionId: 'b7f6a19e-4384-4732-815d-5ad6610b695f',
+    isTrackingPurchases: true,
+  };
+
+  const variation: AdaptyFlow['variations'][number] = {
+    placement,
     id: `mock-paywall-${placementId}`,
-    placement: {
-      id: placementId,
-      abTestName: placementId,
-      audienceName: 'All Users',
-      revision: 0,
-      audienceVersionId: 'b7f6a19e-4384-4732-815d-5ad6610b695f',
-      isTrackingPurchases: true,
-    },
-    hasViewConfiguration: true,
     name: placementId,
     variationId: 'mock_variation_id',
     products: [
@@ -147,23 +148,24 @@ export function createMockPaywall(
         adaptyProductId: MOCK_ADAPTY_PRODUCT_ID_MONTHLY,
       },
     ],
-    paywallBuilder: {
-      id: 'mock.paywall.builder.id',
-      lang: 'en',
-    },
     webPurchaseUrl: `http://paywalls-mock.adapty.io/${placementId}`,
-    version: Date.now(),
-    requestLocale: 'en',
+  };
+
+  return {
+    placement,
+    id: `mock-flow-${placementId}`,
+    name: placementId,
+    variationId: 'mock_variation_id',
+    variations: [variation],
+    responseCreatedAt: Date.now(),
     ...overrides,
   };
 }
 
 /**
- * Creates default mock products for a paywall
+ * Creates default mock products for a flow
  */
-export function createMockProducts(
-  paywall: AdaptyPaywall,
-): AdaptyPaywallProduct[] {
+export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
   return [
     {
       vendorProductId: MOCK_VENDOR_PRODUCT_ID_ANNUAL,
@@ -171,9 +173,9 @@ export function createMockProducts(
       localizedTitle: 'Premium Annual',
       localizedDescription: 'Get premium access for 1 year',
       regionCode: 'US',
-      paywallName: paywall.name,
-      paywallABTestName: paywall.placement.abTestName,
-      variationId: paywall.variationId,
+      paywallName: flow.name,
+      paywallABTestName: flow.placement.abTestName,
+      variationId: flow.variationId,
       accessLevelId: MOCK_ACCESS_LEVEL_PREMIUM,
       productType: 'subscription',
       price: {
@@ -182,7 +184,7 @@ export function createMockProducts(
         currencySymbol: '$',
         localizedString: '$99.99',
       },
-      webPurchaseUrl: paywall.webPurchaseUrl,
+      webPurchaseUrl: flow.variations[0]?.webPurchaseUrl,
       paywallProductIndex: 0,
       subscription: {
         subscriptionPeriod: {
@@ -226,9 +228,9 @@ export function createMockProducts(
       localizedTitle: 'Premium Monthly',
       localizedDescription: 'Get premium access for 1 month',
       regionCode: 'US',
-      paywallName: paywall.name,
-      paywallABTestName: paywall.placement.abTestName,
-      variationId: paywall.variationId,
+      paywallName: flow.name,
+      paywallABTestName: flow.placement.abTestName,
+      variationId: flow.variationId,
       accessLevelId: MOCK_ACCESS_LEVEL_PREMIUM,
       productType: 'subscription',
       price: {
@@ -237,7 +239,7 @@ export function createMockProducts(
         currencySymbol: '$',
         localizedString: '$9.99',
       },
-      webPurchaseUrl: paywall.webPurchaseUrl,
+      webPurchaseUrl: flow.variations[0]?.webPurchaseUrl,
       paywallProductIndex: 1,
       subscription: {
         subscriptionPeriod: {

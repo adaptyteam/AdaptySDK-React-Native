@@ -1,4 +1,4 @@
-import { createPaywallEventHandlers } from './create-paywall-event-handlers';
+import { createFlowEventHandlers } from './create-flow-event-handlers';
 
 jest.mock('@/bridge', () => {
   const actual = jest.requireActual('@/bridge');
@@ -11,43 +11,40 @@ jest.mock('@/bridge', () => {
   };
 });
 
-jest.mock('./view-emitter', () => {
+jest.mock('./flow-view-emitter', () => {
   return {
-    ViewEmitter: jest.fn().mockImplementation(() => ({
+    FlowViewEmitter: jest.fn().mockImplementation(() => ({
       addListener: jest.fn(),
       removeAllListeners: jest.fn(),
     })),
   };
 });
 
-describe('createPaywallEventHandlers', () => {
+describe('createFlowEventHandlers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('creates ViewEmitter with provided viewId', () => {
-    const { ViewEmitter } = jest.requireMock('./view-emitter');
+  it('creates FlowViewEmitter with provided viewId', () => {
+    const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
     const viewId = 'test-view-id-123';
 
-    createPaywallEventHandlers({}, viewId);
+    createFlowEventHandlers({}, viewId);
 
-    expect(ViewEmitter).toHaveBeenCalledWith(viewId);
-    expect(ViewEmitter).toHaveBeenCalledTimes(1);
+    expect(FlowViewEmitter).toHaveBeenCalledWith(viewId);
+    expect(FlowViewEmitter).toHaveBeenCalledTimes(1);
   });
 
   it('merges default handlers with custom handlers', () => {
-    const { ViewEmitter } = jest.requireMock('./view-emitter');
+    const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
     const addListener = jest.fn();
-    (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+    (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
       addListener,
       removeAllListeners: jest.fn(),
     }));
 
     const customHandler = jest.fn(() => false);
-    createPaywallEventHandlers(
-      { onCloseButtonPress: customHandler },
-      'test-id',
-    );
+    createFlowEventHandlers({ onCloseButtonPress: customHandler }, 'test-id');
 
     // Should register default handlers + custom override
     expect(addListener).toHaveBeenCalled();
@@ -62,20 +59,20 @@ describe('createPaywallEventHandlers', () => {
   });
 
   it('registers all default handlers when no custom handlers provided', () => {
-    const { ViewEmitter } = jest.requireMock('./view-emitter');
+    const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
     const addListener = jest.fn();
-    (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+    (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
       addListener,
       removeAllListeners: jest.fn(),
     }));
 
-    createPaywallEventHandlers({}, 'test-id');
+    createFlowEventHandlers({}, 'test-id');
 
     // Should register all 16 default handlers:
     // onCloseButtonPress, onAndroidSystemBack, onUrlPress, onCustomAction,
     // onProductSelected, onPurchaseStarted, onPurchaseCompleted, onPurchaseFailed,
     // onRestoreStarted, onRestoreCompleted, onRestoreFailed, onAppeared,
-    // onDisappeared, onRenderingFailed, onLoadingProductsFailed, onWebPaymentNavigationFinished
+    // onDisappeared, onError, onLoadingProductsFailed, onWebPaymentNavigationFinished
     expect(addListener).toHaveBeenCalledTimes(16);
 
     const calls = (addListener as jest.Mock).mock.calls;
@@ -84,15 +81,15 @@ describe('createPaywallEventHandlers', () => {
     expect(registeredEvents).toContain('onCloseButtonPress');
     expect(registeredEvents).toContain('onAndroidSystemBack');
     expect(registeredEvents).toContain('onRestoreCompleted');
-    expect(registeredEvents).toContain('onRenderingFailed');
+    expect(registeredEvents).toContain('onError');
     expect(registeredEvents).toContain('onPurchaseCompleted');
     expect(registeredEvents).toContain('onUrlPress');
   });
 
   it('registers custom handlers alongside defaults', () => {
-    const { ViewEmitter } = jest.requireMock('./view-emitter');
+    const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
     const addListener = jest.fn();
-    (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+    (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
       addListener,
       removeAllListeners: jest.fn(),
     }));
@@ -100,7 +97,7 @@ describe('createPaywallEventHandlers', () => {
     const customProductHandler = jest.fn();
     const customPurchaseHandler = jest.fn();
 
-    createPaywallEventHandlers(
+    createFlowEventHandlers(
       {
         onProductSelected: customProductHandler,
         onPurchaseStarted: customPurchaseHandler,
@@ -125,15 +122,15 @@ describe('createPaywallEventHandlers', () => {
   });
 
   it('passes onRequestClose to addListener', () => {
-    const { ViewEmitter } = jest.requireMock('./view-emitter');
+    const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
     const addListener = jest.fn();
-    (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+    (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
       addListener,
       removeAllListeners: jest.fn(),
     }));
 
     const onRequestClose = jest.fn();
-    createPaywallEventHandlers({}, 'test-id', onRequestClose);
+    createFlowEventHandlers({}, 'test-id', onRequestClose);
 
     // All addListener calls should receive the onRequestClose function
     const calls = (addListener as jest.Mock).mock.calls;
@@ -143,14 +140,14 @@ describe('createPaywallEventHandlers', () => {
   });
 
   it('returns unsubscribe function', () => {
-    const { ViewEmitter } = jest.requireMock('./view-emitter');
+    const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
     const removeAllListeners = jest.fn();
-    (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+    (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
       addListener: jest.fn(),
       removeAllListeners,
     }));
 
-    const unsubscribe = createPaywallEventHandlers({}, 'test-id');
+    const unsubscribe = createFlowEventHandlers({}, 'test-id');
 
     expect(typeof unsubscribe).toBe('function');
 
@@ -160,9 +157,9 @@ describe('createPaywallEventHandlers', () => {
   });
 
   it('custom handlers override default handlers', () => {
-    const { ViewEmitter } = jest.requireMock('./view-emitter');
+    const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
     const addListener = jest.fn();
-    (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+    (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
       addListener,
       removeAllListeners: jest.fn(),
     }));
@@ -170,7 +167,7 @@ describe('createPaywallEventHandlers', () => {
     const customCloseHandler = jest.fn(() => false);
     const customRestoreHandler = jest.fn(() => false);
 
-    createPaywallEventHandlers(
+    createFlowEventHandlers(
       {
         onCloseButtonPress: customCloseHandler,
         onRestoreCompleted: customRestoreHandler,
@@ -191,14 +188,14 @@ describe('createPaywallEventHandlers', () => {
   });
 
   it('creates default onRequestClose when not provided', () => {
-    const { ViewEmitter } = jest.requireMock('./view-emitter');
+    const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
     const addListener = jest.fn();
-    (ViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+    (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
       addListener,
       removeAllListeners: jest.fn(),
     }));
 
-    createPaywallEventHandlers({}, 'test-id');
+    createFlowEventHandlers({}, 'test-id');
 
     // Should not throw, default async noop function should be created
     const calls = (addListener as jest.Mock).mock.calls;

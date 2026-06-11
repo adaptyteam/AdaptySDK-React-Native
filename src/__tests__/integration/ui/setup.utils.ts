@@ -1,9 +1,9 @@
 import { Adapty } from '@/adapty-handler';
 import { createOnboardingView } from '@/ui/create-onboarding-view';
 import { OnboardingViewController } from '@/ui/onboarding-view-controller';
-import { createPaywallView } from '@/ui/create-paywall-view';
-import { ViewController } from '@/ui/view-controller';
-import { AdaptyPaywall } from '@/types';
+import { createFlowView } from '@/ui/create-flow-view';
+import { FlowViewController } from '@/ui/flow-view-controller';
+import { AdaptyFlow } from '@/types';
 import {
   createAdaptyInstance,
   cleanupAdapty,
@@ -36,25 +36,25 @@ export function cleanupOnboardingViewController(
 }
 
 /**
- * Creates PaywallViewController for testing
+ * Creates FlowViewController for testing
  */
-export async function createPaywallViewController(): Promise<{
+export async function createFlowViewController(): Promise<{
   adapty: Adapty;
-  view: ViewController;
-  paywall: AdaptyPaywall;
+  view: FlowViewController;
+  flow: AdaptyFlow;
 }> {
   const adapty = await createAdaptyInstance();
-  const paywall = await adapty.getPaywall('test_placement');
-  const view = await createPaywallView(paywall);
+  const flow = await adapty.getFlow('test_placement');
+  const view = await createFlowView(flow);
 
-  return { adapty, view, paywall };
+  return { adapty, view, flow };
 }
 
 /**
- * Cleanup PaywallViewController and Adapty instance
+ * Cleanup FlowViewController and Adapty instance
  */
-export function cleanupPaywallViewController(
-  view: ViewController,
+export function cleanupFlowViewController(
+  view: FlowViewController,
   adapty: Adapty,
 ): void {
   // View cleanup happens automatically on dismiss
