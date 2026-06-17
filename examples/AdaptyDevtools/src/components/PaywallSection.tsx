@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Alert, Linking } from 'react-native';
-import { createPaywallView } from 'react-native-adapty/dist/ui';
-import { ViewController } from 'react-native-adapty/dist/ui/view-controller';
+import { createFlowView } from 'react-native-adapty/dist/ui';
+import { FlowViewController } from 'react-native-adapty/dist/ui/flow-view-controller';
 import {
   adapty,
   AdaptyError,
-  AdaptyPaywall,
+  AdaptyFlow,
   AdaptyPaywallProduct,
   GetPlacementForDefaultAudienceParamsInput,
 } from 'react-native-adapty';
@@ -23,7 +23,7 @@ interface Props {
 export const PaywallSection: React.FC<Props> = ({
   placementId,
 }) => {
-  const [paywall, setPaywall] = useState<AdaptyPaywall | null>(null);
+  const [flow, setFlow] = useState<AdaptyFlow | null>(null);
   const [products, setProducts] = useState<AdaptyPaywallProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,7 +35,7 @@ export const PaywallSection: React.FC<Props> = ({
       const effectivePlacementId = placementId || readPlacementId();
 
       console.log(
-        '[ADAPTY]: Fetching paywall for default audience:',
+        '[ADAPTY]: Fetching flow for default audience:',
         effectivePlacementId,
       );
 
@@ -43,26 +43,25 @@ export const PaywallSection: React.FC<Props> = ({
         fetchPolicy: 'reload_revalidating_cache_data',
       };
 
-      const paywall_ = await adapty.getPaywallForDefaultAudience(
+      const flow_ = await adapty.getFlowForDefaultAudience(
         effectivePlacementId,
-        undefined,
         params,
       );
-      setPaywall(paywall_);
+      setFlow(flow_);
 
-      // Log paywall show event
-      await adapty.logShowPaywall(paywall_);
+      // Log flow show event
+      await adapty.logShowFlow(flow_);
 
       // Fetch products
-      const products_ = await adapty.getPaywallProducts(paywall_);
+      const products_ = await adapty.getPaywallProducts(flow_);
       setProducts(products_);
 
-      console.log('[ADAPTY] Paywall loaded successfully:', paywall_.name);
+      console.log('[ADAPTY] Flow loaded successfully:', flow_.name);
     } catch (error: any) {
       console.log('[ADAPTY] Error getting paywall:', error.message);
       if (error instanceof AdaptyError) {
         Alert.alert(
-          `Error fetching paywall #${error.adaptyCode}`,
+          `Error fetching flow #${error.adaptyCode}`,
           error.localizedDescription,
         );
       }
@@ -72,16 +71,16 @@ export const PaywallSection: React.FC<Props> = ({
   };
 
   const presentPaywall = async () => {
-    if (!paywall) {
-      Alert.alert('Error', 'Paywall not loaded. Please load paywall first.');
+    if (!flow) {
+      Alert.alert('Error', 'Flow not loaded. Please load flow first.');
       return;
     }
 
-    let view: ViewController | null = null;
+    let view: FlowViewController | null = null;
 
     try {
-      // Create paywall view
-      view = await createPaywallView(paywall, {
+      // Create flow view
+      view = await createFlowView(flow, {
         customTags: {
           USERNAME: 'User',
           CITY: 'React Native',
@@ -158,9 +157,9 @@ export const PaywallSection: React.FC<Props> = ({
         console.log('[ADAPTY]: Purchase started', product);
         return false;
       },
-      onRenderingFailed(error) {
-        console.log('[ADAPTY]: Rendering failed', error);
-        Alert.alert('Rendering failed', error.message);
+      onError(error) {
+        console.log('[ADAPTY]: Flow view error', error);
+        Alert.alert('Flow view error', error.message);
         return false;
       },
       onRestoreStarted() {
@@ -215,25 +214,25 @@ export const PaywallSection: React.FC<Props> = ({
   };
 
   const renderPaywallInfo = () => {
-    if (!paywall) return null;
+    if (!flow) return null;
 
     return (
       <>
-        <LineParam label="Paywall ID" value={paywall.name} bordered />
-        <LineParam label="Variation ID" value={paywall.variationId} bordered />
+        <LineParam label="Flow Name" value={flow.name} bordered />
+        <LineParam label="Variation ID" value={flow.variationId} bordered />
         <LineParam
           label="Revision"
-          value={paywall.placement.revision.toString()}
+          value={flow.placement.revision.toString()}
           bordered
         />
         <LineParam
           label="Has Remote Config"
-          value={<Bool value={!!paywall.remoteConfig} />}
+          value={<Bool value={!!flow.remoteConfigs?.length} />}
           bordered
         />
         <LineParam
-          label="Has Paywall Builder"
-          value={<Bool value={!!paywall.paywallBuilder} />}
+          label="Has UI Schema"
+          value={<Bool value={!!flow.uiSchema} />}
           bordered
         />
         <LineParam
@@ -257,7 +256,7 @@ export const PaywallSection: React.FC<Props> = ({
   return (
     <Group title="Paywall" postfix="Default Audience">
       <LineButton
-        text={paywall ? 'Refresh Paywall' : 'Load Paywall'}
+        text={flow ? 'Refresh Flow' : 'Load Flow'}
         bordered
         topRadius
         loading={isLoading}
@@ -265,10 +264,10 @@ export const PaywallSection: React.FC<Props> = ({
       />
 
       <LineButton
-        text="Present Paywall"
-        bordered={!!paywall}
-        bottomRadius={!paywall}
-        disabled={!paywall}
+        text="Present Flow"
+        bordered={!!flow}
+        bottomRadius={!flow}
+        disabled={!flow}
         onPress={presentPaywall}
       />
 

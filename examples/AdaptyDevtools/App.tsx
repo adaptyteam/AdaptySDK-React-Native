@@ -47,8 +47,8 @@ async function init() {
       fetchPolicy: 'reload_revalidating_cache_data',
     };
 
-    // Get paywall for default audience
-    adapty.getPaywallForDefaultAudience(placementId, undefined, params);
+    // Get flow for default audience
+    adapty.getFlowForDefaultAudience(placementId, params);
   } catch (error: any) {
     console.warn('[ADAPTY] Error activating Adapty SDK', error.message);
   }
