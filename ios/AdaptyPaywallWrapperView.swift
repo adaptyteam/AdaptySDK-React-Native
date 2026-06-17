@@ -32,11 +32,11 @@ class AdaptyPaywallWrapperView: UIView {
         child.removeFromSuperview()
         self.child = nil
     }
-    
+
     private func setupView() {
         print("AdaptyPaywallWrapperView setupView called: \(paywallJson)")
         guard #available(iOS 15.0, *) else { return }
-        
+
         // Clean up existing child view to prevent memory leaks
         cleanupChild()
 
@@ -54,7 +54,7 @@ class AdaptyPaywallWrapperView: UIView {
 
                 guard let parentViewController = self.findViewController() else { return }
 
-                let uiView = AdaptyPaywallPlatformViewWrapper(
+                let uiView = AdaptyFlowPlatformViewWrapper(
                     viewId: id,
                     eventHandler: handler,
                     configuration: config,
@@ -77,7 +77,7 @@ class AdaptyPaywallWrapperView: UIView {
             }
         }
     }
-    
+
     deinit {
         cleanupChild()
     }
