@@ -43,7 +43,7 @@ export const PaywallSection: React.FC<Props> = ({
         fetchPolicy: 'reload_revalidating_cache_data',
       };
 
-      const flow_ = await adapty.getFlowForDefaultAudience(
+      const flow_ = await adapty.getFlow(
         effectivePlacementId,
         params,
       );
@@ -231,8 +231,8 @@ export const PaywallSection: React.FC<Props> = ({
           bordered
         />
         <LineParam
-          label="Has UI Schema"
-          value={<Bool value={!!flow.uiSchema} />}
+          label="Variations Count"
+          value={flow.variations.length.toString()}
           bordered
         />
         <LineParam
