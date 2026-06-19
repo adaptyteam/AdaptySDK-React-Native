@@ -83,14 +83,14 @@ export default function AdaptyFlowComponentScreen({
         </View>
       ) : (
         // Adapty Flow View Component
-        <View style={componentStyles.paywallContainer}>
+        <View style={componentStyles.flowContainer}>
           <AdaptyFlowView
             flow={flow}
             onPurchaseCompleted={handlePurchaseCompleted}
             onError={handleError}
             onLoadingProductsFailed={handleLoadingProductsFailed}
             onCloseButtonPress={onClose}
-            style={componentStyles.paywallView}
+            style={componentStyles.flowView}
           />
         </View>
       )}
@@ -129,7 +129,7 @@ const componentStyles = StyleSheet.create({
   placeholder: {
     width: 32,
   },
-  paywallContainer: {
+  flowContainer: {
     flex: 1,
     marginHorizontal: 16,
     marginBottom: 16,
@@ -142,7 +142,7 @@ const componentStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  paywallView: {
+  flowView: {
     flex: 1,
     width: '100%',
   },

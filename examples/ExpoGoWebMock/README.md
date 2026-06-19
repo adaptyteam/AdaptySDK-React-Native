@@ -55,6 +55,6 @@ The app demonstrates three paywall implementation approaches:
 
 1. **Custom UI** - Manual implementation with full design control
 2. **Modal** - Pre-built Adapty paywall as popup (`createPaywallView()`)
-3. **Component** - Embedded Adapty paywall view (`<AdaptyPaywallView>`)
+3. **Component** - Embedded Adapty flow view (`<AdaptyFlowView>`)
 
 Switch between modes using the toggle buttons on the main screen.
