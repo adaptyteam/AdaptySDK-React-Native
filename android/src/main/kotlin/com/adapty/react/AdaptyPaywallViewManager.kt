@@ -23,7 +23,7 @@ class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
 
     private val paywallUiManager: PaywallUiManager? by safeInject<PaywallUiManager>()
 
-    override fun getName(): String = "AdaptyPaywallView"
+    override fun getName(): String = "AdaptyFlowView"
 
     override fun createViewInstance(reactContext: ThemedReactContext): PaywallView {
         return PaywallView(reactContext).apply {
@@ -43,8 +43,8 @@ class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
         scheduleSetup(view)
     }
 
-    @ReactProp(name = "paywallJson")
-    fun setPaywallJson(view: PaywallView, json: String?) {
+    @ReactProp(name = "flowJson")
+    fun setFlowJson(view: PaywallView, json: String?) {
         if (json.isNullOrEmpty()) return
         view.setTag(TAG_KEY_PAYWALL_JSON, json)
         scheduleSetup(view)

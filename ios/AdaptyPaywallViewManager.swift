@@ -1,4 +1,4 @@
-@objc(AdaptyPaywallView)
+@objc(AdaptyFlowView)
 class AdaptyPaywallViewManager: RCTViewManager {
     override static func requiresMainQueueSetup() -> Bool {
         return true

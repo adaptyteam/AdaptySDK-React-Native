@@ -38,7 +38,7 @@ export type AdaptyFlowViewProps = ViewProps & {
 
 const NativeAdaptyFlowView = shouldEnableMock()
   ? AdaptyFlowViewMock
-  : requireNativeComponent<NativeAdaptyFlowViewProps>('AdaptyPaywallView');
+  : requireNativeComponent<NativeAdaptyFlowViewProps>('AdaptyFlowView');
 
 const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   flow,
@@ -115,7 +115,7 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
     <NativeAdaptyFlowView
       {...rest}
       viewId={uniqueViewId}
-      paywallJson={flowJson}
+      flowJson={flowJson}
     />
   );
 };

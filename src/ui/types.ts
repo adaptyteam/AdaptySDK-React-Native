@@ -78,7 +78,7 @@ export const DEFAULT_ONBOARDING_EVENT_HANDLERS: Partial<OnboardingEventHandlers>
 
 export type NativeAdaptyFlowViewProps = ViewProps & {
   viewId: string;
-  paywallJson: string;
+  flowJson: string;
 };
 
 export type NativeAdaptyOnboardingViewProps = ViewProps & {

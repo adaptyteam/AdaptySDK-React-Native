@@ -11,7 +11,7 @@ class AdaptyPaywallWrapperView: UIView {
         didSet { scheduleSetup() }
     }
 
-    @objc var paywallJson: NSString = "{}" {
+    @objc var flowJson: NSString = "{}" {
         didSet { scheduleSetup() }
     }
 
@@ -34,13 +34,13 @@ class AdaptyPaywallWrapperView: UIView {
     }
 
     private func setupView() {
-        print("AdaptyPaywallWrapperView setupView called: \(paywallJson)")
+        print("AdaptyPaywallWrapperView setupView called: \(flowJson)")
         guard #available(iOS 15.0, *) else { return }
 
         // Clean up existing child view to prevent memory leaks
         cleanupChild()
 
-        let json = paywallJson as String
+        let json = flowJson as String
         let id = viewId as String
         guard id != "NO_ID" else { return }
 
