@@ -13,11 +13,11 @@ import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
-class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
+class AdaptyFlowViewManager : SimpleViewManager<PaywallView>() {
 
     companion object {
         private const val TAG_KEY_VIEW_ID = 0xAD0B200
-        private const val TAG_KEY_PAYWALL_JSON = 0xAD0B201
+        private const val TAG_KEY_FLOW_JSON = 0xAD0B201
         private const val TAG_KEY_SETUP_SCHEDULED = 0xAD0B202
     }
 
@@ -46,7 +46,7 @@ class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
     @ReactProp(name = "flowJson")
     fun setFlowJson(view: PaywallView, json: String?) {
         if (json.isNullOrEmpty()) return
-        view.setTag(TAG_KEY_PAYWALL_JSON, json)
+        view.setTag(TAG_KEY_FLOW_JSON, json)
         scheduleSetup(view)
     }
 
@@ -61,7 +61,7 @@ class AdaptyPaywallViewManager : SimpleViewManager<PaywallView>() {
     }
 
     private fun setupView(view: PaywallView) {
-        val json = view.getTag(TAG_KEY_PAYWALL_JSON) as? String ?: return
+        val json = view.getTag(TAG_KEY_FLOW_JSON) as? String ?: return
         val viewId = view.getTag(TAG_KEY_VIEW_ID) as? String ?: return
         val reactContext = view.context as? ThemedReactContext ?: return
         val vmOwner = reactContext.currentActivity as? ViewModelStoreOwner ?: return
