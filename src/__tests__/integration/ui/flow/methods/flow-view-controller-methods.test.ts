@@ -76,7 +76,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       expect(request.load_timeout).toBe(5); // 5000ms → 5s
 
       // Verify response parsing
-      expect((view as any).id).toBe('mock_paywall_view_123');
+      expect((view as any).id).toBe('mock_flow_view_123');
     });
 
     it('should encode custom parameters', async () => {
@@ -110,7 +110,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       });
 
       expect(request.method).toBe('adapty_ui_present_flow_view');
-      expect(request.id).toBe('mock_paywall_view_123');
+      expect(request.id).toBe('mock_flow_view_123');
       expect(request.ios_presentation_style).toBe('full_screen');
     });
 
@@ -144,7 +144,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       });
 
       expect(request.method).toBe('adapty_ui_dismiss_flow_view');
-      expect(request.id).toBe('mock_paywall_view_123');
+      expect(request.id).toBe('mock_flow_view_123');
       expect(request.destroy).toBe(false);
     });
   });
@@ -168,7 +168,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       });
 
       expect(request.method).toBe('adapty_ui_show_dialog');
-      expect(request.id).toBe('mock_paywall_view_123');
+      expect(request.id).toBe('mock_flow_view_123');
       expect(request.configuration.title).toBe('Confirm Action');
       expect(request.configuration.content).toBe('Are you sure?');
       expect(request.configuration.default_action_title).toBe('Yes');

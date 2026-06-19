@@ -7,7 +7,7 @@
 
 import type { components } from '@/types/api';
 
-// Paywall UI Methods
+// Flow UI Methods
 
 /**
  * AdaptyUICreateFlowView.Request with default parameters
@@ -53,7 +53,7 @@ export const ADAPTY_UI_CREATE_FLOW_VIEW_REQUEST: components['requests']['AdaptyU
 export const ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE: components['requests']['AdaptyUICreateFlowView.Response'] =
   {
     success: {
-      id: 'mock_paywall_view_123',
+      id: 'mock_flow_view_123',
       placement_id: 'test_placement',
       variation_id: 'variation_123',
     },
@@ -65,7 +65,7 @@ export const ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE: components['requests']['Adapty
 export const ADAPTY_UI_PRESENT_FLOW_VIEW_REQUEST_FULL_SCREEN: components['requests']['AdaptyUIPresentFlowView.Request'] =
   {
     method: 'adapty_ui_present_flow_view',
-    id: 'mock_paywall_view_123',
+    id: 'mock_flow_view_123',
     ios_presentation_style: 'full_screen',
   };
 
@@ -75,7 +75,7 @@ export const ADAPTY_UI_PRESENT_FLOW_VIEW_REQUEST_FULL_SCREEN: components['reques
 export const ADAPTY_UI_PRESENT_FLOW_VIEW_REQUEST_PAGE_SHEET: components['requests']['AdaptyUIPresentFlowView.Request'] =
   {
     method: 'adapty_ui_present_flow_view',
-    id: 'mock_paywall_view_123',
+    id: 'mock_flow_view_123',
     ios_presentation_style: 'page_sheet',
   };
 
@@ -93,7 +93,7 @@ export const ADAPTY_UI_PRESENT_FLOW_VIEW_RESPONSE: components['requests']['Adapt
 export const ADAPTY_UI_DISMISS_FLOW_VIEW_REQUEST: components['requests']['AdaptyUIDismissFlowView.Request'] =
   {
     method: 'adapty_ui_dismiss_flow_view',
-    id: 'mock_paywall_view_123',
+    id: 'mock_flow_view_123',
     destroy: false,
   };
 
@@ -111,7 +111,7 @@ export const ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE: components['requests']['Adapt
 export const ADAPTY_UI_SHOW_DIALOG_REQUEST: components['requests']['AdaptyUIShowDialog.Request'] =
   {
     method: 'adapty_ui_show_dialog',
-    id: 'mock_paywall_view_123',
+    id: 'mock_flow_view_123',
     configuration: {
       title: 'Confirm Action',
       content: 'Are you sure?',
