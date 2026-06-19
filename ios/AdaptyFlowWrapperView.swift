@@ -3,8 +3,8 @@ import Adapty
 import AdaptyUI
 import AdaptyPlugin
 
-@objc(AdaptyPaywallWrapperView)
-class AdaptyPaywallWrapperView: UIView {
+@objc(AdaptyFlowWrapperView)
+class AdaptyFlowWrapperView: UIView {
     private var child: UIView?
 
     @objc var viewId: NSString = "NO_ID" as NSString {
@@ -34,7 +34,7 @@ class AdaptyPaywallWrapperView: UIView {
     }
 
     private func setupView() {
-        print("AdaptyPaywallWrapperView setupView called: \(flowJson)")
+        print("AdaptyFlowWrapperView setupView called: \(flowJson)")
         guard #available(iOS 15.0, *) else { return }
 
         // Clean up existing child view to prevent memory leaks
@@ -73,7 +73,7 @@ class AdaptyPaywallWrapperView: UIView {
 
                 self.child = uiView
             } catch {
-                print("AdaptyPaywallWrapperView error: \(error.localizedDescription)")
+                print("AdaptyFlowWrapperView error: \(error.localizedDescription)")
             }
         }
     }

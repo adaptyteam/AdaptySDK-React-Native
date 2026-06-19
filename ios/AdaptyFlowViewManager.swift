@@ -1,10 +1,10 @@
 @objc(AdaptyFlowView)
-class AdaptyPaywallViewManager: RCTViewManager {
+class AdaptyFlowViewManager: RCTViewManager {
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
 
     override func view() -> UIView! {
-        return AdaptyPaywallWrapperView()
+        return AdaptyFlowWrapperView()
     }
 }
