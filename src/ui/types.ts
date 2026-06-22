@@ -66,6 +66,8 @@ export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   onError: () => true,
   onLoadingProductsFailed: () => false,
   onWebPaymentNavigationFinished: () => false,
+  onRequestAppReview: () => false,
+  onAnalytics: () => false,
 };
 
 /**

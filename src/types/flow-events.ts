@@ -15,5 +15,7 @@ export type {
   FlowDidReceiveErrorEvent,
   FlowDidFailLoadingProductsEvent,
   FlowDidFinishWebPaymentNavigationEvent,
+  FlowDidRequestAppReviewEvent,
+  FlowDidReceiveAnalyticEvent,
   ParsedFlowEvent,
 } from '@adapty/core';

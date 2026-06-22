@@ -34,6 +34,8 @@ export type AdaptyFlowViewProps = ViewProps & {
   onLoadingProductsFailed?: FlowEventHandlers['onLoadingProductsFailed'];
   onCustomAction?: FlowEventHandlers['onCustomAction'];
   onUrlPress?: FlowEventHandlers['onUrlPress'];
+  onRequestAppReview?: FlowEventHandlers['onRequestAppReview'];
+  onAnalytics?: FlowEventHandlers['onAnalytics'];
 };
 
 const NativeAdaptyFlowView = shouldEnableMock()
@@ -57,6 +59,8 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   onLoadingProductsFailed,
   onCustomAction,
   onUrlPress,
+  onRequestAppReview,
+  onAnalytics,
   ...rest
 }) => {
   const uniqueViewId = useMemo(() => `${flow.id}_${generateId()}`, [flow.id]);
@@ -87,6 +91,8 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
         onLoadingProductsFailed,
         onCustomAction,
         onUrlPress,
+        onRequestAppReview,
+        onAnalytics,
       }),
     [
       onCloseButtonPress,
@@ -103,6 +109,8 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
       onLoadingProductsFailed,
       onCustomAction,
       onUrlPress,
+      onRequestAppReview,
+      onAnalytics,
     ],
   );
 
