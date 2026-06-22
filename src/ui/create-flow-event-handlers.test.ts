@@ -68,12 +68,13 @@ describe('createFlowEventHandlers', () => {
 
     createFlowEventHandlers({}, 'test-id');
 
-    // Should register all 16 default handlers:
+    // Should register all 18 default handlers:
     // onCloseButtonPress, onAndroidSystemBack, onUrlPress, onCustomAction,
     // onProductSelected, onPurchaseStarted, onPurchaseCompleted, onPurchaseFailed,
     // onRestoreStarted, onRestoreCompleted, onRestoreFailed, onAppeared,
-    // onDisappeared, onError, onLoadingProductsFailed, onWebPaymentNavigationFinished
-    expect(addListener).toHaveBeenCalledTimes(16);
+    // onDisappeared, onError, onLoadingProductsFailed, onWebPaymentNavigationFinished,
+    // onRequestAppReview, onAnalytics
+    expect(addListener).toHaveBeenCalledTimes(18);
 
     const calls = (addListener as jest.Mock).mock.calls;
     const registeredEvents = calls.map(call => call[0]);
@@ -105,9 +106,9 @@ describe('createFlowEventHandlers', () => {
       'test-id',
     );
 
-    // 16 defaults already include onProductSelected and onPurchaseStarted,
-    // so custom handlers override defaults — total keys remain 16
-    expect(addListener).toHaveBeenCalledTimes(16);
+    // 18 defaults already include onProductSelected and onPurchaseStarted,
+    // so custom handlers override defaults — total keys remain 18
+    expect(addListener).toHaveBeenCalledTimes(18);
 
     const calls = (addListener as jest.Mock).mock.calls;
     const productSelectedCall = calls.find(
@@ -183,8 +184,8 @@ describe('createFlowEventHandlers', () => {
     expect(closeCall[1]).toBe(customCloseHandler);
     expect(restoreCall[1]).toBe(customRestoreHandler);
 
-    // Should still have only 16 handlers, because custom ones override existing defaults
-    expect(addListener).toHaveBeenCalledTimes(16);
+    // Should still have only 18 handlers, because custom ones override existing defaults
+    expect(addListener).toHaveBeenCalledTimes(18);
   });
 
   it('creates default onRequestClose when not provided', () => {
