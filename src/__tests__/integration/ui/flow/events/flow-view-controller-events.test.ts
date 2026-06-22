@@ -35,6 +35,8 @@ import {
   emitFlowWebPaymentNavigationFinishedEvent,
   emitFlowRenderingFailedEvent,
   emitFlowLoadingProductsFailedEvent,
+  emitFlowAnalyticEvent,
+  emitFlowAppReviewEvent,
 } from './flow-event-emitter.utils';
 import {
   FLOW_PRODUCT_SELECTED_YEARLY,
@@ -54,6 +56,8 @@ import {
   FLOW_WEB_PAYMENT_NAVIGATION_FINISHED,
   FLOW_RENDERING_FAILED,
   FLOW_LOADING_PRODUCTS_FAILED,
+  FLOW_ANALYTIC_EVENT,
+  FLOW_APP_REVIEW_REQUEST,
 } from './flow-bridge-event-samples';
 
 describe('FlowViewController - action mapping isolation', () => {
@@ -209,6 +213,37 @@ describe('FlowViewController - action mapping isolation', () => {
 
     // onCloseButtonPress should NOT be called
     expect(onCloseHandler).not.toHaveBeenCalled();
+  });
+
+  it('should call onAnalytics with name and params', () => {
+    const onAnalytics: jest.MockedFunction<FlowEventHandlers['onAnalytics']> =
+      jest.fn().mockReturnValue(false);
+
+    view.setEventHandlers({ onAnalytics });
+
+    const viewId = (view as any).id;
+    const sample = FLOW_ANALYTIC_EVENT;
+
+    emitFlowAnalyticEvent(viewId, sample.name, sample.params, sample.view);
+
+    expect(onAnalytics).toHaveBeenCalledTimes(1);
+    expect(onAnalytics).toHaveBeenCalledWith(sample.name, sample.params);
+  });
+
+  it('should call onRequestAppReview with no arguments', () => {
+    const onRequestAppReview: jest.MockedFunction<
+      FlowEventHandlers['onRequestAppReview']
+    > = jest.fn().mockReturnValue(false);
+
+    view.setEventHandlers({ onRequestAppReview });
+
+    const viewId = (view as any).id;
+    const sample = FLOW_APP_REVIEW_REQUEST;
+
+    emitFlowAppReviewEvent(viewId, sample.view);
+
+    expect(onRequestAppReview).toHaveBeenCalledTimes(1);
+    expect(onRequestAppReview).toHaveBeenCalledWith();
   });
 });
 

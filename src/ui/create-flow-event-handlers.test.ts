@@ -85,6 +85,8 @@ describe('createFlowEventHandlers', () => {
     expect(registeredEvents).toContain('onError');
     expect(registeredEvents).toContain('onPurchaseCompleted');
     expect(registeredEvents).toContain('onUrlPress');
+    expect(registeredEvents).toContain('onRequestAppReview');
+    expect(registeredEvents).toContain('onAnalytics');
   });
 
   it('registers custom handlers alongside defaults', () => {

@@ -638,3 +638,31 @@ export const COMMON_PRODUCT_YEARLY = {
     },
   },
 } as const;
+
+/**
+ * Sample for FlowViewEvent.DidReceiveAnalyticEvent
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidReceiveAnalyticEvent
+ */
+export const FLOW_ANALYTIC_EVENT = {
+  id: 'flow_view_did_receive_analytic_event',
+  view: {
+    id: '9EC086AC-BE4F-4FB2-AABE-8AD31AF03BDF',
+    placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
+    variation_id: '3968c273-f247-4b9f-bd90-305be39d6414',
+  },
+  name: 'paywall_shown',
+  params: { source: 'onboarding' },
+} as const;
+
+/**
+ * Sample for FlowViewEvent.DidRequestAppReview
+ * @see cross_platform.yaml#/$events/FlowViewEvent.DidRequestAppReview
+ */
+export const FLOW_APP_REVIEW_REQUEST = {
+  id: 'flow_view_did_request_app_review',
+  view: {
+    id: '9EC086AC-BE4F-4FB2-AABE-8AD31AF03BDF',
+    placement_id: '3968c273-f247-4b9f-bd90-305be39d6414',
+    variation_id: '3968c273-f247-4b9f-bd90-305be39d6414',
+  },
+} as const;

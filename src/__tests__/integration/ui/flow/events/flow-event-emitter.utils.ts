@@ -461,3 +461,69 @@ export function emitFlowLoadingProductsFailedEvent(
 
   emitter.emit('flow_view_did_fail_loading_products', JSON.stringify(payload));
 }
+
+/**
+ * Emits mock flow analytic event for testing
+ */
+export function emitFlowAnalyticEvent(
+  viewId: string,
+  name: string,
+  params: Record<string, unknown>,
+  view: { id: string; placement_id: string; variation_id: string },
+): void {
+  const bridge = $bridge.testBridge;
+
+  if (!bridge) {
+    throw new Error('Bridge not initialized');
+  }
+
+  const emitter = (bridge as any).testEmitter;
+
+  if (!emitter) {
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
+  }
+
+  const payload = {
+    id: 'flow_view_did_receive_analytic_event',
+    view: {
+      id: viewId,
+      placement_id: view.placement_id,
+      variation_id: view.variation_id,
+    },
+    name,
+    params,
+  };
+
+  emitter.emit('flow_view_did_receive_analytic_event', JSON.stringify(payload));
+}
+
+/**
+ * Emits mock flow app review request event for testing
+ */
+export function emitFlowAppReviewEvent(
+  viewId: string,
+  view: { id: string; placement_id: string; variation_id: string },
+): void {
+  const bridge = $bridge.testBridge;
+
+  if (!bridge) {
+    throw new Error('Bridge not initialized');
+  }
+
+  const emitter = (bridge as any).testEmitter;
+
+  if (!emitter) {
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
+  }
+
+  const payload = {
+    id: 'flow_view_did_request_app_review',
+    view: {
+      id: viewId,
+      placement_id: view.placement_id,
+      variation_id: view.variation_id,
+    },
+  };
+
+  emitter.emit('flow_view_did_request_app_review', JSON.stringify(payload));
+}
