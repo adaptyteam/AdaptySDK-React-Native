@@ -1,12 +1,18 @@
 import type { FlowEventHandlers } from './types';
 import { $bridge } from '@/bridge';
 import { EmitterSubscription } from 'react-native';
-import { ParsedFlowEvent, FlowEventIdType } from '@/types/flow-events';
-import { LogContext } from '@/logger';
+import {
+  FlowEventId,
+  ParsedFlowEvent,
+  FlowEventIdType,
+} from '@/types/flow-events';
+import { LogContext, LogScope } from '@/logger';
+import { Req } from '@/types/schema';
 import {
   NATIVE_EVENT_RESOLVER,
   HANDLER_TO_NATIVE_EVENT,
   extractFlowCallbackArgs,
+  type FlowPermissionStatus,
 } from '@adapty/core';
 
 type EventName = keyof FlowEventHandlers;
@@ -144,6 +150,13 @@ export class FlowViewEmitter {
       // TypeScript doesn't narrow the type after the null check, so we assert it
       const handlerName = resolvedHandler as EventName;
 
+      // Permission is an async round-trip handler: it returns a Promise and
+      // must NOT go through the synchronous boolean/close path.
+      if (handlerName === 'onRequestPermission') {
+        void this.handlePermissionRequest(parsedEvent, ctx, log);
+        return;
+      }
+
       let hasError = false;
 
       // 1. Client handlers
@@ -202,6 +215,63 @@ export class FlowViewEmitter {
         log.success(() => ({ viewId: eventViewId, eventId: parsedEvent.id }));
       }
     };
+  }
+
+  private async handlePermissionRequest(
+    event: ParsedFlowEvent,
+    ctx: LogContext,
+    log: LogScope,
+  ): Promise<void> {
+    if (event.id !== FlowEventId.DidRequestPermission) {
+      return;
+    }
+
+    const handlerData = this.handlers.get('onRequestPermission');
+    if (!handlerData) {
+      return;
+    }
+
+    const handler =
+      handlerData.handler as FlowEventHandlers['onRequestPermission'];
+
+    let status: FlowPermissionStatus = 'unavailable';
+    let detail: string | undefined;
+    try {
+      const response = await handler(event.permission, event.customArgs);
+      status = response.status;
+      detail = response.detail;
+    } catch (error) {
+      log.failed(() => ({
+        error,
+        viewId: event.view.id,
+        eventId: event.id,
+        reason: 'permission_handler_failed',
+      }));
+    }
+
+    const body = JSON.stringify({
+      method: 'did_request_permission_response',
+      request_id: event.requestId,
+      status,
+      detail,
+    } satisfies Req['DidRequestPermissionResponse.Request']);
+
+    try {
+      await $bridge.request(
+        'did_request_permission_response',
+        body,
+        'Void',
+        ctx,
+      );
+      log.success(() => ({ requestId: event.requestId, status }));
+    } catch (error) {
+      log.failed(() => ({
+        error,
+        viewId: event.view.id,
+        eventId: event.id,
+        reason: 'permission_response_failed',
+      }));
+    }
   }
 
   public removeAllListeners() {

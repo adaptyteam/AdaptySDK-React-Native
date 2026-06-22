@@ -17,6 +17,7 @@ import { Adapty } from '@/adapty-handler';
 import { AdaptyError } from '@/adapty-error';
 import { FlowViewController } from '@/ui/flow-view-controller';
 import { FlowEventHandlers } from '@/ui/types';
+import { $bridge } from '@/bridge';
 import {
   createFlowViewController,
   cleanupFlowViewController,
@@ -37,6 +38,7 @@ import {
   emitFlowLoadingProductsFailedEvent,
   emitFlowAnalyticEvent,
   emitFlowAppReviewEvent,
+  emitFlowRequestPermissionEvent,
 } from './flow-event-emitter.utils';
 import {
   FLOW_PRODUCT_SELECTED_YEARLY,
@@ -244,6 +246,51 @@ describe('FlowViewController - action mapping isolation', () => {
 
     expect(onRequestAppReview).toHaveBeenCalledTimes(1);
     expect(onRequestAppReview).toHaveBeenCalledWith();
+  });
+
+  it('invokes onRequestPermission and replies to native with the resolved status', async () => {
+    const requestSpy = jest
+      .spyOn(($bridge as any).testBridge, 'request')
+      .mockResolvedValue(undefined);
+
+    const onRequestPermission: jest.MockedFunction<
+      FlowEventHandlers['onRequestPermission']
+    > = jest.fn().mockResolvedValue({ status: 'granted', detail: 'authorized' });
+
+    view.setEventHandlers({ onRequestPermission });
+
+    const viewId = (view as any).id;
+    emitFlowRequestPermissionEvent(
+      viewId,
+      'req-1',
+      'notifications',
+      { source: 'onboarding' },
+      { id: viewId, placement_id: 'plc', variation_id: 'var' },
+    );
+
+    // Handler receives (permission, customArgs); request id is hidden.
+    expect(onRequestPermission).toHaveBeenCalledWith('notifications', {
+      source: 'onboarding',
+    });
+
+    // Flush the async round-trip microtasks.
+    await new Promise(resolve => setImmediate(resolve));
+
+    const responseCall = requestSpy.mock.calls.find(
+      call => call[0] === 'did_request_permission_response',
+    );
+    expect(responseCall).toBeDefined();
+    expect(responseCall![2]).toBe('Void');
+
+    const body = JSON.parse(responseCall![1] as string);
+    expect(body).toMatchObject({
+      method: 'did_request_permission_response',
+      request_id: 'req-1',
+      status: 'granted',
+      detail: 'authorized',
+    });
+
+    requestSpy.mockRestore();
   });
 });
 

@@ -527,3 +527,40 @@ export function emitFlowAppReviewEvent(
 
   emitter.emit('flow_view_did_request_app_review', JSON.stringify(payload));
 }
+
+/**
+ * Emits mock flow permission request event for testing
+ */
+export function emitFlowRequestPermissionEvent(
+  viewId: string,
+  requestId: string,
+  permission: string,
+  customArgs: Record<string, string>,
+  view: { id: string; placement_id: string; variation_id: string },
+): void {
+  const bridge = $bridge.testBridge;
+
+  if (!bridge) {
+    throw new Error('Bridge not initialized');
+  }
+
+  const emitter = (bridge as any).testEmitter;
+
+  if (!emitter) {
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
+  }
+
+  const payload = {
+    id: 'flow_view_did_request_permission',
+    view: {
+      id: viewId,
+      placement_id: view.placement_id,
+      variation_id: view.variation_id,
+    },
+    request_id: requestId,
+    permission,
+    custom_args: customArgs,
+  };
+
+  emitter.emit('flow_view_did_request_permission', JSON.stringify(payload));
+}
