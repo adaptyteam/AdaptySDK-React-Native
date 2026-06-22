@@ -292,6 +292,42 @@ describe('FlowViewController - action mapping isolation', () => {
 
     requestSpy.mockRestore();
   });
+
+  it('replies with unavailable when onRequestPermission rejects', async () => {
+    const requestSpy = jest
+      .spyOn(($bridge as any).testBridge, 'request')
+      .mockResolvedValue(undefined);
+
+    const onRequestPermission: jest.MockedFunction<
+      FlowEventHandlers['onRequestPermission']
+    > = jest.fn().mockRejectedValue(new Error('boom'));
+
+    view.setEventHandlers({ onRequestPermission });
+
+    const viewId = (view as any).id;
+    emitFlowRequestPermissionEvent(
+      viewId,
+      'req-err',
+      'notifications',
+      {},
+      { id: viewId, placement_id: 'plc', variation_id: 'var' },
+    );
+
+    await new Promise(resolve => setImmediate(resolve));
+
+    const responseCall = requestSpy.mock.calls.find(
+      call => call[0] === 'did_request_permission_response',
+    );
+    expect(responseCall).toBeDefined();
+    const body = JSON.parse(responseCall![1] as string);
+    expect(body).toMatchObject({
+      method: 'did_request_permission_response',
+      request_id: 'req-err',
+      status: 'unavailable',
+    });
+
+    requestSpy.mockRestore();
+  });
 });
 
 describe('FlowViewController - onProductSelected event', () => {
