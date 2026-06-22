@@ -198,6 +198,14 @@ export const PaywallSection: React.FC<Props> = ({
         console.log('[ADAPTY]: Paywall disappeared');
         return false;
       },
+      onRequestAppReview() {
+        console.log('[ADAPTY]: App review requested');
+        return false;
+      },
+      onAnalytics(name, params) {
+        console.log('[ADAPTY]: Analytics event', name, params);
+        return false;
+      },
     });
 
     try {
