@@ -225,6 +225,9 @@ export class MockRequestHandler<Method extends string, Params extends string> {
         case 'adapty_ui_show_dialog':
           result = 'primary';
           break;
+        case 'did_request_permission_response':
+          result = undefined; // void
+          break;
 
         default:
           result = undefined;

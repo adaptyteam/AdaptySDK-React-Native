@@ -8,6 +8,8 @@ export type {
   AdaptyUiOnboardingMeta,
   AdaptyUiOnboardingStateParams,
   OnboardingStateUpdatedAction,
+  FlowPermissionResponse,
+  FlowPermissionStatus,
   CreateFlowViewParamsInput,
   CreateOnboardingViewParamsInput,
   AdaptyUiView,
@@ -68,6 +70,8 @@ export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   onWebPaymentNavigationFinished: () => false,
   onRequestAppReview: () => false,
   onAnalytics: () => false,
+  // Reply `unavailable` by default so native always gets a correlated answer.
+  onRequestPermission: async () => ({ status: 'unavailable' as const }),
 };
 
 /**
