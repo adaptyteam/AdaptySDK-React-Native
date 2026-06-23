@@ -76,6 +76,10 @@ interface ResponseRegistry {
   adapty_ui_create_onboarding_view?: components['requests']['AdaptyUICreateOnboardingView.Response'];
   adapty_ui_present_onboarding_view?: components['requests']['AdaptyUIPresentOnboardingView.Response'];
   adapty_ui_dismiss_onboarding_view?: components['requests']['AdaptyUIDismissOnboardingView.Response'];
+
+  // Adapty UI - Flow native actions
+  adapty_ui_open_url?: components['requests']['AdaptyUIOpenUrl.Response'];
+  adapty_ui_request_app_review?: components['requests']['AdaptyUIRequestAppReview.Response'];
 }
 
 /**

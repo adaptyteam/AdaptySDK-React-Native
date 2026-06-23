@@ -747,6 +747,76 @@ export class Adapty {
   }
 
   /**
+   * Opens a URL using the native browser.
+   *
+   * @remarks
+   * This is the native implementation behind the default `onUrlPress` flow
+   * handler. The native side honors `openIn` (`browser_out_app` → external
+   * browser, `browser_in_app` → in-app browser). Call it directly from a custom
+   * `onUrlPress` handler when you want to run your own logic but keep the native
+   * open-URL behavior.
+   *
+   * @param {string} url - The URL to open.
+   * @param {WebPresentation} [openIn] - How to present the URL. When omitted,
+   * the native SDK decides how to present it.
+   * @returns {Promise<void>} resolves when the native call completes.
+   * @throws {@link AdaptyError}
+   */
+  public async openWebUrl(
+    url: string,
+    openIn?: WebPresentation,
+  ): Promise<void> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'openWebUrl' });
+    log.start(() => ({ url, openIn }));
+
+    const methodKey = 'adapty_ui_open_url';
+    const data: Req['AdaptyUIOpenUrl.Request'] = {
+      method: methodKey,
+      url,
+    };
+
+    if (openIn) {
+      data.open_in = openIn;
+    }
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  /**
+   * Requests the native app-review prompt.
+   *
+   * @remarks
+   * This is the native implementation behind the default `onRequestAppReview`
+   * flow handler (`SKStoreReviewController` on iOS, In-App Review on Android).
+   * Call it directly from a custom `onRequestAppReview` handler when you want to
+   * run your own logic but keep the native prompt.
+   *
+   * @returns {Promise<void>} resolves when the native call completes.
+   * @throws {@link AdaptyError}
+   */
+  public async requestAppReview(): Promise<void> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'requestAppReview' });
+    log.start(() => ({}));
+
+    const methodKey = 'adapty_ui_request_app_review';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['AdaptyUIRequestAppReview.Request']);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  /**
    * Logs out the current user.
    * You can then login the user using {@link Adapty.identify} method.
    *

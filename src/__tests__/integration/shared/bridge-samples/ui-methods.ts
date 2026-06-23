@@ -211,3 +211,19 @@ export const ADAPTY_UI_DISMISS_ONBOARDING_VIEW_RESPONSE: components['requests'][
   {
     success: true,
   };
+
+/**
+ * AdaptyUIOpenUrl successful response
+ */
+export const ADAPTY_UI_OPEN_URL_RESPONSE_SUCCESS: components['requests']['AdaptyUIOpenUrl.Response'] =
+  {
+    success: true,
+  };
+
+/**
+ * AdaptyUIRequestAppReview successful response
+ */
+export const ADAPTY_UI_REQUEST_APP_REVIEW_RESPONSE_SUCCESS: components['requests']['AdaptyUIRequestAppReview.Response'] =
+  {
+    success: true,
+  };
