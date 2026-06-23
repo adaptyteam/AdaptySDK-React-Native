@@ -1,52 +1,39 @@
 import { DEFAULT_FLOW_EVENT_HANDLERS } from './types';
-import { $bridge } from '@/bridge';
+import { adapty } from '@/adapty-instance';
 import { Log } from '@/logger';
-
-jest.mock('@/bridge', () => {
-  const actual = jest.requireActual('@/bridge');
-  return {
-    ...actual,
-    $bridge: {
-      request: jest.fn(),
-      addEventListener: jest.fn(() => ({ remove: jest.fn() })),
-      removeAllEventListeners: jest.fn(),
-    },
-  };
-});
-
-const requestMock = $bridge.request as unknown as jest.Mock;
 
 // Lets a fire-and-forget `.catch(...)` settle before assertions.
 const flushMicrotasks = () => new Promise(resolve => setImmediate(resolve));
 
 describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    requestMock.mockResolvedValue(undefined);
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('onUrlPress', () => {
-    it('delegates to native adapty_ui_open_url with url and open_in', () => {
+    it('delegates to adapty.openWebUrl with url and openIn', () => {
+      const openWebUrl = jest
+        .spyOn(adapty, 'openWebUrl')
+        .mockResolvedValue(undefined);
+
       const result = DEFAULT_FLOW_EVENT_HANDLERS.onUrlPress(
         'https://adapty.io',
         'browser_in_app',
       );
 
-      expect(requestMock).toHaveBeenCalledTimes(1);
-      const [method, body, resultType] = requestMock.mock.calls[0];
-      expect(method).toBe('adapty_ui_open_url');
-      expect(resultType).toBe('Void');
-      expect(JSON.parse(body)).toEqual({
-        method: 'adapty_ui_open_url',
-        url: 'https://adapty.io',
-        open_in: 'browser_in_app',
-      });
-      // Keeps the paywall view open
+      expect(openWebUrl).toHaveBeenCalledTimes(1);
+      expect(openWebUrl).toHaveBeenCalledWith(
+        'https://adapty.io',
+        'browser_in_app',
+      );
+      // Keeps the flow view open
       expect(result).toBe(false);
     });
 
-    it('keeps the view open and logs when the native call rejects', async () => {
-      requestMock.mockRejectedValueOnce(new Error('boom'));
+    it('keeps the view open and logs when openWebUrl rejects', async () => {
+      jest
+        .spyOn(adapty, 'openWebUrl')
+        .mockRejectedValueOnce(new Error('boom'));
       const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
 
       const result = DEFAULT_FLOW_EVENT_HANDLERS.onUrlPress(
@@ -57,28 +44,26 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
 
       await flushMicrotasks();
       expect(warnSpy).toHaveBeenCalled();
-
-      warnSpy.mockRestore();
     });
   });
 
   describe('onRequestAppReview', () => {
-    it('delegates to native adapty_ui_request_app_review', () => {
+    it('delegates to adapty.requestAppReview', () => {
+      const requestAppReview = jest
+        .spyOn(adapty, 'requestAppReview')
+        .mockResolvedValue(undefined);
+
       const result = DEFAULT_FLOW_EVENT_HANDLERS.onRequestAppReview();
 
-      expect(requestMock).toHaveBeenCalledTimes(1);
-      const [method, body, resultType] = requestMock.mock.calls[0];
-      expect(method).toBe('adapty_ui_request_app_review');
-      expect(resultType).toBe('Void');
-      expect(JSON.parse(body)).toEqual({
-        method: 'adapty_ui_request_app_review',
-      });
-      // Keeps the paywall view open
+      expect(requestAppReview).toHaveBeenCalledTimes(1);
+      // Keeps the flow view open
       expect(result).toBe(false);
     });
 
-    it('keeps the view open and logs when the native call rejects', async () => {
-      requestMock.mockRejectedValueOnce(new Error('boom'));
+    it('keeps the view open and logs when requestAppReview rejects', async () => {
+      jest
+        .spyOn(adapty, 'requestAppReview')
+        .mockRejectedValueOnce(new Error('boom'));
       const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
 
       const result = DEFAULT_FLOW_EVENT_HANDLERS.onRequestAppReview();
@@ -86,8 +71,6 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
 
       await flushMicrotasks();
       expect(warnSpy).toHaveBeenCalled();
-
-      warnSpy.mockRestore();
     });
   });
 });
