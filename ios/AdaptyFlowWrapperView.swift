@@ -46,7 +46,7 @@ class AdaptyFlowWrapperView: UIView {
 
         Task { @MainActor in
             do {
-                let config = try await AdaptyPlugin.getPaywallViewConfiguration(withJson: json)
+                let config = try await AdaptyPlugin.getFlowViewConfiguration(withJson: json)
 
                 let handler = SwiftAdaptyPluginEventHandler { event in
                     RNAdapty.emitPluginEvent(event)
