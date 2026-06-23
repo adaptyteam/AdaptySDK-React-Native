@@ -10,7 +10,7 @@ export type {
   OnboardingStateUpdatedAction,
   FlowPermissionResponse,
   FlowPermissionStatus,
-  AdaptyFlowPermission,
+  AdaptyPermission,
   CreateFlowViewParamsInput,
   CreateOnboardingViewParamsInput,
   AdaptyUiView,
