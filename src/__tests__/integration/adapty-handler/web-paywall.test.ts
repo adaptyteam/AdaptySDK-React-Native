@@ -9,6 +9,7 @@ import {
 } from '../shared/native-module-mock.utils';
 import {
   ACTIVATE_RESPONSE_SUCCESS,
+  GET_FLOW_RESPONSE,
   OPEN_WEB_PAYWALL_RESPONSE_SUCCESS,
   CREATE_WEB_PAYWALL_URL_RESPONSE,
 } from '../shared/bridge-samples';
@@ -25,6 +26,7 @@ describe('Adapty - Web Paywall (Bridge Integration)', () => {
 
     nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,
+      get_flow: GET_FLOW_RESPONSE,
       open_web_paywall: OPEN_WEB_PAYWALL_RESPONSE_SUCCESS,
       create_web_paywall_url: CREATE_WEB_PAYWALL_URL_RESPONSE,
     });
@@ -54,12 +56,32 @@ describe('Adapty - Web Paywall (Bridge Integration)', () => {
       expect(request.method).toBe('open_web_paywall');
       expect(request.open_in).toBe('browser_out_app');
       expect(request.product).toBeDefined();
-      expect(request.product.vendor_product_id).toBe('com.example.product');
+      expect(request.product?.vendor_product_id).toBe('com.example.product');
+      expect(request.flow).toBeUndefined();
+    });
+
+    it('should send OpenWebPaywall.Request with flow', async () => {
+      const flow = await adapty.getFlow('test_placement');
+      nativeMock.handler.mockClear();
+
+      await adapty.openWebPaywall(flow, 'browser_in_app');
+
+      const request = extractNativeRequest<
+        components['requests']['OpenWebPaywall.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.method).toBe('open_web_paywall');
+      expect(request.open_in).toBe('browser_in_app');
+      expect(request.flow).toBeDefined();
+      expect(request.flow?.flow_id).toBe('flow_test_placement');
+      expect(request.product).toBeUndefined();
     });
   });
 
   describe('createWebPaywallUrl', () => {
-    it('should send CreateWebPaywallUrl.Request and return URL', async () => {
+    it('should send CreateWebPaywallUrl.Request with product and return URL', async () => {
       const product = createMockProduct();
 
       const url = await adapty.createWebPaywallUrl(product);
@@ -72,7 +94,27 @@ describe('Adapty - Web Paywall (Bridge Integration)', () => {
 
       expect(request.method).toBe('create_web_paywall_url');
       expect(request.product).toBeDefined();
-      expect(request.product.vendor_product_id).toBe('com.example.product');
+      expect(request.product?.vendor_product_id).toBe('com.example.product');
+      expect(request.flow).toBeUndefined();
+      expect(url).toBe('https://example.adapty.io/web-paywall-url');
+    });
+
+    it('should send CreateWebPaywallUrl.Request with flow and return URL', async () => {
+      const flow = await adapty.getFlow('test_placement');
+      nativeMock.handler.mockClear();
+
+      const url = await adapty.createWebPaywallUrl(flow);
+
+      const request = extractNativeRequest<
+        components['requests']['CreateWebPaywallUrl.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.method).toBe('create_web_paywall_url');
+      expect(request.flow).toBeDefined();
+      expect(request.flow?.flow_id).toBe('flow_test_placement');
+      expect(request.product).toBeUndefined();
       expect(url).toBe('https://example.adapty.io/web-paywall-url');
     });
   });

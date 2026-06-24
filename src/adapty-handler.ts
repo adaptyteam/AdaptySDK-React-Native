@@ -697,19 +697,19 @@ export class Adapty {
   }
 
   public async openWebPaywall(
-    product: Model.AdaptyPaywallProduct,
+    flowOrProduct: Model.AdaptyFlow | Model.AdaptyPaywallProduct,
     openIn: WebPresentation = WebPresentation.BrowserOutApp,
   ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'openWebPaywall' });
-    log.start(() => ({ product }));
+    log.start(() => ({ flowOrProduct }));
 
     const methodKey = 'open_web_paywall';
     const data: Req['OpenWebPaywall.Request'] = {
       method: methodKey,
       open_in: openIn,
-      product: coderFactory.createPaywallProductCoder().encode(product),
+      ...this.encodeWebPaywallTarget(flowOrProduct),
     };
 
     const body = JSON.stringify(data);
@@ -720,17 +720,17 @@ export class Adapty {
   }
 
   public async createWebPaywallUrl(
-    product: Model.AdaptyPaywallProduct,
+    flowOrProduct: Model.AdaptyFlow | Model.AdaptyPaywallProduct,
   ): Promise<string> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'create_web_paywall_url' });
-    log.start(() => ({ product }));
+    log.start(() => ({ flowOrProduct }));
 
     const methodKey = 'create_web_paywall_url';
     const data: Req['CreateWebPaywallUrl.Request'] = {
       method: methodKey,
-      product: coderFactory.createPaywallProductCoder().encode(product),
+      ...this.encodeWebPaywallTarget(flowOrProduct),
     };
 
     const body = JSON.stringify(data);
@@ -744,6 +744,25 @@ export class Adapty {
     );
 
     return result;
+  }
+
+  /**
+   * Encodes a web paywall target as either a `product` or a `flow` wire field.
+   * The cross-platform contract accepts exactly one of them; products are
+   * discriminated by the presence of `vendorProductId`.
+   */
+  private encodeWebPaywallTarget(
+    flowOrProduct: Model.AdaptyFlow | Model.AdaptyPaywallProduct,
+  ) {
+    if ('vendorProductId' in flowOrProduct) {
+      return {
+        product: coderFactory.createPaywallProductCoder().encode(flowOrProduct),
+      };
+    }
+
+    return {
+      flow: coderFactory.createFlowCoder().encode(flowOrProduct),
+    };
   }
 
   /**
