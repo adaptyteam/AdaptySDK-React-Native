@@ -1054,15 +1054,6 @@ export class Adapty {
     return result;
   }
 
-  /**
-   * @deprecated use {@link setFallback}
-   */
-  public async setFallbackPaywalls(
-    paywallsLocation: FileLocation,
-  ): Promise<void> {
-    return this.setFallback(paywallsLocation);
-  }
-
   public async setIntegrationIdentifier(
     key: string,
     value: string,
