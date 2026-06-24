@@ -18,7 +18,25 @@ import { filterUndefined } from '@adapty/core';
  * @public
  */
 export type AdaptyFlowViewProps = ViewProps & {
+  /**
+   * Flow (paywall) object to render.
+   *
+   * @remarks
+   * Encoded and serialized to JSON (`flowJson`) before it is handed to the
+   * native view. Keep the reference stable across renders (e.g. memoized or
+   * held in state) — a new object identity re-runs the coder and
+   * `JSON.stringify` on every render.
+   */
   flow: AdaptyFlow;
+  /**
+   * Optional parameters for the flow view.
+   *
+   * @remarks
+   * Merged with defaults, then encoded and serialized into `flowJson`
+   * alongside `flow`. Prefer a referentially stable / memoized object — an
+   * inline `{...}` literal is a new reference each render and forces
+   * re-encoding.
+   */
   params?: CreateFlowViewParamsInput;
   onCloseButtonPress?: FlowEventHandlers['onCloseButtonPress'];
   onProductSelected?: FlowEventHandlers['onProductSelected'];
@@ -143,3 +161,5 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
  * @public
  */
 export const AdaptyFlowView = memo(AdaptyFlowViewComponent);
+
+AdaptyFlowView.displayName = 'AdaptyFlowView';
