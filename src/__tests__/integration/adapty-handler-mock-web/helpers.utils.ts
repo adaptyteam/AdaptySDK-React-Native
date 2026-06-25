@@ -61,6 +61,7 @@ export function createMockFlow(overrides?: Partial<AdaptyFlow>): AdaptyFlow {
             adaptyProductId: 'adapty_product',
           },
         ],
+        // `products` kept at runtime for coder.encode(flow) — assertion hides it from public type
         products: [
           {
             vendorId: 'com.example.product',
@@ -69,7 +70,7 @@ export function createMockFlow(overrides?: Partial<AdaptyFlow>): AdaptyFlow {
             productType: 'subscription',
           },
         ],
-      },
+      } as AdaptyFlow['paywalls'][number],
     ],
     ...overrides,
   };

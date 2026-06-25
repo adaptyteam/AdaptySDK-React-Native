@@ -30,7 +30,6 @@ export type {
   AdaptyDiscountPhase,
   AdaptySubscriptionPeriod,
   AdaptyProfileParameters,
-  ProductReference,
   AdaptyProductIdentifier,
   AdaptyInstallationStatus,
   AdaptyInstallationDetails,

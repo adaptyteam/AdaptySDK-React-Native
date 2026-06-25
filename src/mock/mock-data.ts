@@ -115,7 +115,10 @@ export function createMockFlow(
     isTrackingPurchases: true,
   };
 
-  const variation: AdaptyFlow['paywalls'][number] = {
+  // `products` is kept at runtime so `coder.encode(flow)` (called by
+  // getPaywallProducts / createFlowView) still serializes it. It is not on the
+  // public AdaptyFlowPaywall type anymore — hence the assertion.
+  const variation = {
     placement,
     id: `mock-paywall-${placementId}`,
     name: placementId,
@@ -149,7 +152,7 @@ export function createMockFlow(
       },
     ],
     webPurchaseUrl: `http://paywalls-mock.adapty.io/${placementId}`,
-  };
+  } as AdaptyFlow['paywalls'][number];
 
   return {
     placement,

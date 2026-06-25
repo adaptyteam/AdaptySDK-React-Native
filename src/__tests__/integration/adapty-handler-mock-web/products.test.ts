@@ -58,7 +58,8 @@ describe('Adapty - Paywall Products', () => {
                 adaptyProductId: 'default_id',
               },
             ],
-            // Note: 'products' is deprecated in public API, but still used internally by encoder
+            // Note: 'products' is not on the public AdaptyFlowPaywall type, but kept at
+            // runtime for coder.encode(flow) — assertion hides excess property from TS
             products: [
               {
                 vendorId: 'com.example.default',
@@ -67,7 +68,7 @@ describe('Adapty - Paywall Products', () => {
                 productType: 'subscription',
               },
             ],
-          },
+          } as AdaptyFlow['paywalls'][number],
         ],
       };
 
