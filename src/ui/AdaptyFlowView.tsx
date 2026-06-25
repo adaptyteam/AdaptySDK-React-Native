@@ -1,8 +1,8 @@
-import React, { memo, useEffect, useMemo } from 'react';
+import React, { memo, useEffect, useId, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyFlow } from '@/types';
 import { coderFactory } from '@/coders/factory';
-import { generateId, shouldEnableMock } from '@/utils';
+import { shouldEnableMock } from '@/utils';
 import {
   CreateFlowViewParamsInput,
   FlowEventHandlers,
@@ -83,7 +83,8 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   onRequestPermission,
   ...rest
 }) => {
-  const uniqueViewId = useMemo(() => `${flow.id}_${generateId()}`, [flow.id]);
+  const reactId = useId();
+  const uniqueViewId = `${flow.id}_${reactId}`;
 
   const flowJson = useMemo(() => {
     const encodedFlow = coderFactory.createFlowCoder().encode(flow);
