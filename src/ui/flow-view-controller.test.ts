@@ -52,7 +52,7 @@ describe('FlowViewController', () => {
       audienceVersionId: 'v1',
     },
     variationId: 'var',
-    variations: [],
+    paywalls: [],
     responseCreatedAt: 1704067200000,
   } as any;
 

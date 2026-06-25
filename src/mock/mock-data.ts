@@ -115,7 +115,7 @@ export function createMockFlow(
     isTrackingPurchases: true,
   };
 
-  const variation: AdaptyFlow['variations'][number] = {
+  const variation: AdaptyFlow['paywalls'][number] = {
     placement,
     id: `mock-paywall-${placementId}`,
     name: placementId,
@@ -156,7 +156,7 @@ export function createMockFlow(
     id: `mock-flow-${placementId}`,
     name: placementId,
     variationId: 'mock_variation_id',
-    variations: [variation],
+    paywalls: [variation],
     responseCreatedAt: Date.now(),
     ...overrides,
   };
@@ -184,7 +184,7 @@ export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
         currencySymbol: '$',
         localizedString: '$99.99',
       },
-      webPurchaseUrl: flow.variations[0]?.webPurchaseUrl,
+      webPurchaseUrl: flow.paywalls[0]?.webPurchaseUrl,
       paywallProductIndex: 0,
       subscription: {
         subscriptionPeriod: {
@@ -239,7 +239,7 @@ export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
         currencySymbol: '$',
         localizedString: '$9.99',
       },
-      webPurchaseUrl: flow.variations[0]?.webPurchaseUrl,
+      webPurchaseUrl: flow.paywalls[0]?.webPurchaseUrl,
       paywallProductIndex: 1,
       subscription: {
         subscriptionPeriod: {

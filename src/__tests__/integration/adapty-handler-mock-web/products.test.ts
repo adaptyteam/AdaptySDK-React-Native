@@ -46,7 +46,7 @@ describe('Adapty - Paywall Products', () => {
         variationId: 'special_variation_123',
         placement,
         responseCreatedAt: 1704067200000,
-        variations: [
+        paywalls: [
           {
             placement,
             id: 'test_paywall',

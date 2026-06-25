@@ -49,7 +49,7 @@ export function createMockFlow(overrides?: Partial<AdaptyFlow>): AdaptyFlow {
     variationId: 'variation_1',
     placement,
     responseCreatedAt: 1704067200000,
-    variations: [
+    paywalls: [
       {
         placement,
         id: 'test_paywall',

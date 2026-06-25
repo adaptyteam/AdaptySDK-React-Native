@@ -62,7 +62,7 @@ describe('Adapty - Web Paywall (Bridge Integration)', () => {
 
     it('should send OpenWebPaywall.Request with paywall', async () => {
       const flow = await adapty.getFlow('test_placement');
-      const paywall = flow.variations[0]!;
+      const paywall = flow.paywalls[0]!;
       nativeMock.handler.mockClear();
 
       await adapty.openWebPaywall(paywall, 'browser_in_app');
@@ -102,7 +102,7 @@ describe('Adapty - Web Paywall (Bridge Integration)', () => {
 
     it('should send CreateWebPaywallUrl.Request with paywall and return URL', async () => {
       const flow = await adapty.getFlow('test_placement');
-      const paywall = flow.variations[0]!;
+      const paywall = flow.paywalls[0]!;
       nativeMock.handler.mockClear();
 
       const url = await adapty.createWebPaywallUrl(paywall);

@@ -24,8 +24,8 @@ describe('Adapty - Flow', () => {
       expect(flow.placement.id).toBe('test_placement');
       expect(flow.variationId).toBeDefined();
       expect(flow.responseCreatedAt).toBeDefined();
-      expect(Array.isArray(flow.variations)).toBe(true);
-      expect(flow.variations.length).toBeGreaterThan(0);
+      expect(Array.isArray(flow.paywalls)).toBe(true);
+      expect(flow.paywalls.length).toBeGreaterThan(0);
     });
 
     it('should return different flows for different placementId', async () => {
@@ -57,15 +57,15 @@ describe('Adapty - Flow', () => {
       expect(flow.placement.revision).toBeDefined();
       expect(flow.placement.audienceVersionId).toBeDefined();
 
-      // Check variations (flow-shape)
-      expect(flow.variations).toBeDefined();
-      expect(Array.isArray(flow.variations)).toBe(true);
-      expect(flow.variations.length).toBeGreaterThan(0);
+      // Check paywalls (flow-shape)
+      expect(flow.paywalls).toBeDefined();
+      expect(Array.isArray(flow.paywalls)).toBe(true);
+      expect(flow.paywalls.length).toBeGreaterThan(0);
 
       // Check productIdentifiers on the first variation
-      expect(flow.variations[0]!.productIdentifiers).toBeDefined();
-      expect(Array.isArray(flow.variations[0]!.productIdentifiers)).toBe(true);
-      expect(flow.variations[0]!.productIdentifiers.length).toBeGreaterThan(0);
+      expect(flow.paywalls[0]!.productIdentifiers).toBeDefined();
+      expect(Array.isArray(flow.paywalls[0]!.productIdentifiers)).toBe(true);
+      expect(flow.paywalls[0]!.productIdentifiers.length).toBeGreaterThan(0);
     });
   });
 
