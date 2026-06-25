@@ -529,11 +529,11 @@ export function emitFlowAppReviewEvent(
 }
 
 /**
- * Emits mock flow permission request event for testing
+ * Emits mock flow ask-permission event for testing
  */
-export function emitFlowRequestPermissionEvent(
+export function emitFlowAskPermissionEvent(
   viewId: string,
-  requestId: string,
+  eventId: string,
   permission: string,
   customArgs: Record<string, string>,
   view: { id: string; placement_id: string; variation_id: string },
@@ -551,16 +551,16 @@ export function emitFlowRequestPermissionEvent(
   }
 
   const payload = {
-    id: 'flow_view_did_request_permission',
+    id: 'flow_view_did_ask_permission',
     view: {
       id: viewId,
       placement_id: view.placement_id,
       variation_id: view.variation_id,
     },
-    request_id: requestId,
+    event_id: eventId,
     permission,
     custom_args: customArgs,
   };
 
-  emitter.emit('flow_view_did_request_permission', JSON.stringify(payload));
+  emitter.emit('flow_view_did_ask_permission', JSON.stringify(payload));
 }

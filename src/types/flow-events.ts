@@ -17,6 +17,6 @@ export type {
   FlowDidFinishWebPaymentNavigationEvent,
   FlowDidRequestAppReviewEvent,
   FlowDidReceiveAnalyticEvent,
-  FlowDidRequestPermissionEvent,
+  FlowDidAskPermissionEvent,
   ParsedFlowEvent,
 } from '@adapty/core';

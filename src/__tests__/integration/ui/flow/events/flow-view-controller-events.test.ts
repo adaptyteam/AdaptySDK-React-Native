@@ -38,7 +38,7 @@ import {
   emitFlowLoadingProductsFailedEvent,
   emitFlowAnalyticEvent,
   emitFlowAppReviewEvent,
-  emitFlowRequestPermissionEvent,
+  emitFlowAskPermissionEvent,
 } from './flow-event-emitter.utils';
 import {
   FLOW_PRODUCT_SELECTED_YEARLY,
@@ -260,15 +260,15 @@ describe('FlowViewController - action mapping isolation', () => {
     view.setEventHandlers({ onRequestPermission });
 
     const viewId = (view as any).id;
-    emitFlowRequestPermissionEvent(
+    emitFlowAskPermissionEvent(
       viewId,
-      'req-1',
+      'evt-1',
       'notifications',
       { source: 'onboarding' },
       { id: viewId, placement_id: 'plc', variation_id: 'var' },
     );
 
-    // Handler receives (permission, customArgs); request id is hidden.
+    // Handler receives (permission, customArgs); event id is hidden.
     expect(onRequestPermission).toHaveBeenCalledWith('notifications', {
       source: 'onboarding',
     });
@@ -277,15 +277,15 @@ describe('FlowViewController - action mapping isolation', () => {
     await new Promise(resolve => setImmediate(resolve));
 
     const responseCall = requestSpy.mock.calls.find(
-      call => call[0] === 'did_request_permission_response',
+      call => call[0] === 'flow_view_did_answer_permission',
     );
     expect(responseCall).toBeDefined();
     expect(responseCall![2]).toBe('Void');
 
     const body = JSON.parse(responseCall![1] as string);
     expect(body).toMatchObject({
-      method: 'did_request_permission_response',
-      request_id: 'req-1',
+      method: 'flow_view_did_answer_permission',
+      event_id: 'evt-1',
       status: 'granted',
       detail: 'authorized',
     });
@@ -305,9 +305,9 @@ describe('FlowViewController - action mapping isolation', () => {
     view.setEventHandlers({ onRequestPermission });
 
     const viewId = (view as any).id;
-    emitFlowRequestPermissionEvent(
+    emitFlowAskPermissionEvent(
       viewId,
-      'req-err',
+      'evt-err',
       'notifications',
       {},
       { id: viewId, placement_id: 'plc', variation_id: 'var' },
@@ -316,13 +316,13 @@ describe('FlowViewController - action mapping isolation', () => {
     await new Promise(resolve => setImmediate(resolve));
 
     const responseCall = requestSpy.mock.calls.find(
-      call => call[0] === 'did_request_permission_response',
+      call => call[0] === 'flow_view_did_answer_permission',
     );
     expect(responseCall).toBeDefined();
     const body = JSON.parse(responseCall![1] as string);
     expect(body).toMatchObject({
-      method: 'did_request_permission_response',
-      request_id: 'req-err',
+      method: 'flow_view_did_answer_permission',
+      event_id: 'evt-err',
       status: 'unavailable',
     });
 

@@ -55,7 +55,7 @@ class RNAdapty: RCTEventEmitter {
             "flow_view_did_finish_web_payment_navigation",
             "flow_view_did_appear",
             "flow_view_did_disappear",
-            "flow_view_did_request_permission",
+            "flow_view_did_ask_permission",
             "flow_view_did_request_app_review",
             "flow_view_observer_did_initiate_purchase",
             "flow_view_observer_did_initiate_restore",

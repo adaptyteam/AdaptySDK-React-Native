@@ -222,7 +222,7 @@ export class FlowViewEmitter {
     ctx: LogContext,
     log: LogScope,
   ): Promise<void> {
-    if (event.id !== FlowEventId.DidRequestPermission) {
+    if (event.id !== FlowEventId.DidAskPermission) {
       return;
     }
 
@@ -250,20 +250,20 @@ export class FlowViewEmitter {
     }
 
     const body = JSON.stringify({
-      method: 'did_request_permission_response',
-      request_id: event.requestId,
+      method: 'flow_view_did_answer_permission',
+      event_id: event.eventId,
       status,
       detail,
-    } satisfies Req['DidRequestPermissionResponse.Request']);
+    } satisfies Req['FlowViewDidAnswerPermission.Request']);
 
     try {
       await $bridge.request(
-        'did_request_permission_response',
+        'flow_view_did_answer_permission',
         body,
         'Void',
         ctx,
       );
-      log.success(() => ({ requestId: event.requestId, status }));
+      log.success(() => ({ eventId: event.eventId, status }));
     } catch (error) {
       log.failed(() => ({
         error,
