@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyFlow } from '@/types';
 import { coderFactory } from '@/coders/factory';
@@ -61,26 +61,6 @@ const NativeAdaptyFlowView = shouldEnableMock()
   ? AdaptyFlowViewMock
   : requireNativeComponent<NativeAdaptyFlowViewProps>('AdaptyFlowView');
 
-/**
- * Returns a view id that stays stable for the lifetime of the component
- * instance and only changes when `flowId` changes.
- *
- * @remarks
- * Unlike `useMemo` — which React is allowed to discard and recompute at any
- * time — this keeps the generated id in a ref, making the value a true
- * semantic guarantee rather than a best-effort cache. The id is handed to the
- * native view and used to correlate emitted events back to this view, so
- * regenerating it mid-lifecycle would desync the JS event subscriptions from
- * the native view.
- */
-function useStableViewId(flowId: string): string {
-  const ref = useRef<{ flowId: string; viewId: string } | null>(null);
-  if (ref.current === null || ref.current.flowId !== flowId) {
-    ref.current = { flowId, viewId: `${flowId}_${generateId()}` };
-  }
-  return ref.current.viewId;
-}
-
 const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   flow,
   params,
@@ -103,7 +83,7 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   onRequestPermission,
   ...rest
 }) => {
-  const uniqueViewId = useStableViewId(flow.id);
+  const uniqueViewId = useMemo(() => `${flow.id}_${generateId()}`, [flow.id]);
 
   const flowJson = useMemo(() => {
     const encodedFlow = coderFactory.createFlowCoder().encode(flow);
