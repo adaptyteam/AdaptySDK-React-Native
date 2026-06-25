@@ -697,19 +697,19 @@ export class Adapty {
   }
 
   public async openWebPaywall(
-    flowOrProduct: Model.AdaptyFlow | Model.AdaptyPaywallProduct,
+    paywallOrProduct: Model.AdaptyFlowPaywall | Model.AdaptyPaywallProduct,
     openIn: WebPresentation = WebPresentation.BrowserOutApp,
   ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'openWebPaywall' });
-    log.start(() => ({ flowOrProduct }));
+    log.start(() => ({ paywallOrProduct }));
 
     const methodKey = 'open_web_paywall';
     const data: Req['OpenWebPaywall.Request'] = {
       method: methodKey,
       open_in: openIn,
-      ...this.encodeWebPaywallTarget(flowOrProduct),
+      ...this.encodeWebPaywallTarget(paywallOrProduct),
     };
 
     const body = JSON.stringify(data);
@@ -720,17 +720,17 @@ export class Adapty {
   }
 
   public async createWebPaywallUrl(
-    flowOrProduct: Model.AdaptyFlow | Model.AdaptyPaywallProduct,
+    paywallOrProduct: Model.AdaptyFlowPaywall | Model.AdaptyPaywallProduct,
   ): Promise<string> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'create_web_paywall_url' });
-    log.start(() => ({ flowOrProduct }));
+    log.start(() => ({ paywallOrProduct }));
 
     const methodKey = 'create_web_paywall_url';
     const data: Req['CreateWebPaywallUrl.Request'] = {
       method: methodKey,
-      ...this.encodeWebPaywallTarget(flowOrProduct),
+      ...this.encodeWebPaywallTarget(paywallOrProduct),
     };
 
     const body = JSON.stringify(data);
@@ -747,21 +747,23 @@ export class Adapty {
   }
 
   /**
-   * Encodes a web paywall target as either a `product` or a `flow` wire field.
-   * The cross-platform contract accepts exactly one of them; products are
-   * discriminated by the presence of `vendorProductId`.
+   * Encodes a web paywall target as either a `product` or a `paywall` wire
+   * field. The cross-platform contract accepts exactly one of them; products
+   * are discriminated by the presence of `vendorProductId`.
    */
   private encodeWebPaywallTarget(
-    flowOrProduct: Model.AdaptyFlow | Model.AdaptyPaywallProduct,
+    paywallOrProduct: Model.AdaptyFlowPaywall | Model.AdaptyPaywallProduct,
   ) {
-    if ('vendorProductId' in flowOrProduct) {
+    if ('vendorProductId' in paywallOrProduct) {
       return {
-        product: coderFactory.createPaywallProductCoder().encode(flowOrProduct),
+        product: coderFactory
+          .createPaywallProductCoder()
+          .encode(paywallOrProduct),
       };
     }
 
     return {
-      flow: coderFactory.createFlowCoder().encode(flowOrProduct),
+      paywall: coderFactory.createFlowPaywallCoder().encode(paywallOrProduct),
     };
   }
 
