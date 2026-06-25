@@ -109,7 +109,7 @@ export const PaywallSection: React.FC<Props> = ({
       },
       onAndroidSystemBack() {
         console.log('[ADAPTY]: Android system back');
-        return true;
+        return false;
       },
       onProductSelected(productId) {
         console.log('[ADAPTY]: Product selected', productId);
