@@ -1556,19 +1556,19 @@ describe('FlowViewController - default event handlers', () => {
     dismissSpy.mockRestore();
   });
 
-  it('should auto-dismiss flow when onAndroidSystemBack event is emitted with default handler', async () => {
+  it('should keep flow open when onAndroidSystemBack event is emitted with default handler', async () => {
     const viewId = (view as any).id;
     const sample = FLOW_USER_ACTION_SYSTEM_BACK;
 
-    // Spy on dismiss method to verify it's called
+    // Spy on dismiss method to verify it's NOT called
     const dismissSpy = jest.spyOn(view, 'dismiss').mockResolvedValue();
 
     // Emit system_back event WITHOUT setting custom handler
-    // Default handler (onAndroidSystemBack: () => true) should be active from create()
+    // Default handler (onAndroidSystemBack: () => false) should be active from create()
     emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
-    // Verify dismiss was called due to default handler returning true
-    expect(dismissSpy).toHaveBeenCalledTimes(1);
+    // Verify dismiss was NOT called because default handler returns false
+    expect(dismissSpy).not.toHaveBeenCalled();
 
     dismissSpy.mockRestore();
   });

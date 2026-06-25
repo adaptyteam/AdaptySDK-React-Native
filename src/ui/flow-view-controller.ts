@@ -256,7 +256,7 @@ export class FlowViewController {
    * Each event type can have only one handler — new handlers replace existing ones.
    * Default handlers are set during view creation: {@link DEFAULT_FLOW_EVENT_HANDLERS}
    * - `onCloseButtonPress` - closes the view (returns `true`)
-   * - `onAndroidSystemBack` - closes the view (returns `true`)
+   * - `onAndroidSystemBack` - keeps the view open (returns `false`)
    * - `onRestoreCompleted` - closes the view (returns `true`)
    * - `onError` - closes the view (returns `true`)
    * - `onPurchaseCompleted` - closes the view on success (returns `purchaseResult.type !== 'user_cancelled'`)

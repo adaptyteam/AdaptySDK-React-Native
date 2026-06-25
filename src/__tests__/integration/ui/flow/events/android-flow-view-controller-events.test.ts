@@ -69,7 +69,7 @@ describe('FlowViewController - onAndroidSystemBack event (Android fields)', () =
     expect(handler).toHaveBeenCalledWith();
   });
 
-  it('should auto-dismiss flow when onAndroidSystemBack event is emitted with default handler', async () => {
+  it('should keep flow open when onAndroidSystemBack event is emitted with default handler', async () => {
     const viewId = (view as any).id;
     const sample = ANDROID_FLOW_USER_ACTION_SYSTEM_BACK;
 
@@ -77,7 +77,7 @@ describe('FlowViewController - onAndroidSystemBack event (Android fields)', () =
 
     emitFlowUserActionEvent(viewId, 'system_back', undefined, sample.view);
 
-    expect(dismissSpy).toHaveBeenCalledTimes(1);
+    expect(dismissSpy).not.toHaveBeenCalled();
 
     dismissSpy.mockRestore();
   });

@@ -41,7 +41,7 @@ import type {
  */
 export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   onCloseButtonPress: () => true,
-  onAndroidSystemBack: () => true,
+  onAndroidSystemBack: () => false,
   // Delegate to the handler method, which opens the URL natively honoring
   // `open_in` (`browser_out_app` → external browser, `browser_in_app` → in-app
   // browser). Override this handler to open URLs yourself instead.
