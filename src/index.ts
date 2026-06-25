@@ -14,7 +14,6 @@ export {
   type IdentifyParamsInput,
   type GetPaywallProductsParamsInput,
   type AdaptyAndroidPurchaseParams,
-  type AdaptyAndroidSubscriptionUpdateParameters,
 } from '@adapty/core';
 export { AdaptyError } from './adapty-error';
 export * from './utils/env-detection';

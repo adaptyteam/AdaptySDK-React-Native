@@ -18,7 +18,6 @@ export {
   type IdentifyParamsInput,
   type GetPaywallProductsParamsInput,
   type AdaptyAndroidPurchaseParams,
-  type AdaptyAndroidSubscriptionUpdateParameters,
 } from '@adapty/core';
 export * from './ui/types';
 export { FlowViewController } from './ui/flow-view-controller';
