@@ -52,6 +52,8 @@ export type AdaptyFlowViewProps = ViewProps & {
   onRequestAppReview?: FlowEventHandlers['onRequestAppReview'];
   onAnalytics?: FlowEventHandlers['onAnalytics'];
   onRequestPermission?: FlowEventHandlers['onRequestPermission'];
+  onObserverPurchaseInitiated?: FlowEventHandlers['onObserverPurchaseInitiated'];
+  onObserverRestoreInitiated?: FlowEventHandlers['onObserverRestoreInitiated'];
 };
 
 const NativeAdaptyFlowView = shouldEnableMock()
@@ -78,6 +80,8 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   onRequestAppReview,
   onAnalytics,
   onRequestPermission,
+  onObserverPurchaseInitiated,
+  onObserverRestoreInitiated,
   ...rest
 }) => {
   const reactId = useId();
@@ -115,6 +119,8 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
       onRequestAppReview,
       onAnalytics,
       onRequestPermission,
+      onObserverPurchaseInitiated,
+      onObserverRestoreInitiated,
     },
     uniqueViewId,
   );

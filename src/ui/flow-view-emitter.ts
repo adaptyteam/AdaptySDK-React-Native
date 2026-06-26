@@ -157,6 +157,17 @@ export class FlowViewEmitter {
         return;
       }
 
+      // Observer round-trip handlers: the SDK injects start/finish callbacks
+      // (closing over event_id), so they bypass the generic args path.
+      if (handlerName === 'onObserverPurchaseInitiated') {
+        this.handleObserverPurchase(parsedEvent, ctx, log);
+        return;
+      }
+      if (handlerName === 'onObserverRestoreInitiated') {
+        this.handleObserverRestore(parsedEvent, ctx, log);
+        return;
+      }
+
       let hasError = false;
 
       // 1. Client handlers
@@ -270,6 +281,154 @@ export class FlowViewEmitter {
         viewId: event.view.id,
         eventId: event.id,
         reason: 'permission_response_failed',
+      }));
+    }
+  }
+
+  private handleObserverPurchase(
+    event: ParsedFlowEvent,
+    ctx: LogContext,
+    log: LogScope,
+  ): void {
+    if (event.id !== FlowEventId.ObserverDidInitiatePurchase) {
+      return;
+    }
+
+    const handlerData = this.handlers.get('onObserverPurchaseInitiated');
+    if (!handlerData) {
+      return;
+    }
+
+    const { handler, onRequestClose } = handlerData;
+    const callback =
+      handler as FlowEventHandlers['onObserverPurchaseInitiated'];
+
+    const onStartPurchase = (): void => {
+      const body = JSON.stringify({
+        method: 'observer_purchase_did_start',
+        event_id: event.eventId,
+      } satisfies Req['ObserverPurchaseDidStart.Request']);
+      void $bridge
+        .request('observer_purchase_did_start', body, 'Void', ctx)
+        .catch(error =>
+          log.failed(() => ({
+            error,
+            eventId: event.eventId,
+            reason: 'observer_purchase_did_start_failed',
+          })),
+        );
+    };
+
+    const onFinishPurchase = (): void => {
+      const body = JSON.stringify({
+        method: 'observer_purchase_did_finish',
+        event_id: event.eventId,
+      } satisfies Req['ObserverPurchaseDidFinish.Request']);
+      void $bridge
+        .request('observer_purchase_did_finish', body, 'Void', ctx)
+        .catch(error =>
+          log.failed(() => ({
+            error,
+            eventId: event.eventId,
+            reason: 'observer_purchase_did_finish_failed',
+          })),
+        );
+    };
+
+    try {
+      const shouldClose = callback(
+        event.product,
+        onStartPurchase,
+        onFinishPurchase,
+      );
+      if (shouldClose) {
+        onRequestClose().catch(error =>
+          log.failed(() => ({
+            error,
+            eventId: event.eventId,
+            reason: 'on_request_close_failed',
+          })),
+        );
+      }
+      log.success(() => ({ viewId: event.view.id, eventId: event.eventId }));
+    } catch (error) {
+      log.failed(() => ({
+        error,
+        viewId: event.view.id,
+        eventId: event.eventId,
+        reason: 'observer_purchase_handler_failed',
+      }));
+    }
+  }
+
+  private handleObserverRestore(
+    event: ParsedFlowEvent,
+    ctx: LogContext,
+    log: LogScope,
+  ): void {
+    if (event.id !== FlowEventId.ObserverDidInitiateRestore) {
+      return;
+    }
+
+    const handlerData = this.handlers.get('onObserverRestoreInitiated');
+    if (!handlerData) {
+      return;
+    }
+
+    const { handler, onRequestClose } = handlerData;
+    const callback =
+      handler as FlowEventHandlers['onObserverRestoreInitiated'];
+
+    const onStartRestore = (): void => {
+      const body = JSON.stringify({
+        method: 'observer_restore_did_start',
+        event_id: event.eventId,
+      } satisfies Req['ObserverRestoreDidStart.Request']);
+      void $bridge
+        .request('observer_restore_did_start', body, 'Void', ctx)
+        .catch(error =>
+          log.failed(() => ({
+            error,
+            eventId: event.eventId,
+            reason: 'observer_restore_did_start_failed',
+          })),
+        );
+    };
+
+    const onFinishRestore = (): void => {
+      const body = JSON.stringify({
+        method: 'observer_restore_did_finish',
+        event_id: event.eventId,
+      } satisfies Req['ObserverRestoreDidFinish.Request']);
+      void $bridge
+        .request('observer_restore_did_finish', body, 'Void', ctx)
+        .catch(error =>
+          log.failed(() => ({
+            error,
+            eventId: event.eventId,
+            reason: 'observer_restore_did_finish_failed',
+          })),
+        );
+    };
+
+    try {
+      const shouldClose = callback(onStartRestore, onFinishRestore);
+      if (shouldClose) {
+        onRequestClose().catch(error =>
+          log.failed(() => ({
+            error,
+            eventId: event.eventId,
+            reason: 'on_request_close_failed',
+          })),
+        );
+      }
+      log.success(() => ({ viewId: event.view.id, eventId: event.eventId }));
+    } catch (error) {
+      log.failed(() => ({
+        error,
+        viewId: event.view.id,
+        eventId: event.eventId,
+        reason: 'observer_restore_handler_failed',
       }));
     }
   }

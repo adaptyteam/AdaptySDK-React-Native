@@ -21,6 +21,8 @@ module.exports = {
     '**/__tests__/**/*.spec.ts',
     '**/*.test.ts',
     '**/*.spec.ts',
+    '**/*.test.tsx',
+    '**/*.spec.tsx',
     '**/*.test.js',
     '**/*.spec.js',
   ],

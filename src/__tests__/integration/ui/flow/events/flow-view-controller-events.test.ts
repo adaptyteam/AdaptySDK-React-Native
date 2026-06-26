@@ -39,6 +39,8 @@ import {
   emitFlowAnalyticEvent,
   emitFlowAppReviewEvent,
   emitFlowAskPermissionEvent,
+  emitFlowObserverPurchaseInitiatedEvent,
+  emitFlowObserverRestoreInitiatedEvent,
 } from './flow-event-emitter.utils';
 import {
   FLOW_PRODUCT_SELECTED_YEARLY,
@@ -334,6 +336,101 @@ describe('FlowViewController - action mapping isolation', () => {
 
     requestSpy.mockRestore();
     consoleErrorSpy.mockRestore();
+  });
+
+  it('drives the paywall loading state on observer purchase and replies start/finish', () => {
+    const requestSpy = jest
+      .spyOn(($bridge as any).testBridge, 'request')
+      .mockResolvedValue(undefined);
+
+    const onObserverPurchaseInitiated: jest.MockedFunction<
+      FlowEventHandlers['onObserverPurchaseInitiated']
+    > = jest.fn().mockImplementation((_product, onStart, onFinish) => {
+      onStart();
+      onFinish();
+      return false;
+    });
+
+    view.setEventHandlers({ onObserverPurchaseInitiated });
+
+    const viewId = (view as any).id;
+    emitFlowObserverPurchaseInitiatedEvent(
+      viewId,
+      'evt-1',
+      FLOW_PURCHASE_STARTED.product,
+      { id: viewId, placement_id: 'plc', variation_id: 'var' },
+    );
+
+    // Handler receives (product, onStart, onFinish); event id stays hidden.
+    expect(onObserverPurchaseInitiated).toHaveBeenCalledTimes(1);
+    const callArgs = onObserverPurchaseInitiated.mock.calls[0]!;
+    expect((callArgs[0] as any).vendorProductId).toBe(
+      FLOW_PURCHASE_STARTED.product.vendor_product_id,
+    );
+
+    const startCall = requestSpy.mock.calls.find(
+      call => call[0] === 'observer_purchase_did_start',
+    );
+    const finishCall = requestSpy.mock.calls.find(
+      call => call[0] === 'observer_purchase_did_finish',
+    );
+    expect(startCall).toBeDefined();
+    expect(finishCall).toBeDefined();
+    expect(startCall![2]).toBe('Void');
+    expect(JSON.parse(startCall![1] as string)).toMatchObject({
+      method: 'observer_purchase_did_start',
+      event_id: 'evt-1',
+    });
+    expect(JSON.parse(finishCall![1] as string)).toMatchObject({
+      method: 'observer_purchase_did_finish',
+      event_id: 'evt-1',
+    });
+
+    requestSpy.mockRestore();
+  });
+
+  it('drives the paywall loading state on observer restore and replies start/finish', () => {
+    const requestSpy = jest
+      .spyOn(($bridge as any).testBridge, 'request')
+      .mockResolvedValue(undefined);
+
+    const onObserverRestoreInitiated: jest.MockedFunction<
+      FlowEventHandlers['onObserverRestoreInitiated']
+    > = jest.fn().mockImplementation((onStart, onFinish) => {
+      onStart();
+      onFinish();
+      return false;
+    });
+
+    view.setEventHandlers({ onObserverRestoreInitiated });
+
+    const viewId = (view as any).id;
+    emitFlowObserverRestoreInitiatedEvent(viewId, 'evt-2', {
+      id: viewId,
+      placement_id: 'plc',
+      variation_id: 'var',
+    });
+
+    expect(onObserverRestoreInitiated).toHaveBeenCalledTimes(1);
+
+    const startCall = requestSpy.mock.calls.find(
+      call => call[0] === 'observer_restore_did_start',
+    );
+    const finishCall = requestSpy.mock.calls.find(
+      call => call[0] === 'observer_restore_did_finish',
+    );
+    expect(startCall).toBeDefined();
+    expect(finishCall).toBeDefined();
+    expect(JSON.parse(startCall![1] as string)).toMatchObject({
+      method: 'observer_restore_did_start',
+      event_id: 'evt-2',
+    });
+    expect(JSON.parse(finishCall![1] as string)).toMatchObject({
+      method: 'observer_restore_did_finish',
+      event_id: 'evt-2',
+    });
+
+    requestSpy.mockRestore();
   });
 });
 

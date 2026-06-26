@@ -564,3 +564,77 @@ export function emitFlowAskPermissionEvent(
 
   emitter.emit('flow_view_did_ask_permission', JSON.stringify(payload));
 }
+
+/**
+ * Emits mock flow observer purchase-initiated event for testing
+ */
+export function emitFlowObserverPurchaseInitiatedEvent(
+  viewId: string,
+  eventId: string,
+  product: Record<string, any>,
+  view: { id: string; placement_id: string; variation_id: string },
+): void {
+  const bridge = $bridge.testBridge;
+
+  if (!bridge) {
+    throw new Error('Bridge not initialized');
+  }
+
+  const emitter = (bridge as any).testEmitter;
+
+  if (!emitter) {
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
+  }
+
+  const payload = {
+    id: 'flow_view_observer_did_initiate_purchase',
+    view: {
+      id: viewId,
+      placement_id: view.placement_id,
+      variation_id: view.variation_id,
+    },
+    event_id: eventId,
+    product,
+  };
+
+  emitter.emit(
+    'flow_view_observer_did_initiate_purchase',
+    JSON.stringify(payload),
+  );
+}
+
+/**
+ * Emits mock flow observer restore-initiated event for testing
+ */
+export function emitFlowObserverRestoreInitiatedEvent(
+  viewId: string,
+  eventId: string,
+  view: { id: string; placement_id: string; variation_id: string },
+): void {
+  const bridge = $bridge.testBridge;
+
+  if (!bridge) {
+    throw new Error('Bridge not initialized');
+  }
+
+  const emitter = (bridge as any).testEmitter;
+
+  if (!emitter) {
+    throw new Error('Mock emitter not available. Ensure mock mode is enabled.');
+  }
+
+  const payload = {
+    id: 'flow_view_observer_did_initiate_restore',
+    view: {
+      id: viewId,
+      placement_id: view.placement_id,
+      variation_id: view.variation_id,
+    },
+    event_id: eventId,
+  };
+
+  emitter.emit(
+    'flow_view_observer_did_initiate_restore',
+    JSON.stringify(payload),
+  );
+}

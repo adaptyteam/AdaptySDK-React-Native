@@ -21,7 +21,7 @@ export function useFlowEventSubscription(
 
   // Built once (stable identity) so the effect never re-subscribes on callback
   // changes; each wrapper reads the freshest handler from the ref, else the
-  // default. (DEFAULT has 19 keys; onAndroidSystemBack/onDisappeared aren't
+  // default. (DEFAULT has 21 keys; onAndroidSystemBack/onDisappeared aren't
   // props, so their wrappers always use the default.)
   const stableHandlers = useMemo<Partial<FlowEventHandlers>>(() => {
     const wrappers: Record<string, (...args: unknown[]) => unknown> = {};

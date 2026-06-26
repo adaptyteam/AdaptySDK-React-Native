@@ -55,7 +55,7 @@ describe('useFlowEventSubscription', () => {
       TestRenderer.create(el({}, 'v1'));
     });
     const passed = mockCreate.mock.calls[0]![0];
-    expect(Object.keys(passed)).toHaveLength(19);
+    expect(Object.keys(passed)).toHaveLength(21);
     expect(typeof passed.onCloseButtonPress).toBe('function');
   });
 

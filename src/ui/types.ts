@@ -86,6 +86,10 @@ export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   onAnalytics: () => false,
   // Reply `unavailable` by default so native always gets a correlated answer.
   onRequestPermission: async () => ({ status: 'unavailable' as const }),
+  // Observer mode: no-op by default. If you enable observer mode and present a
+  // flow view, provide these handlers to drive purchase/restore yourself.
+  onObserverPurchaseInitiated: () => false,
+  onObserverRestoreInitiated: () => false,
 };
 
 /**
