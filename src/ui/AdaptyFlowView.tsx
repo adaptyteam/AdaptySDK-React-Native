@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useId, useMemo } from 'react';
+import React, { memo, useId, useMemo } from 'react';
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { AdaptyFlow } from '@/types';
 import { coderFactory } from '@/coders/factory';
@@ -8,10 +8,9 @@ import {
   FlowEventHandlers,
   NativeAdaptyFlowViewProps,
 } from './types';
-import { createFlowEventHandlers } from './create-flow-event-handlers';
+import { useFlowEventSubscription } from './use-flow-event-subscription';
 import { DEFAULT_PARAMS } from './flow-view-controller';
 import { AdaptyFlowViewMock } from './AdaptyFlowView.mock';
-import { filterUndefined } from '@adapty/core';
 
 /**
  * Props for the {@link AdaptyFlowView} component.
@@ -33,9 +32,7 @@ export type AdaptyFlowViewProps = ViewProps & {
    *
    * @remarks
    * Merged with defaults, then encoded and serialized into `flowJson`
-   * alongside `flow`. Prefer a referentially stable / memoized object — an
-   * inline `{...}` literal is a new reference each render and forces
-   * re-encoding.
+   * alongside `flow`.
    */
   params?: CreateFlowViewParamsInput;
   onCloseButtonPress?: FlowEventHandlers['onCloseButtonPress'];
@@ -99,28 +96,8 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
     // params is tracked by value via paramsKey
   }, [flow, paramsKey]);
 
-  const eventHandlers = useMemo(
-    (): Partial<FlowEventHandlers> =>
-      filterUndefined({
-        onCloseButtonPress,
-        onProductSelected,
-        onPurchaseStarted,
-        onPurchaseCompleted,
-        onPurchaseFailed,
-        onRestoreStarted,
-        onAppeared,
-        onWebPaymentNavigationFinished,
-        onRestoreCompleted,
-        onRestoreFailed,
-        onError,
-        onLoadingProductsFailed,
-        onCustomAction,
-        onUrlPress,
-        onRequestAppReview,
-        onAnalytics,
-        onRequestPermission,
-      }),
-    [
+  useFlowEventSubscription(
+    {
       onCloseButtonPress,
       onProductSelected,
       onPurchaseStarted,
@@ -138,13 +115,9 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
       onRequestAppReview,
       onAnalytics,
       onRequestPermission,
-    ],
+    },
+    uniqueViewId,
   );
-
-  useEffect(() => {
-    const unsubscribe = createFlowEventHandlers(eventHandlers, uniqueViewId);
-    return unsubscribe;
-  }, [uniqueViewId, eventHandlers]);
 
   return (
     <NativeAdaptyFlowView
@@ -171,14 +144,11 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
  *
  * ```tsx
  * const [visible, setVisible] = useState(true);
+ * const onCloseButtonPress = useCallback(() => {
+ *   setVisible(false); // unmount to dismiss; return value is ignored here
+ * }, []);
  * return visible ? (
- *   <AdaptyFlowView
- *     flow={flow}
- *     onCloseButtonPress={() => {
- *       setVisible(false); // unmount to dismiss
- *       return true;
- *     }}
- *   />
+ *   <AdaptyFlowView flow={flow} onCloseButtonPress={onCloseButtonPress} />
  * ) : null;
  * ```
  *

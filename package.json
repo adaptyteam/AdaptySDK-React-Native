@@ -75,6 +75,7 @@
     "@types/jest": "^29.5.3",
     "@types/node": "^18.10.0",
     "@types/react": "^19.1.0",
+    "@types/react-test-renderer": "19.1.0",
     "@typescript-eslint/eslint-plugin": "5.59.6",
     "@typescript-eslint/parser": "5.59.6",
     "babel-jest": "^29.6.2",
