@@ -86,6 +86,9 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   const reactId = useId();
   const uniqueViewId = `${flow.id}_${reactId}`;
 
+  // Value-stable key: avoids re-encoding when params is an inline object (wrong usage).
+  const paramsKey = JSON.stringify(params ?? {});
+
   const flowJson = useMemo(() => {
     const encodedFlow = coderFactory.createFlowCoder().encode(flow);
     const paramsWithDefaults = { ...DEFAULT_PARAMS, ...params };
@@ -93,7 +96,8 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
       .createUiCreateFlowViewParamsCoder()
       .encode(paramsWithDefaults);
     return JSON.stringify({ flow: encodedFlow, ...encodedParams });
-  }, [flow, params]);
+    // params is tracked by value via paramsKey
+  }, [flow, paramsKey]);
 
   const eventHandlers = useMemo(
     (): Partial<FlowEventHandlers> =>
