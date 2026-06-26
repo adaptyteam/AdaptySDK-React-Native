@@ -298,6 +298,12 @@ describe('FlowViewController - action mapping isolation', () => {
       .spyOn(($bridge as any).testBridge, 'request')
       .mockResolvedValue(undefined);
 
+    // The rejected handler is logged via log.failed -> console.error by design;
+    // silence the expected error so it doesn't pollute the test output.
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
     const onRequestPermission: jest.MockedFunction<
       FlowEventHandlers['onRequestPermission']
     > = jest.fn().mockRejectedValue(new Error('boom'));
@@ -327,6 +333,7 @@ describe('FlowViewController - action mapping isolation', () => {
     });
 
     requestSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 });
 

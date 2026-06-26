@@ -187,6 +187,12 @@ describe('Adapty - Activation (Bridge Integration)', () => {
         activate: ACTIVATE_RESPONSE_SUCCESS,
       });
 
+      // logLevel: 'verbose' makes the core logger emit console.debug by design;
+      // silence the expected output so it doesn't pollute the test report.
+      const consoleDebugSpy = jest
+        .spyOn(console, 'debug')
+        .mockImplementation(() => {});
+
       // Execute: activate with full configuration
       await adapty.activate('test_api_key_12345', {
         customerUserId: 'user_123',
@@ -219,6 +225,8 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       expect(configAny.serverCluster).toBeUndefined();
       expect(configAny.logLevel).toBeUndefined();
       expect(configAny.ipAddressCollectionDisabled).toBeUndefined();
+
+      consoleDebugSpy.mockRestore();
     });
 
     it('should include api_key and default fields', async () => {
