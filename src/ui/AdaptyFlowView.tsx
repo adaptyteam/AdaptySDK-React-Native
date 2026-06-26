@@ -158,6 +158,26 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
  * Accepts a flow object and optional event handler props.
  * Under the hood, it creates a native view and subscribes to flow events.
  *
+ * The view is embedded in your React tree, so its lifecycle is controlled by
+ * your app — not by the SDK. Event handlers still run (and their side effects
+ * apply), but the boolean they return does NOT dismiss the embedded view: that
+ * "close" flag only applies to the imperative view created via
+ * {@link createFlowView}. To dismiss the embedded view, stop rendering it
+ * (e.g. flip state in `onCloseButtonPress`):
+ *
+ * ```tsx
+ * const [visible, setVisible] = useState(true);
+ * return visible ? (
+ *   <AdaptyFlowView
+ *     flow={flow}
+ *     onCloseButtonPress={() => {
+ *       setVisible(false); // unmount to dismiss
+ *       return true;
+ *     }}
+ *   />
+ * ) : null;
+ * ```
+ *
  * @see {@link AdaptyFlowViewProps} for available props
  * @public
  */
