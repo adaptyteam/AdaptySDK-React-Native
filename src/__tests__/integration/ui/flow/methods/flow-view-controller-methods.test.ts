@@ -145,7 +145,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
 
       expect(request.method).toBe('adapty_ui_dismiss_flow_view');
       expect(request.id).toBe('mock_flow_view_123');
-      expect(request.destroy).toBe(false);
+      expect(request.destroy).toBe(true);
     });
   });
 

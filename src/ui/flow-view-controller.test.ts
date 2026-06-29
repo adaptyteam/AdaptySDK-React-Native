@@ -135,7 +135,7 @@ describe('FlowViewController', () => {
 
       expect($bridge.request).toHaveBeenLastCalledWith(
         'adapty_ui_dismiss_flow_view',
-        expect.stringContaining('"destroy":false'),
+        expect.stringContaining('"destroy":true'),
         'Void',
         expect.any(Object),
       );

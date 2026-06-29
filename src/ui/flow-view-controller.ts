@@ -179,7 +179,7 @@ export class FlowViewController {
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
-      destroy: false,
+      destroy: true,
     } satisfies Req['AdaptyUIDismissFlowView.Request']);
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
