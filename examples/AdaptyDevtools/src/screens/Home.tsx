@@ -23,7 +23,7 @@ import { Line } from '../components/Line';
 import { LineButton } from '../components/LineButton';
 import { LineParam } from '../components/LineParam';
 import { Bool } from '../components/Bool';
-import { PaywallSection } from '../components/PaywallSection';
+import { FlowSection } from '../components/FlowSection';
 import { dateFormat } from '../helpers';
 
 const height = Dimensions.get('window').height;
@@ -196,8 +196,8 @@ const Home: React.FC = () => {
           )}
         </Group>
 
-        {/* Paywall Section */}
-        <PaywallSection />
+        {/* Flow Section */}
+        <FlowSection />
 
         {/* Other Actions */}
         <Group title="Other Actions">

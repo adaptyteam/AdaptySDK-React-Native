@@ -20,14 +20,14 @@ interface Props {
   placementId?: string;
 }
 
-export const PaywallSection: React.FC<Props> = ({
+export const FlowSection: React.FC<Props> = ({
   placementId,
 }) => {
   const [flow, setFlow] = useState<AdaptyFlow | null>(null);
   const [products, setProducts] = useState<AdaptyPaywallProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchPaywall = async () => {
+  const fetchFlow = async () => {
     if (isLoading) return;
 
     setIsLoading(true);
@@ -58,7 +58,7 @@ export const PaywallSection: React.FC<Props> = ({
 
       console.log('[ADAPTY] Flow loaded successfully:', flow_.name);
     } catch (error: any) {
-      console.log('[ADAPTY] Error getting paywall:', error.message);
+      console.log('[ADAPTY] Error getting flow:', error.message);
       if (error instanceof AdaptyError) {
         Alert.alert(
           `Error fetching flow #${error.adaptyCode}`,
@@ -70,7 +70,7 @@ export const PaywallSection: React.FC<Props> = ({
     }
   };
 
-  const presentPaywall = async () => {
+  const presentFlow = async () => {
     if (!flow) {
       Alert.alert('Error', 'Flow not loaded. Please load flow first.');
       return;
@@ -87,17 +87,17 @@ export const PaywallSection: React.FC<Props> = ({
         },
       });
 
-      console.log('[ADAPTY] Paywall view created successfully');
+      console.log('[ADAPTY] Flow view created successfully');
     } catch (error: any) {
-      console.log('[ADAPTY] Failed to create paywall view:', error.message);
+      console.log('[ADAPTY] Failed to create flow view:', error.message);
       if (error instanceof AdaptyError) {
-        Alert.alert('Failed to create paywall view', error.message);
+        Alert.alert('Failed to create flow view', error.message);
       }
       return;
     }
 
     if (!view) {
-      Alert.alert('Error', 'Failed to create paywall view');
+      Alert.alert('Error', 'Failed to create flow view');
       return;
     }
 
@@ -191,11 +191,11 @@ export const PaywallSection: React.FC<Props> = ({
         return false;
       },
       onAppeared() {
-        console.log('[ADAPTY]: Paywall appeared');
+        console.log('[ADAPTY]: Flow appeared');
         return false;
       },
       onDisappeared() {
-        console.log('[ADAPTY]: Paywall disappeared');
+        console.log('[ADAPTY]: Flow disappeared');
         return false;
       },
       onRequestAppReview() {
@@ -209,19 +209,19 @@ export const PaywallSection: React.FC<Props> = ({
     });
 
     try {
-      // Present paywall; for iOS you can choose a presentation style
+      // Present flow; for iOS you can choose a presentation style
       // Available options: 'full_screen' (default) or 'page_sheet'
       await view.present({ iosPresentationStyle: 'page_sheet' });
-      console.log('[ADAPTY] Paywall presented successfully');
+      console.log('[ADAPTY] Flow presented successfully');
     } catch (error: any) {
-      console.log('[ADAPTY] Failed to present paywall:', error.message);
+      console.log('[ADAPTY] Failed to present flow:', error.message);
       if (error instanceof AdaptyError) {
-        Alert.alert('Failed to present paywall', error.message);
+        Alert.alert('Failed to present flow', error.message);
       }
     }
   };
 
-  const renderPaywallInfo = () => {
+  const renderFlowInfo = () => {
     if (!flow) return null;
 
     return (
@@ -239,8 +239,8 @@ export const PaywallSection: React.FC<Props> = ({
           bordered
         />
         <LineParam
-          label="Variations Count"
-          value={flow.variations.length.toString()}
+          label="Paywalls Count"
+          value={flow.paywalls.length.toString()}
           bordered
         />
         <LineParam
@@ -262,13 +262,13 @@ export const PaywallSection: React.FC<Props> = ({
   };
 
   return (
-    <Group title="Paywall" postfix="Default Audience">
+    <Group title="Flow" postfix="Default Audience">
       <LineButton
         text={flow ? 'Refresh Flow' : 'Load Flow'}
         bordered
         topRadius
         loading={isLoading}
-        onPress={fetchPaywall}
+        onPress={fetchFlow}
       />
 
       <LineButton
@@ -276,10 +276,10 @@ export const PaywallSection: React.FC<Props> = ({
         bordered={!!flow}
         bottomRadius={!flow}
         disabled={!flow}
-        onPress={presentPaywall}
+        onPress={presentFlow}
       />
 
-      {renderPaywallInfo()}
+      {renderFlowInfo()}
     </Group>
   );
 };
