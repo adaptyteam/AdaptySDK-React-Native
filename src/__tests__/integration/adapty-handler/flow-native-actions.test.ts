@@ -25,7 +25,8 @@ describe('Adapty - Flow native actions (Bridge Integration)', () => {
     nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,
       adapty_ui_open_url: ADAPTY_UI_OPEN_URL_RESPONSE_SUCCESS,
-      adapty_ui_request_app_review: ADAPTY_UI_REQUEST_APP_REVIEW_RESPONSE_SUCCESS,
+      adapty_ui_request_app_review:
+        ADAPTY_UI_REQUEST_APP_REVIEW_RESPONSE_SUCCESS,
     });
 
     await adapty.activate('test_api_key', { logLevel: 'error' });

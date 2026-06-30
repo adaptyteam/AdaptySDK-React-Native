@@ -126,11 +126,7 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   );
 
   return (
-    <NativeAdaptyFlowView
-      {...rest}
-      viewId={uniqueViewId}
-      flowJson={flowJson}
-    />
+    <NativeAdaptyFlowView {...rest} viewId={uniqueViewId} flowJson={flowJson} />
   );
 };
 

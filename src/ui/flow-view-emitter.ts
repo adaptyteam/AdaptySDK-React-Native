@@ -376,8 +376,7 @@ export class FlowViewEmitter {
     }
 
     const { handler, onRequestClose } = handlerData;
-    const callback =
-      handler as FlowEventHandlers['onObserverRestoreInitiated'];
+    const callback = handler as FlowEventHandlers['onObserverRestoreInitiated'];
 
     const onStartRestore = (): void => {
       const body = JSON.stringify({

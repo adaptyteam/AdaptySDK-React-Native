@@ -31,9 +31,7 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
     });
 
     it('keeps the view open and logs when openWebUrl rejects', async () => {
-      jest
-        .spyOn(adapty, 'openWebUrl')
-        .mockRejectedValueOnce(new Error('boom'));
+      jest.spyOn(adapty, 'openWebUrl').mockRejectedValueOnce(new Error('boom'));
       const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
 
       const result = DEFAULT_FLOW_EVENT_HANDLERS.onUrlPress(

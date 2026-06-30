@@ -257,7 +257,9 @@ describe('FlowViewController - action mapping isolation', () => {
 
     const onRequestPermission: jest.MockedFunction<
       FlowEventHandlers['onRequestPermission']
-    > = jest.fn().mockResolvedValue({ status: 'granted', detail: 'authorized' });
+    > = jest
+      .fn()
+      .mockResolvedValue({ status: 'granted', detail: 'authorized' });
 
     view.setEventHandlers({ onRequestPermission });
 
