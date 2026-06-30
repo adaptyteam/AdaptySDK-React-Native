@@ -82,8 +82,20 @@ export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
     return false; // Keep paywall open
   },
   onAnalytics: () => false,
-  // Reply `unavailable` by default so native always gets a correlated answer.
-  onRequestPermission: async () => ({ status: 'unavailable' as const }),
+  // There is no real default here: permissions must be declared in the app
+  // bundle by the developer, so we cannot grant them on the user's behalf. Warn
+  // and reply `unavailable` so native always gets a correlated answer.
+  onRequestPermission: async () => {
+    Log.warn(
+      'onRequestPermission',
+      () =>
+        'No onRequestPermission handler provided; replying `unavailable`. ' +
+        'Declare the required permissions in your app bundle and provide an ' +
+        'onRequestPermission handler to respond.',
+    );
+
+    return { status: 'unavailable' as const };
+  },
   // Observer mode: no-op by default. If you enable observer mode and present a
   // flow view, provide these handlers to drive purchase/restore yourself.
   onObserverPurchaseInitiated: () => false,

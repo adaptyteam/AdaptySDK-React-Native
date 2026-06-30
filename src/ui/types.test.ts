@@ -71,4 +71,18 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
       expect(warnSpy).toHaveBeenCalled();
     });
   });
+
+  describe('onRequestPermission', () => {
+    it('warns and replies `unavailable` (no real default exists)', async () => {
+      const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
+
+      const result = await DEFAULT_FLOW_EVENT_HANDLERS.onRequestPermission(
+        'camera',
+        {},
+      );
+
+      expect(warnSpy).toHaveBeenCalled();
+      expect(result).toEqual({ status: 'unavailable' });
+    });
+  });
 });
