@@ -46,7 +46,7 @@ export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   // `open_in` (`browser_out_app` → external browser, `browser_in_app` → in-app
   // browser). Override this handler to open URLs yourself instead.
   onUrlPress: (url, openIn) => {
-    void adapty
+    adapty
       .openWebUrl(url, openIn)
       .catch(error =>
         Log.warn('onUrlPress', () => `Failed to open url via native: ${error}`),
