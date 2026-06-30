@@ -96,10 +96,29 @@ export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
 
     return { status: 'unavailable' as const };
   },
-  // Observer mode: no-op by default. If you enable observer mode and present a
-  // flow view, provide these handlers to drive purchase/restore yourself.
-  onObserverPurchaseInitiated: () => false,
-  onObserverRestoreInitiated: () => false,
+  // Observer mode: no real default. If you enable observer mode and present a
+  // flow view, you must drive the purchase/restore yourself, so warn when no
+  // handler is provided.
+  onObserverPurchaseInitiated: () => {
+    Log.warn(
+      'onObserverPurchaseInitiated',
+      () =>
+        'No onObserverPurchaseInitiated handler provided. In observer mode you ' +
+        'must drive the purchase yourself; provide this handler to do so.',
+    );
+
+    return false;
+  },
+  onObserverRestoreInitiated: () => {
+    Log.warn(
+      'onObserverRestoreInitiated',
+      () =>
+        'No onObserverRestoreInitiated handler provided. In observer mode you ' +
+        'must drive the restore yourself; provide this handler to do so.',
+    );
+
+    return false;
+  },
 };
 
 /**

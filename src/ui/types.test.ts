@@ -85,4 +85,24 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
       expect(result).toEqual({ status: 'unavailable' });
     });
   });
+
+  describe('observer-mode handlers', () => {
+    it('onObserverPurchaseInitiated warns and returns false (no real default)', () => {
+      const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
+
+      const result = DEFAULT_FLOW_EVENT_HANDLERS.onObserverPurchaseInitiated();
+
+      expect(warnSpy).toHaveBeenCalled();
+      expect(result).toBe(false);
+    });
+
+    it('onObserverRestoreInitiated warns and returns false (no real default)', () => {
+      const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
+
+      const result = DEFAULT_FLOW_EVENT_HANDLERS.onObserverRestoreInitiated();
+
+      expect(warnSpy).toHaveBeenCalled();
+      expect(result).toBe(false);
+    });
+  });
 });
