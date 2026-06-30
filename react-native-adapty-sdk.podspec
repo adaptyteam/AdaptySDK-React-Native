@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/adaptyteam/AdaptySDK-React-Native"
   s.license      = { :type => "MIT", :file => "LICENSE" }
   s.authors      = { "Adapty team" => "support@adapty.io" }
-  s.platforms    = { :ios => "13.0" }
+  s.platforms    = { :ios => "15.0" }
   s.source       = { :git => "https://github.com/adaptyteam/AdaptySDK-React-Native.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,c,m,swift}"
