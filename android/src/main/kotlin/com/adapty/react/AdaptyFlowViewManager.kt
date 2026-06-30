@@ -5,15 +5,15 @@ package com.adapty.react
 import android.view.View
 import androidx.lifecycle.ViewModelStoreOwner
 import com.adapty.internal.crossplatform.ui.Dependencies.safeInject
-import com.adapty.internal.crossplatform.ui.PaywallUiManager
-import com.adapty.internal.crossplatform.ui.PaywallView
+import com.adapty.internal.crossplatform.ui.FlowUiManager
+import com.adapty.internal.crossplatform.ui.FlowView
 import com.adapty.internal.utils.InternalAdaptyApi
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
-class AdaptyFlowViewManager : SimpleViewManager<PaywallView>() {
+class AdaptyFlowViewManager : SimpleViewManager<FlowView>() {
 
     companion object {
         private const val TAG_KEY_VIEW_ID = 0xAD0B200
@@ -21,36 +21,36 @@ class AdaptyFlowViewManager : SimpleViewManager<PaywallView>() {
         private const val TAG_KEY_SETUP_SCHEDULED = 0xAD0B202
     }
 
-    private val paywallUiManager: PaywallUiManager? by safeInject<PaywallUiManager>()
+    private val flowUiManager: FlowUiManager? by safeInject<FlowUiManager>()
 
     override fun getName(): String = "AdaptyFlowView"
 
-    override fun createViewInstance(reactContext: ThemedReactContext): PaywallView {
-        return PaywallView(reactContext).apply {
+    override fun createViewInstance(reactContext: ThemedReactContext): FlowView {
+        return FlowView(reactContext).apply {
             id = View.generateViewId()
         }
     }
 
-    override fun onDropViewInstance(view: PaywallView) {
+    override fun onDropViewInstance(view: FlowView) {
         // Clear internal state/listeners to prevent leaks
-        paywallUiManager?.clearPaywallView(view)
+        flowUiManager?.clearFlowView(view)
         super.onDropViewInstance(view)
     }
 
     @ReactProp(name = "viewId")
-    fun setViewId(view: PaywallView, id: String?) {
+    fun setViewId(view: FlowView, id: String?) {
         view.setTag(TAG_KEY_VIEW_ID, id)
         scheduleSetup(view)
     }
 
     @ReactProp(name = "flowJson")
-    fun setFlowJson(view: PaywallView, json: String?) {
+    fun setFlowJson(view: FlowView, json: String?) {
         if (json.isNullOrEmpty()) return
         view.setTag(TAG_KEY_FLOW_JSON, json)
         scheduleSetup(view)
     }
 
-    private fun scheduleSetup(view: PaywallView) {
+    private fun scheduleSetup(view: FlowView) {
         val scheduled = (view.getTag(TAG_KEY_SETUP_SCHEDULED) as? Boolean) == true
         if (scheduled) return
         view.setTag(TAG_KEY_SETUP_SCHEDULED, true)
@@ -60,21 +60,21 @@ class AdaptyFlowViewManager : SimpleViewManager<PaywallView>() {
         }
     }
 
-    private fun setupView(view: PaywallView) {
+    private fun setupView(view: FlowView) {
         val json = view.getTag(TAG_KEY_FLOW_JSON) as? String ?: return
         val viewId = view.getTag(TAG_KEY_VIEW_ID) as? String ?: return
         val reactContext = view.context as? ThemedReactContext ?: return
         val vmOwner = reactContext.currentActivity as? ViewModelStoreOwner ?: return
 
-        val paywallUiManager = paywallUiManager ?: return
+        val flowUiManager = flowUiManager ?: return
 
-        paywallUiManager.setupPaywallView(
+        flowUiManager.setupFlowView(
             view,
             vmOwner,
             json,
             viewId,
             { eventViewId, eventId, eventData ->
-                if (eventViewId != viewId) return@setupPaywallView
+                if (eventViewId != viewId) return@setupFlowView
 
                 val receiver = reactContext.getJSModule(
                     DeviceEventManagerModule.RCTDeviceEventEmitter::class.java
@@ -85,5 +85,3 @@ class AdaptyFlowViewManager : SimpleViewManager<PaywallView>() {
         )
     }
 }
-
-
