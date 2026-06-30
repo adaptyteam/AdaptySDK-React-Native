@@ -33,7 +33,6 @@ import { Log } from '@/logger';
 import type {
   FlowEventHandlers,
   OnboardingEventHandlers,
-  AdaptyPurchaseResult,
 } from '@adapty/core';
 
 /**
@@ -57,8 +56,7 @@ export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   onCustomAction: () => false,
   onProductSelected: () => false,
   onPurchaseStarted: () => false,
-  onPurchaseCompleted: (purchaseResult: AdaptyPurchaseResult) =>
-    purchaseResult.type !== 'user_cancelled',
+  onPurchaseCompleted: () => false,
   onPurchaseFailed: () => false,
   onRestoreStarted: () => false,
   onRestoreCompleted: () => true,
