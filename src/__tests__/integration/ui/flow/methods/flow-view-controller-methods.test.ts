@@ -74,6 +74,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       expect(request.flow.variation_id).toBe('variation_123');
       expect(request.preload_products).toBe(true); // default
       expect(request.load_timeout).toBe(5); // 5000ms → 5s
+      expect(request.enable_safe_area_paddings).toBe(true); // controller default
 
       // Verify response parsing
       expect((view as any).id).toBe('mock_flow_view_123');
@@ -83,6 +84,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       await createFlowView(flow, {
         prefetchProducts: false,
         loadTimeoutMs: 3000,
+        enableSafeArea: false,
       });
 
       const request = extractNativeRequest<
@@ -93,6 +95,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
 
       expect(request.preload_products).toBe(false);
       expect(request.load_timeout).toBe(3); // 3000ms → 3s
+      expect(request.enable_safe_area_paddings).toBe(false); // caller override
     });
   });
 

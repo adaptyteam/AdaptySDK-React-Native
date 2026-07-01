@@ -20,6 +20,7 @@ import { Req } from '@/types/schema';
 export const DEFAULT_PARAMS: CreateFlowViewParamsInput = {
   prefetchProducts: true,
   loadTimeoutMs: 5000,
+  enableSafeArea: true,
 };
 
 /**

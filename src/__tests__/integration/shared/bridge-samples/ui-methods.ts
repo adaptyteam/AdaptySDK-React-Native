@@ -45,6 +45,7 @@ export const ADAPTY_UI_CREATE_FLOW_VIEW_REQUEST: components['requests']['AdaptyU
     },
     preload_products: true,
     load_timeout: 5,
+    enable_safe_area_paddings: true,
   };
 
 /**
