@@ -13,6 +13,20 @@ import { DEFAULT_PARAMS } from './flow-view-controller';
 import { AdaptyFlowViewMock } from './AdaptyFlowView.mock';
 
 /**
+ * Full default params for the embedded component: the shared
+ * {@link DEFAULT_PARAMS} with component-specific overrides applied. Merged
+ * once at module load, so the render path only spreads it with the caller's
+ * `params`.
+ *
+ * The embedded component opts out of safe-area paddings by default
+ * (the imperative FlowViewController defaults to `true`).
+ */
+const COMPONENT_DEFAULT_PARAMS: CreateFlowViewParamsInput = {
+  ...DEFAULT_PARAMS,
+  enableSafeArea: false,
+};
+
+/**
  * Props for the {@link AdaptyFlowView} component.
  * @public
  */
@@ -92,7 +106,10 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
 
   const flowJson = useMemo(() => {
     const encodedFlow = coderFactory.createFlowCoder().encode(flow);
-    const paramsWithDefaults = { ...DEFAULT_PARAMS, ...params };
+    const paramsWithDefaults = {
+      ...COMPONENT_DEFAULT_PARAMS,
+      ...params,
+    };
     const encodedParams = coderFactory
       .createUiCreateFlowViewParamsCoder()
       .encode(paramsWithDefaults);
