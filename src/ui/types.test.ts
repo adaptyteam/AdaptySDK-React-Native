@@ -1,4 +1,4 @@
-import { DEFAULT_FLOW_EVENT_HANDLERS } from './types';
+import { DEFAULT_FLOW_EVENT_HANDLERS, type FlowEventHandlers } from './types';
 import { adapty } from '@/adapty-instance';
 import { Log } from '@/logger';
 
@@ -89,8 +89,17 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
   describe('observer-mode handlers', () => {
     it('onObserverPurchaseInitiated warns and returns false (no real default)', () => {
       const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
+      const product = {} as Parameters<
+        FlowEventHandlers['onObserverPurchaseInitiated']
+      >[0];
+      const onStartPurchase = jest.fn();
+      const onFinishPurchase = jest.fn();
 
-      const result = DEFAULT_FLOW_EVENT_HANDLERS.onObserverPurchaseInitiated();
+      const result = DEFAULT_FLOW_EVENT_HANDLERS.onObserverPurchaseInitiated(
+        product,
+        onStartPurchase,
+        onFinishPurchase,
+      );
 
       expect(warnSpy).toHaveBeenCalled();
       expect(result).toBe(false);
@@ -98,8 +107,13 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
 
     it('onObserverRestoreInitiated warns and returns false (no real default)', () => {
       const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
+      const onStartRestore = jest.fn();
+      const onFinishRestore = jest.fn();
 
-      const result = DEFAULT_FLOW_EVENT_HANDLERS.onObserverRestoreInitiated();
+      const result = DEFAULT_FLOW_EVENT_HANDLERS.onObserverRestoreInitiated(
+        onStartRestore,
+        onFinishRestore,
+      );
 
       expect(warnSpy).toHaveBeenCalled();
       expect(result).toBe(false);
