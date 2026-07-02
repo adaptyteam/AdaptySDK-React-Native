@@ -35,12 +35,6 @@ export default function AdaptyUIScreen({
   }, []);
 
   const showFlow = async () => {
-    if (!flow.uiSchema) {
-      setError('Flow does not have a no-code view configuration.');
-      setIsLoading(false);
-      return;
-    }
-
     try {
       setIsLoading(true);
       setError(null);
