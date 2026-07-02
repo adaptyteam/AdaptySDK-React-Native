@@ -30,10 +30,7 @@ export { AdaptyUiDialogActionType } from '@adapty/core';
 import type { ViewProps } from 'react-native';
 import { adapty } from '@/adapty-instance';
 import { Log } from '@/logger';
-import type {
-  FlowEventHandlers,
-  OnboardingEventHandlers,
-} from '@adapty/core';
+import type { FlowEventHandlers, OnboardingEventHandlers } from '@adapty/core';
 
 /**
  * @internal

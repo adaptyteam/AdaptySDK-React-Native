@@ -28,10 +28,7 @@ describe('AdaptyFlowView safe-area paddings', () => {
   it('defaults enableSafeArea to false when the prop is unset', () => {
     act(() => {
       renderer.create(
-        <AdaptyFlowView
-          flow={flow}
-          params={{ prefetchProducts: false }}
-        />,
+        <AdaptyFlowView flow={flow} params={{ prefetchProducts: false }} />,
       );
     });
 
@@ -43,10 +40,7 @@ describe('AdaptyFlowView safe-area paddings', () => {
   it('respects a caller-supplied enableSafeArea override', () => {
     act(() => {
       renderer.create(
-        <AdaptyFlowView
-          flow={flow}
-          params={{ enableSafeArea: true }}
-        />,
+        <AdaptyFlowView flow={flow} params={{ enableSafeArea: true }} />,
       );
     });
 
