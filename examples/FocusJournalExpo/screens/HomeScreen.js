@@ -4,7 +4,7 @@ import React, { useState, useContext } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, FlatList } from "react-native";
 import { ProfileContext } from "../context/ProfileContext";
 import { adapty } from "react-native-adapty";
-import { createPaywallView } from "react-native-adapty/dist/ui";
+import { createFlowView } from "react-native-adapty/dist/ui";
 import adaptyCredentials from "../adaptyCredentials";
 import { activationPromise } from "../adaptyService";
 import { styles } from "../styles/HomeScreen.styles";
@@ -33,48 +33,43 @@ export default function HomeScreen({ navigation }) {
       navigation.navigate("History");
     } else {
       try {
-        const paywall = await adapty.getPaywall(
-          adaptyCredentials.PLACEMENT_ID,
-          "en"
-        );
-        if (paywall.hasViewConfiguration) {
-          const view = await createPaywallView(paywall);
-          view.registerEventHandlers({
-            onCloseButtonPress() {
-              return true;
-            },
-            onPurchaseCompleted(purchaseResult, product) {
-              if (purchaseResult.type === "success") {
-                purchasePremium(purchaseResult.profile);
-                navigation.navigate("History");
-                return true;
-              }
-              return false;
-            },
-            onPurchaseFailed(error) {
-              console.error("Purchase failed:", error);
-              return false;
-            },
-            onRestoreCompleted(restoredProfile) {
-              purchasePremium(restoredProfile);
+        const flow = await adapty.getFlow(adaptyCredentials.PLACEMENT_ID);
+        const view = await createFlowView(flow);
+        view.setEventHandlers({
+          onCloseButtonPress() {
+            return true;
+          },
+          onPurchaseCompleted(purchaseResult, product) {
+            if (purchaseResult.type === "success") {
+              purchasePremium(purchaseResult.profile);
               navigation.navigate("History");
               return true;
-            },
-            onRestoreFailed(error) {
-              console.error("Restore failed:", error);
-              return false;
-            },
-            onRenderingFailed(error) {
-              console.error("Error rendering paywall:", error);
-              return false;
-            },
-          });
-          // Present paywall; for iOS you can choose a presentation style
-          // Available options: 'full_screen' (default) or 'page_sheet'
-          await view.present({ iosPresentationStyle: 'page_sheet' });
-        }
+            }
+            return false;
+          },
+          onPurchaseFailed(error, product) {
+            console.error("Purchase failed:", error);
+            return false;
+          },
+          onRestoreCompleted(restoredProfile) {
+            purchasePremium(restoredProfile);
+            navigation.navigate("History");
+            return true;
+          },
+          onRestoreFailed(error) {
+            console.error("Restore failed:", error);
+            return false;
+          },
+          onError(error) {
+            console.error("Error rendering flow:", error);
+            return false;
+          },
+        });
+        // Present flow; for iOS you can choose a presentation style
+        // Available options: 'full_screen' (default) or 'page_sheet'
+        await view.present({ iosPresentationStyle: 'page_sheet' });
       } catch (error) {
-        console.error("Error loading paywall:", error);
+        console.error("Error loading flow:", error);
       }
     }
   }
