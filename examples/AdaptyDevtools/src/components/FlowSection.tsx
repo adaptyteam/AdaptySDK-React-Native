@@ -20,9 +20,7 @@ interface Props {
   placementId?: string;
 }
 
-export const FlowSection: React.FC<Props> = ({
-  placementId,
-}) => {
+export const FlowSection: React.FC<Props> = ({ placementId }) => {
   const [flow, setFlow] = useState<AdaptyFlow | null>(null);
   const [products, setProducts] = useState<AdaptyPaywallProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,10 +41,7 @@ export const FlowSection: React.FC<Props> = ({
         fetchPolicy: 'reload_revalidating_cache_data',
       };
 
-      const flow_ = await adapty.getFlow(
-        effectivePlacementId,
-        params,
-      );
+      const flow_ = await adapty.getFlow(effectivePlacementId, params);
       setFlow(flow_);
 
       // Log flow show event

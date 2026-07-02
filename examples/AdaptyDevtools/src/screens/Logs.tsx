@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Group } from '../components/Group';
 import { Line } from '../components/Line';
 // import { format } from 'date-fns'; // Will be implemented without external dependency

@@ -13,8 +13,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "prettier": "prettier --write src/**/*.{js,ts,tsx,json}",
-    "prettier:check": "prettier --check src/**/*.{js,ts,tsx,json}",
+    "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "prettier:check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "tsc": "tsc --noEmit",
     "link-assets": "react-native-asset"
   },
