@@ -260,7 +260,7 @@ export class FlowViewController {
    * - `onAndroidSystemBack` - keeps the view open (returns `false`)
    * - `onRestoreCompleted` - closes the view (returns `true`)
    * - `onError` - closes the view (returns `true`)
-   * - `onPurchaseCompleted` - closes the view on success (returns `purchaseResult.type !== 'user_cancelled'`)
+   * - `onPurchaseCompleted` - keeps the view open (returns `false`)
    * - `onUrlPress` - opens URL and keeps the view open (returns `false`)
    *
    * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
