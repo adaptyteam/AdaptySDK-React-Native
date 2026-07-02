@@ -53,7 +53,7 @@
     "clean": "./scripts/clean.sh",
     "format": "prettier ./src ./plugin/src -w --plugin=prettier-plugin-sort-json",
     "format-check": "prettier ./src ./plugin/src --check --plugin=prettier-plugin-sort-json",
-    "lint": "eslint ./src ./plugin/src --ext .ts",
+    "lint": "eslint ./src ./plugin/src --ext .ts,.tsx",
     "test": "jest",
     "test:coverage": "node ./scripts/check-bridge-api-test-coverage.js",
     "tsc": "tsc --noEmit -p plugin/tsconfig.json && tsc --noEmit -p plugin/tsconfig.test.json && tsc --noEmit",

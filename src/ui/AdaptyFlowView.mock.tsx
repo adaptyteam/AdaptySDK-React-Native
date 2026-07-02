@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text } from 'react-native';
 import { NativeAdaptyFlowViewProps } from './types';
 import { mockStyles } from './mock-styles';
@@ -19,13 +19,6 @@ import { mockStyles } from './mock-styles';
 export const AdaptyFlowViewMock: React.FC<
   NativeAdaptyFlowViewProps
 > = props => {
-  useEffect(() => {
-    console.info('[Adapty Mock] AdaptyFlowView mounted');
-    return () => {
-      console.info('[Adapty Mock] AdaptyFlowView unmounted');
-    };
-  }, []);
-
   return (
     <View {...props} style={[mockStyles.container, props.style]}>
       <View style={mockStyles.content}>
