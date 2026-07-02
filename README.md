@@ -74,7 +74,7 @@ npx expo prebuild
 
 Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
-### iOS requirements (since 3.17)
+### iOS requirements (since 4.0.0)
 
 - **React Native ≥ 0.75** — required for the `spm_dependency` podspec helper that pulls the native `Adapty`, `AdaptyUI`, and `AdaptyPlugin` SDKs through Swift Package Manager.
 - **Dynamic frameworks** — your `ios/Podfile` must declare:
@@ -84,14 +84,6 @@ Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm
   ```
 
   `spm_dependency` only works with dynamic frameworks. If you currently use the default static linkage you'll need to switch — be aware this can conflict with libraries that don't yet support modular headers (see the [Callstack write-up](https://www.callstack.com/blog/integrating-swift-package-manager-with-react-native-libraries)) and is incompatible with Flipper.
-
-#### Migrating from earlier versions
-
-If you're upgrading from a version that pulled `Adapty`/`AdaptyUI`/`AdaptyPlugin` as CocoaPods sub-dependencies:
-
-1. Remove any explicit `pod 'Adapty'`, `pod 'AdaptyUI'`, `pod 'AdaptyPlugin'` lines from your `Podfile`.
-2. Add `use_frameworks! :linkage => :dynamic` to your target.
-3. Run `pod install --repo-update` from the `ios/` directory.
 
 ## Integrate IAPs within a few hours without server coding
 
