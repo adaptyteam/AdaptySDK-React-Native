@@ -263,8 +263,7 @@ export class FlowViewController {
    * - `onPurchaseCompleted` - keeps the view open (returns `false`)
    * - `onUrlPress` - opens URL and keeps the view open (returns `false`)
    *
-   * If you want to override these listeners, we strongly recommend to return the same value as the default implementation
-   * from your custom listener to retain default behavior.
+   * To retain default behavior in a custom listener, return the same value as the default implementation.
    *
    * **Important**: Calling this method multiple times will override only the handlers you provide,
    * keeping previously set handlers intact.
