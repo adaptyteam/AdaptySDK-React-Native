@@ -1,15 +1,20 @@
 name: Publish to npm
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
+      tag:
+        description: 'npm dist-tag to publish under'
+        required: true
+        default: 'latest'
+        type: choice
+        options:
+          - 'latest'
+          - 'beta'
       dry-run:
         description: 'Perform a dry run (no actual publish)'
         required: false
-        default: 'false'
+        default: 'true'
         type: choice
         options:
           - 'true'
@@ -20,15 +25,42 @@ permissions:
   contents: read
 
 jobs:
+  guard:
+    runs-on: ubuntu-24.04
+    name: Verify a real publish is from a v* git tag
+    steps:
+      - name: Enforce v* tag for real publishes (dry runs are exempt)
+        env:
+          DRY_RUN: ${{ inputs.dry-run }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run — skipping the v* tag guard (any ref is allowed)."
+            exit 0
+          fi
+          if [ "$REF_TYPE" != "tag" ]; then
+            echo "::error::A real publish must be dispatched from a git tag, but ref_type is '$REF_TYPE' (ref_name: '$REF_NAME')."
+            exit 1
+          fi
+          case "$REF_NAME" in
+            v*) echo "OK: real publish from tag '$REF_NAME'." ;;
+            *)
+              echo "::error::Tag '$REF_NAME' does not match the required 'v*' pattern."
+              exit 1
+              ;;
+          esac
+
   validation:
     name: Run validation checks
+    needs: guard
     uses: ./.github/workflows/pr-validation.yml
 
   publish:
     runs-on: ubuntu-24.04
     environment: publish
     name: Publish package to npm
-    needs: validation
+    needs: [guard, validation]
 
     steps:
       - name: Checkout code
@@ -72,18 +104,22 @@ jobs:
           npm pack --dry-run --ignore-scripts
 
       - name: Publish to npm (dry-run)
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
-        run: npm publish --provenance --tag latest --dry-run --ignore-scripts
+        if: ${{ inputs.dry-run == 'true' }}
+        env:
+          NPM_DIST_TAG: ${{ inputs.tag }}
+        run: npm publish --provenance --tag "$NPM_DIST_TAG" --dry-run --ignore-scripts
 
       - name: Publish to npm
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run != 'true')
-        run: npm publish --provenance --tag latest --ignore-scripts
+        if: ${{ inputs.dry-run != 'true' }}
+        env:
+          NPM_DIST_TAG: ${{ inputs.tag }}
+        run: npm publish --provenance --tag "$NPM_DIST_TAG" --ignore-scripts
 
       - name: Output published version
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run != 'true')
+        if: ${{ inputs.dry-run != 'true' }}
+        env:
+          NPM_DIST_TAG: ${{ inputs.tag }}
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          echo "✅ Successfully published react-native-adapty@${PACKAGE_VERSION}"
+          echo "✅ Successfully published react-native-adapty@${PACKAGE_VERSION} (tag: ${NPM_DIST_TAG})"
           echo "📦 Package URL: https://www.npmjs.com/package/react-native-adapty/v/${PACKAGE_VERSION}"
-
-

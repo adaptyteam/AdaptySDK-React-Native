@@ -31,7 +31,7 @@ export const LineParam: React.FC<LineParamProps> = ({
       <View style={styles.container}>
         <Text style={styles.label}>{label}</Text>
         <View style={[styles.valueContainer, rightHeavy && styles.rightHeavy]}>
-          {typeof value === 'string' ? (
+          {typeof value === 'string' || typeof value === 'number' ? (
             <Text style={styles.value}>{value}</Text>
           ) : (
             value

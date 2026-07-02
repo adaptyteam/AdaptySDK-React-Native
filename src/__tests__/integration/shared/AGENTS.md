@@ -43,12 +43,12 @@ import {
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PAYWALL_RESPONSE,
-  ADAPTY_UI_CREATE_PAYWALL_VIEW_RESPONSE
+  ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE
 } from '../shared/bridge-samples';
 
 // From specific file (for tree-shaking)
 import { ACTIVATE_RESPONSE_SUCCESS } from '../shared/bridge-samples/activation';
-import { ADAPTY_UI_CREATE_PAYWALL_VIEW_RESPONSE } from '../shared/bridge-samples/ui-methods';
+import { ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE } from '../shared/bridge-samples/ui-methods';
 ```
 
 ## Adding New Samples

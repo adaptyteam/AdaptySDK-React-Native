@@ -8,7 +8,7 @@ import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '@/logger';
 import { parseMethodResult } from '@/coders';
 import { AdaptyType, parseCommonEvent } from '@/coders/parse';
-import { parsePaywallEvent } from '@/coders/parse-paywall';
+import { parseFlowEvent } from '@/coders/parse-flow';
 import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 
 const KEY_HANDLER_NAME = 'HANDLER';
@@ -122,8 +122,8 @@ export class NativeRequestHandler<
             return onboardingEvent;
           }
 
-          const paywallEvent = parsePaywallEvent(arg, ctx);
-          return paywallEvent;
+          const flowEvent = parseFlowEvent(arg, ctx);
+          return flowEvent;
         } catch (error) {
           log.failed(() => ({ error }));
 

@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { adapty, LogLevel, shouldEnableMock } from 'react-native-adapty';
 import type {
   AdaptyProfile,
-  AdaptyPaywall,
+  AdaptyFlow,
 } from 'react-native-adapty';
 import { readCredentials, readPlacementId } from './helpers';
 import { recipes, Recipe } from './recipes';
@@ -18,7 +18,7 @@ import { styles } from './styles';
 import { mockConfig } from './custom-mock-config';
 import CustomPurchaseScreen from './CustomPurchaseScreen';
 import AdaptyUIScreen from './AdaptyUIScreen';
-import AdaptyPaywallComponentScreen from './AdaptyPaywallComponentScreen';
+import AdaptyFlowComponentScreen from './AdaptyFlowComponentScreen';
 
 const enableMock = shouldEnableMock();
 
@@ -29,7 +29,7 @@ export default function RecipesScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<AdaptyProfile | null>(null);
-  const [paywall, setPaywall] = useState<AdaptyPaywall | null>(null);
+  const [flow, setFlow] = useState<AdaptyFlow | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [showPurchaseScreen, setShowPurchaseScreen] = useState(false);
   const [showAdaptyUI, setShowAdaptyUI] = useState(false);
@@ -41,7 +41,7 @@ export default function RecipesScreen() {
     initializeAdapty();
   }, []);
 
-  // Initialize Adapty: activate, load profile, load paywall
+  // Initialize Adapty: activate, load profile, load flow
   const initializeAdapty = async () => {
     try {
       setIsLoading(true);
@@ -64,9 +64,9 @@ export default function RecipesScreen() {
       const userProfile = await adapty.getProfile();
       setProfile(userProfile);
 
-      // Step 3: Load paywall
-      const paywallData = await adapty.getPaywall(readPlacementId());
-      setPaywall(paywallData);
+      // Step 3: Load flow
+      const flowData = await adapty.getFlow(readPlacementId());
+      setFlow(flowData);
 
       setIsLoading(false);
     } catch (err) {
@@ -89,8 +89,8 @@ export default function RecipesScreen() {
     }
 
     // Otherwise, show purchase screen
-    if (!paywall) {
-      setError('Paywall not loaded. Please try again.');
+    if (!flow) {
+      setError('Flow not loaded. Please try again.');
       return;
     }
 
@@ -146,21 +146,21 @@ export default function RecipesScreen() {
   }
 
   // Adapty UI Modal screen
-  if (showAdaptyUI && paywall) {
+  if (showAdaptyUI && flow) {
     return (
       <AdaptyUIScreen
-        paywall={paywall}
+        flow={flow}
         onSuccess={handlePurchaseSuccess}
         onClose={handleCloseAdaptyUI}
       />
     );
   }
 
-  // Adapty Paywall Component screen
-  if (showAdaptyComponent && paywall) {
+  // Adapty Flow Component screen
+  if (showAdaptyComponent && flow) {
     return (
-      <AdaptyPaywallComponentScreen
-        paywall={paywall}
+      <AdaptyFlowComponentScreen
+        flow={flow}
         onSuccess={handlePurchaseSuccess}
         onClose={handleCloseAdaptyComponent}
       />
@@ -168,10 +168,10 @@ export default function RecipesScreen() {
   }
 
   // Custom Purchase screen
-  if (showPurchaseScreen && paywall) {
+  if (showPurchaseScreen && flow) {
     return (
       <CustomPurchaseScreen
-        paywall={paywall}
+        flow={flow}
         onSuccess={handlePurchaseSuccess}
         onClose={handleClosePurchaseScreen}
       />
@@ -275,8 +275,8 @@ export default function RecipesScreen() {
                 {uiMode === 'custom'
                   ? '🎨 Custom purchase screen with manual product loading'
                   : uiMode === 'modal'
-                  ? '🪟 Adapty UI as modal popup (createPaywallView)'
-                  : '📦 Adapty UI as embedded component (AdaptyPaywallView)'}
+                  ? '🪟 Adapty UI as modal popup (createFlowView)'
+                  : '📦 Adapty UI as embedded component (AdaptyFlowView)'}
               </Text>
             </View>
           </View>

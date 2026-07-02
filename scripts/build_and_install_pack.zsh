@@ -72,22 +72,22 @@ else
     rm -rf "$TEMP_DIR"
 fi
 
-# 5b: @adapty/core — install published version from npm registry
-CORE_VERSION=$(node -p "require('$EXAMPLE_DIR/node_modules/react-native-adapty/package.json').dependencies['@adapty/core']")
-if [[ -n "$CORE_VERSION" ]]; then
-    echo "📦 Installing @adapty/core@$CORE_VERSION from npm..."
-    CORE_TEMP=$(mktemp -d)
-    npm pack "@adapty/core@$CORE_VERSION" --pack-destination "$CORE_TEMP" --quiet
-    CORE_PACK=$(ls "$CORE_TEMP"/adapty-core-*.tgz 2>/dev/null | head -1)
-    if [[ -f "$CORE_PACK" ]]; then
-        mkdir -p "$TARGET_NODE_MODULES/@adapty/core"
-        tar -xzf "$CORE_PACK" -C "$TARGET_NODE_MODULES/@adapty/core" --strip-components=1
-        echo "Installed @adapty/core@$CORE_VERSION"
-    else
-        echo "❌ Failed to download @adapty/core@$CORE_VERSION"
-        exit 1
-    fi
-    rm -rf "$CORE_TEMP"
+# 5b: @adapty/core — copy from the SDK root node_modules (single source of truth).
+# On CI, `yarn install` populates the root with the published version from npm.
+# Locally, you can override it with a local build (e.g. via BUILD_OUT_DIR) and it
+# gets picked up automatically. core's only runtime dep (tslib) is handled in 5a.
+SDK_CORE_PATH="$SDK_DIR/node_modules/@adapty/core"
+if [[ -d "$SDK_CORE_PATH" ]]; then
+    CORE_VERSION=$(node -p "require('$SDK_CORE_PATH/package.json').version")
+    echo "📦 Copying @adapty/core@$CORE_VERSION from SDK root node_modules..."
+    rm -rf "$TARGET_NODE_MODULES/@adapty/core"
+    mkdir -p "$TARGET_NODE_MODULES/@adapty"
+    cp -R "$SDK_CORE_PATH" "$TARGET_NODE_MODULES/@adapty/"
+    echo "Installed @adapty/core@$CORE_VERSION"
+else
+    echo "❌ Error: @adapty/core not found at $SDK_CORE_PATH"
+    echo "   Run 'yarn install' in the SDK root (or build core locally) first."
+    exit 1
 fi
 
 echo "✅ Successfully installed React Native Adapty SDK pack!"

@@ -6,9 +6,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { createPaywallView } from 'react-native-adapty';
+import { createFlowView } from 'react-native-adapty';
 import type {
-  AdaptyPaywall,
+  AdaptyFlow,
   AdaptyPaywallProduct,
   AdaptyProfile,
   AdaptyPurchaseResult,
@@ -16,13 +16,13 @@ import type {
 import { styles } from './styles';
 
 interface AdaptyUIScreenProps {
-  paywall: AdaptyPaywall;
+  flow: AdaptyFlow;
   onSuccess: (profile: AdaptyProfile) => void;
   onClose: () => void;
 }
 
 export default function AdaptyUIScreen({
-  paywall,
+  flow,
   onSuccess,
   onClose,
 }: AdaptyUIScreenProps) {
@@ -31,22 +31,16 @@ export default function AdaptyUIScreen({
   const [isPresented, setIsPresented] = React.useState(false);
 
   React.useEffect(() => {
-    showPaywall();
+    showFlow();
   }, []);
 
-  const showPaywall = async () => {
-    if (!paywall.hasViewConfiguration) {
-      setError('Paywall does not have Paywall Builder configuration.');
-      setIsLoading(false);
-      return;
-    }
-
+  const showFlow = async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Create paywall view
-      const view = await createPaywallView(paywall);
+      // Create flow view
+      const view = await createFlowView(flow);
 
       // Set up event handlers
       await view.setEventHandlers({
@@ -58,7 +52,7 @@ export default function AdaptyUIScreen({
           if (purchaseResult.type === 'success') {
             // Update profile to reflect new access level
             onSuccess(purchaseResult.profile);
-            // Close paywall by returning true
+            // Close flow by returning true
             return true;
           }
           // Don't close for cancelled or pending purchases
@@ -70,13 +64,13 @@ export default function AdaptyUIScreen({
         },
       });
 
-      // Present the paywall
+      // Present the flow
       await view.present();
-      
+
       setIsLoading(false);
       setIsPresented(true);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to show paywall';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to show flow';
       setError(errorMessage);
       setIsLoading(false);
     }

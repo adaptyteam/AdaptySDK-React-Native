@@ -11,11 +11,11 @@ export {
 
 export type {
   AdaptyPrice,
-  AdaptyPaywall,
+  AdaptyFlow,
+  AdaptyFlowPaywall,
   AdaptyOnboarding,
   AdaptyPlacement,
   AdaptyRemoteConfig,
-  AdaptyPaywallBuilder,
   AdaptyOnboardingBuilder,
   AdaptyPurchaseResult,
   AdaptyProfile,
@@ -30,7 +30,6 @@ export type {
   AdaptyDiscountPhase,
   AdaptySubscriptionPeriod,
   AdaptyProfileParameters,
-  ProductReference,
   AdaptyProductIdentifier,
   AdaptyInstallationStatus,
   AdaptyInstallationDetails,

@@ -1,0 +1,163 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { AdaptyFlowView } from 'react-native-adapty';
+import type {
+  AdaptyFlow,
+  AdaptyPaywallProduct,
+  AdaptyProfile,
+  AdaptyPurchaseResult,
+} from 'react-native-adapty';
+import { styles } from './styles';
+
+interface AdaptyFlowComponentScreenProps {
+  flow: AdaptyFlow;
+  onSuccess: (profile: AdaptyProfile) => void;
+  onClose: () => void;
+}
+
+export default function AdaptyFlowComponentScreen({
+  flow,
+  onSuccess,
+  onClose,
+}: AdaptyFlowComponentScreenProps) {
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePurchaseCompleted = (
+    purchaseResult: AdaptyPurchaseResult,
+    _product: AdaptyPaywallProduct,
+  ): boolean => {
+    // Purchase completed successfully
+    if (purchaseResult.type === 'success') {
+      // Update profile to reflect new access level
+      onSuccess(purchaseResult.profile);
+      // Close flow by returning true
+      return true;
+    }
+    // Don't close for cancelled or pending purchases
+    return false;
+  };
+
+  const handleError = (error: Error) => {
+    setError(error.message);
+  };
+
+  const handleLoadingProductsFailed = (error: Error) => {
+    setError(error.message);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={componentStyles.header}>
+        <TouchableOpacity
+          style={componentStyles.closeButton}
+          onPress={onClose}
+        >
+          <Text style={componentStyles.closeButtonText}>✕</Text>
+        </TouchableOpacity>
+        <Text style={componentStyles.headerTitle}>Adapty RN Component</Text>
+        <View style={componentStyles.placeholder} />
+      </View>
+
+      {/* Error display */}
+      {error ? (
+        <View style={componentStyles.errorWrapper}>
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+          <Text style={componentStyles.errorNote}>
+            The flow component failed to render. This can happen in mock mode if the flow doesn't have a view configuration.
+          </Text>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={onClose}
+          >
+            <Text style={styles.backButtonText}>← Back to Recipes</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        // Adapty Flow View Component
+        <View style={componentStyles.flowContainer}>
+          <AdaptyFlowView
+            flow={flow}
+            onPurchaseCompleted={handlePurchaseCompleted}
+            onError={handleError}
+            onLoadingProductsFailed={handleLoadingProductsFailed}
+            onCloseButtonPress={onClose}
+            style={componentStyles.flowView}
+          />
+        </View>
+      )}
+    </SafeAreaView>
+  );
+}
+
+const componentStyles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeButtonText: {
+    fontSize: 20,
+    color: '#666',
+  },
+  placeholder: {
+    width: 32,
+  },
+  flowContainer: {
+    flex: 1,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  flowView: {
+    flex: 1,
+    width: '100%',
+  },
+  errorWrapper: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+  },
+  errorNote: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 12,
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+});
+

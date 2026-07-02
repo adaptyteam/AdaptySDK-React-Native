@@ -9,20 +9,20 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { adapty } from 'react-native-adapty';
 import type {
-  AdaptyPaywall,
+  AdaptyFlow,
   AdaptyPaywallProduct,
   AdaptyProfile,
 } from 'react-native-adapty';
 import { styles } from './styles';
 
 interface CustomPurchaseScreenProps {
-  paywall: AdaptyPaywall;
+  flow: AdaptyFlow;
   onSuccess: (profile: AdaptyProfile) => void;
   onClose: () => void;
 }
 
 export default function CustomPurchaseScreen({
-  paywall,
+  flow,
   onSuccess,
   onClose,
 }: CustomPurchaseScreenProps) {
@@ -40,8 +40,8 @@ export default function CustomPurchaseScreen({
     try {
       setIsLoading(true);
       setError(null);
-      const paywallProducts = await adapty.getPaywallProducts(paywall);
-      setProducts(paywallProducts);
+      const flowProducts = await adapty.getPaywallProducts(flow);
+      setProducts(flowProducts);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to load products';

@@ -4,7 +4,7 @@ export type { AdaptyMockConfig } from './types';
 export {
   createMockProfile,
   createMockPremiumAccessLevel,
-  createMockPaywall,
+  createMockFlow,
   createMockProducts,
   createMockPurchaseResult,
   createMockOnboarding,

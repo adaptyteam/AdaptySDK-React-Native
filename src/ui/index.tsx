@@ -1,5 +1,5 @@
-export { createPaywallView } from './create-paywall-view';
+export { createFlowView } from './create-flow-view';
 export { createOnboardingView } from './create-onboarding-view';
 export { AdaptyOnboardingView } from './AdaptyOnboardingView';
-export { AdaptyPaywallView } from './AdaptyPaywallView';
+export { AdaptyFlowView, type AdaptyFlowViewProps } from './AdaptyFlowView';
 export * from './types';
