@@ -11,13 +11,15 @@ export const recipes: Recipe[] = [
   {
     id: '1',
     title: 'Pancakes',
-    description: 'Fluffy pancakes with maple syrup and fresh berries. Perfect for a weekend breakfast!',
+    description:
+      'Fluffy pancakes with maple syrup and fresh berries. Perfect for a weekend breakfast!',
     isPremium: false,
   },
   {
     id: '2',
     title: 'Omelette',
-    description: 'Classic french omelette with herbs, cheese, and your favorite vegetables.',
+    description:
+      'Classic french omelette with herbs, cheese, and your favorite vegetables.',
     isPremium: false,
   },
   {
@@ -30,8 +32,8 @@ export const recipes: Recipe[] = [
   {
     id: '4',
     title: 'Caesar Salad',
-    description: 'Fresh romaine lettuce with homemade caesar dressing, parmesan cheese, and crispy croutons.',
+    description:
+      'Fresh romaine lettuce with homemade caesar dressing, parmesan cheese, and crispy croutons.',
     isPremium: true,
   },
 ];
-

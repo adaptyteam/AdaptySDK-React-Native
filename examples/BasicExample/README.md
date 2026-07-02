@@ -5,14 +5,14 @@ This is a minimal example application demonstrating the core functionality of Ad
 - SDK activation
 - Displaying free and premium content
 - Showing paywall for premium content access
-- Making purchases through Paywall Builder
+- Making purchases through Flow Builder
 - Automatic access to premium content after successful purchase
 
 ### Features
 
 - **Basic Recipes** - Free content available to all users
 - **Premium Recipes** - Content requiring an active subscription
-- **Paywall Builder Integration** - Native paywall presentation
+- **Flow Builder Integration** - Native paywall presentation
 - **Real-time Access Updates** - Automatic unlock after purchase
 
 ### Screenshots
@@ -76,9 +76,9 @@ Or open Android Studio and build from there.
 
 1. **SDK Activation** - The app activates Adapty SDK on startup using credentials from `.adapty-credentials.json`
 2. **Profile Loading** - User profile is fetched to check subscription status
-3. **Paywall Loading** - Paywall is preloaded for quick presentation
+3. **Flow Loading** - Flow is preloaded for quick presentation
 4. **Content Access** - Free recipes are always accessible, premium recipes require active subscription
-5. **Purchase Flow** - When user taps a locked recipe, the paywall is presented using Paywall Builder
+5. **Purchase Flow** - When user taps a locked recipe, the paywall is presented using Flow Builder
 6. **Access Grant** - After successful purchase, profile is updated and premium content becomes accessible
 
 ## Testing Purchases
