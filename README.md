@@ -84,34 +84,6 @@ Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm
 
   `spm_dependency` only works with dynamic frameworks. If you currently use the default static linkage you'll need to switch — be aware this can conflict with libraries that don't yet support modular headers (see the [Callstack write-up](https://www.callstack.com/blog/integrating-swift-package-manager-with-react-native-libraries)) and is incompatible with Flipper.
 
-### Kids Mode (iOS)
-
-If your app targets the App Store Kids Category (or must comply with COPPA), the native iOS SDK must be built with the `KidsMode` Swift package trait, which compiles out all IDFA / AdSupport / AppTrackingTransparency code. React Native's `spm_dependency` cannot forward package traits, so the SDK ships a Podfile helper that applies the trait for you.
-
-In your `ios/Podfile`, require the helper and call it **after** `react_native_post_install`:
-
-```ruby
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native-adapty/ios/adapty_kids_mode.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
-
-# ...
-
-post_install do |installer|
-  react_native_post_install(
-    installer,
-    config[:reactNativePath],
-    :mac_catalyst_enabled => false
-  )
-
-  adapty_enable_kids_mode(installer)
-end
-```
-
-Then run `pod install`. To verify, check that the `Adapty.activate(...)` log line reports `kids_mode_enabled: true`. The helper must stay in `post_install` permanently — React Native recreates the Swift package references on every `pod install`, and the helper re-applies the trait each time.
-
 ## Integrate IAPs within a few hours without server coding
 
 **Adapty handles everything, from free trials to refunds, in a simple, developer-friendly SDK.**
