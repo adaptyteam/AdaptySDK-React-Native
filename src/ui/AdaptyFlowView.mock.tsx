@@ -14,7 +14,7 @@ import { mockStyles } from './mock-styles';
  * AdaptyFlowView component will be used instead, which renders the real paywall
  * UI configured in the Adapty Dashboard.
  *
- * @see {@link https://docs.adapty.io/docs/paywall-builder-getting-started Adapty Paywall Builder Documentation}
+ * @see {@link https://adapty.io/docs/react-native-present-paywalls Displaying flows & paywalls}
  */
 export const AdaptyFlowViewMock: React.FC<
   NativeAdaptyFlowViewProps

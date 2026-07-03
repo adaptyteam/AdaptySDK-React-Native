@@ -14,7 +14,7 @@ import { mockStyles } from './mock-styles';
  * AdaptyOnboardingView component will be used instead, which renders the real
  * onboarding UI configured in the Adapty Dashboard.
  *
- * @see {@link https://docs.adapty.io/docs/paywall-builder-getting-started Adapty Paywall Builder Documentation}
+ * @see {@link https://adapty.io/docs/react-native-present-onboardings Displaying onboardings}
  */
 export const AdaptyOnboardingViewMock: React.FC<
   NativeAdaptyOnboardingViewProps

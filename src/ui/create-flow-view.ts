@@ -6,7 +6,7 @@ import { FlowViewController } from './flow-view-controller';
  * Creates a flow view controller.
  * You can use it to further configure a view or present it.
  *
- * @see {@link https://docs.adapty.io/docs/paywall-builder-fetching | [DOC] Creating a flow view}
+ * @see {@link https://adapty.io/docs/react-native-get-pb-paywalls#fetch-the-view-configuration | [DOC] Creating a flow view}
  *
  * @param {AdaptyFlow} flow - flow that you want to present.
  * @param {CreateFlowViewParamsInput | undefined} [params] - additional params.
