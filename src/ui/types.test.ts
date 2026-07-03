@@ -86,6 +86,20 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
     });
   });
 
+  describe('constant-return handlers', () => {
+    it('onRestoreCompleted keeps the view open', () => {
+      expect(DEFAULT_FLOW_EVENT_HANDLERS.onRestoreCompleted({} as any)).toBe(
+        false,
+      );
+    });
+
+    it('onPurchaseCompleted keeps the view open', () => {
+      expect(
+        DEFAULT_FLOW_EVENT_HANDLERS.onPurchaseCompleted({} as any, {} as any),
+      ).toBe(false);
+    });
+  });
+
   describe('observer-mode handlers', () => {
     it('onObserverPurchaseInitiated warns and returns false (no real default)', () => {
       const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
