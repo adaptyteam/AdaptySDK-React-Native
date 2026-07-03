@@ -81,17 +81,17 @@ export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   onAnalytics: () => false,
   // There is no real default here: permissions must be declared in the app
   // bundle by the developer, so we cannot grant them on the user's behalf. Warn
-  // and reply `unavailable` so native always gets a correlated answer.
+  // and reply `denied` so native always gets a correlated answer.
   onRequestPermission: async () => {
     Log.warn(
       'onRequestPermission',
       () =>
-        'No onRequestPermission handler provided; replying `unavailable`. ' +
+        'No onRequestPermission handler provided; replying `denied`. ' +
         'Declare the required permissions in your app bundle and provide an ' +
         'onRequestPermission handler to respond.',
     );
 
-    return { status: 'unavailable' as const };
+    return { status: 'denied' as const };
   },
   // Observer mode: no real default. If you enable observer mode and present a
   // flow view, you must drive the purchase/restore yourself, so warn when no

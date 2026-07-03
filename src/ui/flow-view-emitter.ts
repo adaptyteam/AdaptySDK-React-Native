@@ -245,7 +245,7 @@ export class FlowViewEmitter {
     const handler =
       handlerData.handler as FlowEventHandlers['onRequestPermission'];
 
-    let status: FlowPermissionStatus = 'unavailable';
+    let status: FlowPermissionStatus = 'denied';
     let detail: string | undefined;
     try {
       const response = await handler(event.permission, event.customArgs);

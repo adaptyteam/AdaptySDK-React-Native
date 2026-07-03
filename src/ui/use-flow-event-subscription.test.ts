@@ -102,7 +102,7 @@ describe('useFlowEventSubscription', () => {
 
   it('preserves the async onRequestPermission return value', async () => {
     const handler = jest.fn(async () => ({
-      status: 'unavailable' as const,
+      status: 'denied' as const,
       detail: 'from-test',
     }));
     act(() => {
@@ -117,7 +117,7 @@ describe('useFlowEventSubscription', () => {
           detail?: string;
         }>
       )(),
-    ).resolves.toEqual({ status: 'unavailable', detail: 'from-test' });
+    ).resolves.toEqual({ status: 'denied', detail: 'from-test' });
     expect(handler).toHaveBeenCalledTimes(1);
   });
 

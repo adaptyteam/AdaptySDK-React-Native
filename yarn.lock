@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.2.0.tgz#296d00581bfaaabfda1e976849d927824aaea81b"
   integrity sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw==
 
-"@adapty/core@4.0.0-beta.1-dev.e467e14ee232001393e8b37ac05fc9d6906a8e4a":
-  version "4.0.0-beta.1-dev.e467e14ee232001393e8b37ac05fc9d6906a8e4a"
-  resolved "https://registry.yarnpkg.com/@adapty/core/-/core-4.0.0-beta.1-dev.e467e14ee232001393e8b37ac05fc9d6906a8e4a.tgz#61913de6e59f045e543506a6c7d4645b38576390"
-  integrity sha512-KA+RTFpxK+Vp1L4/sT0Wyj0RHKQDBFXSKNshYGMtFnZEuEALRGbjTa70Yvm0eKRWyzrQNLqeQPMR1eTRTSek3Q==
+"@adapty/core@4.0.0-beta.1-dev.7b097766c96f29ef0f7f84992f65de4c17b6c275":
+  version "4.0.0-beta.1-dev.7b097766c96f29ef0f7f84992f65de4c17b6c275"
+  resolved "https://registry.yarnpkg.com/@adapty/core/-/core-4.0.0-beta.1-dev.7b097766c96f29ef0f7f84992f65de4c17b6c275.tgz#57c9a625a1648c6ec42ad6af1cd8a332c515f584"
+  integrity sha512-Mm1gSsvFdD/k/4BgBzrOwh5Yxs98ARdYcQPggXOX6z1/uO28eE6JdBseYwxWYLlWRvhwWSrhzyQNO3CGCH2Zzg==
   dependencies:
     tslib "^2.5.0"
 
@@ -6328,6 +6328,7 @@ string-length@^4.0.1:
     strip-ansi "^6.0.0"
 
 "string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+  name string-width-cjs
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -6793,6 +6794,7 @@ wordwrap@^1.0.0:
   integrity sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
