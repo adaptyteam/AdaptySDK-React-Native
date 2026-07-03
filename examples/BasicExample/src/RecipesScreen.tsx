@@ -7,10 +7,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { adapty, createPaywallView, LogLevel } from 'react-native-adapty';
+import { adapty, createFlowView, LogLevel } from 'react-native-adapty';
 import type {
   AdaptyProfile,
-  AdaptyPaywall,
+  AdaptyFlow,
   AdaptyPurchaseResult,
   AdaptyPaywallProduct,
 } from 'react-native-adapty';
@@ -23,7 +23,7 @@ export default function RecipesScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<AdaptyProfile | null>(null);
-  const [paywall, setPaywall] = useState<AdaptyPaywall | null>(null);
+  const [flow, setFlow] = useState<AdaptyFlow | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   // Initialize Adapty SDK on mount
@@ -31,7 +31,7 @@ export default function RecipesScreen() {
     initializeAdapty();
   }, []);
 
-  // Initialize Adapty: activate, load profile, load paywall
+  // Initialize Adapty: activate, load profile, load flow
   const initializeAdapty = async () => {
     try {
       setIsLoading(true);
@@ -39,7 +39,7 @@ export default function RecipesScreen() {
 
       // Step 0: Set log level (NOTE: This is for debugging in example app only. Don't use VERBOSE in production.)
       await adapty.setLogLevel(LogLevel.VERBOSE);
-      
+
       // Step 1: Activate SDK
       await adapty.activate(readCredentials(), {
         __ignoreActivationOnFastRefresh: __DEV__,
@@ -49,13 +49,14 @@ export default function RecipesScreen() {
       const userProfile = await adapty.getProfile();
       setProfile(userProfile);
 
-      // Step 3: Load paywall
-      const paywallData = await adapty.getPaywall(readPlacementId());
-      setPaywall(paywallData);
+      // Step 3: Load flow
+      const flowData = await adapty.getFlow(readPlacementId());
+      setFlow(flowData);
 
       setIsLoading(false);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize Adapty SDK';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to initialize Adapty SDK';
       setError(errorMessage);
       setIsLoading(false);
     }
@@ -73,25 +74,20 @@ export default function RecipesScreen() {
       return;
     }
 
-    // Otherwise, show paywall
-    await showPaywall();
+    // Otherwise, show flow
+    await showFlow();
   };
 
-  // Show paywall using Paywall Builder
-  const showPaywall = async () => {
-    if (!paywall) {
-      setError('Paywall not loaded. Please try again.');
-      return;
-    }
-
-    if (!paywall.hasViewConfiguration) {
-      setError('Paywall does not have Paywall Builder configuration.');
+  // Show flow using Flow Builder
+  const showFlow = async () => {
+    if (!flow) {
+      setError('Flow not loaded. Please try again.');
       return;
     }
 
     try {
-      // Create paywall view
-      const view = await createPaywallView(paywall);
+      // Create flow view
+      const view = await createFlowView(flow);
 
       // Set up event handlers
       await view.setEventHandlers({
@@ -103,7 +99,7 @@ export default function RecipesScreen() {
           if (purchaseResult.type === 'success') {
             // Update profile to reflect new access level
             setProfile(purchaseResult.profile);
-            // Close paywall by returning true
+            // Close flow by returning true
             return true;
           }
           // Don't close for cancelled or pending purchases
@@ -111,10 +107,11 @@ export default function RecipesScreen() {
         },
       });
 
-      // Present the paywall
+      // Present the flow
       await view.present();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to show paywall';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to show flow';
       setError(errorMessage);
     }
   };
@@ -142,7 +139,9 @@ export default function RecipesScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.detailView}>
           <Text style={styles.detailTitle}>{selectedRecipe.title}</Text>
-          <Text style={styles.detailDescription}>{selectedRecipe.description}</Text>
+          <Text style={styles.detailDescription}>
+            {selectedRecipe.description}
+          </Text>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <Text style={styles.backButtonText}>← Back to Recipes</Text>
           </TouchableOpacity>
@@ -167,8 +166,15 @@ export default function RecipesScreen() {
         )}
 
         {/* Premium status bar */}
-        <View style={[styles.statusBar, isPremiumActive ? styles.statusPremium : styles.statusFree]}>
-          <Text style={styles.statusText}>{isPremiumActive ? '✓ Premium Active' : 'Free Plan'}</Text>
+        <View
+          style={[
+            styles.statusBar,
+            isPremiumActive ? styles.statusPremium : styles.statusFree,
+          ]}
+        >
+          <Text style={styles.statusText}>
+            {isPremiumActive ? '✓ Premium Active' : 'Free Plan'}
+          </Text>
         </View>
 
         {/* Basic Recipes Section */}
@@ -183,7 +189,9 @@ export default function RecipesScreen() {
                 onPress={() => handleRecipeClick(recipe)}
               >
                 <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                <Text style={styles.recipeDescription}>{recipe.description}</Text>
+                <Text style={styles.recipeDescription}>
+                  {recipe.description}
+                </Text>
               </TouchableOpacity>
             ))}
         </View>
@@ -196,14 +204,19 @@ export default function RecipesScreen() {
             .map(recipe => (
               <TouchableOpacity
                 key={recipe.id}
-                style={[styles.recipeCard, !isPremiumActive && styles.recipeCardLocked]}
+                style={[
+                  styles.recipeCard,
+                  !isPremiumActive && styles.recipeCardLocked,
+                ]}
                 onPress={() => handleRecipeClick(recipe)}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   {!isPremiumActive && <Text style={styles.lockIcon}>🔒</Text>}
                   <Text style={styles.recipeTitle}>{recipe.title}</Text>
                 </View>
-                <Text style={styles.recipeDescription}>{recipe.description}</Text>
+                <Text style={styles.recipeDescription}>
+                  {recipe.description}
+                </Text>
               </TouchableOpacity>
             ))}
         </View>
@@ -211,4 +224,3 @@ export default function RecipesScreen() {
     </SafeAreaView>
   );
 }
-

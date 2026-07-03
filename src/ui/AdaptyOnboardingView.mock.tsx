@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text } from 'react-native';
 import { NativeAdaptyOnboardingViewProps } from './types';
 import { mockStyles } from './mock-styles';
@@ -14,18 +14,11 @@ import { mockStyles } from './mock-styles';
  * AdaptyOnboardingView component will be used instead, which renders the real
  * onboarding UI configured in the Adapty Dashboard.
  *
- * @see {@link https://docs.adapty.io/docs/paywall-builder-getting-started Adapty Paywall Builder Documentation}
+ * @see {@link https://adapty.io/docs/react-native-present-onboardings Displaying onboardings}
  */
 export const AdaptyOnboardingViewMock: React.FC<
   NativeAdaptyOnboardingViewProps
 > = props => {
-  useEffect(() => {
-    console.info('[Adapty Mock] AdaptyOnboardingView mounted');
-    return () => {
-      console.info('[Adapty Mock] AdaptyOnboardingView unmounted');
-    };
-  }, []);
-
   return (
     <View {...props} style={[mockStyles.container, props.style]}>
       <View style={mockStyles.content}>

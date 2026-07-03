@@ -56,7 +56,7 @@ buck-out/
 
 *.tgz
 
-.adapty-credentials.json
+.adapty-credentials*.json
 
 .tsbuildinfo
 .jest/

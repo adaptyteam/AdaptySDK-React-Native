@@ -1,9 +1,9 @@
-import type { AdaptyPaywallProduct, AdaptyPaywall } from '@/types';
+import type { AdaptyPaywallProduct, AdaptyFlow } from '@/types';
 import { createAdaptyInstance, cleanupAdapty } from './setup.utils';
 
 describe('Adapty - Paywall Products', () => {
   describe('Paywall products with variation', () => {
-    it('should extract variationId from paywall', async () => {
+    it('should extract variationId from flow', async () => {
       const customProduct: AdaptyPaywallProduct = {
         ios: { isFamilyShareable: false },
         vendorProductId: 'com.special.product',
@@ -32,45 +32,48 @@ describe('Adapty - Paywall Products', () => {
         },
       });
 
-      // Create paywall with matching variationId
-      const paywall: AdaptyPaywall = {
-        hasViewConfiguration: false,
-        id: 'test_paywall',
-        name: 'Test Paywall',
+      // Create flow with matching variationId
+      const placement = {
+        id: 'test_placement',
+        abTestName: 'test_ab',
+        audienceName: 'all_users',
+        revision: 1,
+        audienceVersionId: 'v1',
+      };
+      const flow: AdaptyFlow = {
+        id: 'test_flow',
+        name: 'Test Flow',
         variationId: 'special_variation_123',
-        version: 1,
-        requestLocale: 'en',
-        productIdentifiers: [
+        placement,
+        responseCreatedAt: 1704067200000,
+        paywalls: [
           {
-            vendorProductId: 'com.example.default',
-            adaptyProductId: 'default_id',
-          },
+            placement,
+            id: 'test_paywall',
+            name: 'Test Paywall',
+            variationId: 'special_variation_123',
+            productIdentifiers: [
+              {
+                vendorProductId: 'com.example.default',
+                adaptyProductId: 'default_id',
+              },
+            ],
+            // Note: 'products' is not on the public AdaptyFlowPaywall type, but kept at
+            // runtime for coder.encode(flow) — assertion hides excess property from TS
+            products: [
+              {
+                vendorId: 'com.example.default',
+                adaptyId: 'default_id',
+                accessLevelId: 'premium',
+                productType: 'subscription',
+              },
+            ],
+          } as AdaptyFlow['paywalls'][number],
         ],
-        // Note: 'products' is deprecated in public API, but still used internally by encoder
-        products: [
-          {
-            vendorId: 'com.example.default',
-            adaptyId: 'default_id',
-            accessLevelId: 'premium',
-            productType: 'subscription',
-          },
-        ],
-        remoteConfig: {
-          lang: 'en',
-          data: {},
-          dataString: '{}',
-        },
-        placement: {
-          id: 'test_placement',
-          abTestName: 'test_ab',
-          audienceName: 'all_users',
-          revision: 1,
-          audienceVersionId: 'v1',
-        },
       };
 
       // Get paywall products
-      const products = await adaptyWithCustom.getPaywallProducts(paywall);
+      const products = await adaptyWithCustom.getPaywallProducts(flow);
 
       // When variationId matches, custom product should be returned
       expect(products).toBeDefined();

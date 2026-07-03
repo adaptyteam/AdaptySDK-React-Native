@@ -17,6 +17,13 @@ jest.mock('react-native', () => {
       addListener: jest.fn(),
       removeListeners: jest.fn(),
     })),
+    StyleSheet: {
+      create: (styles) => styles,
+      flatten: (style) => style,
+    },
+    View: 'View',
+    Text: 'Text',
+    requireNativeComponent: jest.fn((name) => name),
   };
 
   return RN;

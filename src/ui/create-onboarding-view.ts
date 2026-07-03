@@ -6,6 +6,10 @@ import { OnboardingViewController } from '@/ui/onboarding-view-controller';
  * Creates an onboarding view controller.
  * You can use it to further configure a view or present it.
  *
+ * @deprecated Since 4.0.0. The legacy onboarding view is deprecated — migrate to the Flow
+ * Builder API, which renders onboardings and paywalls natively instead of in a WebView.
+ * This function will be removed in a future version.
+ *
  * @see {@link https://adapty.io/docs/react-native-get-onboardings | [DOC] Get onboardings}
  *
  * @param {AdaptyOnboarding} onboarding - onboarding that you want to present.

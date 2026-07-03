@@ -2,13 +2,16 @@
 export type {
   EventHandlerResult,
   ProductPurchaseParams,
-  EventHandlers,
+  FlowEventHandlers,
   OnboardingEventHandlers,
   OnboardingAnalyticsEventName,
   AdaptyUiOnboardingMeta,
   AdaptyUiOnboardingStateParams,
   OnboardingStateUpdatedAction,
-  CreatePaywallViewParamsInput,
+  FlowPermissionResponse,
+  FlowPermissionStatus,
+  AdaptyPermission,
+  CreateFlowViewParamsInput,
   CreateOnboardingViewParamsInput,
   AdaptyUiView,
   AdaptyUiMediaCache,
@@ -24,37 +27,94 @@ export type {
 export { AdaptyUiDialogActionType } from '@adapty/core';
 
 // RN-specific: Default event handlers
-import { Linking } from 'react-native';
 import type { ViewProps } from 'react-native';
+import { adapty } from '@/adapty-instance';
 import { Log } from '@/logger';
-import type {
-  EventHandlers,
-  OnboardingEventHandlers,
-  AdaptyPurchaseResult,
-} from '@adapty/core';
+import type { FlowEventHandlers, OnboardingEventHandlers } from '@adapty/core';
 
 /**
  * @internal
  */
-export const DEFAULT_EVENT_HANDLERS: Partial<EventHandlers> = {
+export const DEFAULT_FLOW_EVENT_HANDLERS: FlowEventHandlers = {
   onCloseButtonPress: () => true,
-  onAndroidSystemBack: () => true,
-  onRestoreCompleted: () => true,
-  onRenderingFailed: () => true,
-  onPurchaseCompleted: (purchaseResult: AdaptyPurchaseResult) =>
-    purchaseResult.type !== 'user_cancelled',
-  // `Linking.openURL` always opens an external browser (i.e. `browser_out_app`).
-  // To honor `browser_in_app`, override this handler
+  onAndroidSystemBack: () => false,
+  // Delegate to the handler method, which opens the URL natively honoring
+  // `open_in` (`browser_out_app` → external browser, `browser_in_app` → in-app
+  // browser). Override this handler to open URLs yourself instead.
   onUrlPress: (url, openIn) => {
-    if (openIn === 'browser_in_app') {
-      Log.warn(
-        'onUrlPress',
-        () =>
-          'open_in=browser_in_app is not supported by the default onUrlPress handler. Override onUrlPress to support an in-app browser.',
+    adapty
+      .openWebUrl(url, openIn)
+      .catch(error =>
+        Log.warn('onUrlPress', () => `Failed to open url via native: ${error}`),
       );
-    }
-    Linking.openURL(url);
+
     return false; // Keep paywall open
+  },
+  onCustomAction: () => false,
+  onProductSelected: () => false,
+  onPurchaseStarted: () => false,
+  onPurchaseCompleted: () => false,
+  onPurchaseFailed: () => false,
+  onRestoreStarted: () => false,
+  onRestoreCompleted: () => false,
+  onRestoreFailed: () => false,
+  onAppeared: () => false,
+  onDisappeared: () => false,
+  onError: () => true,
+  onLoadingProductsFailed: () => false,
+  onWebPaymentNavigationFinished: () => false,
+  // Delegate to the handler method, which shows the platform app-review prompt
+  // natively (`SKStoreReviewController` on iOS, In-App Review on Android).
+  // Override this handler to control the prompt yourself instead.
+  onRequestAppReview: () => {
+    void adapty
+      .requestAppReview()
+      .catch(error =>
+        Log.warn(
+          'onRequestAppReview',
+          () => `Failed to request app review via native: ${error}`,
+        ),
+      );
+
+    return false; // Keep paywall open
+  },
+  onAnalytics: () => false,
+  // There is no real default here: permissions must be declared in the app
+  // bundle by the developer, so we cannot grant them on the user's behalf. Warn
+  // and reply `denied` so native always gets a correlated answer.
+  onRequestPermission: async () => {
+    Log.warn(
+      'onRequestPermission',
+      () =>
+        'No onRequestPermission handler provided; replying `denied`. ' +
+        'Declare the required permissions in your app bundle and provide an ' +
+        'onRequestPermission handler to respond.',
+    );
+
+    return { status: 'denied' as const };
+  },
+  // Observer mode: no real default. If you enable observer mode and present a
+  // flow view, you must drive the purchase/restore yourself, so warn when no
+  // handler is provided.
+  onObserverPurchaseInitiated: () => {
+    Log.warn(
+      'onObserverPurchaseInitiated',
+      () =>
+        'No onObserverPurchaseInitiated handler provided. In observer mode you ' +
+        'must drive the purchase yourself; provide this handler to do so.',
+    );
+
+    return false;
+  },
+  onObserverRestoreInitiated: () => {
+    Log.warn(
+      'onObserverRestoreInitiated',
+      () =>
+        'No onObserverRestoreInitiated handler provided. In observer mode you ' +
+        'must drive the restore yourself; provide this handler to do so.',
+    );
+
+    return false;
   },
 };
 
@@ -66,9 +126,9 @@ export const DEFAULT_ONBOARDING_EVENT_HANDLERS: Partial<OnboardingEventHandlers>
     onClose: () => true,
   };
 
-export type NativeAdaptyPaywallViewProps = ViewProps & {
+export type NativeAdaptyFlowViewProps = ViewProps & {
   viewId: string;
-  paywallJson: string;
+  flowJson: string;
 };
 
 export type NativeAdaptyOnboardingViewProps = ViewProps & {

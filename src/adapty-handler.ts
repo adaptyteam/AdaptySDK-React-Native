@@ -45,7 +45,7 @@ export class Adapty {
   private nonWaitingMethods: MethodName[] = [
     'activate',
     'is_activated',
-    'get_paywall_for_default_audience',
+    'get_flow_for_default_audience',
     'get_onboarding_for_default_audience',
   ];
 
@@ -285,7 +285,7 @@ export class Adapty {
   }
 
   /**
-   * Fetches the paywall by the specified placement.
+   * Fetches the flow by the specified placement.
    *
    * @remarks
    * With Adapty, you can remotely configure the products and offers in your app
@@ -297,38 +297,33 @@ export class Adapty {
    * @param {string} placementId - The identifier of the desired placement.
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
-   * @param {string | undefined} [locale] - The locale of the desired paywall.
-   * @param {GetPlacementParamsInput} [params] - Additional parameters for retrieving paywall.
-   * @returns {Promise<Model.AdaptyPaywall>}
-   * A promise that resolves with a requested paywall.
+   * @param {GetPlacementParamsInput} [params] - Additional parameters for retrieving flow.
+   * @returns {Promise<Model.AdaptyFlow>}
+   * A promise that resolves with a requested flow.
    *
    * @throws {@link AdaptyError}
    * Throws an error:
-   * 1. if the paywall with the specified ID is not found
+   * 1. if the flow with the specified ID is not found
    * 2. if your bundle ID does not match with your Adapty Dashboard setup
    */
-  public async getPaywall(
+  public async getFlow(
     placementId: string,
-    locale?: string,
     params: GetPlacementParamsInput = {
       fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
       loadTimeoutMs: 5000,
     },
-  ): Promise<Model.AdaptyPaywall> {
+  ): Promise<Model.AdaptyFlow> {
     const ctx = new LogContext();
-    const log = ctx.call({ methodName: 'getPaywall' });
+    const log = ctx.call({ methodName: 'getFlow' });
 
-    log.start(() => ({ placementId, locale, params }));
+    log.start(() => ({ placementId, params }));
 
-    const methodKey = 'get_paywall';
-    const data: Req['GetPaywall.Request'] = {
+    const methodKey = 'get_flow';
+    const data: Req['GetFlow.Request'] = {
       method: methodKey,
       placement_id: placementId,
       load_timeout: (params.loadTimeoutMs ?? 5000) / 1000,
     };
-    if (locale) {
-      data['locale'] = locale;
-    }
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
         type: params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
@@ -342,10 +337,10 @@ export class Adapty {
 
     const body = JSON.stringify(data);
 
-    const result = await this.handle<Model.AdaptyPaywall>(
+    const result = await this.handle<Model.AdaptyFlow>(
       methodKey,
       body,
-      'AdaptyPaywall',
+      'AdaptyFlow',
       ctx,
       log,
     );
@@ -354,7 +349,7 @@ export class Adapty {
   }
 
   /**
-   * Fetches the paywall of the specified placement for the **All Users** audience.
+   * Fetches the flow of the specified placement for the **All Users** audience.
    *
    * @remarks
    * With Adapty, you can remotely configure the products and offers in your app
@@ -363,44 +358,39 @@ export class Adapty {
    * This flexibility allows you to easily update paywalls, products, and offers,
    * or run A/B tests, all without the need for a new app release.
    *
-   * However, it’s crucial to understand that the recommended approach is to fetch the paywall
-   * through the placement ID by the {@link getPaywall} method.
-   * The `getPaywallForDefaultAudience` method should be a last resort due to its significant drawbacks.
+   * However, it’s crucial to understand that the recommended approach is to fetch the flow
+   * through the placement ID by the {@link getFlow} method.
+   * The `getFlowForDefaultAudience` method should be a last resort due to its significant drawbacks.
    * See docs for more details
    *
    * @param {string} placementId - The identifier of the desired placement.
    * This is the value you specified when you created the placement
    * in the Adapty Dashboard.
-   * @param {string | undefined} [locale] - The locale of the desired paywall.
-   * @param {GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving paywall.
-   * @returns {Promise<Model.AdaptyPaywall>}
-   * A promise that resolves with a requested paywall.
+   * @param {GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters for retrieving flow.
+   * @returns {Promise<Model.AdaptyFlow>}
+   * A promise that resolves with a requested flow.
    *
    * @throws {@link AdaptyError}
    * Throws an error:
-   * 1. if the paywall with the specified ID is not found
+   * 1. if the flow with the specified ID is not found
    * 2. if your bundle ID does not match with your Adapty Dashboard setup
    */
-  public async getPaywallForDefaultAudience(
+  public async getFlowForDefaultAudience(
     placementId: string,
-    locale?: string,
     params: GetPlacementForDefaultAudienceParamsInput = {
       fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
     },
-  ): Promise<Model.AdaptyPaywall> {
+  ): Promise<Model.AdaptyFlow> {
     const ctx = new LogContext();
-    const log = ctx.call({ methodName: 'getPaywallForDefaultAudience' });
+    const log = ctx.call({ methodName: 'getFlowForDefaultAudience' });
 
-    log.start(() => ({ placementId, locale, params }));
+    log.start(() => ({ placementId, params }));
 
-    const methodKey = 'get_paywall_for_default_audience';
-    const data: Req['GetPaywallForDefaultAudience.Request'] = {
+    const methodKey = 'get_flow_for_default_audience';
+    const data: Req['GetFlowForDefaultAudience.Request'] = {
       method: methodKey,
       placement_id: placementId,
     };
-    if (locale) {
-      data['locale'] = locale;
-    }
     if (params.fetchPolicy !== 'return_cache_data_if_not_expired_else_load') {
       data['fetch_policy'] = {
         type: params.fetchPolicy ?? FetchPolicy.ReloadRevalidatingCacheData,
@@ -414,10 +404,10 @@ export class Adapty {
 
     const body = JSON.stringify(data);
 
-    const result = await this.handle<Model.AdaptyPaywall>(
+    const result = await this.handle<Model.AdaptyFlow>(
       methodKey,
       body,
-      'AdaptyPaywall',
+      'AdaptyFlow',
       ctx,
       log,
     );
@@ -426,32 +416,32 @@ export class Adapty {
   }
 
   /**
-   * Fetches a list of products associated with a provided paywall.
+   * Fetches a list of products associated with a provided flow.
    *
    * @example
    * ```ts
-   * const paywall = await adapty.getPaywall('paywall_id');
-   * const products = await adapty.getPaywallProducts(paywall);
+   * const flow = await adapty.getFlow('placement_id');
+   * const products = await adapty.getPaywallProducts(flow);
    * ```
    *
-   * @param {Model.AdaptyPaywall} paywall - a paywall to fetch products for. You can get it using {@link Adapty.getPaywall} method.
+   * @param {Model.AdaptyFlow} flow - a flow to fetch products for. You can get it using {@link Adapty.getFlow} method.
    * @returns {Promise<Model.AdaptyPaywallProduct[]>} A promise that resolves with a list
-   * of {@link Model.AdaptyPaywallProduct} associated with a provided paywall.
+   * of {@link Model.AdaptyPaywallProduct} associated with a provided flow.
    * @throws {@link AdaptyError}
    */
   public async getPaywallProducts(
-    paywall: Model.AdaptyPaywall,
+    flow: Model.AdaptyFlow,
   ): Promise<Model.AdaptyPaywallProduct[]> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'getPaywallProducts' });
 
-    log.start(() => ({ paywall }));
+    log.start(() => ({ flow }));
 
-    const coder = coderFactory.createPaywallCoder();
+    const coder = coderFactory.createFlowCoder();
     const methodKey = 'get_paywall_products';
     const data: Req['GetPaywallProducts.Request'] = {
       method: methodKey,
-      paywall: coder.encode(paywall),
+      flow: coder.encode(flow),
     };
 
     const body = JSON.stringify(data);
@@ -467,6 +457,19 @@ export class Adapty {
     return result;
   }
 
+  /**
+   * Fetches the onboarding by the specified placement.
+   *
+   * @deprecated Since 4.0.0. The legacy onboarding API is deprecated — migrate to the Flow
+   * Builder API, which renders onboardings and paywalls natively instead of in a WebView.
+   * This method will be removed in a future version.
+   *
+   * @param {string} placementId - The identifier of the desired placement.
+   * @param {string} [locale] - The locale of the desired onboarding.
+   * @param {GetPlacementParamsInput} [params] - Additional parameters for retrieving the onboarding.
+   * @returns {Promise<Model.AdaptyOnboarding>} A promise that resolves with a requested onboarding.
+   * @throws {@link AdaptyError}
+   */
   public async getOnboarding(
     placementId: string,
     locale?: string,
@@ -513,6 +516,19 @@ export class Adapty {
     return result;
   }
 
+  /**
+   * Fetches the onboarding of the specified placement for the **All Users** audience.
+   *
+   * @deprecated Since 4.0.0. The legacy onboarding API is deprecated — migrate to the Flow
+   * Builder API, which renders onboardings and paywalls natively instead of in a WebView.
+   * This method will be removed in a future version.
+   *
+   * @param {string} placementId - The identifier of the desired placement.
+   * @param {string} [locale] - The locale of the desired onboarding.
+   * @param {GetPlacementForDefaultAudienceParamsInput} [params] - Additional parameters.
+   * @returns {Promise<Model.AdaptyOnboarding>} A promise that resolves with a requested onboarding.
+   * @throws {@link AdaptyError}
+   */
   public async getOnboardingForDefaultAudience(
     placementId: string,
     locale?: string,
@@ -639,38 +655,38 @@ export class Adapty {
   }
 
   /**
-   * Logs a paywall view event.
+   * Logs a flow view event.
    *
-   * Adapty helps you to measure the performance of the paywalls.
-   * We automatically collect all the metrics related to purchases except for paywall views.
-   * This is because only you know when the paywall was shown to a customer.
+   * Adapty helps you to measure the performance of your flows.
+   * We automatically collect all the metrics related to purchases except for flow views.
+   * This is because only you know when the flow was shown to a customer.
    *
    * @remarks
-   * Whenever you show a paywall to your user,
+   * Whenever you show a flow to your user,
    * call this function to log the event,
-   * and it will be accumulated in the paywall metrics.
+   * and it will be accumulated in the flow metrics.
    *
    * @example
    * ```ts
-   * const paywall = await adapty.getPaywall('paywall_id');
-   * // ...after opening the paywall
-   * adapty.logShowPaywall(paywall);
+   * const flow = await adapty.getFlow('placement_id');
+   * // ...after opening the flow
+   * adapty.logShowFlow(flow);
    * ```
    *
-   * @param {Model.AdaptyPaywall} paywall - object that was shown to the user.
+   * @param {Model.AdaptyFlow} flow - object that was shown to the user.
    * @returns {Promise<void>} resolves when the event is logged
    */
-  public async logShowPaywall(paywall: Model.AdaptyPaywall): Promise<void> {
+  public async logShowFlow(flow: Model.AdaptyFlow): Promise<void> {
     const ctx = new LogContext();
 
-    const log = ctx.call({ methodName: 'logShowPaywall' });
-    log.start(() => ({ paywall }));
+    const log = ctx.call({ methodName: 'logShowFlow' });
+    log.start(() => ({ flow }));
 
-    const coder = coderFactory.createPaywallCoder();
-    const methodKey = 'log_show_paywall';
-    const data: Req['LogShowPaywall.Request'] = {
+    const coder = coderFactory.createFlowCoder();
+    const methodKey = 'log_show_flow';
+    const data: Req['LogShowFlow.Request'] = {
       method: methodKey,
-      paywall: coder.encode(paywall),
+      flow: coder.encode(flow),
     };
 
     const body = JSON.stringify(data);
@@ -681,7 +697,7 @@ export class Adapty {
   }
 
   public async openWebPaywall(
-    paywallOrProduct: Model.AdaptyPaywall | Model.AdaptyPaywallProduct,
+    paywallOrProduct: Model.AdaptyFlowPaywall | Model.AdaptyPaywallProduct,
     openIn: WebPresentation = WebPresentation.BrowserOutApp,
   ): Promise<void> {
     const ctx = new LogContext();
@@ -693,15 +709,7 @@ export class Adapty {
     const data: Req['OpenWebPaywall.Request'] = {
       method: methodKey,
       open_in: openIn,
-      ...('vendorProductId' in paywallOrProduct
-        ? {
-            product: coderFactory
-              .createPaywallProductCoder()
-              .encode(paywallOrProduct),
-          }
-        : {
-            paywall: coderFactory.createPaywallCoder().encode(paywallOrProduct),
-          }),
+      ...this.encodeWebPaywallTarget(paywallOrProduct),
     };
 
     const body = JSON.stringify(data);
@@ -712,7 +720,7 @@ export class Adapty {
   }
 
   public async createWebPaywallUrl(
-    paywallOrProduct: Model.AdaptyPaywall | Model.AdaptyPaywallProduct,
+    paywallOrProduct: Model.AdaptyFlowPaywall | Model.AdaptyPaywallProduct,
   ): Promise<string> {
     const ctx = new LogContext();
 
@@ -722,15 +730,7 @@ export class Adapty {
     const methodKey = 'create_web_paywall_url';
     const data: Req['CreateWebPaywallUrl.Request'] = {
       method: methodKey,
-      ...('vendorProductId' in paywallOrProduct
-        ? {
-            product: coderFactory
-              .createPaywallProductCoder()
-              .encode(paywallOrProduct),
-          }
-        : {
-            paywall: coderFactory.createPaywallCoder().encode(paywallOrProduct),
-          }),
+      ...this.encodeWebPaywallTarget(paywallOrProduct),
     };
 
     const body = JSON.stringify(data);
@@ -742,6 +742,97 @@ export class Adapty {
       ctx,
       log,
     );
+
+    return result;
+  }
+
+  /**
+   * Encodes a web paywall target as either a `product` or a `paywall` wire
+   * field. The cross-platform contract accepts exactly one of them; products
+   * are discriminated by the presence of `vendorProductId`.
+   */
+  private encodeWebPaywallTarget(
+    paywallOrProduct: Model.AdaptyFlowPaywall | Model.AdaptyPaywallProduct,
+  ) {
+    if ('vendorProductId' in paywallOrProduct) {
+      return {
+        product: coderFactory
+          .createPaywallProductCoder()
+          .encode(paywallOrProduct),
+      };
+    }
+
+    return {
+      paywall: coderFactory.createFlowPaywallCoder().encode(paywallOrProduct),
+    };
+  }
+
+  /**
+   * Opens a URL using the native browser.
+   *
+   * @remarks
+   * This is the native implementation behind the default `onUrlPress` flow
+   * handler. The native side honors `openIn` (`browser_out_app` → external
+   * browser, `browser_in_app` → in-app browser). Call it directly from a custom
+   * `onUrlPress` handler when you want to run your own logic but keep the native
+   * open-URL behavior.
+   *
+   * @param {string} url - The URL to open.
+   * @param {WebPresentation} [openIn] - How to present the URL. When omitted,
+   * the native SDK decides how to present it.
+   * @returns {Promise<void>} resolves when the native call completes.
+   * @throws {@link AdaptyError}
+   */
+  public async openWebUrl(
+    url: string,
+    openIn?: WebPresentation,
+  ): Promise<void> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'openWebUrl' });
+    log.start(() => ({ url, openIn }));
+
+    const methodKey = 'adapty_ui_open_url';
+    const data: Req['AdaptyUIOpenUrl.Request'] = {
+      method: methodKey,
+      url,
+    };
+
+    if (openIn) {
+      data.open_in = openIn;
+    }
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  /**
+   * Requests the native app-review prompt.
+   *
+   * @remarks
+   * This is the native implementation behind the default `onRequestAppReview`
+   * flow handler (`SKStoreReviewController` on iOS, In-App Review on Android).
+   * Call it directly from a custom `onRequestAppReview` handler when you want to
+   * run your own logic but keep the native prompt.
+   *
+   * @returns {Promise<void>} resolves when the native call completes.
+   * @throws {@link AdaptyError}
+   */
+  public async requestAppReview(): Promise<void> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'requestAppReview' });
+    log.start(() => ({}));
+
+    const methodKey = 'adapty_ui_request_app_review';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['AdaptyUIRequestAppReview.Request']);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
@@ -789,8 +880,8 @@ export class Adapty {
    * @example
    * ```ts
    * try {
-   *   const paywall = await adapty.getPaywall('onboarding');
-   *   const products = await adapty.getPaywallProducts(paywall);
+   *   const flow = await adapty.getFlow('onboarding');
+   *   const products = await adapty.getPaywallProducts(flow);
    *   const product = products[0];
    *
    *   const profile = await adapty.makePurchase(product);
@@ -873,7 +964,7 @@ export class Adapty {
    * After doing this, you'll be able to see metrics in Adapty Dashboard.
    *
    * @param {string} transactionId - `transactionId` property of {@link Model.AdaptySubscription}
-   * @param {string} variationId - `variationId` property of {@link Model.AdaptyPaywall}
+   * @param {string} variationId - `variationId` property of {@link Model.AdaptyFlow}
    * @throws {@link AdaptyError}
    */
   public async reportTransaction(
@@ -963,15 +1054,6 @@ export class Adapty {
     const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
-  }
-
-  /**
-   * @deprecated use {@link setFallback}
-   */
-  public async setFallbackPaywalls(
-    paywallsLocation: FileLocation,
-  ): Promise<void> {
-    return this.setFallback(paywallsLocation);
   }
 
   public async setIntegrationIdentifier(

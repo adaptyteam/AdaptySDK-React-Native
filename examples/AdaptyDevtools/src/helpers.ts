@@ -3,16 +3,17 @@ import { useState, useEffect } from 'react';
 // Constants for error messages
 const ADAPTY_PREFIX = '[ADAPTY]';
 const CREDENTIALS_FILE = '.adapty-credentials.json';
-const CREDENTIALS_COMMAND = "Please run 'yarn run credentials' to generate the credentials file.";
+const CREDENTIALS_COMMAND =
+  "Please run 'yarn run credentials' to generate the credentials file.";
 
 // Import credentials at the module level
 let credentials: { token?: string; placement_id?: string };
 
 try {
   credentials = require('../.adapty-credentials.json');
-} catch (error) {
+} catch {
   throw new Error(
-    `${ADAPTY_PREFIX} Failed to read Adapty credentials from ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`
+    `${ADAPTY_PREFIX} Failed to read Adapty credentials from ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`,
   );
 }
 
@@ -28,15 +29,19 @@ export interface JsLog {
 // This function is only for this example
 export function readCredentials(): string {
   if (!credentials?.token) {
-    throw new Error(`${ADAPTY_PREFIX} Token not found in ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`);
+    throw new Error(
+      `${ADAPTY_PREFIX} Token not found in ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`,
+    );
   }
   return credentials.token;
 }
 
-// This function is only for this example  
+// This function is only for this example
 export function readPlacementId(): string {
   if (!credentials?.placement_id) {
-    throw new Error(`${ADAPTY_PREFIX} Placement ID not found in ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`);
+    throw new Error(
+      `${ADAPTY_PREFIX} Placement ID not found in ${CREDENTIALS_FILE} file. ${CREDENTIALS_COMMAND}`,
+    );
   }
   return credentials.placement_id;
 }
@@ -73,7 +78,11 @@ export function useJsLogs(): JsLog[] {
         // Call the original console method
         originalConsoleMethods[method](...args);
         // Append the new log to the state, if it is adapty related
-        if (args[0] && typeof args[0] === 'string' && args[0].includes('[adapty')) {
+        if (
+          args[0] &&
+          typeof args[0] === 'string' &&
+          args[0].includes('[adapty')
+        ) {
           const msg = args[0].split(' ');
           // msg format `[${now}] [adapty@${version}] "${funcName}": ${message}`;
           // extract isoDate, funcName, message
@@ -105,7 +114,7 @@ export function useJsLogs(): JsLog[] {
 
 export function dateFormat(data: Date | number | undefined): string {
   if (!data) return '-';
-  
+
   const date = new Date(data);
   return date.toLocaleString('en-US', {
     day: '2-digit',

@@ -1,4 +1,4 @@
-import { Adapty } from './adapty-handler';
+import { adapty } from './adapty-instance';
 
 export * from './types/error';
 export * from './types/index';
@@ -14,11 +14,10 @@ export {
   type IdentifyParamsInput,
   type GetPaywallProductsParamsInput,
   type AdaptyAndroidPurchaseParams,
-  type AdaptyAndroidSubscriptionUpdateParameters,
 } from '@adapty/core';
 export { AdaptyError } from './adapty-error';
 export * from './utils/env-detection';
 export * from './mock/types';
 
-export const adapty = new Adapty();
+export { adapty };
 export * from './ui';

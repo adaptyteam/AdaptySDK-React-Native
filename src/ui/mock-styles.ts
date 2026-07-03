@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 /**
- * Shared styles for mock UI components (AdaptyPaywallView, AdaptyOnboardingView).
+ * Shared styles for mock UI components (AdaptyFlowView, AdaptyOnboardingView).
  * These styles are used to display informative placeholders when native modules
  * are not available (Expo Go, Web).
  */
