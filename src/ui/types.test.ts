@@ -73,7 +73,7 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
   });
 
   describe('onRequestPermission', () => {
-    it('warns and replies `unavailable` (no real default exists)', async () => {
+    it('warns and replies `denied` (no real default exists)', async () => {
       const warnSpy = jest.spyOn(Log, 'warn').mockImplementation(() => {});
 
       const result = await DEFAULT_FLOW_EVENT_HANDLERS.onRequestPermission(
@@ -82,7 +82,7 @@ describe('DEFAULT_FLOW_EVENT_HANDLERS — native-delegating defaults', () => {
       );
 
       expect(warnSpy).toHaveBeenCalled();
-      expect(result).toEqual({ status: 'unavailable' });
+      expect(result).toEqual({ status: 'denied' });
     });
   });
 

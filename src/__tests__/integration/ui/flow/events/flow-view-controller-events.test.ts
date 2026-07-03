@@ -297,7 +297,7 @@ describe('FlowViewController - action mapping isolation', () => {
     requestSpy.mockRestore();
   });
 
-  it('replies with unavailable when onRequestPermission rejects', async () => {
+  it('replies with denied when onRequestPermission rejects', async () => {
     const requestSpy = jest
       .spyOn(($bridge as any).testBridge, 'request')
       .mockResolvedValue(undefined);
@@ -333,7 +333,7 @@ describe('FlowViewController - action mapping isolation', () => {
     expect(body).toMatchObject({
       method: 'flow_view_did_answer_permission',
       event_id: 'evt-err',
-      status: 'unavailable',
+      status: 'denied',
     });
 
     requestSpy.mockRestore();
