@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   if defined?(:spm_dependency)
     spm_dependency(s,
       url: 'https://github.com/adaptyteam/AdaptySDK-iOS.git',
-      requirement: { kind: 'branch', branch: 'release/4.0.0' },
+      requirement: { kind: 'exactVersion', version: '4.0.0-beta.2' },
       products: ['Adapty', 'AdaptyUI', 'AdaptyPlugin']
     )
   else
