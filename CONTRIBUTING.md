@@ -2,7 +2,7 @@
 
 ### 1. Make sure your feature is not implemented
 
-Browse through our [docs](https://doc.adapty.io/docs/react-native-sdk) and the [existing GitHub issues](https://github.com/adaptyteam/AdaptySDK-React-Native/issues)
+Browse through our [docs](https://adapty.io/docs/react-native-sdk-overview) and the [existing GitHub issues](https://github.com/adaptyteam/AdaptySDK-React-Native/issues)
 
 ### 2. Create issue to determine what's and why's
 
