@@ -258,7 +258,7 @@ export class FlowViewController {
    * Default handlers are set during view creation: {@link DEFAULT_FLOW_EVENT_HANDLERS}
    * - `onCloseButtonPress` - closes the view (returns `true`)
    * - `onAndroidSystemBack` - keeps the view open (returns `false`)
-   * - `onRestoreCompleted` - closes the view (returns `true`)
+   * - `onRestoreCompleted` - keeps the view open (returns `false`)
    * - `onError` - closes the view (returns `true`)
    * - `onPurchaseCompleted` - keeps the view open (returns `false`)
    * - `onUrlPress` - opens URL and keeps the view open (returns `false`)
