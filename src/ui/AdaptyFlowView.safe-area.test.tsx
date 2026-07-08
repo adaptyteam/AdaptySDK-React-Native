@@ -25,7 +25,7 @@ describe('AdaptyFlowView safe-area paddings', () => {
     mockEncodeParams.mockClear();
   });
 
-  it('defaults enableSafeArea to false when the prop is unset', () => {
+  it('defaults android.enableSafeArea to false when the prop is unset', () => {
     act(() => {
       renderer.create(
         <AdaptyFlowView flow={flow} params={{ prefetchProducts: false }} />,
@@ -33,19 +33,22 @@ describe('AdaptyFlowView safe-area paddings', () => {
     });
 
     expect(mockEncodeParams).toHaveBeenCalledWith(
-      expect.objectContaining({ enableSafeArea: false }),
+      expect.objectContaining({ android: { enableSafeArea: false } }),
     );
   });
 
-  it('respects a caller-supplied enableSafeArea override', () => {
+  it('respects a caller-supplied android.enableSafeArea override', () => {
     act(() => {
       renderer.create(
-        <AdaptyFlowView flow={flow} params={{ enableSafeArea: true }} />,
+        <AdaptyFlowView
+          flow={flow}
+          params={{ android: { enableSafeArea: true } }}
+        />,
       );
     });
 
     expect(mockEncodeParams).toHaveBeenCalledWith(
-      expect.objectContaining({ enableSafeArea: true }),
+      expect.objectContaining({ android: { enableSafeArea: true } }),
     );
   });
 });

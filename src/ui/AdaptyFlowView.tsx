@@ -23,7 +23,9 @@ import { AdaptyFlowViewMock } from './AdaptyFlowView.mock';
  */
 const COMPONENT_DEFAULT_PARAMS: CreateFlowViewParamsInput = {
   ...DEFAULT_PARAMS,
-  enableSafeArea: false,
+  android: {
+    enableSafeArea: false,
+  },
 };
 
 /**
