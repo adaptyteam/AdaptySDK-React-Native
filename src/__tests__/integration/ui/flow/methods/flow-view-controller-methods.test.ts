@@ -84,7 +84,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       await createFlowView(flow, {
         prefetchProducts: false,
         loadTimeoutMs: 3000,
-        enableSafeArea: false,
+        android: { enableSafeArea: false },
       });
 
       const request = extractNativeRequest<
