@@ -204,9 +204,7 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
     });
 
     try {
-      // Present flow; for iOS you can choose a presentation style
-      // Available options: 'full_screen' (default) or 'page_sheet'
-      await view.present({ iosPresentationStyle: 'page_sheet' });
+      await view.present();
       console.log('[ADAPTY] Flow presented successfully');
     } catch (error: any) {
       console.log('[ADAPTY] Failed to present flow:', error.message);
