@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@adapty/core@4.0.0-beta.1":
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@adapty/core/-/core-4.0.0-beta.1.tgz#e47c9d0210c7fac2a51085dfd0678cb6899d756e"
-  integrity sha512-kku+W9pt0jMCYSIrYoQoOFqeSbYBpJIMokrPZevQujTAqGnWDbSq5WlyKA2NlpvuBfnottf/R3BoyULNSEM7LA==
+"@adapty/core@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@adapty/core/-/core-4.0.0.tgz#8aca2047973efccfab985d0dcba2ed8476586784"
+  integrity sha512-drcLuILrnKg6YRDjFlRhRXXpO96TyehUq4FGj+f6gl4Px6hCP8YOIYIa0sVwHXgjUUrJXCjHMXoHW2mnS6TpJw==
   dependencies:
     tslib "^2.5.0"
 
@@ -5747,12 +5747,12 @@ react-is@^19.2.3:
   resolved "https://registry.npmjs.org/react-is/-/react-is-19.2.4.tgz"
   integrity sha512-W+EWGn2v0ApPKgKKCy/7s7WHXkboGcsrXE+2joLyVxkbyVQfO3MUEaUQDHoSmb8TFFrSKYa9mw64WZHNHSDzYA==
 
-react-native-adapty@4.0.0-beta.1:
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/react-native-adapty/-/react-native-adapty-4.0.0-beta.1.tgz#38b64f259c8be4e92b224fade49d5a20179fa588"
-  integrity sha512-qfE9+IKqiGvFbPmvSrKu8g9oGKkcnIbjm40tmvMjjmJ6+t0RWS7tYfip3maWUQ9yDa/aMT80+REPmmFfo7pRBQ==
+react-native-adapty@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-adapty/-/react-native-adapty-4.0.0.tgz#65904f944824c9e4decc873fdf66f0713b7ba80d"
+  integrity sha512-c6F0JR3S7nSkwDZT2M3rW+5BCeQ3sGVbryoZM4yiaFVQH7nS/BR9zriYj6PBnvcnI959TG9av52t9oBDqeF9EQ==
   dependencies:
-    "@adapty/core" "4.0.0-beta.1"
+    "@adapty/core" "4.0.0"
     tslib "^2.5.0"
 
 react-native-asset@^2.1.1:
