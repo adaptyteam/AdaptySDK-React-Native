@@ -1,0 +1,116 @@
+name: Kids Mode (iOS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Verify mode'
+        required: false
+        type: choice
+        options:
+          - 'on'
+          - 'off'
+          - 'both'
+        default: 'on'
+  schedule:
+    - cron: '0 9 * * 1'   # weekly Mon 09:00 UTC — full `both` (negative + positive control)
+  pull_request:
+    branches: [ master, dev ]
+    paths:
+      - 'ios/adapty_kids_mode.rb'
+      - 'react-native-adapty-sdk.podspec'
+      - 'examples/AdaptyDevtools/ios/Podfile'
+      - 'scripts/verify-kids-mode-ios.sh'
+      - '.github/workflows/kids-mode-ios.yml'
+
+concurrency:
+  group: kids-mode-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-kids-mode-ios:
+    runs-on: macos-26
+    name: Verify Kids Mode (iOS)
+    timeout-minutes: 75   # cold build; a `both` run compiles the app twice (off + on)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1.7.0
+        with:
+          xcode-version: '26.4'
+
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --prefer-offline
+
+      - name: Cache example app node_modules
+        uses: actions/cache@v5
+        id: cache-example-node-modules
+        with:
+          path: examples/AdaptyDevtools/node_modules
+          key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
+          restore-keys: |
+            example-node-modules-${{ runner.os }}-
+
+      - name: Install example app dependencies
+        if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
+        run: |
+          cd examples/AdaptyDevtools
+          yarn install --frozen-lockfile
+
+      - name: Build package and install
+        run: |
+          cd examples/AdaptyDevtools
+          yarn update-sdk-full
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v5
+        with:
+          path: |
+            examples/AdaptyDevtools/ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+          key: pods-kids-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}
+          restore-keys: |
+            pods-kids-${{ runner.os }}-
+
+      - name: Cache SPM checkouts
+        uses: actions/cache@v5
+        with:
+          path: .spm-kids-mode
+          key: kids-mode-spm-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}
+          restore-keys: |
+            kids-mode-spm-${{ runner.os }}-
+
+      - name: Determine verify mode
+        id: mode
+        env:
+          INPUT_MODE: ${{ github.event.inputs.mode }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "mode=both" >> "$GITHUB_OUTPUT"   # weekly: negative + positive control
+          else
+            echo "mode=${INPUT_MODE:-on}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify Kids Mode (on -> AdSupport/IDFA absent; both -> +negative control)
+        env:
+          VERIFY_MODE: ${{ steps.mode.outputs.mode }}
+        run: bash scripts/verify-kids-mode-ios.sh "$VERIFY_MODE"
