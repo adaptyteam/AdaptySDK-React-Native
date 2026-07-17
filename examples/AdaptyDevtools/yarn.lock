@@ -5747,7 +5747,7 @@ react-is@^19.2.3:
   resolved "https://registry.npmjs.org/react-is/-/react-is-19.2.4.tgz"
   integrity sha512-W+EWGn2v0ApPKgKKCy/7s7WHXkboGcsrXE+2joLyVxkbyVQfO3MUEaUQDHoSmb8TFFrSKYa9mw64WZHNHSDzYA==
 
-react-native-adapty@4.0.0:
+react-native-adapty@latest:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/react-native-adapty/-/react-native-adapty-4.0.0.tgz#65904f944824c9e4decc873fdf66f0713b7ba80d"
   integrity sha512-c6F0JR3S7nSkwDZT2M3rW+5BCeQ3sGVbryoZM4yiaFVQH7nS/BR9zriYj6PBnvcnI959TG9av52t9oBDqeF9EQ==
