@@ -71,3 +71,7 @@ docs
 .worktrees
 
 plugin/build/
+
+# Kids Mode iOS verification scratch dirs
+.derivedData-kids-mode/
+.spm-kids-mode/

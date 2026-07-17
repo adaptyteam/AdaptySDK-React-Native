@@ -27,5 +27,18 @@ target 'AdaptyRnSdkExample' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Adapty Kids Mode (COPPA / Kids Category): opt-in via `ADAPTY_KIDS_MODE=1 pod install`.
+    # The helper sets the `KidsMode` SPM trait on the AdaptySDK-iOS package reference that
+    # `spm_dependency` creates in the Pods project. It MUST run after react_native_post_install,
+    # which wipes and recreates all package references on every pod install. No-op otherwise.
+    if ENV['ADAPTY_KIDS_MODE'] == '1'
+      require Pod::Executable.execute_command('node', ['-p',
+        'require.resolve(
+          "react-native-adapty/ios/adapty_kids_mode.rb",
+          {paths: [process.argv[1]]},
+        )', __dir__]).strip
+      adapty_enable_kids_mode(installer)
+    end
   end
 end

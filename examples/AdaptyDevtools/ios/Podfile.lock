@@ -1400,7 +1400,7 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-  - react-native-adapty-sdk (4.0.0):
+  - react-native-adapty-sdk (4.0.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2198,7 +2198,7 @@ SPEC CHECKSUMS:
   React-logger: b5521614afb8690420146dfc61a1447bb5d65419
   React-Mapbuffer: 0db00b587a6a6f0f6813e9fb2655e337261f513e
   React-microtasksnativemodule: 7ccd4c74006eec09a2df88ca31ba8b0c22c50a4d
-  react-native-adapty-sdk: bcf2cc734ff1d95c2b21ae13af2b3f1ba54be489
+  react-native-adapty-sdk: 3b1a1b1822eacb2f8eda8293962bbe9030ee288e
   react-native-safe-area-context: 90476586077446d5eab1d41ac3e767b016ac41d6
   React-NativeModulesApple: 5ba0903927f6b8d335a091700e9fda143980f819
   React-networking: ad2727500e93943a43da70d3b162454af151469c
@@ -2237,6 +2237,6 @@ SPEC CHECKSUMS:
   RNScreens: ca829379d20b0d1ff41a0b87bc37bdc50276cef5
   Yoga: 54ad1f177695cddea2c5090897cce963a0650d93
 
-PODFILE CHECKSUM: c17743949ef390c69cd4b9e08146e7d002de35f5
+PODFILE CHECKSUM: a5f4f75417f2107c77f2bf1281a861e2d8175afb
 
 COCOAPODS: 1.15.2
