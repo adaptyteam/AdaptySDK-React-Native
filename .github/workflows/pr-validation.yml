@@ -2,7 +2,6 @@ name: PR Validation
 
 on:
   pull_request:
-    branches: [ master, dev ]
     types: [opened, synchronize, reopened]
   workflow_call:  # Allow this workflow to be called by other workflows
 
