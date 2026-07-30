@@ -73,6 +73,7 @@ export class FlowViewController {
     );
 
     view.id = result.id;
+    view.locale = result.locale;
     view.viewEmitter = new FlowViewEmitter(result.id);
 
     view.setEventHandlers(DEFAULT_FLOW_EVENT_HANDLERS);
@@ -82,6 +83,15 @@ export class FlowViewController {
 
   private id: string | null; // reference to a native view. UUID
   private viewEmitter: FlowViewEmitter | null = null;
+
+  /**
+   * The localization the view was actually built with.
+   *
+   * @remarks
+   * It is the requested locale when that localization exists,
+   * and the flow's default localization otherwise.
+   */
+  public locale?: string;
 
   /**
    * Since constructors in JS cannot be async, it is not
