@@ -75,6 +75,18 @@ describe('FlowViewController', () => {
         expect.any(Object),
       );
       expect((view as any).id).toBe('uuid-1');
+      expect(view.locale).toBeUndefined();
+    });
+
+    it('stores locale reported by the native view', async () => {
+      (jest.mocked(($bridge as any).request) as jest.Mock).mockResolvedValue({
+        id: 'uuid-1',
+        locale: 'es',
+      });
+
+      const view = await FlowViewController.create(flow, {} as any);
+
+      expect(view.locale).toBe('es');
     });
 
     it('propagates bridge errors', async () => {
