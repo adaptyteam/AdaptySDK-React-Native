@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.resources = "ios/**/*.{plist}"
   s.requires_arc = true
 
-  if defined?(:spm_dependency)
+  if defined?(spm_dependency)
     spm_dependency(s,
       url: 'https://github.com/adaptyteam/AdaptySDK-iOS.git',
       requirement: { kind: 'exactVersion', version: '4.0.2' },
