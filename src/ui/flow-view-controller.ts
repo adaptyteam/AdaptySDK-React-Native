@@ -88,8 +88,7 @@ export class FlowViewController {
    * The localization the view was actually built with.
    *
    * @remarks
-   * It is the requested locale when that localization exists,
-   * and the flow's default localization otherwise.
+   * May differ from the requested localization if it is not available in the flow.
    */
   public locale?: string;
 
