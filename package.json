@@ -36,10 +36,13 @@
     "!ios/RNAdapty.xcodeproj/xcuserdata",
     "*.podspec",
     "android/",
+    "!android/bin",
     "!android/build",
+    "!android/gen",
     "!android/gradle",
     "!android/gradlew*",
     "!android/local.properties",
+    "!android/out",
     "plugin/build/",
     "app.plugin.js",
     "!**/.*"
