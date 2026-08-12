@@ -173,6 +173,19 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
  * ) : null;
  * ```
  *
+ * To learn which localization the view was actually rendered with, read
+ * `view.locale` in `onAppeared`. It is the localization the view was actually
+ * built with, which may differ from the one requested through `params.locale`
+ * if it is not available in the flow:
+ *
+ * ```tsx
+ * <AdaptyFlowView
+ *   flow={flow}
+ *   params={{ locale: 'es' }}
+ *   onAppeared={view => setUiLocale(view.locale)}
+ * />
+ * ```
+ *
  * @see {@link AdaptyFlowViewProps} for available props
  * @public
  */

@@ -1001,7 +1001,29 @@ describe('FlowViewController - onAppeared event', () => {
     emitFlowViewAppearedEvent(viewId, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler).toHaveBeenCalledWith();
+    expect(handler).toHaveBeenCalledWith({
+      id: viewId,
+      placementId: sample.view.placement_id,
+      variationId: sample.view.variation_id,
+    });
+  });
+
+  it('should pass the resolved locale to onAppeared', async () => {
+    const handler: jest.MockedFunction<FlowEventHandlers['onAppeared']> = jest
+      .fn()
+      .mockReturnValue(false);
+
+    view.setEventHandlers({ onAppeared: handler });
+
+    const viewId = (view as any).id;
+    const sample = FLOW_VIEW_APPEARED;
+
+    emitFlowViewAppearedEvent(viewId, { ...sample.view, locale: 'es' });
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: 'es' }),
+    );
   });
 });
 
