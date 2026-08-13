@@ -110,10 +110,10 @@ def getExtOrDefault(name) {
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
-    implementation platform('io.adapty:adapty-bom:4.0.1')
+    implementation platform('io.adapty:adapty-bom:4.0.2')
     implementation 'io.adapty:android-sdk'
     implementation 'io.adapty:android-ui'
-    implementation 'io.adapty.internal:crossplatform:4.0.2'
+    implementation 'io.adapty.internal:crossplatform:4.0.4'
 
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion
