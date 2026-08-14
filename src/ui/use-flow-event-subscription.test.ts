@@ -91,6 +91,21 @@ describe('useFlowEventSubscription', () => {
     expect(handler).toHaveBeenCalledWith({ type: 'user_cancelled' });
   });
 
+  it('forwards the appeared view (with locale) to the live handler', () => {
+    const handler = jest.fn(() => false);
+    act(() => {
+      TestRenderer.create(el({ onAppeared: handler }, 'v1'));
+    });
+    const passed = mockCreate.mock.calls[0]![0];
+
+    (passed.onAppeared as (view: { id: string; locale?: string }) => boolean)({
+      id: 'view-1',
+      locale: 'es',
+    });
+
+    expect(handler).toHaveBeenCalledWith({ id: 'view-1', locale: 'es' });
+  });
+
   it('falls back to the DEFAULT handler when a prop is omitted', () => {
     act(() => {
       TestRenderer.create(el({}, 'v1'));

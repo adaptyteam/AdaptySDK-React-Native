@@ -15,7 +15,7 @@ module.exports = {
   },
   setupFiles: ['./jest/jest.setup.js'],
   transformIgnorePatterns: ['node_modules/(?!@react-native|react-native)'],
-  testPathIgnorePatterns: ['/dist', '/node_modules/'],
+  testPathIgnorePatterns: ['/dist', '/node_modules/', '<rootDir>/\\.claude/'],
   testMatch: [
     '**/__tests__/**/*.test.ts',
     '**/__tests__/**/*.spec.ts',

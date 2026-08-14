@@ -295,7 +295,12 @@ export function emitFlowRestoreFailedEvent(
  */
 export function emitFlowViewAppearedEvent(
   viewId: string,
-  view: { id: string; placement_id: string; variation_id: string },
+  view: {
+    id: string;
+    placement_id: string;
+    variation_id: string;
+    locale?: string;
+  },
 ): void {
   const bridge = $bridge.testBridge;
 
@@ -315,6 +320,7 @@ export function emitFlowViewAppearedEvent(
       id: viewId,
       placement_id: view.placement_id,
       variation_id: view.variation_id,
+      ...(view.locale !== undefined ? { locale: view.locale } : {}),
     },
   };
 
