@@ -11,6 +11,7 @@ on:
         options:
           - 'latest'
           - 'beta'
+          - 'latest-3'  # legacy channel for v3.x fixes (keeps 'latest' on v4+)
       dry-run:
         description: 'Perform a dry run (no actual publish)'
         required: false

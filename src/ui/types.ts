@@ -3,6 +3,7 @@ export type {
   EventHandlerResult,
   ProductPurchaseParams,
   FlowEventHandlers,
+  FlowEventView,
   OnboardingEventHandlers,
   OnboardingAnalyticsEventName,
   AdaptyUiOnboardingMeta,
