@@ -49,6 +49,7 @@ interface ResponseRegistry {
   get_paywall_products?: components['requests']['GetPaywallProducts.Response'];
   log_show_flow?: components['requests']['LogShowFlow.Response'];
   make_purchase?: components['requests']['MakePurchase.Response'];
+  make_promoted_purchase?: components['requests']['MakePromotedPurchase.Response'];
   get_onboarding?: components['requests']['GetOnboarding.Response'];
   get_onboarding_for_default_audience?: components['requests']['GetOnboardingForDefaultAudience.Response'];
   identify?: components['requests']['Identify.Response'];

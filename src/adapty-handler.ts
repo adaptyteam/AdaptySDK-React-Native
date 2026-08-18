@@ -931,6 +931,58 @@ export class Adapty {
   }
 
   /**
+   * Purchases a product promoted in the App Store.
+   *
+   * @remarks
+   * Use this with the product delivered by the
+   * `'onPromotedPurchaseReceived'` event. Unlike {@link Adapty.makePurchase},
+   * a promoted product carries no paywall context, so no purchase parameters
+   * are accepted.
+   *
+   * @example
+   * ```ts
+   * adapty.addEventListener('onPromotedPurchaseReceived', async product => {
+   *   await adapty.makePromotedPurchase(product);
+   * });
+   * ```
+   *
+   * @param {Model.AdaptyPromotedProduct} product - The promoted product to purchase.
+   * @returns {Promise<Model.AdaptyPurchaseResult>} The result of the purchase.
+   *
+   * @throws {@link AdaptyError} Throws if the purchase fails.
+   */
+  public async makePromotedPurchase(
+    product: Model.AdaptyPromotedProduct,
+  ): Promise<Model.AdaptyPurchaseResult> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'makePromotedPurchase' });
+    log.start(() => ({ product }));
+
+    const coder = coderFactory.createPromotedProductCoder();
+    const encoded = coder.encode(product);
+    const productInput = coder.getInput(encoded);
+
+    const methodKey = 'make_promoted_purchase';
+    const data: Req['MakePromotedPurchase.Request'] = {
+      method: methodKey,
+      product: productInput,
+    };
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<Model.AdaptyPurchaseResult>(
+      methodKey,
+      body,
+      'AdaptyPurchaseResult',
+      ctx,
+      log,
+    );
+
+    return result;
+  }
+
+  /**
    * Opens a native modal screen to redeem Apple Offer Codes.
    *
    * @remarks
