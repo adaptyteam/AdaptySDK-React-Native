@@ -165,6 +165,67 @@ describe('Adapty - Promoted Purchase Event', () => {
     expect(calledMethods).not.toContain('make_promoted_purchase');
   });
 
+  it('should keep the same function registered twice as two independently removable entries', async () => {
+    // Each registration gets its own wrapper object, so registering the same
+    // function reference twice yields two entries: removing one leaves the
+    // other live, and the handler still runs and the default stays suppressed.
+    const runs: boolean[] = [];
+    const handler = () => {
+      runs.push(true);
+    };
+
+    const first = adapty.addEventListener(
+      'onPromotedPurchaseReceived',
+      handler,
+    );
+    adapty.addEventListener('onPromotedPurchaseReceived', handler);
+
+    first.remove();
+
+    emitNativeEvent({
+      eventName: 'did_receive_promoted_purchase',
+      eventData: EVENT_DID_RECEIVE_PROMOTED_PURCHASE,
+    });
+
+    await new Promise(resolve => setImmediate(resolve));
+
+    expect(runs.length).toBeGreaterThan(0);
+
+    const calledMethods = nativeMock.handler.mock.calls.map(call => call[0]);
+    expect(calledMethods).not.toContain('make_promoted_purchase');
+  });
+
+  it('should keep the same function registered twice as two independently removable entries, removed in either order', async () => {
+    // Same scenario as above, but removing the second registration instead of
+    // the first. Set identity by wrapper object doesn't care about order, so
+    // this has to hold either way: the handler still runs and the default
+    // stays suppressed.
+    const runs: boolean[] = [];
+    const handler = () => {
+      runs.push(true);
+    };
+
+    adapty.addEventListener('onPromotedPurchaseReceived', handler);
+    const second = adapty.addEventListener(
+      'onPromotedPurchaseReceived',
+      handler,
+    );
+
+    second.remove();
+
+    emitNativeEvent({
+      eventName: 'did_receive_promoted_purchase',
+      eventData: EVENT_DID_RECEIVE_PROMOTED_PURCHASE,
+    });
+
+    await new Promise(resolve => setImmediate(resolve));
+
+    expect(runs.length).toBeGreaterThan(0);
+
+    const calledMethods = nativeMock.handler.mock.calls.map(call => call[0]);
+    expect(calledMethods).not.toContain('make_promoted_purchase');
+  });
+
   it('should not let a rejecting async handler escape as an unhandled rejection, and must not auto-purchase', async () => {
     // The documented usage for this event is an async handler (see the
     // makePromotedPurchase example JSDoc). If it rejects — a declined purchase,

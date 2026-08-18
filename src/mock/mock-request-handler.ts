@@ -34,7 +34,10 @@ class SimpleEventEmitter {
   emit(event: string, ...args: any[]): void {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
-      callbacks.forEach(callback => {
+      // React Native's real EventEmitter snapshots registrations before iterating,
+      // so a handler that mutates the listener set mid-emit cannot affect the
+      // current dispatch. Snapshot here too, or mock mode diverges from a device.
+      Array.from(callbacks).forEach(callback => {
         try {
           callback(...args);
         } catch (error) {

@@ -189,10 +189,9 @@ export class Adapty {
    * rather than from a paywall.
    *
    * Registering a listener replaces the SDK's default behaviour, which is to
-   * complete the purchase automatically. While a listener is registered you are
-   * responsible for completing the purchase — call
-   * {@link Adapty.makePromotedPurchase} with the product you receive, or the
-   * purchase never happens. Removing the subscription restores the default.
+   * complete the purchase automatically. While a listener is registered, call
+   * {@link Adapty.makePromotedPurchase} with the product you receive to
+   * complete it. Removing the subscription restores the default.
    *
    * The listener is tied to the `Adapty` instance it was registered on — use
    * the exported singleton so a single set of handlers sees every event.

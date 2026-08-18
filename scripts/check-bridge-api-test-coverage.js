@@ -70,6 +70,12 @@ function extractApiMethods() {
     process.exit(1);
   }
 
+  if (methods.size < 40) {
+    console.error(`❌ Extracted only ${methods.size} methods from ${API_TYPES_PATH}.`);
+    console.error('   That count is implausibly low — the regex in extractApiMethods() likely needs updating against core\'s declaration format.');
+    process.exit(1);
+  }
+
   return Array.from(methods).sort();
 }
 
