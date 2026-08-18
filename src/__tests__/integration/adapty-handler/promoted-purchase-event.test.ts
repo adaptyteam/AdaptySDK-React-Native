@@ -198,6 +198,36 @@ describe('Adapty - Promoted Purchase Event', () => {
     }
   });
 
+  it('should keep dispatching to remaining handlers when one throws synchronously, and must not auto-purchase', async () => {
+    // The callback type is (data: AdaptyPromotedProduct) => void | Promise<void>,
+    // so sync handlers are explicitly permitted. A handler that throws
+    // synchronously would otherwise escape before Promise.resolve().catch() is
+    // attached and abort dispatch to the handlers after it. The second handler
+    // running proves we catch the first; no auto-purchase proves the app still
+    // owns completion even after a throwing handler.
+    const secondHandlerRan: boolean[] = [];
+
+    adapty.addEventListener('onPromotedPurchaseReceived', () => {
+      throw new Error('sync error');
+    });
+
+    adapty.addEventListener('onPromotedPurchaseReceived', () => {
+      secondHandlerRan.push(true);
+    });
+
+    emitNativeEvent({
+      eventName: 'did_receive_promoted_purchase',
+      eventData: EVENT_DID_RECEIVE_PROMOTED_PURCHASE,
+    });
+
+    await new Promise(resolve => setImmediate(resolve));
+
+    expect(secondHandlerRan).toHaveLength(1);
+
+    const calledMethods = nativeMock.handler.mock.calls.map(call => call[0]);
+    expect(calledMethods).not.toContain('make_promoted_purchase');
+  });
+
   it('should reject an unknown event name', () => {
     expect(() =>
       // @ts-expect-error - not a UserEventName

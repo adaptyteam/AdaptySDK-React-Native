@@ -87,15 +87,25 @@ export class Adapty {
           // EventEmitter.emit has no try/catch, so one throwing handler would
           // otherwise abort the rest of the dispatch.
           this.promotedPurchaseHandlers.forEach(({ callback }) => {
-            // Promise.resolve so a rejecting async handler is caught too — a bare
-            // try/catch around `callback(product)` only sees a synchronous throw,
-            // and the documented usage for this event is an async handler.
-            void Promise.resolve(callback(product)).catch(error =>
+            // Both shapes have to be caught, and neither catches the other:
+            // Promise.resolve().catch() handles a rejecting async handler, while
+            // the try/catch handles a plain handler that throws synchronously —
+            // `callback(product)` is evaluated as an argument, so a sync throw
+            // escapes before .catch() is ever attached and would abort dispatch
+            // to the handlers after it in the Set.
+            try {
+              void Promise.resolve(callback(product)).catch(error =>
+                Log.warn(
+                  'onPromotedPurchaseReceived',
+                  () => `Handler threw: ${error}`,
+                ),
+              );
+            } catch (error) {
               Log.warn(
                 'onPromotedPurchaseReceived',
                 () => `Handler threw: ${error}`,
-              ),
-            );
+              );
+            }
           });
           return;
         }
