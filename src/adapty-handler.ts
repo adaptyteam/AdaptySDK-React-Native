@@ -87,14 +87,15 @@ export class Adapty {
           // EventEmitter.emit has no try/catch, so one throwing handler would
           // otherwise abort the rest of the dispatch.
           this.promotedPurchaseHandlers.forEach(({ callback }) => {
-            try {
-              void callback(product);
-            } catch (error) {
+            // Promise.resolve so a rejecting async handler is caught too — a bare
+            // try/catch around `callback(product)` only sees a synchronous throw,
+            // and the documented usage for this event is an async handler.
+            void Promise.resolve(callback(product)).catch(error =>
               Log.warn(
                 'onPromotedPurchaseReceived',
                 () => `Handler threw: ${error}`,
-              );
-            }
+              ),
+            );
           });
           return;
         }
@@ -182,6 +183,9 @@ export class Adapty {
    * responsible for completing the purchase — call
    * {@link Adapty.makePromotedPurchase} with the product you receive, or the
    * purchase never happens. Removing the subscription restores the default.
+   *
+   * The listener is tied to the `Adapty` instance it was registered on — use
+   * the exported singleton so a single set of handlers sees every event.
    */
   addEventListener(
     event: Extract<UserEventName, 'onPromotedPurchaseReceived'>,

@@ -139,11 +139,11 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = this.store.getOnboarding(onboardingPlacementId);
           break;
 
+        case 'make_promoted_purchase':
         // A promoted product carries no access_level_id, so this reads as
         // undefined and MockStore.makePurchase falls back to its configured
         // premium level. Everything else — the purchase result and the
         // did_load_latest_profile emit — is identical.
-        case 'make_promoted_purchase':
         case 'make_purchase':
           // Extract accessLevelId from Request format (snake_case)
           const productAccessLevelId = parsedParams.product.access_level_id;

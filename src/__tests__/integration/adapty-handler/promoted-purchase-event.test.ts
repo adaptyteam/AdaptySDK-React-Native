@@ -165,6 +165,39 @@ describe('Adapty - Promoted Purchase Event', () => {
     expect(calledMethods).not.toContain('make_promoted_purchase');
   });
 
+  it('should not let a rejecting async handler escape as an unhandled rejection, and must not auto-purchase', async () => {
+    // The documented usage for this event is an async handler (see the
+    // makePromotedPurchase example JSDoc). If it rejects — a declined purchase,
+    // a network error — the rejection must be caught and logged, not escape as
+    // an unhandled rejection. And the app still owns completion: a throwing
+    // handler must not fall back to the SDK auto-purchasing on its behalf.
+    const unhandledRejections: unknown[] = [];
+    const onUnhandledRejection = (reason: unknown) => {
+      unhandledRejections.push(reason);
+    };
+    process.on('unhandledRejection', onUnhandledRejection);
+
+    try {
+      adapty.addEventListener('onPromotedPurchaseReceived', async () => {
+        throw new Error('declined');
+      });
+
+      emitNativeEvent({
+        eventName: 'did_receive_promoted_purchase',
+        eventData: EVENT_DID_RECEIVE_PROMOTED_PURCHASE,
+      });
+
+      await new Promise(resolve => setImmediate(resolve));
+
+      expect(unhandledRejections).toHaveLength(0);
+
+      const calledMethods = nativeMock.handler.mock.calls.map(call => call[0]);
+      expect(calledMethods).not.toContain('make_promoted_purchase');
+    } finally {
+      process.removeListener('unhandledRejection', onUnhandledRejection);
+    }
+  });
+
   it('should reject an unknown event name', () => {
     expect(() =>
       // @ts-expect-error - not a UserEventName
