@@ -63,7 +63,7 @@ interface ResponseRegistry {
   update_collecting_refund_data_consent?: components['requests']['UpdateCollectingRefundDataConsent.Response'];
   update_refund_preference?: components['requests']['UpdateRefundPreference.Response'];
   report_transaction?: components['requests']['ReportTransaction.Response'];
-  update_attribution_data?: components['requests']['UpdateAttributionData.Response'];
+  update_external_attribution_data?: components['requests']['UpdateExternalAttributionData.Response'];
   get_current_installation_status?: components['requests']['GetCurrentInstallationStatus.Response'];
 
   // Adapty UI - Paywall methods

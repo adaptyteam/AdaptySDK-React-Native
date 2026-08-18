@@ -1115,7 +1115,12 @@ export class Adapty {
   }
 
   /**
-   * Updates an attribution data for the current user.
+   * Updates attribution data from an external attribution provider
+   * for the current user.
+   *
+   * @remarks
+   * Renamed from `updateAttribution` in 4.1.0 to match the native SDKs;
+   * the second argument is now the provider name.
    *
    * @example
    * ```ts
@@ -1126,28 +1131,28 @@ export class Adapty {
    *   'Adjust Adgroup': 'adjust_adgroup',
    * };
    *
-   * adapty.updateAttribution(attribution, 'adjust');
+   * adapty.updateExternalAttribution(attribution, 'adjust');
    * ```
    *
    * @param {Record<string, any>} attribution - An object containing attribution data.
-   * @param {string} source - The source of the attribution data.
+   * @param {string} provider - The attribution provider the data came from.
    * @returns {Promise<void>} A promise that resolves when the attribution data is updated.
    *
    * @throws {@link AdaptyError} Throws if parameters are invalid or not provided.
    */
-  public async updateAttribution(
+  public async updateExternalAttribution(
     attribution: Record<string, any>,
-    source: string,
+    provider: string,
   ): Promise<void> {
     const ctx = new LogContext();
-    const log = ctx.call({ methodName: 'updateAttribution' });
-    log.start(() => ({ attribution, source }));
+    const log = ctx.call({ methodName: 'updateExternalAttribution' });
+    log.start(() => ({ attribution, provider }));
 
-    const methodKey = 'update_attribution_data';
-    const data: Req['UpdateAttributionData.Request'] = {
+    const methodKey = 'update_external_attribution_data';
+    const data: Req['UpdateExternalAttributionData.Request'] = {
       method: methodKey,
       attribution: JSON.stringify(attribution),
-      source: source,
+      provider: provider,
     };
 
     const body = JSON.stringify(data);

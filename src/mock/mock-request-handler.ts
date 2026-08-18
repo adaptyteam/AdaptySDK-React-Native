@@ -182,7 +182,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
 
         case 'log_show_flow':
         case 'set_log_level':
-        case 'update_attribution_data':
+        case 'update_external_attribution_data':
         case 'set_fallback':
         case 'set_integration_identifiers':
         case 'report_transaction':
@@ -219,7 +219,6 @@ export class MockRequestHandler<Method extends string, Params extends string> {
         case 'adapty_ui_present_onboarding_view':
         case 'adapty_ui_dismiss_flow_view':
         case 'adapty_ui_dismiss_onboarding_view':
-        case 'adapty_ui_activate':
           result = undefined; // void
           break;
         case 'adapty_ui_show_dialog':

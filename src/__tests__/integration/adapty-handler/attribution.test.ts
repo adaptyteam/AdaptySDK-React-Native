@@ -12,7 +12,7 @@ import {
   ACTIVATE_RESPONSE_SUCCESS,
   REPORT_TRANSACTION_REQUEST,
   REPORT_TRANSACTION_RESPONSE_SUCCESS,
-  UPDATE_ATTRIBUTION_DATA_RESPONSE_SUCCESS,
+  UPDATE_EXTERNAL_ATTRIBUTION_DATA_RESPONSE_SUCCESS,
 } from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
@@ -27,7 +27,8 @@ describe('Adapty - Attribution (Bridge Integration)', () => {
     nativeMock = createNativeModuleMock({
       activate: ACTIVATE_RESPONSE_SUCCESS,
       report_transaction: REPORT_TRANSACTION_RESPONSE_SUCCESS,
-      update_attribution_data: UPDATE_ATTRIBUTION_DATA_RESPONSE_SUCCESS,
+      update_external_attribution_data:
+        UPDATE_EXTERNAL_ATTRIBUTION_DATA_RESPONSE_SUCCESS,
     });
 
     await adapty.activate('test_api_key', { logLevel: 'error' });
@@ -66,23 +67,23 @@ describe('Adapty - Attribution (Bridge Integration)', () => {
     });
   });
 
-  describe('updateAttribution', () => {
-    it('should send UpdateAttributionData.Request with attribution data', async () => {
+  describe('updateExternalAttribution', () => {
+    it('should send UpdateExternalAttributionData.Request with attribution data', async () => {
       const attribution = {
         campaign: 'summer_sale',
         source: 'google',
       };
 
-      await adapty.updateAttribution(attribution, 'appsflyer');
+      await adapty.updateExternalAttribution(attribution, 'appsflyer');
 
       const request = extractNativeRequest<
-        components['requests']['UpdateAttributionData.Request']
+        components['requests']['UpdateExternalAttributionData.Request']
       >({
         nativeModule: nativeMock,
       });
 
-      expect(request.method).toBe('update_attribution_data');
-      expect(request.source).toBe('appsflyer');
+      expect(request.method).toBe('update_external_attribution_data');
+      expect(request.provider).toBe('appsflyer');
       // Attribution is serialized as JSON string
       expect(request.attribution).toBeDefined();
       const parsedAttribution = JSON.parse(request.attribution);
