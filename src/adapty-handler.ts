@@ -24,6 +24,7 @@ import {
   RefundPreference,
   AdaptyProfile,
   AdaptyInstallationDetails,
+  AdaptyPromotedProduct,
   WebPresentation,
 } from '@/types';
 import { AdaptyError } from './adapty-error';
@@ -48,6 +49,66 @@ export class Adapty {
     'get_flow_for_default_audience',
     'get_onboarding_for_default_audience',
   ];
+
+  /**
+   * App-registered onPromotedPurchaseReceived handlers. While any is present the
+   * app owns the purchase and the default below stays out of the way — mirroring
+   * iOS, where implementing AdaptyDelegate.didReceivePromotedPurchase replaces
+   * the protocol extension's default rather than running alongside it.
+   *
+   * A fresh wrapper object per registration, so registering the same function
+   * twice yields two independently removable entries.
+   */
+  private promotedPurchaseHandlers = new Set<{
+    callback: (data: AdaptyPromotedProduct) => void | Promise<void>;
+  }>();
+
+  /** The SDK's single bridge subscription for did_receive_promoted_purchase. */
+  private promotedPurchaseSubscription: EmitterSubscription | null = null;
+
+  /**
+   * Subscribes once, and completes the purchase when the app registered nothing.
+   *
+   * An App Store promoted purchase that nobody completes silently does nothing
+   * — the store hands the product to the app and waits. So the default is a real
+   * purchase, not a no-op. Same shape as
+   * DEFAULT_FLOW_EVENT_HANDLERS.onRequestAppReview, which calls the public
+   * requestAppReview() when the app supplies no handler.
+   */
+  private subscribeToPromotedPurchases(): void {
+    if (this.promotedPurchaseSubscription) {
+      return;
+    }
+
+    this.promotedPurchaseSubscription = $bridge.addEventListener(
+      'did_receive_promoted_purchase',
+      (product: AdaptyPromotedProduct) => {
+        if (this.promotedPurchaseHandlers.size > 0) {
+          // EventEmitter.emit has no try/catch, so one throwing handler would
+          // otherwise abort the rest of the dispatch.
+          this.promotedPurchaseHandlers.forEach(({ callback }) => {
+            try {
+              void callback(product);
+            } catch (error) {
+              Log.warn(
+                'onPromotedPurchaseReceived',
+                () => `Handler threw: ${error}`,
+              );
+            }
+          });
+          return;
+        }
+
+        void this.makePromotedPurchase(product).catch(error =>
+          Log.warn(
+            'onPromotedPurchaseReceived',
+            () =>
+              `Failed to complete the promoted purchase automatically: ${error}`,
+          ),
+        );
+      },
+    );
+  }
 
   // Middleware to call native handle
   async handle<T>(
@@ -110,6 +171,24 @@ export class Adapty {
   ): EmitterSubscription;
 
   /**
+   * Adds an event listener for App Store promoted purchases.
+   *
+   * @remarks
+   * Fires when the user starts a purchase from the App Store product page
+   * rather than from a paywall.
+   *
+   * Registering a listener replaces the SDK's default behaviour, which is to
+   * complete the purchase automatically. While a listener is registered you are
+   * responsible for completing the purchase — call
+   * {@link Adapty.makePromotedPurchase} with the product you receive, or the
+   * purchase never happens. Removing the subscription restores the default.
+   */
+  addEventListener(
+    event: Extract<UserEventName, 'onPromotedPurchaseReceived'>,
+    callback: (data: AdaptyPromotedProduct) => void | Promise<void>,
+  ): EmitterSubscription;
+
+  /**
    * Adds an event listener for successful installation details retrieval.
    */
   addEventListener(
@@ -132,6 +211,16 @@ export class Adapty {
     switch (event) {
       case 'onLatestProfileLoad':
         return $bridge.addEventListener('did_load_latest_profile', callback);
+      case 'onPromotedPurchaseReceived': {
+        const entry = { callback };
+        this.promotedPurchaseHandlers.add(entry);
+
+        return {
+          remove: () => {
+            this.promotedPurchaseHandlers.delete(entry);
+          },
+        } as EmitterSubscription;
+      }
       case 'onInstallationDetailsSuccess':
         return $bridge.addEventListener(
           'on_installation_details_success',
@@ -151,7 +240,26 @@ export class Adapty {
    * Removes all attached event listeners
    */
   removeAllListeners() {
-    return $bridge.removeAllEventListeners();
+    // Captured before removeAllEventListeners() below, which lazily
+    // initialises the bridge as a side effect when none exists yet
+    // ($bridge's getters all do `if (!_bridge) initBridge(false)`). Only
+    // reinstall the promoted-purchase subscription if activate() actually put
+    // one there — otherwise there is nothing to restore, and calling
+    // subscribeToPromotedPurchases() here would force a bridge into
+    // existence purely as a side effect of this call, silently turning mock
+    // mode into native mode. Same footgun addEventListener avoids.
+    const hadSubscription = this.promotedPurchaseSubscription !== null;
+
+    $bridge.removeAllEventListeners();
+
+    // The app's handlers are gone too, so the default takes over again — but the
+    // SDK's own subscription went with the rest and has to be put back
+    // explicitly. Nothing else would: activate() runs once per process.
+    this.promotedPurchaseHandlers.clear();
+    this.promotedPurchaseSubscription = null;
+    if (hadSubscription) {
+      this.subscribeToPromotedPurchases();
+    }
   }
 
   /**
@@ -223,6 +331,14 @@ export class Adapty {
         initBridge(false);
       }
     }
+
+    // Eager, and before any early return: both native bridges drop events while
+    // JS holds no listener (iOS `guard hasListeners`, Android
+    // `if (listenerCount > 0)`), so without a live subscription the promoted
+    // purchase never reaches JS and there is nothing for a default to react to.
+    // The __ignoreActivationOnFastRefresh path returns before the activate
+    // closure below, so installing there would skip it.
+    this.subscribeToPromotedPurchases();
 
     // call before log ctx calls, so no logs are lost
     const logLevel = params.logLevel;

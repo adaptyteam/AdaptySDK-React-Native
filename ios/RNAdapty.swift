@@ -42,6 +42,7 @@ class RNAdapty: RCTEventEmitter {
     override func supportedEvents() -> [String] {
         return [
             "did_load_latest_profile",
+            "did_receive_promoted_purchase",
             "flow_view_did_perform_action",
             "flow_view_did_select_product",
             "flow_view_did_start_purchase",
