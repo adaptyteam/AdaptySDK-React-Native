@@ -97,6 +97,22 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       expect(request.load_timeout).toBe(3); // 3000ms → 3s
       expect(request.enable_safe_area_paddings).toBe(false); // caller override
     });
+
+    it('should send ui_schema back unchanged', async () => {
+      await createFlowView(flow);
+
+      const request = extractNativeRequest<
+        components['requests']['AdaptyUICreateFlowView.Request']
+      >({
+        nativeModule: nativeMock,
+        callIndex: 0,
+      });
+
+      expect(request.flow.ui_schema).toStrictEqual({
+        layouts: [{ flow_layout_id: 'layout1' }],
+        grids: [{ platforms: 'all', h_breakpoints: [320], cells: [0] }],
+      });
+    });
   });
 
   describe('present', () => {
