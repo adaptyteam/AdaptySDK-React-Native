@@ -188,12 +188,16 @@ describe('BridgeEventEmitter', () => {
       const warn = jest.spyOn(Log, 'warn').mockImplementation(() => {});
       const emitter = makeEmitter(jest.fn());
       const emit = observe(emitter);
-      emitter.addListener(() => {});
 
-      emit('payload');
+      try {
+        emitter.addListener(() => {});
 
-      expect(warn).not.toHaveBeenCalled();
-      warn.mockRestore();
+        emit('payload');
+
+        expect(warn).not.toHaveBeenCalled();
+      } finally {
+        warn.mockRestore();
+      }
     });
 
     it('gives each registration its own removable entry, even for one function reference', () => {
