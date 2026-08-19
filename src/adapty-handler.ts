@@ -60,18 +60,19 @@ export class Adapty {
    * DEFAULT_FLOW_EVENT_HANDLERS.onRequestAppReview, which calls the public
    * requestAppReview() when the app supplies no handler.
    */
-  private promotedPurchases = new BridgeEventEmitter<AdaptyPromotedProduct>(
-    'did_receive_promoted_purchase',
-    'onPromotedPurchaseReceived',
-    product =>
-      this.makePromotedPurchase(product).catch(error =>
-        Log.warn(
-          'onPromotedPurchaseReceived',
-          () =>
-            `Failed to complete the promoted purchase automatically: ${error}`,
+  private promotedPurchaseEmitter =
+    new BridgeEventEmitter<AdaptyPromotedProduct>(
+      'did_receive_promoted_purchase',
+      'onPromotedPurchaseReceived',
+      product =>
+        this.makePromotedPurchase(product).catch(error =>
+          Log.warn(
+            'onPromotedPurchaseReceived',
+            () =>
+              `Failed to complete the promoted purchase automatically: ${error}`,
+          ),
         ),
-      ),
-  );
+    );
 
   // Middleware to call native handle
   async handle<T>(
@@ -178,7 +179,7 @@ export class Adapty {
       case 'onLatestProfileLoad':
         return $bridge.addEventListener('did_load_latest_profile', callback);
       case 'onPromotedPurchaseReceived':
-        return this.promotedPurchases.addListener(callback);
+        return this.promotedPurchaseEmitter.addListener(callback);
       case 'onInstallationDetailsSuccess':
         return $bridge.addEventListener(
           'on_installation_details_success',
@@ -205,7 +206,7 @@ export class Adapty {
     // process. The emitter re-subscribes only if it had been observing, so it
     // cannot install a listener on the bridge that the line above just lazily
     // created for a never-activated instance.
-    this.promotedPurchases.restoreAfterBridgeTeardown();
+    this.promotedPurchaseEmitter.restoreAfterBridgeTeardown();
   }
 
   /**
@@ -284,7 +285,7 @@ export class Adapty {
     // purchase never reaches JS and there is nothing for a default to react to.
     // The __ignoreActivationOnFastRefresh path returns before the activate
     // closure below, so installing there would skip it.
-    this.promotedPurchases.startObserving();
+    this.promotedPurchaseEmitter.startObserving();
 
     // call before log ctx calls, so no logs are lost
     const logLevel = params.logLevel;
