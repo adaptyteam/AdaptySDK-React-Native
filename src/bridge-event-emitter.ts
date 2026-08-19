@@ -132,8 +132,8 @@ export class BridgeEventEmitter<Payload> {
    *
    * Re-subscribes only if it had been observing. An emitter that never observed
    * must not start here, because `$bridge`'s getters lazily create a bridge, so
-   * subscribing as a side effect of a teardown call would force a native bridge
-   * into existence.
+   * subscribing as a side effect of a teardown call would install a listener on
+   * a bridge that the teardown call itself just lazily created.
    */
   public restoreAfterBridgeTeardown(): void {
     const wasObserving = this.eventListener !== null;
@@ -150,10 +150,12 @@ export class BridgeEventEmitter<Payload> {
     return (payload: Payload) => {
       if (this.handlers.size > 0) {
         // Not snapshotted before iterating, carried over from the code this
-        // replaced. Safe because both in-repo emitters snapshot on their side
-        // (`src/mock/mock-request-handler.ts`), so a handler that mutates the
-        // set mid-dispatch cannot be re-entered. Left as-is deliberately:
-        // changing it here would not be a refactor.
+        // replaced. `Set.prototype.forEach` visits entries added during
+        // iteration, so a handler that registers another handler mid-dispatch
+        // will see the new one invoked with the same payload. Behaviour is
+        // unchanged from before this class existed; left as-is deliberately -
+        // changing it here would not be a refactor. Snapshotting is tracked as
+        // a follow-up.
         this.handlers.forEach(({ handler }) =>
           this.invoke(handler, payload, 'Handler'),
         );

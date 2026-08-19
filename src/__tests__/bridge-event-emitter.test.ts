@@ -115,6 +115,7 @@ describe('BridgeEventEmitter', () => {
 
         expect(rejections).toHaveLength(0);
         expect(warn.mock.calls[0]![0]).toBe('onPromotedPurchaseReceived');
+        expect(warn.mock.calls[0]![1]()).toBe('Fallback threw: Error: nope');
       } finally {
         process.removeListener('unhandledRejection', onRejection);
         warn.mockRestore();
@@ -174,10 +175,25 @@ describe('BridgeEventEmitter', () => {
 
         expect(rejections).toHaveLength(0);
         expect(warn.mock.calls[0]![0]).toBe('onPromotedPurchaseReceived');
+        expect(warn.mock.calls[0]![1]()).toBe(
+          'Handler threw: Error: async boom',
+        );
       } finally {
         process.removeListener('unhandledRejection', onRejection);
         warn.mockRestore();
       }
+    });
+
+    it('logs nothing when a handler returns normally', () => {
+      const warn = jest.spyOn(Log, 'warn').mockImplementation(() => {});
+      const emitter = makeEmitter(jest.fn());
+      const emit = observe(emitter);
+      emitter.addListener(() => {});
+
+      emit('payload');
+
+      expect(warn).not.toHaveBeenCalled();
+      warn.mockRestore();
     });
 
     it('gives each registration its own removable entry, even for one function reference', () => {

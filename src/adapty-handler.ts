@@ -202,9 +202,9 @@ export class Adapty {
 
     // That removed the SDK's own promoted-purchase subscription along with the
     // app's, and nothing else would put it back: activate() runs once per
-    // process. The emitter re-subscribes only if it had been observing, so
-    // calling this on a never-activated instance cannot force a bridge into
-    // existence.
+    // process. The emitter re-subscribes only if it had been observing, so it
+    // cannot install a listener on the bridge that the line above just lazily
+    // created for a never-activated instance.
     this.promotedPurchases.restoreAfterBridgeTeardown();
   }
 
