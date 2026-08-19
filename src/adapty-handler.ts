@@ -1,6 +1,7 @@
 import { Platform, EmitterSubscription } from 'react-native';
 
 import { $bridge, initBridge, isBridgeInitialized } from '@/bridge';
+import { BridgeEventEmitter } from '@/bridge-event-emitter';
 import { LogContext, Log, LogScope } from '@/logger';
 import VERSION from '@/version';
 import type { Def, Req } from '@/types/schema';
@@ -51,75 +52,26 @@ export class Adapty {
   ];
 
   /**
-   * App-registered onPromotedPurchaseReceived handlers. While any is present the
-   * app owns the purchase and the default below stays out of the way — mirroring
-   * iOS, where implementing AdaptyDelegate.didReceivePromotedPurchase replaces
-   * the protocol extension's default rather than running alongside it.
-   *
-   * A fresh wrapper object per registration, so registering the same function
-   * twice yields two independently removable entries.
-   */
-  private promotedPurchaseHandlers = new Set<{
-    callback: (data: AdaptyPromotedProduct) => void | Promise<void>;
-  }>();
-
-  /** The SDK's single bridge subscription for did_receive_promoted_purchase. */
-  private promotedPurchaseSubscription: EmitterSubscription | null = null;
-
-  /**
-   * Subscribes once, and completes the purchase when the app registered nothing.
+   * Promoted purchases, and their default.
    *
    * An App Store promoted purchase that nobody completes silently does nothing
-   * — the store hands the product to the app and waits. So the default is a real
-   * purchase, not a no-op. Same shape as
+   * - the store hands the product to the app and waits. So the fallback is a
+   * real purchase, not a no-op. Same shape as
    * DEFAULT_FLOW_EVENT_HANDLERS.onRequestAppReview, which calls the public
    * requestAppReview() when the app supplies no handler.
    */
-  private subscribeToPromotedPurchases(): void {
-    if (this.promotedPurchaseSubscription) {
-      return;
-    }
-
-    this.promotedPurchaseSubscription = $bridge.addEventListener(
-      'did_receive_promoted_purchase',
-      (product: AdaptyPromotedProduct) => {
-        if (this.promotedPurchaseHandlers.size > 0) {
-          // EventEmitter.emit has no try/catch, so one throwing handler would
-          // otherwise abort the rest of the dispatch.
-          this.promotedPurchaseHandlers.forEach(({ callback }) => {
-            // Both shapes have to be caught, and neither catches the other:
-            // Promise.resolve().catch() handles a rejecting async handler, while
-            // the try/catch handles a plain handler that throws synchronously —
-            // `callback(product)` is evaluated as an argument, so a sync throw
-            // escapes before .catch() is ever attached and would abort dispatch
-            // to the handlers after it in the Set.
-            try {
-              void Promise.resolve(callback(product)).catch(error =>
-                Log.warn(
-                  'onPromotedPurchaseReceived',
-                  () => `Handler threw: ${error}`,
-                ),
-              );
-            } catch (error) {
-              Log.warn(
-                'onPromotedPurchaseReceived',
-                () => `Handler threw: ${error}`,
-              );
-            }
-          });
-          return;
-        }
-
-        void this.makePromotedPurchase(product).catch(error =>
-          Log.warn(
-            'onPromotedPurchaseReceived',
-            () =>
-              `Failed to complete the promoted purchase automatically: ${error}`,
-          ),
-        );
-      },
-    );
-  }
+  private promotedPurchases = new BridgeEventEmitter<AdaptyPromotedProduct>(
+    'did_receive_promoted_purchase',
+    'onPromotedPurchaseReceived',
+    product =>
+      this.makePromotedPurchase(product).catch(error =>
+        Log.warn(
+          'onPromotedPurchaseReceived',
+          () =>
+            `Failed to complete the promoted purchase automatically: ${error}`,
+        ),
+      ),
+  );
 
   // Middleware to call native handle
   async handle<T>(
@@ -225,16 +177,8 @@ export class Adapty {
     switch (event) {
       case 'onLatestProfileLoad':
         return $bridge.addEventListener('did_load_latest_profile', callback);
-      case 'onPromotedPurchaseReceived': {
-        const entry = { callback };
-        this.promotedPurchaseHandlers.add(entry);
-
-        return {
-          remove: () => {
-            this.promotedPurchaseHandlers.delete(entry);
-          },
-        } as EmitterSubscription;
-      }
+      case 'onPromotedPurchaseReceived':
+        return this.promotedPurchases.addListener(callback);
       case 'onInstallationDetailsSuccess':
         return $bridge.addEventListener(
           'on_installation_details_success',
@@ -254,26 +198,14 @@ export class Adapty {
    * Removes all attached event listeners
    */
   removeAllListeners() {
-    // Captured before removeAllEventListeners() below, which lazily
-    // initialises the bridge as a side effect when none exists yet
-    // ($bridge's getters all do `if (!_bridge) initBridge(false)`). Only
-    // reinstall the promoted-purchase subscription if activate() actually put
-    // one there — otherwise there is nothing to restore, and calling
-    // subscribeToPromotedPurchases() here would force a bridge into
-    // existence purely as a side effect of this call, silently turning mock
-    // mode into native mode. Same footgun addEventListener avoids.
-    const hadSubscription = this.promotedPurchaseSubscription !== null;
-
     $bridge.removeAllEventListeners();
 
-    // The app's handlers are gone too, so the default takes over again — but the
-    // SDK's own subscription went with the rest and has to be put back
-    // explicitly. Nothing else would: activate() runs once per process.
-    this.promotedPurchaseHandlers.clear();
-    this.promotedPurchaseSubscription = null;
-    if (hadSubscription) {
-      this.subscribeToPromotedPurchases();
-    }
+    // That removed the SDK's own promoted-purchase subscription along with the
+    // app's, and nothing else would put it back: activate() runs once per
+    // process. The emitter re-subscribes only if it had been observing, so
+    // calling this on a never-activated instance cannot force a bridge into
+    // existence.
+    this.promotedPurchases.restoreAfterBridgeTeardown();
   }
 
   /**
@@ -352,7 +284,7 @@ export class Adapty {
     // purchase never reaches JS and there is nothing for a default to react to.
     // The __ignoreActivationOnFastRefresh path returns before the activate
     // closure below, so installing there would skip it.
-    this.subscribeToPromotedPurchases();
+    this.promotedPurchases.startObserving();
 
     // call before log ctx calls, so no logs are lost
     const logLevel = params.logLevel;
