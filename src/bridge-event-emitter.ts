@@ -34,6 +34,8 @@ export type GlobalEventId =
  * and provides several modifications:
  * - The SDK owns the only subscription, so the event keeps arriving from native
  * - App handlers are local entries, each independently removable
+ * - The handler set is snapshotted before dispatch, so a mid-emit subscribe or
+ *   unsubscribe only takes effect from the next event
  * - An optional fallback runs when the app registered no handler
  * - Handler failures are logged rather than aborting the dispatch
  *
@@ -148,15 +150,15 @@ export class BridgeEventEmitter<Payload> {
 
   private createEventHandler() {
     return (payload: Payload) => {
-      if (this.handlers.size > 0) {
-        // Not snapshotted before iterating, carried over from the code this
-        // replaced. `Set.prototype.forEach` visits entries added during
-        // iteration, so a handler that registers another handler mid-dispatch
-        // will see the new one invoked with the same payload. Behaviour is
-        // unchanged from before this class existed; left as-is deliberately -
-        // changing it here would not be a refactor. Snapshotting is tracked as
-        // a follow-up.
-        this.handlers.forEach(({ handler }) =>
+      // Snapshot before dispatch: a handler that registers or removes another
+      // handler mid-emit must not change who receives THIS payload. Iterating
+      // the live Set would visit entries appended during iteration, so a handler
+      // that subscribes from inside its own callback would be invoked with the
+      // very payload it is still handling.
+      const handlers = Array.from(this.handlers);
+
+      if (handlers.length > 0) {
+        handlers.forEach(({ handler }) =>
           this.invoke(handler, payload, 'Handler'),
         );
         return;

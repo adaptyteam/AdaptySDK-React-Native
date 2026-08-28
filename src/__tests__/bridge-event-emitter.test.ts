@@ -142,6 +142,46 @@ describe('BridgeEventEmitter', () => {
       expect(second).toStrictEqual(['payload']);
     });
 
+    it('does not deliver the current payload to a handler registered mid-dispatch', () => {
+      const emitter = makeEmitter();
+      const late = jest.fn();
+      emitter.addListener(() => {
+        emitter.addListener(late);
+      });
+      const emit = observe(emitter);
+
+      emit('first');
+
+      // The snapshot is taken before dispatch, so `late` joins from the NEXT event on.
+      expect(late).not.toHaveBeenCalled();
+
+      emit('second');
+
+      expect(late).toHaveBeenCalledTimes(1);
+      expect(late).toHaveBeenCalledWith('second');
+    });
+
+    it('still delivers the current payload to a handler removed mid-dispatch', () => {
+      const emitter = makeEmitter();
+      const second = jest.fn();
+      const subscription = emitter.addListener(second);
+      emitter.addListener(() => {
+        subscription.remove();
+      });
+      const emit = observe(emitter);
+
+      emit('payload');
+
+      // Registration order puts `second` first in the snapshot, so it is already
+      // dispatched; the removal only takes effect from the next event.
+      expect(second).toHaveBeenCalledWith('payload');
+
+      second.mockClear();
+      emit('payload');
+
+      expect(second).not.toHaveBeenCalled();
+    });
+
     it('keeps dispatching when a handler throws synchronously', () => {
       const emitter = makeEmitter(jest.fn());
       const emit = observe(emitter);
