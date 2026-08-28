@@ -108,8 +108,10 @@ describe('Adapty - Profile', () => {
         referral_code: 'FRIEND2024',
       });
 
-      // appliedAttributionSources decoded from native applied_attribution_sources
-      expect(profile.appliedAttributionSources).toEqual(['apple_search_ads']);
+      // appliedExternalAttributionProviders decoded from native applied_attribution_sources
+      expect(profile.appliedExternalAttributionProviders).toEqual([
+        'apple_search_ads',
+      ]);
     });
   });
 

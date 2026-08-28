@@ -24,6 +24,7 @@ import { AdaptyType } from '@/coders/parse';
 import {
   RefundPreference,
   AdaptyProfile,
+  AdaptyExternalAttributionProvider,
   AdaptyInstallationDetails,
   AdaptyPromotedProduct,
   WebPresentation,
@@ -1250,14 +1251,15 @@ export class Adapty {
    * ```
    *
    * @param {Record<string, any>} attribution - An object containing attribution data.
-   * @param {string} provider - The attribution provider the data came from.
+   * @param {AdaptyExternalAttributionProvider} provider - The attribution provider the data came from.
+   *   Any string is accepted, so a provider added by the backend works without an SDK update.
    * @returns {Promise<void>} A promise that resolves when the attribution data is updated.
    *
    * @throws {@link AdaptyError} Throws if parameters are invalid or not provided.
    */
   public async updateExternalAttribution(
     attribution: Record<string, any>,
-    provider: string,
+    provider: AdaptyExternalAttributionProvider,
   ): Promise<void> {
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'updateExternalAttribution' });

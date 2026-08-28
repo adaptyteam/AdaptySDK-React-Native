@@ -5,6 +5,7 @@
  * exists so Jest has something to run.
  */
 import type {
+  AdaptyExternalAttributionProvider,
   AdaptyFlow,
   AdaptyFlowUiSchema,
   AdaptyFlowUiSchemaGrid,
@@ -13,6 +14,17 @@ import type {
 } from '@/types';
 
 describe('public type exports', () => {
+  it('exposes AdaptyExternalAttributionProvider, including unlisted providers', () => {
+    const known: AdaptyExternalAttributionProvider = 'appsflyer';
+    // The backend may add providers without an SDK release, so any string stays valid.
+    const unknown: AdaptyExternalAttributionProvider = 'some_future_provider';
+
+    expect([known, unknown]).toStrictEqual([
+      'appsflyer',
+      'some_future_provider',
+    ]);
+  });
+
   it('exposes AdaptyPromotedProduct', () => {
     const product: AdaptyPromotedProduct = {
       vendorProductId: 'yearly.premium.6999',

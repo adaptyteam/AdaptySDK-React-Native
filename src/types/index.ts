@@ -22,7 +22,7 @@ export type {
   AdaptyOnboardingBuilder,
   AdaptyPurchaseResult,
   AdaptyProfile,
-  AttributionSource,
+  AdaptyExternalAttributionProvider,
   AdaptyAccessLevel,
   AdaptyNonSubscription,
   AdaptySubscription,
