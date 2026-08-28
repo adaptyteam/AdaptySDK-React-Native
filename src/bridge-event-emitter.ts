@@ -176,8 +176,8 @@ export class BridgeEventEmitter<Payload> {
    * try/catch handles a plain one that throws synchronously - `callee(payload)`
    * is evaluated as an argument, so a sync throw escapes before `.catch()` is
    * ever attached. Either one escaping would abort dispatch to the handlers
-   * after it in the Set, because the underlying emitter does not guard its own
-   * iteration.
+   * after it in the snapshot, because the dispatch loop in `createEventHandler`
+   * does not guard its own iteration.
    */
   private invoke(
     callee: (payload: Payload) => Promise<unknown> | void,
