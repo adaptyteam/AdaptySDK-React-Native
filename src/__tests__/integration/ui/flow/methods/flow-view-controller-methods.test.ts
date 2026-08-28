@@ -25,7 +25,7 @@ import { cleanupAdapty } from '../../../adapty-handler/setup.utils';
  * Tests verify bridge communication for UI methods:
  * - Request encoding (camelCase → snake_case)
  * - Response parsing (snake_case → camelCase)
- * - Parameter handling (prefetchProducts, loadTimeoutMs, iOS styles)
+ * - Parameter handling (prefetchProducts, loadTimeoutMs, customLayoutId, android.enableSafeArea, iOS styles)
  *
  * Note: Event handling tests are separate in flow/events/
  */
@@ -78,6 +78,30 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
 
       // Verify response parsing
       expect((view as any).id).toBe('mock_flow_view_123');
+    });
+
+    it('should encode customLayoutId', async () => {
+      await createFlowView(flow, { customLayoutId: 'tablet_layout' });
+
+      const request = extractNativeRequest<
+        components['requests']['AdaptyUICreateFlowView.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.custom_layout_id).toBe('tablet_layout');
+    });
+
+    it('should omit custom_layout_id when customLayoutId is not provided', async () => {
+      await createFlowView(flow);
+
+      const request = extractNativeRequest<
+        components['requests']['AdaptyUICreateFlowView.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.custom_layout_id).toBeUndefined();
     });
 
     it('should encode custom parameters', async () => {
