@@ -319,7 +319,7 @@ describe('Adapty - Promoted Purchase Event', () => {
 
   it('should reject an unknown event name', () => {
     expect(() =>
-      // @ts-expect-error - not a UserEventName
+      // @ts-expect-error - not a GlobalEventName
       adapty.addEventListener('onNotAnEvent', () => {}),
     ).toThrow('Unsupported event: onNotAnEvent');
   });

@@ -11,8 +11,8 @@ Uses `NativeModuleMock` spy to verify exact request format and response parsing.
 pins who completes the purchase — the SDK default when no app listener is
 registered, the app itself as soon as one is — and that one native
 `did_receive_promoted_purchase` produces at most one `make_promoted_purchase`.
-It drives `BridgeEventEmitter` end to end, so it is the suite to run after any
-change to `src/bridge-event-emitter.ts`.
+It drives `AdaptyBridgeEventEmitter` end to end, so it is the suite to run after
+any change to `src/adapty-bridge-event-emitter.ts`.
 
 ### `adapty-handler-mock-web/` — Business Logic Tests (Mock Mode)
 Tests SDK behavior with `enableMock: true` and `MockConfig`.

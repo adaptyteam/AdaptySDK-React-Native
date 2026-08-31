@@ -1,5 +1,5 @@
 import { EmitterSubscription } from 'react-native';
-import type { UserEventName } from '@adapty/core';
+import type { GlobalEventIdType, GlobalEventName } from '@adapty/core';
 import { $bridge } from '@/bridge';
 import { Log } from '@/logger';
 
@@ -13,20 +13,7 @@ export type BridgeEventHandler<Payload> = (
 ) => void | Promise<void>;
 
 /**
- * Wire ids of the SDK's global events - the ones not scoped to a flow view or an
- * onboarding. Typed rather than `string` so a typo cannot reach the bridge and so
- * the set this class serves stays visible.
- *
- * @internal
- */
-export type GlobalEventId =
-  | 'did_load_latest_profile'
-  | 'did_receive_promoted_purchase'
-  | 'on_installation_details_success'
-  | 'on_installation_details_fail';
-
-/**
- * BridgeEventEmitter manages handlers for one global bridge event.
+ * AdaptyBridgeEventEmitter manages handlers for one global bridge event.
  * Handlers are additive - every registered handler receives every payload.
  *
  * @remarks
@@ -36,21 +23,21 @@ export type GlobalEventId =
  * - App handlers are local entries, each independently removable
  * - The handler set is snapshotted before dispatch, so a mid-emit subscribe or
  *   unsubscribe only takes effect from the next event
- * - An optional fallback runs when the app registered no handler
+ * - An optional default listener runs when the app registered no handler
  * - Handler failures are logged rather than aborting the dispatch
  *
  * Only the promoted-purchase event uses this today. The other three global
- * events still return the raw bridge subscription from `addEventListener`, so
+ * events still return the raw bridge subscription from `Adapty.addEventListener`, so
  * `removeAllListeners()` ends them permanently. Moving them here would make them
  * restorable, which is an improvement but a behaviour change, so it belongs in
  * its own change rather than in the refactor that created this class.
  *
  * @internal
  */
-export class BridgeEventEmitter<Payload> {
-  private eventId: GlobalEventId;
-  private logScope: UserEventName;
-  private fallback?: (payload: Payload) => Promise<unknown> | void;
+export class AdaptyBridgeEventEmitter<Payload> {
+  private eventId: GlobalEventIdType;
+  private logScope: GlobalEventName;
+  private defaultListener?: (payload: Payload) => Promise<unknown> | void;
   private eventListener: EmitterSubscription | null = null;
   private handlers: Set<{ handler: BridgeEventHandler<Payload> }> = new Set();
 
@@ -59,27 +46,29 @@ export class BridgeEventEmitter<Payload> {
    * @param logScope - the public handler name this event surfaces as. Used for
    * log scoping, deliberately separate from `eventId`: a developer greps for the
    * name they wrote, not the wire id.
-   * @param fallback - runs when no handler is registered. Optional because most
-   * global events are pure notifications with nothing to do in that case. Do your
-   * own failure logging inside it - the catch here is only a generic backstop,
-   * and only the caller knows what failing means.
+   * @param defaultListener - runs when no handler is registered. Optional
+   * because most global events are pure notifications with nothing to do in that
+   * case. Do your own failure logging inside it - the catch here is only a
+   * generic backstop, and only the caller knows what failing means.
    */
   constructor(
-    eventId: GlobalEventId,
-    logScope: UserEventName,
-    fallback?: (payload: Payload) => Promise<unknown> | void,
+    eventId: GlobalEventIdType,
+    logScope: GlobalEventName,
+    defaultListener?: (payload: Payload) => Promise<unknown> | void,
   ) {
     this.eventId = eventId;
     this.logScope = logScope;
-    this.fallback = fallback;
+    this.defaultListener = defaultListener;
   }
 
   /**
-   * Subscribes to the native event, once.
+   * Subscribes to the native event, once, with this emitter's default listener standing
+   * in until the app registers a handler of its own - hence `WithDefault`.
    *
-   * Named after React Native's own `startObserving`, which is what this
-   * ultimately drives: both native bridges drop events while JS holds no
-   * listener, so the SDK must hold one from activation onward.
+   * What it ultimately drives is React Native's own `startObserving`: both
+   * native bridges drop events while JS holds no listener (iOS
+   * `guard hasListeners`, Android `if (listenerCount > 0)`), so the SDK must
+   * hold one from activation onward or the event is lost rather than queued.
    *
    * Idempotent, so callers may call it on every activation attempt without
    * risking a second live subscription - two would dispatch every event twice.
@@ -88,7 +77,7 @@ export class BridgeEventEmitter<Payload> {
    * decrements the listener count and tears down a profile listener when it
    * reaches zero, without restoring it.
    */
-  public startObserving(): void {
+  public addNativeEventListenerWithDefault(): void {
     if (this.eventListener) {
       return;
     }
@@ -144,17 +133,14 @@ export class BridgeEventEmitter<Payload> {
     this.eventListener = null;
 
     if (wasObserving) {
-      this.startObserving();
+      this.addNativeEventListenerWithDefault();
     }
   }
 
   private createEventHandler() {
     return (payload: Payload) => {
       // Snapshot before dispatch: a handler that registers or removes another
-      // handler mid-emit must not change who receives THIS payload. Iterating
-      // the live Set would visit entries appended during iteration, so a handler
-      // that subscribes from inside its own callback would be invoked with the
-      // very payload it is still handling.
+      // handler mid-emit must not change who receives THIS payload.
       const handlers = Array.from(this.handlers);
 
       if (handlers.length > 0) {
@@ -164,8 +150,8 @@ export class BridgeEventEmitter<Payload> {
         return;
       }
 
-      if (this.fallback) {
-        this.invoke(this.fallback, payload, 'Fallback');
+      if (this.defaultListener) {
+        this.invoke(this.defaultListener, payload, 'DefaultListener');
       }
     };
   }
@@ -182,7 +168,7 @@ export class BridgeEventEmitter<Payload> {
   private invoke(
     callee: (payload: Payload) => Promise<unknown> | void,
     payload: Payload,
-    kind: 'Handler' | 'Fallback',
+    kind: 'Handler' | 'DefaultListener',
   ): void {
     try {
       void Promise.resolve(callee(payload)).catch(error =>

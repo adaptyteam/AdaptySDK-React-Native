@@ -1,13 +1,13 @@
 import { Platform, EmitterSubscription } from 'react-native';
 
 import { $bridge, initBridge, isBridgeInitialized } from '@/bridge';
-import { BridgeEventEmitter } from '@/bridge-event-emitter';
+import { AdaptyBridgeEventEmitter } from '@/adapty-bridge-event-emitter';
 import { LogContext, Log, LogScope } from '@/logger';
 import VERSION from '@/version';
 import type { Def, Req } from '@/types/schema';
 
 import { coderFactory } from '@/coders/factory';
-import { FetchPolicy } from '@adapty/core';
+import { FetchPolicy, GLOBAL_EVENT_TO_NATIVE_EVENT } from '@adapty/core';
 import type {
   ActivateParamsInput,
   FileLocation,
@@ -19,7 +19,7 @@ import type {
 } from '@adapty/core';
 
 import type * as Model from '@/types';
-import { MethodName, UserEventName } from '@/types/bridge';
+import { MethodName, GlobalEventName } from '@/types/bridge';
 import { AdaptyType } from '@/coders/parse';
 import {
   RefundPreference,
@@ -56,13 +56,13 @@ export class Adapty {
    * Promoted purchases, and their default.
    *
    * An App Store promoted purchase that nobody completes silently does nothing
-   * - the store hands the product to the app and waits. So the fallback is a
-   * real purchase, not a no-op. Same shape as
+   * - the store hands the product to the app and waits. So the default
+   * listener is a real purchase, not a no-op. Same shape as
    * DEFAULT_FLOW_EVENT_HANDLERS.onRequestAppReview, which calls the public
    * requestAppReview() when the app supplies no handler.
    */
   private promotedPurchaseEmitter =
-    new BridgeEventEmitter<AdaptyPromotedProduct>(
+    new AdaptyBridgeEventEmitter<AdaptyPromotedProduct>(
       'did_receive_promoted_purchase',
       'onPromotedPurchaseReceived',
       product =>
@@ -131,7 +131,7 @@ export class Adapty {
    * Adds an event listener for the latest profile load event.
    */
   addEventListener(
-    event: Extract<UserEventName, 'onLatestProfileLoad'>,
+    event: Extract<GlobalEventName, 'onLatestProfileLoad'>,
     callback: (data: AdaptyProfile) => void | Promise<void>,
   ): EmitterSubscription;
 
@@ -152,7 +152,7 @@ export class Adapty {
    * the exported singleton so a single set of handlers sees every event.
    */
   addEventListener(
-    event: Extract<UserEventName, 'onPromotedPurchaseReceived'>,
+    event: Extract<GlobalEventName, 'onPromotedPurchaseReceived'>,
     callback: (data: AdaptyPromotedProduct) => void | Promise<void>,
   ): EmitterSubscription;
 
@@ -160,7 +160,7 @@ export class Adapty {
    * Adds an event listener for successful installation details retrieval.
    */
   addEventListener(
-    event: Extract<UserEventName, 'onInstallationDetailsSuccess'>,
+    event: Extract<GlobalEventName, 'onInstallationDetailsSuccess'>,
     callback: (data: AdaptyInstallationDetails) => void | Promise<void>,
   ): EmitterSubscription;
 
@@ -168,32 +168,29 @@ export class Adapty {
    * Adds an event listener for installation details retrieval failures.
    */
   addEventListener(
-    event: Extract<UserEventName, 'onInstallationDetailsFail'>,
+    event: Extract<GlobalEventName, 'onInstallationDetailsFail'>,
     callback: (data: AdaptyError) => void | Promise<void>,
   ): EmitterSubscription;
 
   addEventListener(
-    event: UserEventName,
+    event: GlobalEventName,
     callback: (data: any) => void | Promise<void>,
   ): EmitterSubscription {
-    switch (event) {
-      case 'onLatestProfileLoad':
-        return $bridge.addEventListener('did_load_latest_profile', callback);
-      case 'onPromotedPurchaseReceived':
-        return this.promotedPurchaseEmitter.addListener(callback);
-      case 'onInstallationDetailsSuccess':
-        return $bridge.addEventListener(
-          'on_installation_details_success',
-          callback,
-        );
-      case 'onInstallationDetailsFail':
-        return $bridge.addEventListener(
-          'on_installation_details_fail',
-          callback,
-        );
-      default:
-        throw new Error(`Unsupported event: ${event}`);
+    const eventId = GLOBAL_EVENT_TO_NATIVE_EVENT[event];
+    if (!eventId) {
+      throw new Error(`Unsupported event: ${event}`);
     }
+
+    // Promoted purchases go through the emitter rather than straight to the
+    // bridge: the SDK holds its own subscription for them from activation
+    // onward, so that its default can complete a purchase no app handler
+    // claimed. The other three are plain notifications with no SDK-side
+    // default, so the raw bridge subscription is all they need.
+    if (event === 'onPromotedPurchaseReceived') {
+      return this.promotedPurchaseEmitter.addListener(callback);
+    }
+
+    return $bridge.addEventListener(eventId, callback);
   }
 
   /**
@@ -286,7 +283,7 @@ export class Adapty {
     // purchase never reaches JS and there is nothing for a default to react to.
     // The __ignoreActivationOnFastRefresh path returns before the activate
     // closure below, so installing there would skip it.
-    this.promotedPurchaseEmitter.startObserving();
+    this.promotedPurchaseEmitter.addNativeEventListenerWithDefault();
 
     // call before log ctx calls, so no logs are lost
     const logLevel = params.logLevel;
@@ -1234,10 +1231,6 @@ export class Adapty {
    * Updates attribution data from an external attribution provider
    * for the current user.
    *
-   * @remarks
-   * Renamed from `updateAttribution` in 4.1.0 to match the native SDKs;
-   * the second argument is now the provider name.
-   *
    * @example
    * ```ts
    * const attribution = {
@@ -1251,8 +1244,7 @@ export class Adapty {
    * ```
    *
    * @param {Record<string, any>} attribution - An object containing attribution data.
-   * @param {AdaptyExternalAttributionProvider} provider - The attribution provider the data came from.
-   *   Any string is accepted, so a provider added by the backend works without an SDK update.
+   * @param {AdaptyExternalAttributionProvider} provider - The attribution provider the data came from. Any string is accepted.
    * @returns {Promise<void>} A promise that resolves when the attribution data is updated.
    *
    * @throws {@link AdaptyError} Throws if parameters are invalid or not provided.
