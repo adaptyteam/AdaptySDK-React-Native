@@ -102,6 +102,34 @@ describe('Adapty - Promoted Purchase Event', () => {
     expect(calledMethods).not.toContain('make_promoted_purchase');
   });
 
+  it('should purchase once when a handler subscribes another one mid-dispatch', async () => {
+    // The invariant this suite exists for, against the one path that used to
+    // break it. A handler that registers another handler synchronously - a
+    // re-arm helper, an "ensure subscribed" call - had the new handler visited
+    // by the same dispatch pass and handed the SAME product. Both purchase, so
+    // one App Store tap became two make_promoted_purchase calls.
+    const purchase = (product: AdaptyPromotedProduct) => {
+      void adapty.makePromotedPurchase(product);
+    };
+
+    adapty.addEventListener('onPromotedPurchaseReceived', product => {
+      adapty.addEventListener('onPromotedPurchaseReceived', purchase);
+      purchase(product);
+    });
+
+    emitNativeEvent({
+      eventName: 'did_receive_promoted_purchase',
+      eventData: EVENT_DID_RECEIVE_PROMOTED_PURCHASE,
+    });
+
+    await new Promise(resolve => setImmediate(resolve));
+
+    const purchases = nativeMock.handler.mock.calls
+      .map(call => call[0])
+      .filter(method => method === 'make_promoted_purchase');
+    expect(purchases).toHaveLength(1);
+  });
+
   it('should restore the default when the app removes its subscription', async () => {
     // The per-screen useEffect cleanup idiom. A one-way flag would leave the
     // default suppressed here with no listener left, silently dropping every

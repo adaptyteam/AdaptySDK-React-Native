@@ -173,13 +173,89 @@ describe('BridgeEventEmitter', () => {
       emit('payload');
 
       // Registration order puts `second` first in the snapshot, so it is already
-      // dispatched; the removal only takes effect from the next event.
+      // dispatched; the removal only takes effect from the next event. This
+      // ordering behaves the same with or without the snapshot - the companion
+      // test below covers the ordering that does not.
       expect(second).toHaveBeenCalledWith('payload');
 
       second.mockClear();
       emit('payload');
 
       expect(second).not.toHaveBeenCalled();
+    });
+
+    it('still delivers the current payload to a handler removed before dispatch reached it', () => {
+      const emitter = makeEmitter();
+      const victim = jest.fn();
+      // The remover goes FIRST, so the delete lands before dispatch reaches its
+      // target. This is the ordering the snapshot actually changes: iterating
+      // the live Set would skip `victim` entirely, because a Set entry deleted
+      // during iteration is never visited.
+      let subscription!: EmitterSubscription;
+      emitter.addListener(() => {
+        subscription.remove();
+      });
+      subscription = emitter.addListener(victim);
+      const emit = observe(emitter);
+
+      emit('payload');
+
+      expect(victim).toHaveBeenCalledWith('payload');
+
+      victim.mockClear();
+      emit('payload');
+
+      expect(victim).not.toHaveBeenCalled();
+    });
+
+    it('finishes the snapshot when a handler tears every listener down mid-dispatch', () => {
+      // `adapty.removeAllListeners()` reaches this class as
+      // restoreAfterBridgeTeardown(), which clears the handler set. Called from
+      // inside a handler it used to abort the live-Set iteration outright, so
+      // whoever came after it silently lost the payload. The snapshot carries
+      // them to the end of the pass; the teardown still takes effect from the
+      // next event on.
+      const emitter = makeEmitter();
+      const later = jest.fn();
+      emitter.addListener(() => {
+        emitter.restoreAfterBridgeTeardown();
+      });
+      emitter.addListener(later);
+      const emit = observe(emitter);
+
+      emit('payload');
+
+      expect(later).toHaveBeenCalledWith('payload');
+
+      later.mockClear();
+      emit('payload');
+
+      expect(later).not.toHaveBeenCalled();
+    });
+
+    it('does not re-enter when a handler re-arms itself mid-dispatch', () => {
+      // The once/re-arm idiom: drop your own subscription, handle the payload,
+      // subscribe again - all synchronously. Against the live Set each re-arm
+      // appended an entry that the same forEach then visited, which re-armed
+      // again, without end. The re-arm is bounded here so a regression fails
+      // this assertion instead of hanging the suite.
+      const emitter = makeEmitter();
+      const runs: string[] = [];
+      const arm = () => {
+        const subscription = emitter.addListener(payload => {
+          subscription.remove();
+          runs.push(payload);
+          if (runs.length < 5) {
+            arm();
+          }
+        });
+      };
+      arm();
+      const emit = observe(emitter);
+
+      emit('payload');
+
+      expect(runs).toStrictEqual(['payload']);
     });
 
     it('keeps dispatching when a handler throws synchronously', () => {
