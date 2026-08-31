@@ -159,6 +159,18 @@ export function createMockFlow(
     id: `mock-flow-${placementId}`,
     name: placementId,
     variationId: 'mock_variation_id',
+    // A mock flow stands in for a placement with a no-code view configured,
+    // so it carries the renderer fields that make `hasViewConfiguration` true
+    // rather than just asserting the flag. `createMockPaywall` did the same in
+    // v3 by shipping a `paywallBuilder`, and `createMockOnboarding` still does
+    // it with `onboardingBuilder`. It keeps `AdaptyFlowView`'s Expo Go / web
+    // placeholder reachable for apps that gate on the flag.
+    hasViewConfiguration: true,
+    flowVersionId: 'mock_flow_version_id',
+    uiSchema: {
+      layouts: [{ flowLayoutId: 'mock_flow_layout' }],
+      grids: [{ platforms: 'all', devices: 'all', cells: [0] }],
+    },
     paywalls: [variation],
     responseCreatedAt: Date.now(),
     ...overrides,

@@ -47,6 +47,7 @@ export function createMockFlow(overrides?: Partial<AdaptyFlow>): AdaptyFlow {
     id: 'test_flow',
     name: 'Test Flow',
     variationId: 'variation_1',
+    hasViewConfiguration: false,
     placement,
     responseCreatedAt: 1704067200000,
     paywalls: [
