@@ -199,11 +199,7 @@ export class Adapty {
   removeAllListeners() {
     $bridge.removeAllEventListeners();
 
-    // That removed the SDK's own promoted-purchase subscription along with the
-    // app's, and nothing else would put it back: activate() runs once per
-    // process. The emitter re-subscribes only if it had been observing, so it
-    // cannot install a listener on the bridge that the line above just lazily
-    // created for a never-activated instance.
+    // Restore SDK's own default promoted-purchase subscription
     this.promotedPurchaseEmitter.restoreAfterBridgeTeardown();
   }
 
@@ -277,12 +273,7 @@ export class Adapty {
       }
     }
 
-    // Eager, and before any early return: both native bridges drop events while
-    // JS holds no listener (iOS `guard hasListeners`, Android
-    // `if (listenerCount > 0)`), so without a live subscription the promoted
-    // purchase never reaches JS and there is nothing for a default to react to.
-    // The __ignoreActivationOnFastRefresh path returns before the activate
-    // closure below, so installing there would skip it.
+    // Subscribe on every activation, including ones the fast-refresh guard (__ignoreActivationOnFastRefresh) skip
     this.promotedPurchaseEmitter.addNativeEventListenerWithDefault();
 
     // call before log ctx calls, so no logs are lost
