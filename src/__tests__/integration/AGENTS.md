@@ -5,7 +5,14 @@
 ### `adapty-handler/` — Bridge Protocol Tests
 Tests SDK method communication with native: JS (camelCase) → encode → snake_case JSON → Native mock → decode → JS.
 Uses `NativeModuleMock` spy to verify exact request format and response parsing.
-~50 tests covering activate, profile, purchase, paywall, onboarding, events, etc.
+~80 tests covering activate, profile, purchase, paywall, onboarding, events, etc.
+
+`promoted-purchase-event.test.ts` is the App Store promoted-purchase suite: it
+pins who completes the purchase — the SDK default when no app listener is
+registered, the app itself as soon as one is — and that one native
+`did_receive_promoted_purchase` produces at most one `make_promoted_purchase`.
+It drives `AdaptyBridgeEventEmitter` end to end, so it is the suite to run after
+any change to `src/adapty-bridge-event-emitter.ts`.
 
 ### `adapty-handler-mock-web/` — Business Logic Tests (Mock Mode)
 Tests SDK behavior with `enableMock: true` and `MockConfig`.

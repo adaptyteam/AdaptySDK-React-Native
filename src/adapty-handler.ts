@@ -1,12 +1,13 @@
 import { Platform, EmitterSubscription } from 'react-native';
 
 import { $bridge, initBridge, isBridgeInitialized } from '@/bridge';
+import { AdaptyBridgeEventEmitter } from '@/adapty-bridge-event-emitter';
 import { LogContext, Log, LogScope } from '@/logger';
 import VERSION from '@/version';
 import type { Def, Req } from '@/types/schema';
 
 import { coderFactory } from '@/coders/factory';
-import { FetchPolicy } from '@adapty/core';
+import { FetchPolicy, GLOBAL_EVENT_TO_NATIVE_EVENT } from '@adapty/core';
 import type {
   ActivateParamsInput,
   FileLocation,
@@ -18,12 +19,14 @@ import type {
 } from '@adapty/core';
 
 import type * as Model from '@/types';
-import { MethodName, UserEventName } from '@/types/bridge';
+import { MethodName, GlobalEventName } from '@/types/bridge';
 import { AdaptyType } from '@/coders/parse';
 import {
   RefundPreference,
   AdaptyProfile,
+  AdaptyExternalAttributionProvider,
   AdaptyInstallationDetails,
+  AdaptyPromotedProduct,
   WebPresentation,
 } from '@/types';
 import { AdaptyError } from './adapty-error';
@@ -48,6 +51,29 @@ export class Adapty {
     'get_flow_for_default_audience',
     'get_onboarding_for_default_audience',
   ];
+
+  /**
+   * Promoted purchases, and their default.
+   *
+   * An App Store promoted purchase that nobody completes silently does nothing
+   * - the store hands the product to the app and waits. So the default
+   * listener is a real purchase, not a no-op. Same shape as
+   * DEFAULT_FLOW_EVENT_HANDLERS.onRequestAppReview, which calls the public
+   * requestAppReview() when the app supplies no handler.
+   */
+  private promotedPurchaseEmitter =
+    new AdaptyBridgeEventEmitter<AdaptyPromotedProduct>(
+      'did_receive_promoted_purchase',
+      'onPromotedPurchaseReceived',
+      product =>
+        this.makePromotedPurchase(product).catch(error =>
+          Log.warn(
+            'onPromotedPurchaseReceived',
+            () =>
+              `Failed to complete the promoted purchase automatically: ${error}`,
+          ),
+        ),
+    );
 
   // Middleware to call native handle
   async handle<T>(
@@ -105,15 +131,36 @@ export class Adapty {
    * Adds an event listener for the latest profile load event.
    */
   addEventListener(
-    event: Extract<UserEventName, 'onLatestProfileLoad'>,
+    event: Extract<GlobalEventName, 'onLatestProfileLoad'>,
     callback: (data: AdaptyProfile) => void | Promise<void>,
+  ): EmitterSubscription;
+
+  /**
+   * Adds an event listener for App Store promoted purchases.
+   *
+   * @remarks
+   * Fires when the user starts a purchase from the App Store product page
+   * rather than from a paywall.
+   *
+   * Registering a listener replaces the SDK's default behaviour, which is to
+   * complete the purchase automatically. While a listener is registered you are
+   * responsible for completing the purchase — call
+   * {@link Adapty.makePromotedPurchase} with the product you receive, or the
+   * purchase never happens. Removing the subscription restores the default.
+   *
+   * The listener is tied to the `Adapty` instance it was registered on — use
+   * the exported singleton so a single set of handlers sees every event.
+   */
+  addEventListener(
+    event: Extract<GlobalEventName, 'onPromotedPurchaseReceived'>,
+    callback: (data: AdaptyPromotedProduct) => void | Promise<void>,
   ): EmitterSubscription;
 
   /**
    * Adds an event listener for successful installation details retrieval.
    */
   addEventListener(
-    event: Extract<UserEventName, 'onInstallationDetailsSuccess'>,
+    event: Extract<GlobalEventName, 'onInstallationDetailsSuccess'>,
     callback: (data: AdaptyInstallationDetails) => void | Promise<void>,
   ): EmitterSubscription;
 
@@ -121,37 +168,39 @@ export class Adapty {
    * Adds an event listener for installation details retrieval failures.
    */
   addEventListener(
-    event: Extract<UserEventName, 'onInstallationDetailsFail'>,
+    event: Extract<GlobalEventName, 'onInstallationDetailsFail'>,
     callback: (data: AdaptyError) => void | Promise<void>,
   ): EmitterSubscription;
 
   addEventListener(
-    event: UserEventName,
+    event: GlobalEventName,
     callback: (data: any) => void | Promise<void>,
   ): EmitterSubscription {
-    switch (event) {
-      case 'onLatestProfileLoad':
-        return $bridge.addEventListener('did_load_latest_profile', callback);
-      case 'onInstallationDetailsSuccess':
-        return $bridge.addEventListener(
-          'on_installation_details_success',
-          callback,
-        );
-      case 'onInstallationDetailsFail':
-        return $bridge.addEventListener(
-          'on_installation_details_fail',
-          callback,
-        );
-      default:
-        throw new Error(`Unsupported event: ${event}`);
+    const eventId = GLOBAL_EVENT_TO_NATIVE_EVENT[event];
+    if (!eventId) {
+      throw new Error(`Unsupported event: ${event}`);
     }
+
+    // Promoted purchases go through the emitter rather than straight to the
+    // bridge: the SDK holds its own subscription for them from activation
+    // onward, so that its default can complete a purchase no app handler
+    // claimed. The other three are plain notifications with no SDK-side
+    // default, so the raw bridge subscription is all they need.
+    if (event === 'onPromotedPurchaseReceived') {
+      return this.promotedPurchaseEmitter.addListener(callback);
+    }
+
+    return $bridge.addEventListener(eventId, callback);
   }
 
   /**
    * Removes all attached event listeners
    */
   removeAllListeners() {
-    return $bridge.removeAllEventListeners();
+    $bridge.removeAllEventListeners();
+
+    // Restore SDK's own default promoted-purchase subscription
+    this.promotedPurchaseEmitter.restoreAfterBridgeTeardown();
   }
 
   /**
@@ -223,6 +272,9 @@ export class Adapty {
         initBridge(false);
       }
     }
+
+    // Subscribe on every activation, including ones the fast-refresh guard (__ignoreActivationOnFastRefresh) skip
+    this.promotedPurchaseEmitter.addNativeEventListenerWithDefault();
 
     // call before log ctx calls, so no logs are lost
     const logLevel = params.logLevel;
@@ -931,6 +983,58 @@ export class Adapty {
   }
 
   /**
+   * Purchases a product promoted in the App Store.
+   *
+   * @remarks
+   * Use this with the product delivered by the
+   * `'onPromotedPurchaseReceived'` event. Unlike {@link Adapty.makePurchase},
+   * a promoted product carries no paywall context, so no purchase parameters
+   * are accepted.
+   *
+   * @example
+   * ```ts
+   * adapty.addEventListener('onPromotedPurchaseReceived', async product => {
+   *   await adapty.makePromotedPurchase(product);
+   * });
+   * ```
+   *
+   * @param {Model.AdaptyPromotedProduct} product - The promoted product to purchase.
+   * @returns {Promise<Model.AdaptyPurchaseResult>} The result of the purchase.
+   *
+   * @throws {@link AdaptyError} Throws if the purchase fails.
+   */
+  public async makePromotedPurchase(
+    product: Model.AdaptyPromotedProduct,
+  ): Promise<Model.AdaptyPurchaseResult> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'makePromotedPurchase' });
+    log.start(() => ({ product }));
+
+    const coder = coderFactory.createPromotedProductCoder();
+    const encoded = coder.encode(product);
+    const productInput = coder.getInput(encoded);
+
+    const methodKey = 'make_promoted_purchase';
+    const data: Req['MakePromotedPurchase.Request'] = {
+      method: methodKey,
+      product: productInput,
+    };
+
+    const body = JSON.stringify(data);
+
+    const result = await this.handle<Model.AdaptyPurchaseResult>(
+      methodKey,
+      body,
+      'AdaptyPurchaseResult',
+      ctx,
+      log,
+    );
+
+    return result;
+  }
+
+  /**
    * Opens a native modal screen to redeem Apple Offer Codes.
    *
    * @remarks
@@ -1115,7 +1219,8 @@ export class Adapty {
   }
 
   /**
-   * Updates an attribution data for the current user.
+   * Updates attribution data from an external attribution provider
+   * for the current user.
    *
    * @example
    * ```ts
@@ -1126,28 +1231,28 @@ export class Adapty {
    *   'Adjust Adgroup': 'adjust_adgroup',
    * };
    *
-   * adapty.updateAttribution(attribution, 'adjust');
+   * adapty.updateExternalAttribution(attribution, 'adjust');
    * ```
    *
    * @param {Record<string, any>} attribution - An object containing attribution data.
-   * @param {string} source - The source of the attribution data.
+   * @param {AdaptyExternalAttributionProvider} provider - The attribution provider the data came from. Any string is accepted.
    * @returns {Promise<void>} A promise that resolves when the attribution data is updated.
    *
    * @throws {@link AdaptyError} Throws if parameters are invalid or not provided.
    */
-  public async updateAttribution(
+  public async updateExternalAttribution(
     attribution: Record<string, any>,
-    source: string,
+    provider: AdaptyExternalAttributionProvider,
   ): Promise<void> {
     const ctx = new LogContext();
-    const log = ctx.call({ methodName: 'updateAttribution' });
-    log.start(() => ({ attribution, source }));
+    const log = ctx.call({ methodName: 'updateExternalAttribution' });
+    log.start(() => ({ attribution, provider }));
 
-    const methodKey = 'update_attribution_data';
-    const data: Req['UpdateAttributionData.Request'] = {
+    const methodKey = 'update_external_attribution_data';
+    const data: Req['UpdateExternalAttributionData.Request'] = {
       method: methodKey,
       attribution: JSON.stringify(attribution),
-      source: source,
+      provider: provider,
     };
 
     const body = JSON.stringify(data);

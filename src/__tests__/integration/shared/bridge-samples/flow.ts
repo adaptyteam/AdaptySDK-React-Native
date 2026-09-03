@@ -48,6 +48,10 @@ export const GET_FLOW_RESPONSE: components['requests']['GetFlow.Response'] = {
     flow_name: 'test_placement',
     variation_id: 'variation_123',
     variations: [SAMPLE_VARIATION],
+    ui_schema: {
+      layouts: [{ flow_layout_id: 'layout1' }],
+      grids: [{ platforms: 'all', h_breakpoints: [320], cells: [0] }],
+    },
     response_created_at: 1704067200000,
   },
 };

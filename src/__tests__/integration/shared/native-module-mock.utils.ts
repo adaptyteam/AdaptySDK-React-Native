@@ -49,6 +49,7 @@ interface ResponseRegistry {
   get_paywall_products?: components['requests']['GetPaywallProducts.Response'];
   log_show_flow?: components['requests']['LogShowFlow.Response'];
   make_purchase?: components['requests']['MakePurchase.Response'];
+  make_promoted_purchase?: components['requests']['MakePromotedPurchase.Response'];
   get_onboarding?: components['requests']['GetOnboarding.Response'];
   get_onboarding_for_default_audience?: components['requests']['GetOnboardingForDefaultAudience.Response'];
   identify?: components['requests']['Identify.Response'];
@@ -63,7 +64,7 @@ interface ResponseRegistry {
   update_collecting_refund_data_consent?: components['requests']['UpdateCollectingRefundDataConsent.Response'];
   update_refund_preference?: components['requests']['UpdateRefundPreference.Response'];
   report_transaction?: components['requests']['ReportTransaction.Response'];
-  update_attribution_data?: components['requests']['UpdateAttributionData.Response'];
+  update_external_attribution_data?: components['requests']['UpdateExternalAttributionData.Response'];
   get_current_installation_status?: components['requests']['GetCurrentInstallationStatus.Response'];
 
   // Adapty UI - Paywall methods
@@ -317,7 +318,10 @@ class TestEventEmitter {
   emit(event: string, ...args: any[]): void {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
-      callbacks.forEach(callback => callback(...args));
+      // React Native's real EventEmitter snapshots registrations before iterating,
+      // so a handler that mutates the listener set mid-emit cannot affect the
+      // current dispatch. Snapshot here too, or this mock diverges from a device.
+      Array.from(callbacks).forEach(callback => callback(...args));
     }
   }
 

@@ -3,6 +3,11 @@ import { NativeRequestHandler } from '@/native-request-handler';
 import { MockRequestHandler } from '@/mock';
 import type { AdaptyMockConfig } from '@/mock/types';
 import type { MethodName } from '@/types/bridge';
+import type {
+  FlowEventIdType,
+  OnboardingEventIdType,
+  GlobalEventIdType,
+} from '@adapty/core';
 
 /**
  * Name of bridge package
@@ -14,6 +19,21 @@ import type { MethodName } from '@/types/bridge';
  * - Android: AdaptyReactModule.kt (getName)
  */
 export const MODULE_NAME = 'RNAdapty';
+
+/**
+ * Every native event id the bridge can be subscribed to: the SDK's global
+ * events plus the per-view flow and onboarding events.
+ *
+ * Constrains the subscribe helpers below, which previously took
+ * `Event extends string`. That accepted any string, so a mistyped or renamed
+ * wire id compiled clean and the event simply never arrived - there is no
+ * runtime error for subscribing to an id native never emits. All three unions
+ * come from `@adapty/core`, which derives them from `cross_platform.yaml`.
+ */
+export type NativeEventId =
+  | GlobalEventIdType
+  | FlowEventIdType
+  | OnboardingEventIdType;
 
 /**
  * Internal bridge handler - can be either Native or Mock depending on configuration
@@ -67,7 +87,7 @@ export const $bridge = {
     if (!_bridge) initBridge(false);
     return _bridge!.request.bind(_bridge);
   },
-  addEventListener<Event extends string, CallbackData>(
+  addEventListener<Event extends NativeEventId, CallbackData>(
     event: Event,
     cb: (this: { rawValue: any }, data: CallbackData) => void | Promise<void>,
   ): EmitterSubscription {

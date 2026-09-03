@@ -345,4 +345,41 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       expect(typedResponse).toHaveProperty('success');
     });
   });
+
+  describe('adaptyAttributionEnabled', () => {
+    it('should default adapty_attribution_enabled to false', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+      });
+
+      await adapty.activate('test_api_key', { logLevel: 'error' });
+
+      const request = extractNativeRequest<
+        components['requests']['Activate.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.configuration.adapty_attribution_enabled).toBe(false);
+    });
+
+    it('should forward adaptyAttributionEnabled when enabled', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+      });
+
+      await adapty.activate('test_api_key', {
+        logLevel: 'error',
+        adaptyAttributionEnabled: true,
+      });
+
+      const request = extractNativeRequest<
+        components['requests']['Activate.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.configuration.adapty_attribution_enabled).toBe(true);
+    });
+  });
 });
