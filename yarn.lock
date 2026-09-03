@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.2.0.tgz#296d00581bfaaabfda1e976849d927824aaea81b"
   integrity sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw==
 
-"@adapty/core@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@adapty/core/-/core-4.1.0.tgz#2fa8f7408f6cdcf9e6562b102663d50fd33954b2"
-  integrity sha512-g8QNiexwhKPyldP/4Ol9AyjzlrOBwKEXybd4LWEy6hFqsPOKDQXmfdBQ8jxaneuucz8xL1k27htTdBGFSBW1Qw==
+"@adapty/core@4.1.2-dev.35876ff62b4b0f65b3f40210e35fb941b9bbee6f":
+  version "4.1.2-dev.35876ff62b4b0f65b3f40210e35fb941b9bbee6f"
+  resolved "https://registry.yarnpkg.com/@adapty/core/-/core-4.1.2-dev.35876ff62b4b0f65b3f40210e35fb941b9bbee6f.tgz#f0c623904c1b5162796944d6702bfbd452704c65"
+  integrity sha512-eN9ji1b6eEImUd5CU/TArV+1b+VVQ3j80RbPBF9H48oF6R8uZ+OkDj7qA/BB9JB43voZmfCdRicm5cJ0Md8kVg==
   dependencies:
     tslib "^2.5.0"
 
