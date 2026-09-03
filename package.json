@@ -19,6 +19,9 @@
   "bugs": {
     "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
   },
+  "bin": {
+    "adapty-spm-kids-mode": "scripts/kids-mode.cjs"
+  },
   "files": [
     "src/",
     "!src/__tests__",
@@ -35,6 +38,8 @@
     "!ios/RNAdapty.xcodeproj/project.xcworkspace",
     "!ios/RNAdapty.xcodeproj/xcuserdata",
     "*.podspec",
+    "Package.swift",
+    "scripts/kids-mode.cjs",
     "android/",
     "!android/bin",
     "!android/build",

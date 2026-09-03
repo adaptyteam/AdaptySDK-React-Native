@@ -16,7 +16,7 @@ Ask the user if not provided explicitly (but infer from context when obvious):
 
 ## iOS
 
-Since 4.0.0 the iOS native dependency is delivered via Swift Package Manager (not CocoaPods). Edit `react-native-adapty-sdk.podspec` — update the `spm_dependency` requirement version (a single version applies to all three products):
+**1. `react-native-adapty-sdk.podspec`** — the CocoaPods path (still the default):
 
 ```ruby
 spm_dependency(s,
@@ -26,7 +26,35 @@ spm_dependency(s,
 )
 ```
 
-Keep `kind: 'exactVersion'` unless the user asks for a different resolution strategy (e.g. `branch`, `revision`, `upToNextMajorVersion`).
+**2. `Package.swift`** — the SwiftPM path (React Native 0.87+, `npx react-native spm`):
+
+```swift
+.package(
+    url: "https://github.com/adaptyteam/AdaptySDK-iOS.git",
+    exact: "<VERSION>",
+    traits: [
+        .defaults,
+        .trait(name: "KidsMode", condition: .when(traits: ["AdaptyReactNativeKidsMode"]))
+    ]
+)
+```
+
+CocoaPods never reads `Package.swift` and SwiftPM never reads the podspec, so bumping only
+one of them ships two different native SDKs to two sets of users. Nothing fails at build
+time: the JS layer talks to `AdaptyPlugin` by method name, so the mismatch surfaces at
+runtime, and only for the path that was left behind. Grep both before committing:
+
+```bash
+grep -n "version: '" react-native-adapty-sdk.podspec
+grep -n 'exact:' Package.swift
+```
+
+Keep `kind: 'exactVersion'` / `exact:` unless the user asks for a different resolution
+strategy (e.g. `branch`, `revision`, `upToNextMajorVersion`) — and if they do, change it in
+both files.
+
+If the new native SDK raises its own `swift-tools-version`, our `Package.swift` may need to
+follow, and the required Xcode version rises for everyone on both paths.
 
 ## Android
 
@@ -78,6 +106,28 @@ grep -A6 'AdaptySDK-iOS' examples/AdaptyDevtools/ios/AdaptyRnSdkExample.xcworksp
 It must show `"version" : "<VERSION>"` and **no** `"branch"` key. `Package.resolved` goes in the commit.
 
 `examples/AdaptyDevtools/ios/Podfile.lock` normally does **not** change: the Adapty iOS SDK has no CocoaPods footprint any more, and CocoaPods does not recompute the checksum of a `:path`-based local pod on a plain `pod install`. Commit it only if it actually changed.
+
+### iOS: the SwiftPM path
+
+`examples/AdaptyDevtools` covers CocoaPods only — it never reads `Package.swift`, so it
+cannot catch a manifest left behind. The SwiftPM integration is exercised by the `rn-spm`
+app in the devtools repo (`adapty-react-native-devtools`), which installs the local pack
+and runs React Native's autolinking:
+
+```bash
+cd <devtools-repo>
+yarn update-sdk-full:rn-spm
+cd rn-spm/ios && xcodebuild -project rnSpm.xcodeproj -scheme rnSpm \
+  -configuration Debug -sdk iphonesimulator \
+  -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DD build
+```
+
+Then confirm the version SwiftPM actually resolved, which is the manifest's pin and not the
+podspec's:
+
+```bash
+grep -A4 'AdaptySDK-iOS' rn-spm/ios/build/DD/SourcePackages/Package.resolved
+```
 
 ## Commit
 
