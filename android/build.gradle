@@ -1,7 +1,10 @@
 //file:noinspection SpellCheckingInspection
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+// AGP 9 ships built-in Kotlin support and registers the `kotlin` extension itself. (RN 0.87.0+)
+if (project.extensions.findByName('kotlin') == null) {
+    apply plugin: 'kotlin-android'
+}
 apply plugin: 'maven-publish'
 
 // Expose package.json version to gradle
