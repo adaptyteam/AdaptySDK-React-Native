@@ -245,6 +245,145 @@ jobs:
           CODE_SIGNING_ALLOWED=NO \
           build
 
+  build-ios-spm:
+    runs-on: macos-26
+    name: iOS Build (SwiftPM)
+    needs: validate-pr
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+
+    # Package.swift uses swift-tools-version 6.2 and package traits: Xcode 26+ is required.
+    - name: Select Xcode
+      uses: maxim-lobanov/setup-xcode@v1.7.0
+      with:
+        xcode-version: '26.4'
+
+    - name: Cache node_modules
+      uses: actions/cache@v5
+      id: cache-node-modules
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: yarn install --frozen-lockfile --prefer-offline
+
+    - name: Cache example app node_modules
+      uses: actions/cache@v5
+      id: cache-example-node-modules
+      with:
+        path: examples/AdaptyDevtoolsSpm/node_modules
+        key: example-spm-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtoolsSpm/yarn.lock', 'examples/AdaptyDevtoolsSpm/patches/*.patch') }}
+        restore-keys: |
+          example-spm-node-modules-${{ runner.os }}-
+
+    # `yarn install` runs postinstall -> patch-package, which restores the scaffolded
+    # Package.swift of react-native-screens and react-native-safe-area-context.
+    - name: Install example app dependencies
+      if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn install --frozen-lockfile
+
+    - name: Build package and install
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn update-sdk-full
+
+    # The SwiftPM equivalent of `pod install`. Mandatory: the in-build Sync SPM Autolinking
+    # phase runs after Xcode resolved the package graph, so without this the build succeeds
+    # while silently omitting react-native-adapty.
+    - name: Run SwiftPM autolinking
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn update-native-modules
+
+    # The Release configuration bundles the JS, and src/helpers.ts requires this file at
+    # module level. The app is never executed here, so a placeholder is enough.
+    - name: Write placeholder credentials
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        printf '{"token":"ci-placeholder","placement_id":"ci-placeholder"}' > .adapty-credentials.json
+
+    - name: Cache SwiftPM artifacts
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/Library/Caches/ReactNative/spm-artifacts
+          ~/Library/Caches/org.swift.swiftpm
+        key: spm-artifacts-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtoolsSpm/package.json', 'Package.swift') }}
+        restore-keys: |
+          spm-artifacts-${{ runner.os }}-
+
+    - name: Run TypeScript check
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn tsc
+
+    - name: Run iOS build (Debug, simulator)
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        xcodebuild -project ios/AdaptyDevtoolsSpm.xcodeproj \
+          -scheme AdaptyDevtoolsSpm \
+          -configuration Debug \
+          -sdk iphonesimulator \
+          -destination "generic/platform=iOS Simulator" \
+          -derivedDataPath ios/build/DD \
+          -clonedSourcePackagesDirPath ios/build/SourcePackages \
+          -skipPackagePluginValidation \
+          ONLY_ACTIVE_ARCH=YES \
+          CODE_SIGNING_ALLOWED=NO \
+          build
+
+    # Release is what catches SwiftPM link errors — Debug does not.
+    - name: Run iOS build (Release, device, unsigned)
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        xcodebuild -project ios/AdaptyDevtoolsSpm.xcodeproj \
+          -scheme AdaptyDevtoolsSpm \
+          -configuration Release \
+          -sdk iphoneos \
+          -destination "generic/platform=iOS" \
+          -derivedDataPath ios/build/DD-release \
+          -clonedSourcePackagesDirPath ios/build/SourcePackages \
+          -skipPackagePluginValidation \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_REQUIRED=NO \
+          build
+
+    # A green build is a weak signal on its own: autolinking can drop the package and still
+    # succeed. Assert the module is really linked, and that SwiftPM resolved the version from
+    # our Package.swift.
+    - name: Assert Adapty is linked
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        APP=ios/build/DD-release/Build/Products/Release-iphoneos/AdaptyDevtoolsSpm.app
+        COUNT=$(nm "$APP/AdaptyDevtoolsSpm" | grep -c RNAdapty || true)
+        echo "RNAdapty symbols: $COUNT"
+        if [ "$COUNT" -eq 0 ]; then
+          echo "FATAL: react-native-adapty is not linked into the Release build." >&2
+          exit 1
+        fi
+        RESOLVED=ios/AdaptyDevtoolsSpm.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+        EXPECTED=$(grep -o 'exact: "[^"]*"' ../../Package.swift | head -1 | cut -d'"' -f2)
+        echo "Package.swift pins AdaptySDK-iOS $EXPECTED"
+        grep -A4 -i adaptysdk-ios "$RESOLVED"
+        if ! grep -A4 -i adaptysdk-ios "$RESOLVED" | grep -q "\"version\" : \"$EXPECTED\""; then
+          echo "FATAL: SwiftPM resolved a different AdaptySDK-iOS version than Package.swift pins." >&2
+          exit 1
+        fi
+
+
   auto-assign-reviewers:
     runs-on: ubuntu-24.04
     name: Auto-assign reviewers

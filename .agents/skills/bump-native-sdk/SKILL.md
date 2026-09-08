@@ -109,24 +109,31 @@ It must show `"version" : "<VERSION>"` and **no** `"branch"` key. `Package.resol
 
 ### iOS: the SwiftPM path
 
-`examples/AdaptyDevtools` covers CocoaPods only — it never reads `Package.swift`, so it
-cannot catch a manifest left behind. The SwiftPM integration is exercised by the `rn-spm`
-app in the devtools repo (`adapty-react-native-devtools`), which installs the local pack
-and runs React Native's autolinking:
+`examples/AdaptyDevtools` covers CocoaPods only — it never reads `Package.swift`. The SwiftPM
+integration is exercised by `examples/AdaptyDevtoolsSpm`, and by the `build-ios-spm` job in
+`.github/workflows/pr-validation.yml` on every PR. Locally:
 
 ```bash
-cd <devtools-repo>
-yarn update-sdk-full:rn-spm
-cd rn-spm/ios && xcodebuild -project rnSpm.xcodeproj -scheme rnSpm \
+cd examples/AdaptyDevtoolsSpm
+yarn update-sdk-full          # install the local pack
+yarn update-native-modules    # `npx react-native spm` — MANDATORY, see below
+xcodebuild -project ios/AdaptyDevtoolsSpm.xcodeproj -scheme AdaptyDevtoolsSpm \
   -configuration Debug -sdk iphonesimulator \
-  -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DD build
+  -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build/DD \
+  -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO build
 ```
 
-Then confirm the version SwiftPM actually resolved, which is the manifest's pin and not the
+`update-native-modules` cannot be skipped: the in-build `Sync SPM Autolinking` phase runs after
+Xcode has resolved the package graph, so a build started right after the pack was reinstalled
+**succeeds while silently omitting the SDK**. That also means a green build proves nothing on its
+own — assert the module is linked and that the resolved version is the manifest's pin, not the
 podspec's:
 
 ```bash
-grep -A4 'AdaptySDK-iOS' rn-spm/ios/build/DD/SourcePackages/Package.resolved
+nm ios/build/DD/Build/Products/Debug-iphonesimulator/AdaptyDevtoolsSpm.app/AdaptyDevtoolsSpm.debug.dylib \
+  | grep -c RNAdapty
+grep -A4 -i adaptysdk-ios \
+  ios/AdaptyDevtoolsSpm.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 ```
 
 ## Commit
