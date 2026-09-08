@@ -74,6 +74,40 @@ npx patch-package react-native-screens
 npx patch-package react-native-safe-area-context
 ```
 
+## Kids Mode
+
+**This example ships with Adapty Kids Mode ON** (COPPA / App Store Kids Category): the SDK's
+`AdaptyReactNativeKidsMode` trait forwards to AdaptySDK-iOS's `KidsMode` trait, which compiles out
+all IDFA / AdSupport / AppTrackingTransparency code.
+
+```sh
+yarn kids-mode:enable     # default; also run by postinstall and by update-sdk-full
+yarn kids-mode:disable    # build with IDFA/ATT back in
+```
+
+Both delegate to `scripts/kids-mode.sh`, which runs the SDK's `adapty-spm-kids-mode` CLI against
+**the installed copy** in `node_modules/react-native-adapty/Package.swift` — never the repo's own
+tracked manifest.
+
+Why the toggle has to be re-applied so often:
+
+- `yarn install` reinstalls the SDK, dropping the edit — hence `postinstall`.
+- `yarn update-sdk-full` re-extracts the pack with a pristine manifest — hence the `&&` in that
+  script.
+- On CocoaPods this manifest is never read at all; that path uses `ios/adapty_kids_mode.rb`
+  instead. Our `ios/Podfile` declares no React Native, so the CLI correctly detects SwiftPM and
+  stays quiet.
+
+Clean the build folder after toggling — the trait changes what gets compiled, and Xcode does not
+always notice on its own.
+
+End-to-end verification (builds the app twice and inspects every Mach-O with `otool`/`nm`):
+
+```sh
+../../scripts/verify-kids-mode-ios.sh both spm     # off (tokens present) then on (absent)
+../../scripts/verify-kids-mode-ios.sh on   spm     # positive check only
+```
+
 ## Verify the build
 
 ```sh

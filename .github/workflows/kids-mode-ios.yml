@@ -20,6 +20,11 @@ on:
       - 'ios/adapty_kids_mode.rb'
       - 'react-native-adapty-sdk.podspec'
       - 'examples/AdaptyDevtools/ios/Podfile'
+      # SwiftPM path
+      - 'Package.swift'
+      - 'scripts/kids-mode.cjs'
+      - 'examples/AdaptyDevtoolsSpm/package.json'
+      - 'examples/AdaptyDevtoolsSpm/scripts/kids-mode.sh'
       - 'scripts/verify-kids-mode-ios.sh'
       - '.github/workflows/kids-mode-ios.yml'
 
@@ -30,8 +35,19 @@ concurrency:
 jobs:
   verify-kids-mode-ios:
     runs-on: macos-26
-    name: Verify Kids Mode (iOS)
-    timeout-minutes: 75   # cold build; a `both` run compiles the app twice (off + on)
+    name: Verify Kids Mode (iOS, ${{ matrix.target }})
+    timeout-minutes: 90   # cold build; a `both` run compiles the app twice (off + on)
+
+    # CocoaPods never reads Package.swift and SwiftPM never reads the podspec, so Kids Mode has
+    # a separate toggle on each path and each needs its own end-to-end proof.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: pods
+            example: examples/AdaptyDevtools
+          - target: spm
+            example: examples/AdaptyDevtoolsSpm
 
     steps:
       - name: Checkout code
@@ -64,23 +80,26 @@ jobs:
         uses: actions/cache@v5
         id: cache-example-node-modules
         with:
-          path: examples/AdaptyDevtools/node_modules
-          key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
+          path: ${{ matrix.example }}/node_modules
+          key: example-kids-node-modules-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/yarn.lock', matrix.example)) }}
           restore-keys: |
-            example-node-modules-${{ runner.os }}-
+            example-kids-node-modules-${{ matrix.target }}-${{ runner.os }}-
 
       - name: Install example app dependencies
         if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
         run: |
-          cd examples/AdaptyDevtools
+          cd ${{ matrix.example }}
           yarn install --frozen-lockfile
 
+      # For spm this also re-enables Kids Mode: the pack it installs carries a pristine
+      # Package.swift, so the app's update-sdk-full chains the toggle back on.
       - name: Build package and install
         run: |
-          cd examples/AdaptyDevtools
+          cd ${{ matrix.example }}
           yarn update-sdk-full
 
       - name: Cache CocoaPods
+        if: matrix.target == 'pods'
         uses: actions/cache@v5
         with:
           path: |
@@ -91,13 +110,23 @@ jobs:
           restore-keys: |
             pods-kids-${{ runner.os }}-
 
+      # React Native's prebuilt xcframeworks, downloaded once per RN version.
+      - name: Cache SwiftPM artifacts
+        if: matrix.target == 'spm'
+        uses: actions/cache@v5
+        with:
+          path: ~/Library/Caches/ReactNative/spm-artifacts
+          key: spm-artifacts-kids-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtoolsSpm/package.json') }}
+          restore-keys: |
+            spm-artifacts-kids-${{ runner.os }}-
+
       - name: Cache SPM checkouts
         uses: actions/cache@v5
         with:
           path: .spm-kids-mode
-          key: kids-mode-spm-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}
+          key: kids-mode-spm-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles('Package.swift', 'react-native-adapty-sdk.podspec') }}
           restore-keys: |
-            kids-mode-spm-${{ runner.os }}-
+            kids-mode-spm-${{ matrix.target }}-${{ runner.os }}-
 
       - name: Determine verify mode
         id: mode
@@ -113,4 +142,4 @@ jobs:
       - name: Verify Kids Mode (on -> AdSupport/IDFA absent; both -> +negative control)
         env:
           VERIFY_MODE: ${{ steps.mode.outputs.mode }}
-        run: bash scripts/verify-kids-mode-ios.sh "$VERIFY_MODE"
+        run: bash scripts/verify-kids-mode-ios.sh "$VERIFY_MODE" "${{ matrix.target }}"

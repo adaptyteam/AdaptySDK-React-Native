@@ -9,14 +9,16 @@
     "start": "react-native start",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "update-sdk-full": "../../scripts/build_and_install_pack.zsh",
+    "update-sdk-full": "../../scripts/build_and_install_pack.zsh && ./scripts/kids-mode.sh enable",
     "update-native-modules": "cd ios && npx react-native spm",
     "link-assets": "react-native-asset",
     "lint": "eslint .",
     "tsc": "tsc --noEmit",
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check \"src/**/*.{ts,tsx}\"",
-    "postinstall": "patch-package"
+    "kids-mode:enable": "./scripts/kids-mode.sh enable",
+    "kids-mode:disable": "./scripts/kids-mode.sh disable",
+    "postinstall": "patch-package && ./scripts/kids-mode.sh enable"
   },
   "dependencies": {
     "@react-native/new-app-screen": "0.87.1",

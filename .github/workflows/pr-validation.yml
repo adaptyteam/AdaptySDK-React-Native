@@ -308,13 +308,6 @@ jobs:
         cd examples/AdaptyDevtoolsSpm
         yarn update-native-modules
 
-    # The Release configuration bundles the JS, and src/helpers.ts requires this file at
-    # module level. The app is never executed here, so a placeholder is enough.
-    - name: Write placeholder credentials
-      run: |
-        cd examples/AdaptyDevtoolsSpm
-        printf '{"token":"ci-placeholder","placement_id":"ci-placeholder"}' > .adapty-credentials.json
-
     - name: Cache SwiftPM artifacts
       uses: actions/cache@v5
       with:
