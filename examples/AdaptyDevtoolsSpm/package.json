@@ -9,16 +9,16 @@
     "start": "react-native start",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "update-sdk-full": "../../scripts/build_and_install_pack.zsh && ./scripts/kids-mode.sh enable",
+    "update-sdk-full": "../../scripts/build_and_install_pack.zsh && yarn kids-mode:enable",
     "update-native-modules": "cd ios && npx react-native spm",
     "link-assets": "react-native-asset",
     "lint": "eslint .",
     "tsc": "tsc --noEmit",
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check \"src/**/*.{ts,tsx}\"",
-    "kids-mode:enable": "./scripts/kids-mode.sh enable",
-    "kids-mode:disable": "./scripts/kids-mode.sh disable",
-    "postinstall": "patch-package && ./scripts/kids-mode.sh enable"
+    "kids-mode:enable": "adapty-spm-kids-mode enable",
+    "kids-mode:disable": "adapty-spm-kids-mode disable",
+    "postinstall": "patch-package && (adapty-spm-kids-mode enable || echo \"kids-mode: CLI absent in the installed react-native-adapty — run yarn update-sdk-full\")"
   },
   "dependencies": {
     "@react-native/new-app-screen": "0.87.1",

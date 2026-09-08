@@ -53,6 +53,54 @@ cp -r "$TEMP_DIR/package/"* node_modules/react-native-adapty/
 rm -rf "$TEMP_DIR"
 rm "$SDK_DIR/$PACK_FILE"
 
+# Step 4b: Link the package's bins the way a package manager would.
+# The pack is extracted by hand, so nothing else creates node_modules/.bin entries — and
+# without them a documented CLI such as `adapty-spm-kids-mode` is not on PATH for the app's
+# own yarn scripts. Stale links pointing into this package are pruned first, so a bin that
+# was renamed or dropped between builds does not linger.
+echo "🔗 Linking package bins..."
+node -e '
+const fs = require("fs");
+const path = require("path");
+const [pkgDir, binDir] = process.argv.slice(1);
+const pkg = JSON.parse(fs.readFileSync(path.join(pkgDir, "package.json"), "utf8"));
+const bins =
+  typeof pkg.bin === "string" ? { [pkg.name.replace(/^@[^/]+\//, "")]: pkg.bin } : pkg.bin || {};
+fs.mkdirSync(binDir, { recursive: true });
+
+// Prune links that resolve into this package but are no longer declared.
+for (const entry of fs.readdirSync(binDir)) {
+  const link = path.join(binDir, entry);
+  let target;
+  try {
+    target = fs.realpathSync(link);
+  } catch {
+    target = null; // dangling link
+  }
+  const inThisPackage = target === null || target.startsWith(fs.realpathSync(pkgDir) + path.sep);
+  if (!inThisPackage) continue;
+  if (target !== null && Object.prototype.hasOwnProperty.call(bins, entry)) continue;
+  try {
+    if (fs.lstatSync(link).isSymbolicLink()) fs.unlinkSync(link);
+  } catch {}
+}
+
+for (const [name, rel] of Object.entries(bins)) {
+  const target = path.join(pkgDir, rel);
+  if (!fs.existsSync(target)) {
+    console.warn(`   ⚠️  ${name} -> ${rel} does not exist, skipping`);
+    continue;
+  }
+  fs.chmodSync(target, 0o755);
+  const link = path.join(binDir, name);
+  try {
+    fs.unlinkSync(link);
+  } catch {}
+  fs.symlinkSync(path.relative(binDir, target), link);
+  console.log(`   ${name} -> ${path.relative(binDir, target)}`);
+}
+' "$EXAMPLE_DIR/node_modules/react-native-adapty" "$EXAMPLE_DIR/node_modules/.bin"
+
 # Step 5: Install production dependencies manually (tslib, @adapty/core)
 echo "📦 Installing production dependencies..."
 TARGET_NODE_MODULES="$EXAMPLE_DIR/node_modules/react-native-adapty/node_modules"

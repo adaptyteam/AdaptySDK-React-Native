@@ -24,7 +24,6 @@ on:
       - 'Package.swift'
       - 'scripts/kids-mode.cjs'
       - 'examples/AdaptyDevtoolsSpm/package.json'
-      - 'examples/AdaptyDevtoolsSpm/scripts/kids-mode.sh'
       - 'scripts/verify-kids-mode-ios.sh'
       - '.github/workflows/kids-mode-ios.yml'
 

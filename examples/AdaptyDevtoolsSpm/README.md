@@ -85,9 +85,9 @@ yarn kids-mode:enable     # default; also run by postinstall and by update-sdk-f
 yarn kids-mode:disable    # build with IDFA/ATT back in
 ```
 
-Both delegate to `scripts/kids-mode.sh`, which runs the SDK's `adapty-spm-kids-mode` CLI against
-**the installed copy** in `node_modules/react-native-adapty/Package.swift` — never the repo's own
-tracked manifest.
+Both are just the SDK's own CLI — `adapty-spm-kids-mode enable|disable` — which edits **the
+installed copy** at `node_modules/react-native-adapty/Package.swift`, never the repo's tracked
+manifest.
 
 Why the toggle has to be re-applied so often:
 
@@ -97,6 +97,19 @@ Why the toggle has to be re-applied so often:
 - On CocoaPods this manifest is never read at all; that path uses `ios/adapty_kids_mode.rb`
   instead. Our `ios/Podfile` declares no React Native, so the CLI correctly detects SwiftPM and
   stays quiet.
+
+A real consumer app writes exactly this and nothing more:
+
+```json
+"postinstall": "adapty-spm-kids-mode enable"
+```
+
+Here `postinstall` additionally tolerates the CLI being missing (`|| echo …`) for one reason only:
+this example is developed against an **unpublished** SDK. A plain `yarn install` resolves
+`react-native-adapty: "latest"` from npm, and the published version has no `bin` entry yet, so the
+command would not exist and a strict `postinstall` would break the install. `yarn update-sdk-full`
+delivers the local build — `scripts/build_and_install_pack.zsh` links `node_modules/.bin` the way a
+package manager would — and there the toggle is chained strictly, so a real failure surfaces.
 
 Clean the build folder after toggling — the trait changes what gets compiled, and Xcode does not
 always notice on its own.

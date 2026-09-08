@@ -18,10 +18,10 @@
 #   pods: `pod install` with ADAPTY_KIDS_MODE=1 drives the shipped `ios/adapty_kids_mode.rb`
 #         helper, which writes `traits = (KidsMode,)` onto the AdaptySDK-iOS package reference
 #         in the generated Pods.xcodeproj. Built from the .xcworkspace.
-#   spm:  the app's `scripts/kids-mode.sh` runs the SDK's `adapty-spm-kids-mode` CLI, which flips
-#         the default trait set in node_modules/react-native-adapty/Package.swift. CocoaPods never
-#         reads that manifest and SwiftPM never reads the podspec, so each path needs its own
-#         toggle. Built from the .xcodeproj — there is no workspace.
+#   spm:  the SDK's `adapty-spm-kids-mode` CLI flips the default trait set in
+#         node_modules/react-native-adapty/Package.swift. CocoaPods never reads that manifest and
+#         SwiftPM never reads the podspec, so each path needs its own toggle. Built from the
+#         .xcodeproj — there is no workspace.
 #
 # Prereqs: the chosen example's deps installed + `yarn update-sdk-full` run (delivers the local
 #          SDK build — the Podfile helper for pods, the Kids Mode CLI for spm).
@@ -95,8 +95,9 @@ pod_toggle() { # $1 = on|off
 }
 
 # spm: flip the default trait set in the installed SDK's Package.swift, then PROVE it landed.
-# The app's wrapper deliberately exits 0 when the CLI is missing (a published SDK has none),
-# so without this assertion a "verified" run could be toggling nothing at all.
+# The CLI is invoked by path rather than through the app's `yarn kids-mode:*` scripts, so the
+# verification does not depend on node_modules/.bin being linked; the app's own postinstall
+# tolerates a missing CLI, which is exactly the case this assertion must not let slide.
 spm_toggle() { # $1 = on|off
   local mode="$1" verb anchor
   [[ -f "$SPM_CLI" ]] || fatal "Kids Mode CLI not found at $SPM_CLI — run 'cd $EXAMPLE_DIR && yarn update-sdk-full' first."
@@ -105,7 +106,7 @@ spm_toggle() { # $1 = on|off
   else
     verb=disable; anchor='.default(enabledTraits: [])'
   fi
-  ( cd "$EXAMPLE_DIR" && ./scripts/kids-mode.sh "$verb" )
+  node "$SPM_CLI" "$verb" --app-root="$EXAMPLE_DIR"
   grep -qF "$anchor" "$SPM_MANIFEST" \
     || fatal "Package.swift does not carry the expected anchor after '$verb': $anchor"
   # Autolinking regenerates the aggregator that references our package; harmless when
@@ -125,7 +126,7 @@ restore_state() {
     pods) ( cd "$IOS_DIR" && "${POD[@]}" install >/dev/null 2>&1 ) || \
             echo "WARN: failed to restore Pods to Kids-Mode-off" >&2 ;;
     # The example ships with Kids Mode ON (its postinstall enables it), so restore that.
-    spm)  ( cd "$EXAMPLE_DIR" && ./scripts/kids-mode.sh enable >/dev/null 2>&1 ) || \
+    spm)  node "$SPM_CLI" enable --app-root="$EXAMPLE_DIR" >/dev/null 2>&1 || \
             echo "WARN: failed to restore Kids Mode to enabled" >&2 ;;
   esac
 }
