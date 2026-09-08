@@ -90,6 +90,15 @@ jobs:
           cd ${{ matrix.example }}
           yarn install --frozen-lockfile
 
+      # examples/AdaptyDevtoolsSpm/src is a mirror of examples/AdaptyDevtools/src and is not
+      # committed. The app's postinstall syncs it, but the install step above is skipped on a
+      # node_modules cache hit — so do it explicitly.
+      - name: Sync UI sources from AdaptyDevtools
+        if: matrix.target == 'spm'
+        run: |
+          cd examples/AdaptyDevtoolsSpm
+          yarn sync-src
+
       # For spm this also re-enables Kids Mode: the pack it installs carries a pristine
       # Package.swift, so the app's update-sdk-full chains the toggle back on.
       - name: Build package and install

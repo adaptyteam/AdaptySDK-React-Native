@@ -76,3 +76,7 @@ yarn-error.log
 
 # Adapty credentials for local examples
 .adapty-credentials.json
+
+# UI sources are mirrored from examples/AdaptyDevtools/src by `yarn sync-src` — see README.
+/src/*
+!/src/.gitkeep

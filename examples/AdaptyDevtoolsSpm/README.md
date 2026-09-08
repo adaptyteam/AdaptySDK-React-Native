@@ -4,6 +4,10 @@ The same devtools UI as [`examples/AdaptyDevtools`](../AdaptyDevtools), but the 
 integrated through React Native's **experimental Swift Package Manager support**
 (`npx react-native spm`, RN 0.87+) instead of CocoaPods.
 
+> **`src/` is generated — do not edit it here.** Its contents are mirrored from
+> `examples/AdaptyDevtools/src`, the single source of truth for the UI. See
+> [UI sources](#ui-sources) below.
+
 It exists to exercise the SwiftPM path of `react-native-adapty` — the repo's root
 [`Package.swift`](../../Package.swift) — which CocoaPods never reads.
 
@@ -31,6 +35,31 @@ Run it after a fresh clone, after every `yarn install`, and after every `yarn up
 > regenerates the autolinking manifest, but it runs *inside* the build — after Xcode has already
 > resolved the package graph. A build started right after the SDK was reinstalled therefore
 > **succeeds while silently omitting the dependency**. Always run the command above first.
+
+## UI sources
+
+`src/` is **not committed** — only `src/.gitkeep` is. Everything else in it is a verbatim mirror
+of `examples/AdaptyDevtools/src`:
+
+```sh
+yarn sync-src     # rsync -a --delete --exclude .gitkeep ../AdaptyDevtools/src/ ./src/
+```
+
+So there is one copy of the devtools UI to maintain, not two.
+
+- **Edit `examples/AdaptyDevtools/src`**, then run `yarn sync-src` here. Editing `src/` in this app
+  is pointless: `--delete` wipes anything that is not upstream on the next sync.
+- Keep upstream changes portable across both apps. RN 0.87 is stricter than the RN version
+  `AdaptyDevtools` runs — e.g. `StatusBar`'s Android-only `backgroundColor` prop is gone in 0.87, so
+  it was removed upstream rather than patched here.
+- The sync runs automatically from `postinstall` and `prestart`. It is also an explicit step in the
+  `build-ios-spm` and Kids Mode CI jobs, because those skip `yarn install` on a `node_modules` cache
+  hit and would otherwise build against an empty `src/`.
+- After a fresh clone, `src/` holds only `.gitkeep`. Until it is synced, `yarn tsc` and any iOS
+  build that bundles JS will fail on unresolved imports from `App.tsx`.
+
+`App.tsx` is the one UI file kept locally — it is the app's entry point, so it stays committed and
+is not overwritten by the sync.
 
 ## Local SDK build
 

@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "sync-src": "rsync -a --delete --exclude .gitkeep ../AdaptyDevtools/src/ ./src/",
     "credentials": "node ../../scripts/credentials.js",
     "credentials-force": "node ../../scripts/credentials.js --force-bundle",
-    "prestart": "yarn credentials",
+    "prestart": "yarn sync-src && yarn credentials",
     "start": "react-native start",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
@@ -18,7 +19,7 @@
     "prettier:check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "kids-mode:enable": "adapty-spm-kids-mode enable",
     "kids-mode:disable": "adapty-spm-kids-mode disable",
-    "postinstall": "patch-package && (adapty-spm-kids-mode enable || echo \"kids-mode: CLI absent in the installed react-native-adapty — run yarn update-sdk-full\")"
+    "postinstall": "yarn sync-src && patch-package && (adapty-spm-kids-mode enable || echo \"kids-mode: CLI absent in the installed react-native-adapty — run yarn update-sdk-full\")"
   },
   "dependencies": {
     "@react-native/new-app-screen": "0.87.1",
