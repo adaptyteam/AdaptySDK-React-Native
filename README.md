@@ -140,6 +140,7 @@ We provide several example applications with increasing complexity:
 - **[ExpoGoWebMock](./examples/ExpoGoWebMock/)** (Expo Go / Expo Web) – Easiest to run (works in browser with mock mode, no Adapty key required). Demonstrates mock data usage for Expo Go/Web. Includes both custom paywall and Adapty Paywall Builder.
 - **[FocusJournalExpo](./examples/FocusJournalExpo/)** (Expo) – Simple app with premium features using Adapty Paywall Builder. Includes video guide.
 - **[AdaptyDevtools](./examples/AdaptyDevtools/)** (React Native) – DevTools and bug reporting tool.
+- **[AdaptyDevtoolsSpm](./examples/AdaptyDevtoolsSpm/)** (React Native) – The same DevTools UI on React Native's experimental Swift Package Manager integration (`npx react-native spm`) instead of CocoaPods.
 
 📹 **Watch our video guide** for step-by-step integration with the Focus Journal Expo example:
 
