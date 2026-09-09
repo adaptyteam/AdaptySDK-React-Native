@@ -75,3 +75,8 @@ plugin/build/
 # Kids Mode iOS verification scratch dirs
 .derivedData-kids-mode/
 .spm-kids-mode/
+
+# Swift Package Manager scratch dirs Xcode drops if someone opens Package.swift here.
+# Anchored to the repo root so the examples' own artifacts are untouched.
+/.build/
+/.swiftpm/

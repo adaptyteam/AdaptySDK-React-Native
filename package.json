@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "react-native-adapty",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "description": "Adapty React Native SDK",
   "license": "MIT",
   "author": "Adapty team <support@adapty.io>",
@@ -19,6 +19,9 @@
   "bugs": {
     "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
   },
+  "bin": {
+    "adapty-spm-kids-mode": "scripts/kids-mode.cjs"
+  },
   "files": [
     "src/",
     "!src/__tests__",
@@ -35,6 +38,8 @@
     "!ios/RNAdapty.xcodeproj/project.xcworkspace",
     "!ios/RNAdapty.xcodeproj/xcuserdata",
     "*.podspec",
+    "Package.swift",
+    "scripts/kids-mode.cjs",
     "android/",
     "!android/bin",
     "!android/build",
@@ -101,7 +106,7 @@
     "typescript": "5.1.6"
   },
   "dependencies": {
-    "@adapty/core": "4.0.2",
+    "@adapty/core": "4.1.2-dev.35876ff62b4b0f65b3f40210e35fb941b9bbee6f",
     "tslib": "^2.5.0"
   },
   "peerDependencies": {

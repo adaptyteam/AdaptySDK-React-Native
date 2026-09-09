@@ -34,7 +34,10 @@ class SimpleEventEmitter {
   emit(event: string, ...args: any[]): void {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
-      callbacks.forEach(callback => {
+      // React Native's real EventEmitter snapshots registrations before iterating,
+      // so a handler that mutates the listener set mid-emit cannot affect the
+      // current dispatch. Snapshot here too, or mock mode diverges from a device.
+      Array.from(callbacks).forEach(callback => {
         try {
           callback(...args);
         } catch (error) {
@@ -139,6 +142,11 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = this.store.getOnboarding(onboardingPlacementId);
           break;
 
+        case 'make_promoted_purchase':
+        // A promoted product carries no access_level_id, so this reads as
+        // undefined and MockStore.makePurchase falls back to its configured
+        // premium level. Everything else — the purchase result and the
+        // did_load_latest_profile emit — is identical.
         case 'make_purchase':
           // Extract accessLevelId from Request format (snake_case)
           const productAccessLevelId = parsedParams.product.access_level_id;
@@ -182,7 +190,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
 
         case 'log_show_flow':
         case 'set_log_level':
-        case 'update_attribution_data':
+        case 'update_external_attribution_data':
         case 'set_fallback':
         case 'set_integration_identifiers':
         case 'report_transaction':
@@ -219,7 +227,6 @@ export class MockRequestHandler<Method extends string, Params extends string> {
         case 'adapty_ui_present_onboarding_view':
         case 'adapty_ui_dismiss_flow_view':
         case 'adapty_ui_dismiss_onboarding_view':
-        case 'adapty_ui_activate':
           result = undefined; // void
           break;
         case 'adapty_ui_show_dialog':

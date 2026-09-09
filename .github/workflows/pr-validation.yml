@@ -83,6 +83,10 @@ jobs:
       if: matrix.check-type == 'js-checks'
       run: yarn test
 
+    - name: Check bridge API test coverage
+      if: matrix.check-type == 'js-checks'
+      run: yarn test:coverage
+
     - name: Setup Java
       if: matrix.check-type == 'android'
       uses: actions/setup-java@v5

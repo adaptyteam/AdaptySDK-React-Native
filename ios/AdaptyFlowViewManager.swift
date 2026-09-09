@@ -1,10 +1,13 @@
+import UIKit
+import React
+
 @objc(AdaptyFlowView)
-class AdaptyFlowViewManager: RCTViewManager {
-    override static func requiresMainQueueSetup() -> Bool {
+public class AdaptyFlowViewManager: RCTViewManager {
+    public override static func requiresMainQueueSetup() -> Bool {
         return true
     }
 
-    override func view() -> UIView! {
+    public override func view() -> UIView! {
         return AdaptyFlowWrapperView()
     }
 }

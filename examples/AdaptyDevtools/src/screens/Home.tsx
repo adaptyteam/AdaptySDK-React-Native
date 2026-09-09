@@ -262,7 +262,7 @@ const Home: React.FC = () => {
             onPress={async () => {
               try {
                 console.log('[ADAPTY]: Updating custom attribution...');
-                const result = await adapty.updateAttribution(
+                const result = await adapty.updateExternalAttribution(
                   {
                     status: 'non_organic',
                     channel: 'Google Ads',

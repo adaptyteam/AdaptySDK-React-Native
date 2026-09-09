@@ -1,4 +1,5 @@
 import Foundation
+import React
 import Adapty
 import AdaptyUI
 import AdaptyPlugin
@@ -10,16 +11,16 @@ enum Log {
 }
 
 @objc(RNAdapty)
-class RNAdapty: RCTEventEmitter {
+public class RNAdapty: RCTEventEmitter {
     // Weak reference to forward events from native views
     private static weak var shared: RNAdapty?
 
     // UI Thread is required to properly work with StoreKit SDK
-    override static func requiresMainQueueSetup() -> Bool {
+    public override static func requiresMainQueueSetup() -> Bool {
         return true
     }
 
-    override init() {
+    public override init() {
         super.init()
         RNAdapty.shared = self
 
@@ -39,9 +40,10 @@ class RNAdapty: RCTEventEmitter {
     }
 
     // A list of emittable events to JavaScript
-    override func supportedEvents() -> [String] {
+    public override func supportedEvents() -> [String] {
         return [
             "did_load_latest_profile",
+            "did_receive_promoted_purchase",
             "flow_view_did_perform_action",
             "flow_view_did_select_product",
             "flow_view_did_start_purchase",
@@ -72,7 +74,7 @@ class RNAdapty: RCTEventEmitter {
         ]
     }
 
-    override func constantsToExport() -> [AnyHashable : Any]! {
+    public override func constantsToExport() -> [AnyHashable : Any]! {
         // Name of the function that routes all incoming requests
         return ["HANDLER": "handle"]
     }
@@ -82,10 +84,10 @@ class RNAdapty: RCTEventEmitter {
     // Omit warnings with this
     private var hasListeners = false
 
-    override func startObserving() {
+    public override func startObserving() {
         self.hasListeners = true
     }
-    override func stopObserving() {
+    public override func stopObserving() {
         self.hasListeners = false
     }
 

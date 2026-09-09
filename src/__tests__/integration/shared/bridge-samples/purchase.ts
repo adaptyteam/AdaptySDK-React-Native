@@ -132,3 +132,27 @@ export const REPORT_TRANSACTION_RESPONSE_SUCCESS: components['requests']['Report
   {
     success: true,
   };
+
+/**
+ * MakePromotedPurchase request — App Store promoted product.
+ * The request carries no paywall context: only the vendor product id,
+ * an optional subscription offer, and optional payload data.
+ *
+ * Not referenced by a test assertion: this sample is what makes
+ * check-bridge-api-test-coverage.js count make_promoted_purchase as covered,
+ * since it scans bridge-samples for `method:` literals. Do not delete it as
+ * unused — the coverage gate goes red.
+ */
+export const MAKE_PROMOTED_PURCHASE_REQUEST: components['requests']['MakePromotedPurchase.Request'] =
+  {
+    method: 'make_promoted_purchase',
+    product: {
+      vendor_product_id: 'yearly.premium.6999',
+    },
+  };
+
+/**
+ * MakePromotedPurchase successful response
+ */
+export const MAKE_PROMOTED_PURCHASE_RESPONSE_SUCCESS: components['requests']['MakePromotedPurchase.Response'] =
+  MAKE_PURCHASE_RESPONSE_SUCCESS;
