@@ -44,16 +44,45 @@ function declaredSources(targetName) {
   return [...list.matchAll(/"([^"]+)"/g)].map((m) => m[1]).sort();
 }
 
+/**
+ * The AdaptySDK-iOS pin of one file, as a comparable `<kind> <value>` string.
+ *
+ * Both files are searched only after the dependency URL, so unrelated keys elsewhere
+ * cannot be mistaken for the pin. The two syntaxes are matched form by form and
+ * normalized onto the same kind names, so a release pin (`exact:` /
+ * `kind: 'exactVersion'`) and a temporary one (`branch:`, `revision:`) are both
+ * readable — and comparable across the two files.
+ */
+function pinOf(source, url, forms) {
+  const afterUrl = source.split(url)[1];
+  expect(afterUrl).toBeDefined();
+  const found = forms
+    .map(([pattern, kind]) => [afterUrl.match(pattern), kind])
+    .filter(([match]) => match !== null)
+    .sort(([a], [b]) => a.index - b.index);
+  expect(found.length).toBeGreaterThan(0);
+  const [match, kind] = found[0];
+  return `${kind} ${match[1]}`;
+}
+
 describe('AdaptySDK-iOS pin', () => {
   // CocoaPods reads only the podspec and SwiftPM only the manifest, so a bump that
   // touches one ships a different native SDK to each half of the userbase — and nothing
   // fails at build time, because the JS layer calls AdaptyPlugin by method name.
-  it('is the same version in Package.swift and the podspec', () => {
-    const manifestPin = MANIFEST.match(/exact:\s*"([\d.]+)"/);
-    const podspecPin = PODSPEC.match(/kind:\s*'exactVersion',\s*version:\s*'([\d.]+)'/);
-    expect(manifestPin).not.toBeNull();
-    expect(podspecPin).not.toBeNull();
-    expect(manifestPin[1]).toBe(podspecPin[1]);
+  it('is the same in Package.swift and the podspec', () => {
+    const manifestPin = pinOf(MANIFEST, 'AdaptySDK-iOS.git', [
+      [/exact:\s*"([^"]+)"/, 'exactVersion'],
+      [/branch:\s*"([^"]+)"/, 'branch'],
+      [/revision:\s*"([^"]+)"/, 'revision'],
+      [/from:\s*"([^"]+)"/, 'upToNextMajorVersion'],
+    ]);
+    const podspecPin = pinOf(PODSPEC, "AdaptySDK-iOS.git'", [
+      [/kind:\s*'exactVersion',\s*version:\s*'([^']+)'/, 'exactVersion'],
+      [/kind:\s*'branch',\s*branch:\s*'([^']+)'/, 'branch'],
+      [/kind:\s*'revision',\s*revision:\s*'([^']+)'/, 'revision'],
+      [/kind:\s*'upToNextMajorVersion',\s*minimumVersion:\s*'([^']+)'/, 'upToNextMajorVersion'],
+    ]);
+    expect(manifestPin).toBe(podspecPin);
   });
 });
 
