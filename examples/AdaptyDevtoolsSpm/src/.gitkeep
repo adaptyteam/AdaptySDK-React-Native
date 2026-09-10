@@ -1,0 +1,3 @@
+This directory is generated: `yarn sync-src` mirrors examples/AdaptyDevtools/src into it.
+Never edit the files here — edit examples/AdaptyDevtools/src, the single source of truth.
+Only this file is committed; see ../.gitignore and ../README.md.

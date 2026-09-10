@@ -1,6 +1,9 @@
 name: PR Validation
 
 on:
+  # The Run workflow button only appears once this trigger exists on the default branch.
+  # On a manual run auto-assign-reviewers skips itself — it is gated on the pull_request event.
+  workflow_dispatch:
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_call:  # Allow this workflow to be called by other workflows
@@ -8,6 +11,7 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     name: Setup
     outputs:
       cache-hit: ${{ steps.cache-node-modules.outputs.cache-hit }}
@@ -18,7 +22,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '20'
+        node-version: '24'
 
     - name: Cache node_modules
       uses: actions/cache@v5
@@ -35,6 +39,7 @@ jobs:
 
   validate-pr:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     needs: setup
     strategy:
       fail-fast: false
@@ -53,7 +58,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '20'
+        node-version: '24'
 
     - name: Restore node_modules cache
       uses: actions/cache/restore@v5
@@ -153,7 +158,8 @@ jobs:
 
   build-ios:
     runs-on: macos-26
-    name: iOS Build
+    timeout-minutes: 30
+    name: iOS Build (CocoaPods, Debug)
     needs: validate-pr
 
     steps:
@@ -247,6 +253,7 @@ jobs:
 
   auto-assign-reviewers:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     name: Auto-assign reviewers
     if: github.event_name == 'pull_request' && github.event.action == 'opened'
 

@@ -56,15 +56,8 @@ react {
 
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
- *
- * Read from a Gradle property so CI can build the minified release without changing the default:
- *   ./gradlew assembleRelease -PenableProguardInReleaseBuilds=true
- * R8 renames and strips by static reachability, which is exactly what the React Native bridge
- * (methods called from JS by name) and Adapty's Gson-backed models cannot survive unprotected —
- * so this is the configuration that proves the shipped `-keep` rules are enough.
  */
-def enableProguardInReleaseBuilds =
-    (project.findProperty("enableProguardInReleaseBuilds") ?: "false").toBoolean()
+def enableProguardInReleaseBuilds = false
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -84,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.adaptyrnsdkexample"
+    namespace "com.adaptydevtoolsspm"
     defaultConfig {
-        applicationId "com.adaptyrnsdkexample"
+        applicationId "com.adaptydevtoolsspm"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -109,7 +102,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 }
