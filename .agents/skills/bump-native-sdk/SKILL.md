@@ -109,25 +109,37 @@ It must show `"version" : "<VERSION>"` and **no** `"branch"` key. `Package.resol
 
 ### iOS: the SwiftPM path
 
-`examples/AdaptyDevtools` covers CocoaPods only — it never reads `Package.swift`, so it
-cannot catch a manifest left behind. The SwiftPM integration is exercised by the `rn-spm`
-app in the devtools repo (`adapty-react-native-devtools`), which installs the local pack
-and runs React Native's autolinking:
+`examples/AdaptyDevtools` covers CocoaPods only — it never reads `Package.swift`. The SwiftPM
+integration is exercised by `examples/AdaptyDevtoolsSpm`, and by the `build-ios-spm` job in
+`.github/workflows/ios-builds.yml` (manual, PRs into `master`, and pushes to `master`). Locally:
 
 ```bash
-cd <devtools-repo>
-yarn update-sdk-full:rn-spm
-cd rn-spm/ios && xcodebuild -project rnSpm.xcodeproj -scheme rnSpm \
+cd examples/AdaptyDevtoolsSpm
+yarn update-sdk-full          # install the local pack
+yarn update-native-modules    # `npx react-native spm` — MANDATORY, see below
+xcodebuild -project ios/AdaptyDevtoolsSpm.xcodeproj -scheme AdaptyDevtoolsSpm \
   -configuration Debug -sdk iphonesimulator \
-  -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DD build
+  -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build/DD \
+  -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO build
 ```
 
-Then confirm the version SwiftPM actually resolved, which is the manifest's pin and not the
+`update-native-modules` cannot be skipped: the in-build `Sync SPM Autolinking` phase runs after
+Xcode has resolved the package graph, so a build started right after the pack was reinstalled
+**succeeds while silently omitting the SDK**. That also means a green build proves nothing on its
+own — verify the module is linked and which native SDK commit was actually resolved, not the
 podspec's:
 
 ```bash
-grep -A4 'AdaptySDK-iOS' rn-spm/ios/build/DD/SourcePackages/Package.resolved
+nm ios/build/DD/Build/Products/Debug-iphonesimulator/AdaptyDevtoolsSpm.app/AdaptyDevtoolsSpm.debug.dylib \
+  | grep -c RNAdapty
+# Package.resolved is JSON, and the pin's shape depends on its kind (`version` for an exact pin,
+# `branch` + `revision` for a branch one) — read it, do not count grep context lines.
+# (`require` would not work — the file has no .json extension, so node would parse it as JS.)
+node -e 'const f="ios/AdaptyDevtoolsSpm.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved";const p=JSON.parse(require("fs").readFileSync(f,"utf8")).pins.find(x=>/adaptysdk-ios/i.test(x.identity));console.log(p?p.state:"ABSENT — the build did not consume Package.swift")'
 ```
+
+The `build-ios-spm` job runs the same two checks, so a bump that only edits one of the two files, or
+a manifest the build never consumed, fails there too.
 
 ## Commit
 
