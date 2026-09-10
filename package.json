@@ -69,7 +69,8 @@
     "publish-git": "./scripts/git-package_publish.zsh",
     "prepack": "yarn update-versions && yarn format-check && yarn tsc && yarn lint && yarn test && yarn build",
     "prepublishOnly": "yarn prepack",
-    "doc-gen": "typedoc --out docs src/__docs__.ts"
+    "doc-gen": "typedoc --out docs src/__docs__.ts",
+    "doc-deploy": "npx --yes netlify-cli@23.15.1 deploy --dir=docs --prod"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
