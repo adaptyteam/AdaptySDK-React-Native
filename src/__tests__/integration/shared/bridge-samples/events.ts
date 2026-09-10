@@ -36,3 +36,23 @@ export const EVENT_DID_LOAD_LATEST_PROFILE: components['events']['Event.DidLoadL
       non_subscriptions: {},
     },
   };
+
+/**
+ * Event.DidReceivePromotedPurchase — App Store promoted product.
+ */
+export const EVENT_DID_RECEIVE_PROMOTED_PURCHASE: components['events']['Event.DidReceivePromotedPurchase'] =
+  {
+    id: 'did_receive_promoted_purchase',
+    product: {
+      vendor_product_id: 'yearly.premium.6999',
+      localized_description: 'Get premium features with this plan',
+      localized_title: 'Yearly Premium Plan',
+      is_family_shareable: false,
+      price: {
+        amount: 69.99,
+        currency_code: 'USD',
+        currency_symbol: '$',
+        localized_string: '$69.99',
+      },
+    },
+  };

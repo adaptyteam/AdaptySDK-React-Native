@@ -1,7 +1,14 @@
 //file:noinspection SpellCheckingInspection
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+// AGP 9 ships built-in Kotlin support and registers the `kotlin` extension
+// itself. Applying the Kotlin plugin on top of it fails configuration with
+// "Cannot add extension with name 'kotlin'". Only apply it when nothing has
+// registered that extension yet.
+if (project.extensions.findByName('kotlin') == null) {
+    apply plugin: 'kotlin-android'
+}
+
 apply plugin: 'maven-publish'
 
 // Expose package.json version to gradle
@@ -110,10 +117,10 @@ def getExtOrDefault(name) {
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
-    implementation platform('io.adapty:adapty-bom:4.0.2')
+    implementation platform('io.adapty:adapty-bom:4.1.1')
     implementation 'io.adapty:android-sdk'
     implementation 'io.adapty:android-ui'
-    implementation 'io.adapty.internal:crossplatform:4.0.4'
+    implementation 'io.adapty.internal:crossplatform:4.1.4'
 
     // Compatible with older and newer RN
     //noinspection GradleDynamicVersion

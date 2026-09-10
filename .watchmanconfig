@@ -2,7 +2,6 @@
   "ignore_dirs": [
     ".git",
     "node_modules",
-    ".vscode",
-    "scripts"
+    ".vscode"
   ]
 }

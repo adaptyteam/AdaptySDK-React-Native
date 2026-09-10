@@ -13,6 +13,7 @@ import { resetBridge } from '@/bridge';
 import {
   createNativeModuleMock,
   expectNativeCall,
+  extractNativeRequest,
   resetNativeModuleMock,
   type MockNativeModule,
 } from '../shared/native-module-mock.utils';
@@ -22,8 +23,10 @@ import {
   MAKE_PURCHASE_REQUEST,
   MAKE_PURCHASE_RESPONSE_SUCCESS,
   MAKE_PURCHASE_RESPONSE_CANCELLED,
+  MAKE_PROMOTED_PURCHASE_RESPONSE_SUCCESS,
   VIP_PRODUCT,
 } from '../shared/bridge-samples';
+import type { AdaptyPromotedProduct } from '@/types';
 describe('Adapty - MakePurchase Bridge Integration', () => {
   let adapty: Adapty;
   let nativeMock: MockNativeModule;
@@ -85,6 +88,102 @@ describe('Adapty - MakePurchase Bridge Integration', () => {
       // Verify cancelled result type
       expect(result).toBeDefined();
       expect(result.type).toBe('user_cancelled');
+    });
+  });
+
+  describe('makePromotedPurchase', () => {
+    it('should send MakePromotedPurchase.Request with the vendor product id', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        make_promoted_purchase: MAKE_PROMOTED_PURCHASE_RESPONSE_SUCCESS,
+      });
+
+      adapty = new Adapty();
+      await adapty.activate('test_key');
+      // extractNativeRequest defaults to callIndex 0, which is the activate
+      // call — clear it so index 0 is the method under test.
+      nativeMock.handler.mockClear();
+
+      const product: AdaptyPromotedProduct = {
+        vendorProductId: 'yearly.premium.6999',
+        localizedDescription: 'Get premium features with this plan',
+        localizedTitle: 'Yearly Premium Plan',
+      };
+
+      await adapty.makePromotedPurchase(product);
+
+      const request = extractNativeRequest<
+        components['requests']['MakePromotedPurchase.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.method).toBe('make_promoted_purchase');
+      expect(request.product.vendor_product_id).toBe('yearly.premium.6999');
+    });
+
+    it('should forward payload_data', async () => {
+      // payload_data is how the native side re-identifies the product it handed
+      // us; dropping it in getInput would break the purchase with no type error.
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        make_promoted_purchase: MAKE_PROMOTED_PURCHASE_RESPONSE_SUCCESS,
+      });
+
+      adapty = new Adapty();
+      await adapty.activate('test_key');
+      nativeMock.handler.mockClear();
+
+      await adapty.makePromotedPurchase({
+        vendorProductId: 'yearly.premium.6999',
+        localizedDescription: 'Get premium features with this plan',
+        localizedTitle: 'Yearly Premium Plan',
+        payloadData: 'examplePayloadData',
+      });
+
+      const request = extractNativeRequest<
+        components['requests']['MakePromotedPurchase.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.product.payload_data).toBe('examplePayloadData');
+    });
+
+    it('should forward the subscription offer identifier nested under subscription.offer', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        make_promoted_purchase: MAKE_PROMOTED_PURCHASE_RESPONSE_SUCCESS,
+      });
+
+      adapty = new Adapty();
+      await adapty.activate('test_key');
+      nativeMock.handler.mockClear();
+
+      const product: AdaptyPromotedProduct = {
+        vendorProductId: 'yearly.premium.6999',
+        localizedDescription: 'Get premium features with this plan',
+        localizedTitle: 'Yearly Premium Plan',
+        subscription: {
+          subscriptionPeriod: { unit: 'year', numberOfUnits: 1 },
+          offer: {
+            identifier: { type: 'introductory', id: 'test_intro_offer' },
+            phases: [],
+          },
+        },
+      };
+
+      await adapty.makePromotedPurchase(product);
+
+      const request = extractNativeRequest<
+        components['requests']['MakePromotedPurchase.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(
+        request.product.subscription?.offer?.offer_identifier,
+      ).toStrictEqual({ type: 'introductory', id: 'test_intro_offer' });
     });
   });
 });

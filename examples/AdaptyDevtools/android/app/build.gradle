@@ -56,8 +56,15 @@ react {
 
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
+ *
+ * Read from a Gradle property so CI can build the minified release without changing the default:
+ *   ./gradlew assembleRelease -PenableProguardInReleaseBuilds=true
+ * R8 renames and strips by static reachability, which is exactly what the React Native bridge
+ * (methods called from JS by name) and Adapty's Gson-backed models cannot survive unprotected —
+ * so this is the configuration that proves the shipped `-keep` rules are enough.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds =
+    (project.findProperty("enableProguardInReleaseBuilds") ?: "false").toBoolean()
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
