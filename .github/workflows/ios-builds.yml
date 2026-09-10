@@ -1,0 +1,280 @@
+name: iOS Builds (full)
+
+# The long iOS builds pr-validation.yml cannot afford: the SwiftPM path end to end
+# (`npx react-native spm`) in Debug and Release, plus Release on CocoaPods — the configuration
+# that surfaces link errors Debug does not. Both SwiftPM builds use the default trait set; the
+# Kids Mode variant belongs to kids-mode-ios.yml. `master` is the main branch (there is no
+# `main`), and PRs into it are the release PRs — hence no paths filter.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+concurrency:
+  group: ios-builds-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ios-spm:
+    runs-on: macos-26
+    name: iOS Build (SwiftPM, Debug + Release)
+    timeout-minutes: 60   # two cold builds; observed ~17 min for Debug alone
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+
+    # Package.swift uses swift-tools-version 6.2 and package traits: Xcode 26+ is required.
+    - name: Select Xcode
+      uses: maxim-lobanov/setup-xcode@v1.7.0
+      with:
+        xcode-version: '26.6'
+
+    - name: Cache node_modules
+      uses: actions/cache@v5
+      id: cache-node-modules
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: yarn install --frozen-lockfile --prefer-offline
+
+    - name: Cache example app node_modules
+      uses: actions/cache@v5
+      id: cache-example-node-modules
+      with:
+        path: examples/AdaptyDevtoolsSpm/node_modules
+        key: example-spm-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtoolsSpm/yarn.lock', 'examples/AdaptyDevtoolsSpm/patches/*.patch') }}
+        restore-keys: |
+          example-spm-node-modules-${{ runner.os }}-
+
+    # `yarn install` runs postinstall -> patch-package, restoring the scaffolded manifests.
+    - name: Install example app dependencies
+      if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn install --frozen-lockfile
+
+    # src/ mirrors examples/AdaptyDevtools/src and is not committed. postinstall syncs it, but
+    # the install step above is skipped on a cache hit.
+    - name: Sync UI sources from AdaptyDevtools
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn sync-src
+
+    - name: Build package and install
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn update-sdk-full
+
+    # The SwiftPM `pod install`. Mandatory: the in-build sync phase runs after Xcode resolved the
+    # package graph, so without it the build succeeds while silently omitting react-native-adapty.
+    - name: Run SwiftPM autolinking
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn update-native-modules
+
+    # One second here instead of ~40 minutes of builds: the failure this job exists for is the
+    # aggregator not listing our package at resolve time.
+    - name: Verify autolinking picked up react-native-adapty
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        AGG=ios/build/generated/autolinking/Package.swift
+        LINK=ios/build/generated/autolinking/libs/ReactNativeAdapty
+        if ! grep -q ReactNativeAdapty "$AGG"; then
+          echo "FATAL: $AGG does not reference ReactNativeAdapty — autolinking dropped the SDK." >&2
+          exit 1
+        fi
+        if [ ! -L "$LINK" ]; then
+          echo "FATAL: $LINK is not a symlink into node_modules." >&2
+          exit 1
+        fi
+        echo "autolinking: ReactNativeAdapty -> $(readlink "$LINK")"
+
+    # Clones only, keyed on the file that pins them. RN's prebuilt xcframeworks are deliberately
+    # not cached: `react-native spm` above already downloaded them, and the 1.6 GB tree would eat
+    # the repo's 10 GB budget and evict caches that save minutes.
+    - name: Cache SwiftPM clones
+      uses: actions/cache@v5
+      with:
+        path: ~/Library/Caches/org.swift.swiftpm
+        key: swiftpm-clones-${{ runner.os }}-${{ hashFiles('Package.swift') }}
+        restore-keys: |
+          swiftpm-clones-${{ runner.os }}-
+
+    - name: Run TypeScript check
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        yarn tsc
+
+    - name: Run iOS build (Debug, simulator)
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        xcodebuild -project ios/AdaptyDevtoolsSpm.xcodeproj \
+          -scheme AdaptyDevtoolsSpm \
+          -configuration Debug \
+          -sdk iphonesimulator \
+          -destination "generic/platform=iOS Simulator" \
+          -derivedDataPath ios/build/DD \
+          -clonedSourcePackagesDirPath ios/build/SourcePackages \
+          -skipPackagePluginValidation \
+          ONLY_ACTIVE_ARCH=YES \
+          CODE_SIGNING_ALLOWED=NO \
+          build
+
+    # Release is what catches SwiftPM link errors — Debug does not.
+    - name: Run iOS build (Release, device, unsigned)
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        xcodebuild -project ios/AdaptyDevtoolsSpm.xcodeproj \
+          -scheme AdaptyDevtoolsSpm \
+          -configuration Release \
+          -sdk iphoneos \
+          -destination "generic/platform=iOS" \
+          -derivedDataPath ios/build/DD-release \
+          -clonedSourcePackagesDirPath ios/build/SourcePackages \
+          -skipPackagePluginValidation \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_REQUIRED=NO \
+          build
+
+    # Ground truth for the same failure: the step above proves intent, this one proves linkage.
+    # Defined symbols only — an undefined reference would mean a half-linked graph, not our code.
+    - name: Verify Adapty is linked
+      run: |
+        cd examples/AdaptyDevtoolsSpm
+        APP=ios/build/DD-release/Build/Products/Release-iphoneos/AdaptyDevtoolsSpm.app
+        if [ ! -d "$APP" ]; then
+          echo "FATAL: $APP not found — the Release build produced no app bundle." >&2
+          exit 1
+        fi
+        if ! NM_OUT=$(nm "$APP/AdaptyDevtoolsSpm"); then
+          echo "FATAL: nm failed on $APP/AdaptyDevtoolsSpm — cannot tell whether Adapty is linked." >&2
+          exit 1
+        fi
+        COUNT=$(printf '%s\n' "$NM_OUT" | grep -cE ' [TtDdBbSsRr] .*RNAdapty' || true)
+        echo "RNAdapty defined symbols in the Release stub: $COUNT"
+        if [ "$COUNT" -eq 0 ]; then
+          echo "FATAL: react-native-adapty is not linked into the Release build." >&2
+          exit 1
+        fi
+        # Which native SDK commit this green run actually built. Package.resolved is regenerated
+        # every run from the manifest SwiftPM was handed, so comparing the two would be circular —
+        # the manifest-vs-podspec check is a unit test (scripts/__tests__/package-manifest.test.js).
+        # Presence still discriminates "never resolved" from "resolved but not linked".
+        RESOLVED=ios/AdaptyDevtoolsSpm.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+        if [ ! -f "$RESOLVED" ]; then
+          echo "FATAL: $RESOLVED not found — the build resolved no package graph here." >&2
+          exit 1
+        fi
+        node -e 'const pins = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).pins || [];
+        const pin = pins.find((p) => /adaptysdk-ios/i.test(p.identity || ""));
+        if (!pin) {
+          console.error("FATAL: AdaptySDK-iOS absent from Package.resolved — our Package.swift was not in the graph.");
+          process.exit(1);
+        }
+        console.log("AdaptySDK-iOS resolved: " + JSON.stringify(pin.state));' "$RESOLVED"
+
+  build-ios-pods-release:
+    runs-on: macos-26
+    name: iOS Build (CocoaPods, Release)
+    timeout-minutes: 30   # one cold build plus `pod install --repo-update`
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+
+    - name: Select Xcode
+      uses: maxim-lobanov/setup-xcode@v1.7.0
+      with:
+        xcode-version: '26.6'
+
+    - name: Cache node_modules
+      uses: actions/cache@v5
+      id: cache-node-modules
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: yarn install --frozen-lockfile --prefer-offline
+
+    - name: Cache example app node_modules
+      uses: actions/cache@v5
+      id: cache-example-node-modules
+      with:
+        path: examples/AdaptyDevtools/node_modules
+        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
+        restore-keys: |
+          example-node-modules-${{ runner.os }}-
+
+    - name: Install example app dependencies
+      if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
+      run: |
+        cd examples/AdaptyDevtools
+        yarn install --frozen-lockfile
+
+    - name: Build package and install
+      run: |
+        cd examples/AdaptyDevtools
+        yarn update-sdk-full
+
+    - name: Cache CocoaPods
+      uses: actions/cache@v5
+      with:
+        path: |
+          examples/AdaptyDevtools/ios/Pods
+          ~/Library/Caches/CocoaPods
+          ~/.cocoapods
+        key: pods-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock', 'examples/AdaptyDevtools/node_modules/react-native-adapty/react-native-adapty-sdk.podspec', 'examples/AdaptyDevtools/node_modules/react-native-adapty/ios/**/*') }}
+        restore-keys: |
+          pods-${{ runner.os }}-
+
+    - name: Install CocoaPods
+      run: |
+        cd examples/AdaptyDevtools/ios
+        pod install --repo-update
+
+    # Separate from pr-validation's Debug DerivedData cache — a different configuration.
+    - name: Cache Xcode Derived Data
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          ~/Library/Caches/org.swift.swiftpm
+        key: xcode-derived-release-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/AdaptyRnSdkExample.xcodeproj/project.pbxproj', 'examples/AdaptyDevtools/ios/Podfile.lock') }}
+        restore-keys: |
+          xcode-derived-release-${{ runner.os }}-
+
+    - name: Run iOS build (Release, device, unsigned)
+      run: |
+        cd examples/AdaptyDevtools/ios
+        xcodebuild -workspace AdaptyRnSdkExample.xcworkspace \
+          -scheme AdaptyRnSdkExample \
+          -destination "generic/platform=iOS" \
+          -configuration Release \
+          -derivedDataPath $HOME/Library/Developer/Xcode/DerivedData \
+          -skipPackagePluginValidation \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_REQUIRED=NO \
+          build

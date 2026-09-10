@@ -1,0 +1,125 @@
+name: Android Builds (full)
+
+# The Android builds pr-validation.yml cannot afford: `assembleRelease` + `bundleRelease` for all
+# four ABIs with R8 on — what a customer ships to Google Play. R8 strips and renames by static
+# reachability, which the RN bridge (methods called from JS by name) and Adapty's Gson-backed
+# models must survive; Debug never catches that. The `-keep` rules arrive from
+# io.adapty:android-sdk's own proguard.txt, and this job proves they are sufficient.
+# No secrets: the example's release build type signs with the debug keystore. PRs into master are
+# the release PRs. examples/AdaptyDevtoolsSpm is not built here — SwiftPM is iOS-only.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+concurrency:
+  group: android-builds-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-android-release:
+    runs-on: ubuntu-24.04
+    name: Android Build (Release APK + AAB, R8)
+    timeout-minutes: 60
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    # Temurin 21 mirrors pr-validation's Android leg, whose caches this job shares; Node is 24
+    # here (that leg is still on 20). Safe to share: the Linux dependency tree has no
+    # ABI-bound artifacts — the only .node binary, fsevents, is darwin-only.
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+
+    - name: Setup Java
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Cache node_modules
+      uses: actions/cache@v5
+      id: cache-node-modules
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: yarn install --frozen-lockfile --prefer-offline
+
+    - name: Cache example app node_modules
+      uses: actions/cache@v5
+      id: cache-example-node-modules
+      with:
+        path: examples/AdaptyDevtools/node_modules
+        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
+        restore-keys: |
+          example-node-modules-${{ runner.os }}-
+
+    - name: Install example app dependencies
+      if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
+      run: |
+        cd examples/AdaptyDevtools
+        yarn install --frozen-lockfile
+
+    # Gradle compiles the SDK copy in the example's node_modules, so it must land there first.
+    - name: Build package and install
+      run: |
+        cd examples/AdaptyDevtools
+        yarn update-sdk-full
+
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          examples/AdaptyDevtools/android/.gradle
+        key: gradle-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/android/build.gradle', 'examples/AdaptyDevtools/android/app/build.gradle', 'examples/AdaptyDevtools/android/gradle.properties', 'examples/AdaptyDevtools/android/gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: |
+          gradle-${{ runner.os }}-
+
+    # One invocation for both tasks — they share the compilation and the R8 run. All four ABIs
+    # (the example's default), since this is the Play-shaped build.
+    - name: Run Android build (Release APK + AAB, R8 enabled)
+      run: |
+        cd examples/AdaptyDevtools/android
+        ./gradlew assembleRelease bundleRelease -PenableProguardInReleaseBuilds=true
+
+    # A green minified build is a weak signal: R8 can strip Adapty and still succeed, breaking
+    # only at runtime in a customer's release app — so read R8's own reports. The pattern needs
+    # the trailing dot in `com.adapty.`: without it the example's own package matches, and its
+    # legitimately stripped BuildConfig/R classes would report a false failure.
+    - name: Verify R8 kept the Adapty classes
+      run: |
+        cd examples/AdaptyDevtools/android/app/build/outputs/mapping/release
+        KEPT=$(grep -c '^com\.adapty\.' mapping.txt || true)
+        RENAMED=$(grep '^com\.adapty\.' mapping.txt | grep -vc ' -> com\.adapty\.' || true)
+        REMOVED=$(grep -c '^com\.adapty\.' usage.txt || true)
+        BILLING=$(grep -c '^com\.android\.billingclient\.' mapping.txt || true)
+        echo "com.adapty.* in mapping: $KEPT (renamed: $RENAMED, removed: $REMOVED)"
+        echo "com.android.billingclient.* in mapping: $BILLING"
+        # Sentinel: no Adapty classes at all would make the other two numbers vacuous.
+        if [ "$KEPT" -eq 0 ]; then
+          echo "FATAL: no com.adapty.* classes in R8's mapping — the SDK was not on the classpath." >&2
+          exit 1
+        fi
+        if [ "$RENAMED" -ne 0 ]; then
+          echo "FATAL: R8 renamed $RENAMED com.adapty.* entries — the keep rules did not reach it." >&2
+          grep '^com\.adapty\.' mapping.txt | grep -v ' -> com\.adapty\.' | head -20 >&2
+          exit 1
+        fi
+        if [ "$REMOVED" -ne 0 ]; then
+          echo "FATAL: R8 stripped $REMOVED com.adapty.* entries." >&2
+          grep '^com\.adapty\.' usage.txt | head -20 >&2
+          exit 1
+        fi
