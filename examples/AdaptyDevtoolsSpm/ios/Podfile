@@ -1,0 +1,12 @@
+# React Native is integrated via Swift Package Manager (`npx react-native spm`),
+# not CocoaPods. This Podfile is kept on purpose as a marker only: the RN CLI
+# resolves `project.ios.sourceDir` from the Podfile location
+# (@react-native-community/cli-config-apple → getProjectConfig returns null
+# without it), and autolinking fails otherwise.
+#
+# Do not add React Native pods here and do not run `pod install`.
+
+platform :ios, '15.1'
+
+target 'AdaptyDevtoolsSpm' do
+end

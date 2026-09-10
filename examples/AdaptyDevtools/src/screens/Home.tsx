@@ -17,7 +17,6 @@ import {
   Gender,
 } from 'react-native-adapty';
 
-import { colors } from '../components/Colors';
 import { Group } from '../components/Group';
 import { Line } from '../components/Line';
 import { LineButton } from '../components/LineButton';
@@ -93,7 +92,8 @@ const Home: React.FC = () => {
 
   return (
     <View style={{ height, flex: 1 }}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.primary10} />
+      {/* RN 0.87 removed the Android-only `backgroundColor` prop from StatusBar. */}
+      <StatusBar barStyle="dark-content" />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View style={{ height: 20 }} />
 
