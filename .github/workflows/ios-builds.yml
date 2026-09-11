@@ -1,17 +1,46 @@
 name: iOS Builds (full)
 
-# The long iOS builds pr-validation.yml cannot afford: the SwiftPM path end to end
-# (`npx react-native spm`) in Debug and Release, plus Release on CocoaPods — the configuration
-# that surfaces link errors Debug does not. Both SwiftPM builds use the default trait set; the
-# Kids Mode variant belongs to kids-mode-ios.yml. `master` is the main branch (there is no
-# `main`), and PRs into it are the release PRs — hence no paths filter.
+# The long iOS builds pr-validation.yml cannot afford: SwiftPM end to end (`npx react-native
+# spm`) in Debug and Release, plus Release on CocoaPods, where the link errors Debug hides
+# surface. Default trait set only — the Kids Mode variant lives in kids-mode-ios.yml. PRs into
+# `master` (there is no `main`) are the release PRs.
 
 on:
   workflow_dispatch:
   pull_request:
     branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'ios/**'
+      - 'Package.swift'
+      - '*.podspec'
+      - 'plugin/**'
+      - 'tsconfig.json'
+      - 'tsconfig.build.json'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'scripts/**'
+      - '!scripts/__tests__/**'   # jest-only, run by pr-validation
+      - 'examples/AdaptyDevtools/**'
+      - 'examples/AdaptyDevtoolsSpm/**'
+      - '.github/workflows/ios-builds.yml'
   push:
     branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'ios/**'
+      - 'Package.swift'
+      - '*.podspec'
+      - 'plugin/**'
+      - 'tsconfig.json'
+      - 'tsconfig.build.json'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'scripts/**'
+      - '!scripts/__tests__/**'   # jest-only, run by pr-validation
+      - 'examples/AdaptyDevtools/**'
+      - 'examples/AdaptyDevtoolsSpm/**'
+      - '.github/workflows/ios-builds.yml'
 
 concurrency:
   group: ios-builds-${{ github.event_name == 'push' && github.sha || github.ref }}

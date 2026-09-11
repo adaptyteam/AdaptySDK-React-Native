@@ -75,14 +75,17 @@ Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm
 
 ### iOS requirements (since 4.0.0)
 
-- **React Native ≥ 0.75** — required for the `spm_dependency` podspec helper that pulls the native `Adapty`, `AdaptyUI`, and `AdaptyPlugin` SDKs through Swift Package Manager.
-- **Dynamic frameworks** — your `ios/Podfile` must declare:
+- **CocoaPods (default)** — the native `Adapty` iOS SDK is pulled through Swift Package Manager by the `spm_dependency` podspec helper, which requires:
 
-  ```ruby
-  use_frameworks! :linkage => :dynamic
-  ```
+  - **React Native ≥ 0.75** — earlier versions don't ship the `spm_dependency` helper.
+  - **Dynamic frameworks** — your `ios/Podfile` must declare:
 
-  `spm_dependency` only works with dynamic frameworks. If you currently use the default static linkage you'll need to switch — be aware this can conflict with libraries that don't yet support modular headers (see the [Callstack write-up](https://www.callstack.com/blog/integrating-swift-package-manager-with-react-native-libraries)) and is incompatible with Flipper.
+    ```ruby
+    use_frameworks! :linkage => :dynamic
+    ```
+
+    If you currently use the default static linkage you'll need to switch — be aware this can conflict with libraries that don't yet support modular headers (see the [Callstack write-up](https://www.callstack.com/blog/integrating-swift-package-manager-with-react-native-libraries)) and is incompatible with Flipper.
+- **React Native ≥ 0.87 (optional)** — you can drop CocoaPods entirely and use React Native's [experimental SwiftPM integration](https://reactnative.dev/blog/2026/08/11/react-native-0.87#experimental-swift-package-manager-support-for-ios). The RN SDK ships a `Package.swift`.
 
 ## Integrate IAPs within a few hours without server coding
 
@@ -140,7 +143,7 @@ We provide several example applications with increasing complexity:
 - **[ExpoGoWebMock](./examples/ExpoGoWebMock/)** (Expo Go / Expo Web) – Easiest to run (works in browser with mock mode, no Adapty key required). Demonstrates mock data usage for Expo Go/Web. Includes both custom paywall and Adapty Paywall Builder.
 - **[FocusJournalExpo](./examples/FocusJournalExpo/)** (Expo) – Simple app with premium features using Adapty Paywall Builder. Includes video guide.
 - **[AdaptyDevtools](./examples/AdaptyDevtools/)** (React Native) – DevTools and bug reporting tool.
-- **[AdaptyDevtoolsSpm](./examples/AdaptyDevtoolsSpm/)** (React Native) – The same DevTools UI on React Native's experimental Swift Package Manager integration (`npx react-native spm`) instead of CocoaPods.
+- **[AdaptyDevtoolsSpm](./examples/AdaptyDevtoolsSpm/)** (React Native) – Same DevTools app, but on Swift Package Manager instead of CocoaPods.
 
 📹 **Watch our video guide** for step-by-step integration with the Focus Journal Expo example:
 
