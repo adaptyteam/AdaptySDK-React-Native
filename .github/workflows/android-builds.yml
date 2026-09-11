@@ -1,19 +1,42 @@
 name: Android Builds (full)
 
-# The Android builds pr-validation.yml cannot afford: `assembleRelease` + `bundleRelease` for all
-# four ABIs with R8 on — what a customer ships to Google Play. R8 strips and renames by static
-# reachability, which the RN bridge (methods called from JS by name) and Adapty's Gson-backed
-# models must survive; Debug never catches that. The `-keep` rules arrive from
-# io.adapty:android-sdk's own proguard.txt, and this job proves they are sufficient.
-# No secrets: the example's release build type signs with the debug keystore. PRs into master are
-# the release PRs. examples/AdaptyDevtoolsSpm is not built here — SwiftPM is iOS-only.
+# The Android builds pr-validation.yml cannot afford: assembleRelease + bundleRelease for all
+# four ABIs with R8 on — what a customer ships to Play. R8 strips by static reachability, which
+# the RN bridge and Adapty's Gson models must survive on io.adapty:android-sdk's own -keep
+# rules; Debug never catches that. Signs with the debug keystore, so no secrets.
 
 on:
   workflow_dispatch:
   pull_request:
     branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'android/**'
+      - 'plugin/**'
+      - 'tsconfig.json'
+      - 'tsconfig.build.json'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'scripts/**'
+      - '!scripts/__tests__/**'   # jest-only, run by pr-validation
+      - 'examples/AdaptyDevtools/**'
+      - '!examples/AdaptyDevtools/ios/**'
+      - '.github/workflows/android-builds.yml'
   push:
     branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'android/**'
+      - 'plugin/**'
+      - 'tsconfig.json'
+      - 'tsconfig.build.json'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'scripts/**'
+      - '!scripts/__tests__/**'   # jest-only, run by pr-validation
+      - 'examples/AdaptyDevtools/**'
+      - '!examples/AdaptyDevtools/ios/**'
+      - '.github/workflows/android-builds.yml'
 
 concurrency:
   group: android-builds-${{ github.event_name == 'push' && github.sha || github.ref }}
