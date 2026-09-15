@@ -4,6 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_call:  # Allow this workflow to be called by other workflows
+  workflow_dispatch:  # Allow manual runs from the Actions tab
 
 jobs:
   setup:
