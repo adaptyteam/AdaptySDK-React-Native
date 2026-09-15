@@ -209,9 +209,9 @@ jobs:
           examples/AdaptyDevtools/ios/Pods
           ~/Library/Caches/CocoaPods
           ~/.cocoapods
-        key: pods-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock', 'examples/AdaptyDevtools/node_modules/react-native-adapty/react-native-adapty-sdk.podspec', 'examples/AdaptyDevtools/node_modules/react-native-adapty/ios/**/*') }}
+        key: pods-debug-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}-${{ hashFiles('examples/AdaptyDevtools/node_modules/react-native-adapty/react-native-adapty-sdk.podspec', 'examples/AdaptyDevtools/node_modules/react-native-adapty/ios/**/*') }}
         restore-keys: |
-          pods-${{ runner.os }}-
+          pods-debug-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}-
 
     - name: Install CocoaPods
       run: |
@@ -225,9 +225,9 @@ jobs:
         path: |
           ~/Library/Developer/Xcode/DerivedData
           ~/Library/Caches/org.swift.swiftpm
-        key: xcode-derived-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/AdaptyRnSdkExample.xcodeproj/project.pbxproj', 'examples/AdaptyDevtools/ios/Podfile.lock') }}
+        key: xcode-derived-debug-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}-${{ hashFiles('examples/AdaptyDevtools/ios/AdaptyRnSdkExample.xcodeproj/project.pbxproj') }}
         restore-keys: |
-          xcode-derived-${{ runner.os }}-
+          xcode-derived-debug-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}-
 
     - name: Run iOS build (debug, no signing)
       run: |
