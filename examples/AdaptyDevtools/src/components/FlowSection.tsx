@@ -24,6 +24,7 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
   const [flow, setFlow] = useState<AdaptyFlow | null>(null);
   const [products, setProducts] = useState<AdaptyPaywallProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [flowView, setFlowView] = useState<FlowViewController | null>(null);
 
   const fetchFlow = async () => {
     if (isLoading) return;
@@ -83,6 +84,7 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
       });
 
       console.log('[ADAPTY] Flow view created successfully');
+      setFlowView(view);
     } catch (error: any) {
       console.log('[ADAPTY] Failed to create flow view:', error.message);
       if (error instanceof AdaptyError) {
@@ -100,6 +102,9 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
     view.setEventHandlers({
       onCloseButtonPress() {
         console.log('[ADAPTY]: Close button pressed');
+        // returning true dismisses with the default destroy: true, so the
+        // controller is dead — drop it
+        setFlowView(null);
         return true;
       },
       onAndroidSystemBack() {
@@ -214,6 +219,52 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
     }
   };
 
+  const presentExistingFlow = async () => {
+    if (!flowView) {
+      Alert.alert('Error', 'No flow view. Present the flow first.');
+      return;
+    }
+
+    try {
+      await flowView.present();
+      console.log('[ADAPTY] Existing flow presented');
+    } catch (error: any) {
+      console.log('[ADAPTY] Failed to present existing flow:', error.message);
+      Alert.alert('Failed to present existing flow', error.message);
+    }
+  };
+
+  const dismissFlowKeepingView = async () => {
+    if (!flowView) {
+      Alert.alert('Error', 'No flow view to dismiss.');
+      return;
+    }
+
+    try {
+      await flowView.dismiss({ destroy: false });
+      console.log('[ADAPTY] Flow dismissed, view kept alive');
+    } catch (error: any) {
+      console.log('[ADAPTY] Failed to dismiss flow:', error.message);
+      Alert.alert('Failed to dismiss flow', error.message);
+    }
+  };
+
+  const destroyFlowView = async () => {
+    if (!flowView) {
+      Alert.alert('Error', 'No flow view to destroy.');
+      return;
+    }
+
+    try {
+      await flowView.destroy();
+      setFlowView(null);
+      console.log('[ADAPTY] Flow view destroyed');
+    } catch (error: any) {
+      console.log('[ADAPTY] Failed to destroy flow view:', error.message);
+      Alert.alert('Failed to destroy flow view', error.message);
+    }
+  };
+
   const renderFlowInfo = () => {
     if (!flow) return null;
 
@@ -266,10 +317,31 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
 
       <LineButton
         text="Present Flow"
-        bordered={!!flow}
-        bottomRadius={!flow}
+        bordered
         disabled={!flow}
         onPress={presentFlow}
+      />
+
+      <LineButton
+        text="Present Existing"
+        bordered
+        disabled={!flowView}
+        onPress={presentExistingFlow}
+      />
+
+      <LineButton
+        text="Dismiss (keep alive)"
+        bordered
+        disabled={!flowView}
+        onPress={dismissFlowKeepingView}
+      />
+
+      <LineButton
+        text="Destroy View"
+        bordered={!!flow}
+        bottomRadius={!flow}
+        disabled={!flowView}
+        onPress={destroyFlowView}
       />
 
       {renderFlowInfo()}

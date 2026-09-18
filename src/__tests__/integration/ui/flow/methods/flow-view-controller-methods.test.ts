@@ -14,6 +14,7 @@ import {
   ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE,
   ADAPTY_UI_PRESENT_FLOW_VIEW_RESPONSE,
   ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE,
+  ADAPTY_UI_DESTROY_FLOW_VIEW_RESPONSE,
   ADAPTY_UI_SHOW_DIALOG_RESPONSE_PRIMARY,
 } from '../../../shared/bridge-samples';
 import { Adapty } from '@/adapty-handler';
@@ -44,6 +45,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       adapty_ui_create_flow_view: ADAPTY_UI_CREATE_FLOW_VIEW_RESPONSE,
       adapty_ui_present_flow_view: ADAPTY_UI_PRESENT_FLOW_VIEW_RESPONSE,
       adapty_ui_dismiss_flow_view: ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE,
+      adapty_ui_destroy_flow_view: ADAPTY_UI_DESTROY_FLOW_VIEW_RESPONSE,
       adapty_ui_show_dialog: ADAPTY_UI_SHOW_DIALOG_RESPONSE_PRIMARY,
     });
 
@@ -189,6 +191,39 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       expect(request.method).toBe('adapty_ui_dismiss_flow_view');
       expect(request.id).toBe('mock_flow_view_123');
       expect(request.destroy).toBe(true);
+    });
+
+    it('should encode destroy: false when the view is kept alive', async () => {
+      const view = await createFlowView(flow);
+      nativeMock.handler.mockClear();
+
+      await view.dismiss({ destroy: false });
+
+      const request = extractNativeRequest<
+        components['requests']['AdaptyUIDismissFlowView.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.destroy).toBe(false);
+    });
+  });
+
+  describe('destroy', () => {
+    it('should send AdaptyUIDestroyFlowView.Request', async () => {
+      const view = await createFlowView(flow);
+      nativeMock.handler.mockClear();
+
+      await view.destroy();
+
+      const request = extractNativeRequest<
+        components['requests']['AdaptyUIDestroyFlowView.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.method).toBe('adapty_ui_destroy_flow_view');
+      expect(request.id).toBe('mock_flow_view_123');
     });
   });
 
