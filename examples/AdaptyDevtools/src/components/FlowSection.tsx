@@ -24,6 +24,7 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
   const [flow, setFlow] = useState<AdaptyFlow | null>(null);
   const [products, setProducts] = useState<AdaptyPaywallProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  // Kept even after the native view is released by destroy() to test SDK's own error,
   const [flowView, setFlowView] = useState<FlowViewController | null>(null);
 
   const fetchFlow = async () => {
@@ -102,9 +103,6 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
     view.setEventHandlers({
       onCloseButtonPress() {
         console.log('[ADAPTY]: Close button pressed');
-        // returning true dismisses with the default destroy: true, so the
-        // controller is dead — drop it
-        setFlowView(null);
         return true;
       },
       onAndroidSystemBack() {
@@ -257,7 +255,6 @@ export const FlowSection: React.FC<Props> = ({ placementId }) => {
 
     try {
       await flowView.destroy();
-      setFlowView(null);
       console.log('[ADAPTY] Flow view destroyed');
     } catch (error: any) {
       console.log('[ADAPTY] Failed to destroy flow view:', error.message);
