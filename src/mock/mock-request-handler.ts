@@ -226,6 +226,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
         case 'adapty_ui_present_flow_view':
         case 'adapty_ui_present_onboarding_view':
         case 'adapty_ui_dismiss_flow_view':
+        case 'adapty_ui_destroy_flow_view':
         case 'adapty_ui_dismiss_onboarding_view':
           result = undefined; // void
           break;

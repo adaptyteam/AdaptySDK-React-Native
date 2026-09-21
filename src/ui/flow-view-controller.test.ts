@@ -155,11 +155,76 @@ describe('FlowViewController', () => {
       expect(removeAllListenersMock).toHaveBeenCalledTimes(1);
     });
 
+    it('sends destroy:false and keeps listeners when the view is kept alive', async () => {
+      (jest.mocked(($bridge as any).request) as jest.Mock)
+        .mockResolvedValueOnce({ id: 'uuid-3-keep' }) // create
+        .mockResolvedValueOnce(undefined); // dismiss
+
+      const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
+      const removeAllListenersMock = jest.fn();
+      (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+        addListener: jest.fn(),
+        addInternalListener: jest.fn(),
+        removeAllListeners: removeAllListenersMock,
+      }));
+
+      const view = await FlowViewController.create(flow, {} as any);
+      view.setEventHandlers({ onCloseButtonPress: () => true });
+
+      await view.dismiss({ destroy: false });
+
+      expect($bridge.request).toHaveBeenLastCalledWith(
+        'adapty_ui_dismiss_flow_view',
+        expect.stringContaining('"destroy":false'),
+        'Void',
+        expect.any(Object),
+      );
+
+      expect(removeAllListenersMock).not.toHaveBeenCalled();
+    });
+
     it('throws if id is null', async () => {
       const viewProto = (FlowViewController as any).prototype;
       const fresh = Object.create(viewProto) as FlowViewController;
       (fresh as any).id = null;
       await expect(fresh.dismiss()).rejects.toThrow('View reference not found');
+    });
+  });
+
+  describe('destroy', () => {
+    it('calls bridge and clears listeners', async () => {
+      (jest.mocked(($bridge as any).request) as jest.Mock)
+        .mockResolvedValueOnce({ id: 'uuid-destroy' }) // create
+        .mockResolvedValueOnce(undefined); // destroy
+
+      const { FlowViewEmitter } = jest.requireMock('./flow-view-emitter');
+      const removeAllListenersMock = jest.fn();
+      (FlowViewEmitter as unknown as jest.Mock).mockImplementation(() => ({
+        addListener: jest.fn(),
+        addInternalListener: jest.fn(),
+        removeAllListeners: removeAllListenersMock,
+      }));
+
+      const view = await FlowViewController.create(flow, {} as any);
+      view.setEventHandlers({ onCloseButtonPress: () => true });
+
+      await view.destroy();
+
+      expect($bridge.request).toHaveBeenLastCalledWith(
+        'adapty_ui_destroy_flow_view',
+        expect.stringContaining('"id":"uuid-destroy"'),
+        'Void',
+        expect.any(Object),
+      );
+
+      expect(removeAllListenersMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('throws if id is null', async () => {
+      const viewProto = (FlowViewController as any).prototype;
+      const fresh = Object.create(viewProto) as FlowViewController;
+      (fresh as any).id = null;
+      await expect(fresh.destroy()).rejects.toThrow('View reference not found');
     });
   });
 
