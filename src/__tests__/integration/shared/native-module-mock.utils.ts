@@ -48,6 +48,8 @@ interface ResponseRegistry {
   get_flow_for_default_audience?: components['requests']['GetFlowForDefaultAudience.Response'];
   get_paywall_products?: components['requests']['GetPaywallProducts.Response'];
   log_show_flow?: components['requests']['LogShowFlow.Response'];
+  preload_flows?: components['requests']['PreloadFlows.Response'];
+  preload_flows_for_default_audience?: components['requests']['PreloadFlowsForDefaultAudience.Response'];
   make_purchase?: components['requests']['MakePurchase.Response'];
   make_promoted_purchase?: components['requests']['MakePromotedPurchase.Response'];
   get_onboarding?: components['requests']['GetOnboarding.Response'];

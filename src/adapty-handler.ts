@@ -16,6 +16,7 @@ import type {
   IdentifyParamsInput,
   LogLevel,
   MakePurchaseParamsInput,
+  PreloadPlacementsParamsInput,
 } from '@adapty/core';
 
 import type * as Model from '@/types';
@@ -463,6 +464,107 @@ export class Adapty {
       ctx,
       log,
     );
+
+    return result;
+  }
+
+  /**
+   * Warms the cache for the given flow placements.
+   *
+   * @remarks
+   * Same request as {@link getFlow}, one per placement, but with less decoding
+   * and all placements fetched in parallel. Nothing is returned; the result
+   * only lands in the cache.
+   *
+   * Useful for cross-placement A/B tests.
+   *
+   * Only the placement JSON is cached — not the UI schema or the paywall
+   * images, so the first flow view creation still goes to the network for those.
+   *
+   * A later {@link getFlow} reads the warmed cache only with
+   * `'return_cache_data_else_load'` (or
+   * `'return_cache_data_if_not_expired_else_load'`); with the default
+   * `'reload_revalidating_cache_data'` it still hits the network and the warmed
+   * copy serves as an offline fallback. Preloading itself always goes to the
+   * network — it has no fetch policy.
+   *
+   * @param {string[]} placementIds - The placements to preload.
+   * @param {PreloadPlacementsParamsInput} [params] - Additional parameters for preloading.
+   * @returns {Promise<void>} A promise that resolves once every placement has been stored.
+   *
+   * @throws {@link AdaptyError}
+   * Throws if any placement failed to load. The error aggregates the failures,
+   * and the placements that did succeed stay in the cache. Requires
+   * {@link activate} to have been called.
+   *
+   * @example
+   * ```ts
+   * await adapty.preloadFlows(['onboarding_flow', 'settings_paywall']);
+   *
+   * const flow = await adapty.getFlow('onboarding_flow', {
+   *   fetchPolicy: FetchPolicy.ReturnCacheDataElseLoad,
+   * });
+   * ```
+   */
+  public async preloadFlows(
+    placementIds: string[],
+    params: PreloadPlacementsParamsInput = { loadTimeoutMs: 5000 },
+  ): Promise<void> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'preloadFlows' });
+
+    log.start(() => ({ placementIds, params }));
+
+    const methodKey = 'preload_flows';
+    const body = JSON.stringify({
+      method: methodKey,
+      placement_ids: placementIds,
+      load_timeout: (params.loadTimeoutMs ?? 5000) / 1000,
+    } satisfies Req['PreloadFlows.Request']);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  /**
+   * Warms the cache for the given flow placements using the **All Users** audience.
+   *
+   * @remarks
+   * The same trade-offs as {@link getFlowForDefaultAudience} apply: faster
+   * fetching, but no targeting by country, attribution or custom attributes.
+   * Unlike {@link preloadFlows} the request carries no timeout.
+   *
+   * See {@link preloadFlows} for what preloading does and does not cover.
+   *
+   * @param {string[]} placementIds - The placements to preload.
+   * @returns {Promise<void>} A promise that resolves once every placement has been stored.
+   *
+   * @throws {@link AdaptyError}
+   * Throws if any placement failed to load. The error aggregates the failures,
+   * and the placements that did succeed stay in the cache. Requires
+   * {@link activate} to have been called.
+   *
+   * @example
+   * ```ts
+   * await adapty.preloadFlowsForDefaultAudience(['onboarding_flow']);
+   * ```
+   */
+  public async preloadFlowsForDefaultAudience(
+    placementIds: string[],
+  ): Promise<void> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'preloadFlowsForDefaultAudience' });
+
+    log.start(() => ({ placementIds }));
+
+    const methodKey = 'preload_flows_for_default_audience';
+    const body = JSON.stringify({
+      method: methodKey,
+      placement_ids: placementIds,
+    } satisfies Req['PreloadFlowsForDefaultAudience.Request']);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
 
     return result;
   }
