@@ -23,6 +23,7 @@ describe('Adapty - Flow', () => {
       expect(flow.name).toBe('test_placement');
       expect(flow.placement.id).toBe('test_placement');
       expect(flow.variationId).toBeDefined();
+      expect(flow.variationName).toBeDefined();
       expect(flow.responseCreatedAt).toBeDefined();
       expect(Array.isArray(flow.paywalls)).toBe(true);
       expect(flow.paywalls.length).toBeGreaterThan(0);

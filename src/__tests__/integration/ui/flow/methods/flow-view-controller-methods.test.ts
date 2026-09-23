@@ -74,6 +74,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       expect(request.flow).toBeDefined();
       expect(request.flow.flow_id).toBe('flow_test_placement');
       expect(request.flow.variation_id).toBe('variation_123');
+      expect(request.flow.variation_name).toBe('Variation A');
       expect(request.preload_products).toBe(true); // default
       expect(request.load_timeout).toBe(5); // 5000ms → 5s
       expect(request.enable_safe_area_paddings).toBe(true); // controller default
