@@ -686,9 +686,8 @@ export class Adapty {
   public async getOnboardingForDefaultAudience(
     placementId: string,
     locale?: string,
-    params: GetPlacementParamsInput = {
+    params: GetPlacementForDefaultAudienceParamsInput = {
       fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
-      loadTimeoutMs: 5000,
     },
   ): Promise<Model.AdaptyOnboarding> {
     const ctx = new LogContext();
