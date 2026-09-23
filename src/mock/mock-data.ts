@@ -159,6 +159,7 @@ export function createMockFlow(
     id: `mock-flow-${placementId}`,
     name: placementId,
     variationId: 'mock_variation_id',
+    variationName: 'mock_variation_name',
     // A mock flow stands in for a placement with a no-code view configured,
     // so it carries the renderer fields that make `hasViewConfiguration` true
     // rather than just asserting the flag. `createMockPaywall` did the same in
