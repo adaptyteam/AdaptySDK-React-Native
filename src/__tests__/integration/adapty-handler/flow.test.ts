@@ -70,6 +70,7 @@ describe('Adapty - Flow (Bridge Integration)', () => {
       expect(flow.name).toBe('test_placement');
       expect(flow.placement.id).toBe('test_placement');
       expect(flow.variationId).toBe('variation_123');
+      expect(flow.variationName).toBe('Variation A');
       expect(flow.paywalls).toBeDefined();
       expect(Array.isArray(flow.paywalls)).toBe(true);
       expect(flow.paywalls.length).toBeGreaterThan(0);
@@ -195,6 +196,8 @@ describe('Adapty - Flow (Bridge Integration)', () => {
       expect(flow.placement.id).toBe('test_placement_default');
       expect(flow.placement.audienceName).toBe('default_audience');
       expect(flow.variationId).toBe('default_variation_123');
+      // variation_name is optional on the wire
+      expect(flow.variationName).toBeUndefined();
     });
   });
 
@@ -216,6 +219,7 @@ describe('Adapty - Flow (Bridge Integration)', () => {
       expect(request.method).toBe('log_show_flow');
       expect(request.flow.flow_id).toBe('flow_test_placement');
       expect(request.flow.variation_id).toBe('variation_123');
+      expect(request.flow.variation_name).toBe('Variation A');
 
       // Note: result is actually `true` (from obj.success in parseMethodResult),
       // not undefined, even though TypeScript signature is Promise<void>

@@ -47,6 +47,7 @@ export const GET_FLOW_RESPONSE: components['requests']['GetFlow.Response'] = {
     flow_id: 'flow_test_placement',
     flow_name: 'test_placement',
     variation_id: 'variation_123',
+    variation_name: 'Variation A',
     variations: [SAMPLE_VARIATION],
     ui_schema: {
       layouts: [{ flow_layout_id: 'layout1' }],
