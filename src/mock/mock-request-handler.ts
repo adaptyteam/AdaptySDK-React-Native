@@ -188,6 +188,8 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = undefined; // void
           break;
 
+        case 'preload_flows':
+        case 'preload_flows_for_default_audience':
         case 'log_show_flow':
         case 'set_log_level':
         case 'update_external_attribution_data':
