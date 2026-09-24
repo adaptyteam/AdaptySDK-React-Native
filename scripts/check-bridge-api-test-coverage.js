@@ -42,12 +42,6 @@ const KNOWN_UNCOVERED = new Set([
   'observer_purchase_did_finish',
   'observer_restore_did_start',
   'observer_restore_did_finish',
-
-  // Temporary: the store message methods exist in cross_platform.yaml but the JS
-  // handler does not expose them yet. Drop both entries together with the
-  // getPendingStoreMessageTypes / showStoreMessages implementation and its samples.
-  'get_pending_store_message_types',
-  'show_store_messages',
 ]);
 
 /**
