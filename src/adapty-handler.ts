@@ -1170,27 +1170,31 @@ export class Adapty {
    * the result is always empty. The result is a snapshot of unique types in
    * no particular order — there is no event for newly arrived messages.
    *
-   * Google Play cannot report pending messages, so on Android this resolves
-   * an empty array without calling native: `[]` there means "unknown", not "none".
+   * `[]` means `showStoreMessages()` has nothing to show right now. `null` means the
+   * store cannot report pending messages: on Android Google Play decides on show, so
+   * this resolves `null` without calling native — call `showStoreMessages()` there.
    * Below iOS 16 the native method is unavailable and the call rejects.
    *
-   * @returns {Promise<Model.AdaptyStoreMessageType[]>} A promise that resolves with the pending types.
+   * @returns {Promise<Model.AdaptyStoreMessageType[] | null>} A promise that resolves with the pending types, or `null` where the store cannot report them (Android).
    * @throws {@link AdaptyError} If an error occurs on iOS.
    *
    * @example
    * ```ts
    * const types = await adapty.getPendingStoreMessageTypes();
-   * if (types.includes('billing_issue')) {
+   * if (types === null) {
+   *   // The store can't report pending messages (Android): let it decide
+   *   await adapty.showStoreMessages();
+   * } else if (types.includes('billing_issue')) {
    *   // Explain the billing issue in your own UI first, then show the system message
    *   await adapty.showStoreMessages({ ios: { filter: ['billing_issue'] } });
    * }
    * ```
    */
   public async getPendingStoreMessageTypes(): Promise<
-    Model.AdaptyStoreMessageType[]
+    Model.AdaptyStoreMessageType[] | null
   > {
     if (Platform.OS === 'android') {
-      return [];
+      return null;
     }
 
     const ctx = new LogContext();

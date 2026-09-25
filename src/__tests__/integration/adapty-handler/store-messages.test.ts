@@ -148,12 +148,12 @@ describe('Adapty - Store messages (Bridge Integration)', () => {
       Platform.select = originalSelect;
     });
 
-    it('getPendingStoreMessageTypes resolves an empty array without calling native', async () => {
+    it('getPendingStoreMessageTypes resolves null (unknown) without calling native', async () => {
       await setUp({});
 
       const types = await adapty.getPendingStoreMessageTypes();
 
-      expect(types).toStrictEqual([]);
+      expect(types).toBeNull();
       expect(nativeMock.handler).not.toHaveBeenCalled();
     });
 
