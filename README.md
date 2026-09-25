@@ -85,7 +85,7 @@ Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm
     ```
 
     If you currently use the default static linkage you'll need to switch — be aware this can conflict with libraries that don't yet support modular headers (see the [Callstack write-up](https://www.callstack.com/blog/integrating-swift-package-manager-with-react-native-libraries)) and is incompatible with Flipper.
-- **React Native ≥ 0.87 (optional)** — you can drop CocoaPods entirely and use React Native's [experimental SwiftPM integration](https://reactnative.dev/blog/2026/08/11/react-native-0.87#experimental-swift-package-manager-support-for-ios). The RN SDK ships a `Package.swift`.
+- **React Native ≥ 0.87 (optional)** — you can drop CocoaPods entirely and use React Native's [experimental SwiftPM integration](https://reactnative.dev/blog/2026/08/11/react-native-0.87#experimental-swift-package-manager-support-for-ios). Adapty SDK ships a `Package.swift`.
 
 ## Integrate IAPs within a few hours without server coding
 
