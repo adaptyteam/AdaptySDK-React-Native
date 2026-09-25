@@ -1161,6 +1161,109 @@ export class Adapty {
   }
 
   /**
+   * Gets the types of store messages currently waiting in the SDK queue.
+   *
+   * @platform ios
+   * @remarks
+   * iOS 16+ only. The queue is kept only when the SDK is activated with
+   * `storeMessagesHandling: 'manual'`; in `'auto'` mode and before activation
+   * the result is always empty. The result is a snapshot of unique types in
+   * no particular order — there is no event for newly arrived messages.
+   *
+   * `[]` means `showStoreMessages()` has nothing to show right now. `null` means the
+   * store cannot report pending messages: on Android Google Play decides on show, so
+   * this resolves `null` without calling native — call `showStoreMessages()` there.
+   * Below iOS 16 the native method is unavailable and the call rejects.
+   *
+   * @returns {Promise<Model.AdaptyStoreMessageType[] | null>} A promise that resolves with the pending types, or `null` where the store cannot report them (Android).
+   * @throws {@link AdaptyError} If an error occurs on iOS.
+   *
+   * @example
+   * ```ts
+   * const types = await adapty.getPendingStoreMessageTypes();
+   * if (types === null) {
+   *   // The store can't report pending messages (Android): let it decide
+   *   await adapty.showStoreMessages();
+   * } else if (types.includes('billing_issue')) {
+   *   // Explain the billing issue in your own UI first, then show the system message
+   *   await adapty.showStoreMessages({ ios: { filter: ['billing_issue'] } });
+   * }
+   * ```
+   */
+  public async getPendingStoreMessageTypes(): Promise<
+    Model.AdaptyStoreMessageType[] | null
+  > {
+    if (Platform.OS === 'android') {
+      return null;
+    }
+
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'getPendingStoreMessageTypes' });
+    log.start(() => ({}));
+
+    const methodKey = 'get_pending_store_message_types';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['GetPendingStoreMessageTypes.Request']);
+
+    const result = await this.handle<Model.AdaptyStoreMessageType[]>(
+      methodKey,
+      body,
+      'Array<AdaptyStoreMessageType>',
+      ctx,
+      log,
+    );
+
+    return result;
+  }
+
+  /**
+   * Shows pending store messages: App Store messages on iOS, Google Play in-app messages on Android.
+   *
+   * @remarks
+   * Intended for `storeMessagesHandling: 'manual'`, but works in both modes.
+   *
+   * iOS 16+: messages are shown one by one; a successfully shown message leaves
+   * the queue, a message that failed to show stays for a retry. Omit `ios.filter` to
+   * show every pending message, pass `[]` to show none.
+   *
+   * Android: shows every applicable message; Google Play decides whether one exists.
+   *
+   * @param {object} [params] - Optional parameters.
+   * @param {object} [params.ios] - iOS-only parameters, ignored on Android.
+   * @param {Model.AdaptyStoreMessageType[]} [params.ios.filter] - The message types to show.
+   * @returns {Promise<void>} A promise that resolves once the messages have been processed.
+   * @throws {@link AdaptyError} with code `operationInProgress` (3201) if another show is running,
+   * or `resolverFailure` (3202) if no foreground window scene is available (iOS).
+   *
+   * @example
+   * ```ts
+   * // Show everything that is pending, e.g. after onboarding is finished
+   * await adapty.showStoreMessages();
+   *
+   * // iOS: show just the price increase consent; Android shows everything
+   * await adapty.showStoreMessages({ ios: { filter: ['price_increase_consent'] } });
+   * ```
+   */
+  public async showStoreMessages(params?: {
+    ios?: { filter?: Model.AdaptyStoreMessageType[] };
+  }): Promise<void> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'showStoreMessages' });
+    log.start(() => ({ params }));
+
+    const methodKey = 'show_store_messages';
+    const body = JSON.stringify({
+      method: methodKey,
+      filter: Platform.OS === 'ios' ? params?.ios?.filter : undefined,
+    } satisfies Req['ShowStoreMessage.Request']);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  /**
    * Sets the variation ID of the purchase.
    *
    * In Observer mode, Adapty SDK doesn't know, where the purchase was made from.

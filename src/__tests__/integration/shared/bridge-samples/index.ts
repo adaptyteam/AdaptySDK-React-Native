@@ -19,6 +19,7 @@ export * from './activation';
 export * from './profile';
 export * from './flow';
 export * from './preload';
+export * from './store-messages';
 export * from './purchase';
 export * from './user-management';
 export * from './onboarding';

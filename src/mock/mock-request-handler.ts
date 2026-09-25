@@ -199,9 +199,14 @@ export class MockRequestHandler<Method extends string, Params extends string> {
         case 'present_code_redemption_sheet':
         case 'update_collecting_refund_data_consent':
         case 'update_refund_preference':
+        case 'show_store_messages':
         case 'open_web_paywall':
           // These methods don't return anything meaningful in mock mode
           result = undefined; // void
+          break;
+
+        case 'get_pending_store_message_types':
+          result = []; // the mock never queues store messages
           break;
 
         case 'create_web_paywall_url':
