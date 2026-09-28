@@ -2,7 +2,7 @@ import { Platform, EmitterSubscription } from 'react-native';
 
 import { $bridge, initBridge, isBridgeInitialized } from '@/bridge';
 import { AdaptyBridgeEventEmitter } from '@/adapty-bridge-event-emitter';
-import { LogContext, Log, LogScope } from '@/logger';
+import { LogContext, Log, LogScope, type LoggerConfig } from '@/logger';
 import VERSION from '@/version';
 import type { Def, Req } from '@/types/schema';
 
@@ -1387,7 +1387,7 @@ export class Adapty {
   }
 
   /**
-   * Sets the preferred log level.
+   * Sets the preferred log level and, optionally, a custom JS logger configuration.
    *
    * By default, JS-side SDK logs are disabled until a log level is set here or via `logLevel` in `activate`.
    * The native level stays at the native SDK default until then.
@@ -1399,11 +1399,42 @@ export class Adapty {
    * `info`: various information messages, such as those that log the lifecycle of various modules
    * `verbose`: any additional information that may be useful during debugging, such as function calls, API queries, etc.
    *
+   * `options.logger` replaces all current sinks and calls `destroy()` on them, so include `consoleLogSink` to keep console output.
+   * It also resets `defaultMeta`, so pass it again each time.
+   * To change only the level, omit `options.logger`; the current sinks are kept.
+   * The sinks are applied even if the native call then rejects.
+   *
+   * @example
+   * ```ts
+   * import { adapty, consoleLogSink } from 'react-native-adapty';
+   *
+   * await adapty.setLogLevel('verbose');
+   *
+   * await adapty.setLogLevel('verbose', {
+   *   logger: {
+   *     sinks: [
+   *       consoleLogSink,
+   *       { id: 'my-sink', handle: event => sendToServer(event.level, event.message, event.params) },
+   *     ],
+   *   },
+   * });
+   * ```
+   *
    * @param {LogLevel} logLevel - new preferred log level
+   * @param options - optional settings
+   * @param options.logger - JS logger configuration: sinks and default metadata
    * @returns {Promise<void>} resolves when the log level is set
    * @throws {@link AdaptyError} if the log level is invalid
    */
-  public async setLogLevel(logLevel: LogLevel): Promise<void> {
+  public async setLogLevel(
+    logLevel: LogLevel,
+    options?: { logger?: LoggerConfig },
+  ): Promise<void> {
+    // configure sinks first, so this call's own logs reach them
+    if (options?.logger) {
+      Log.configure(options.logger);
+    }
+
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'setLogLevel' });
