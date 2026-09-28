@@ -1399,8 +1399,8 @@ export class Adapty {
    * `info`: various information messages, such as those that log the lifecycle of various modules
    * `verbose`: any additional information that may be useful during debugging, such as function calls, API queries, etc.
    *
-   * `options.logger` replaces all current sinks and calls `destroy()` on them, so include `consoleLogSink` to keep console output.
-   * It also resets `defaultMeta`, so pass it again each time.
+   * `options.logger.sinks` replaces all current sinks and calls `destroy()` on them, so include `consoleLogSink` to keep console output.
+   * Any `options.logger` also resets `defaultMeta`, so pass it again each time.
    * To change only the level, omit `options.logger`; the current sinks are kept.
    * The sinks are applied even if the native call then rejects.
    *
