@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import { Adapty } from '@/adapty-handler';
 import { resetBridge } from '@/bridge';
+import { Log } from '@/logger';
+import type { LogEvent } from '@adapty/core';
 import type { components } from '@/types/api';
 import {
   createNativeModuleMock,
@@ -17,6 +19,7 @@ import {
   IS_ACTIVATED_REQUEST,
   IS_ACTIVATED_RESPONSE_TRUE,
   IS_ACTIVATED_RESPONSE_FALSE,
+  SET_LOG_LEVEL_RESPONSE,
 } from '../shared/bridge-samples';
 import { cleanupAdapty } from './setup.utils';
 
@@ -49,6 +52,9 @@ describe('Adapty - Activation (Bridge Integration)', () => {
     }
 
     resetBridge();
+
+    // Log.logLevel is static and activate no longer resets it
+    Log.logLevel = null;
   });
 
   describe('Basic activation', () => {
@@ -248,6 +254,107 @@ describe('Adapty - Activation (Bridge Integration)', () => {
       expect(request.configuration.api_key).toBe('test_api_key_12345');
       // SDK adds default fields like cross_platform_sdk_name, activate_ui, etc.
       expect(request.configuration.cross_platform_sdk_name).toBeDefined();
+    });
+  });
+
+  describe('Log level', () => {
+    const SINK_ID = 'activation-test-sink';
+    let events: LogEvent[];
+    let consoleSpies: jest.SpyInstance[];
+
+    beforeEach(() => {
+      events = [];
+      Log.addSink({ id: SINK_ID, handle: event => events.push(event) });
+      // silence the default console sink
+      consoleSpies = (['debug', 'info', 'warn', 'error'] as const).map(level =>
+        jest.spyOn(console, level).mockImplementation(() => {}),
+      );
+    });
+
+    afterEach(() => {
+      Log.removeSink(SINK_ID);
+      consoleSpies.forEach(spy => spy.mockRestore());
+    });
+
+    it('should keep the level set via setLogLevel when activate omits logLevel', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        set_log_level: SET_LOG_LEVEL_RESPONSE,
+      });
+
+      await adapty.setLogLevel('verbose');
+      events = [];
+
+      await adapty.activate('test_api_key_12345');
+
+      expect(Log.logLevel).toBe('verbose');
+      expect(events).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ level: 'verbose', funcName: 'activate' }),
+        ]),
+      );
+    });
+
+    it('should keep the level set via setLogLevel on the fast-refresh skip path', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        is_activated: IS_ACTIVATED_RESPONSE_TRUE,
+        set_log_level: SET_LOG_LEVEL_RESPONSE,
+      });
+
+      await adapty.setLogLevel('warn');
+      await adapty.activate('test_api_key_12345', {
+        __ignoreActivationOnFastRefresh: true,
+      });
+
+      expect(Log.logLevel).toBe('warn');
+      expect(nativeMock.handler).not.toHaveBeenCalledWith(
+        'activate',
+        expect.anything(),
+      );
+    });
+
+    it('should override the level set via setLogLevel when activate passes logLevel', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        set_log_level: SET_LOG_LEVEL_RESPONSE,
+      });
+
+      await adapty.setLogLevel('verbose');
+      await adapty.activate('test_api_key_12345', { logLevel: 'error' });
+
+      expect(Log.logLevel).toBe('error');
+    });
+
+    it('should leave the JS logger off when neither setLogLevel nor logLevel is used', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+      });
+
+      await adapty.activate('test_api_key_12345');
+
+      expect(Log.logLevel).toBeNull();
+      expect(events).toHaveLength(0);
+    });
+
+    it('should omit log_level from the native configuration when logLevel is not passed', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        set_log_level: SET_LOG_LEVEL_RESPONSE,
+      });
+
+      await adapty.setLogLevel('verbose');
+      await adapty.activate('test_api_key_12345');
+
+      const request = extractNativeRequest<
+        components['requests']['Activate.Request']
+      >({
+        nativeModule: nativeMock,
+        callIndex: 1,
+      });
+
+      expect(request.method).toBe('activate');
+      expect(request.configuration).not.toHaveProperty('log_level');
     });
   });
 

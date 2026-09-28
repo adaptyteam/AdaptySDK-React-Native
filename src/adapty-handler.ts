@@ -277,9 +277,10 @@ export class Adapty {
     // Subscribe on every activation, including ones the fast-refresh guard (__ignoreActivationOnFastRefresh) skip
     this.promotedPurchaseEmitter.addNativeEventListenerWithDefault();
 
-    // call before log ctx calls, so no logs are lost
-    const logLevel = params.logLevel;
-    Log.logLevel = logLevel || null;
+    // call before log ctx calls, so no logs are lost; keep a level set earlier via setLogLevel
+    if (params.logLevel) {
+      Log.logLevel = params.logLevel;
+    }
 
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'activate' });
