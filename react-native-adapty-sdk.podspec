@@ -3,7 +3,7 @@ require "json"
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
 adapty_ios_version = '4.2.1'
-# CocoaPods experiment: the version the AdaptySDK-iOS feature/cocoapods-4x podspecs carry.
+# CocoaPods experiment: the version published to the AdaptySDK-CocoaPods-Specs spec repo.
 adapty_ios_pods_version = '4.2.0-SNAPSHOT'
 
 # Legacy CocoaPods integration of the native iOS SDK, opt-in via `$AdaptyUseCocoaPods = true`
