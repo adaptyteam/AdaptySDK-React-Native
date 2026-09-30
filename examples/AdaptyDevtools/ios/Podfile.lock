@@ -1949,13 +1949,13 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - Adapty (from `../../../../AdaptySDK-iOS`)
-  - AdaptyCodable (from `../../../../AdaptySDK-iOS`)
-  - AdaptyCSimdjson (from `../../../../AdaptySDK-iOS`)
-  - AdaptyLogger (from `../../../../AdaptySDK-iOS`)
-  - AdaptyPlugin (from `../../../../AdaptySDK-iOS`)
-  - AdaptyUI (from `../../../../AdaptySDK-iOS`)
-  - AdaptyUIBuilder (from `../../../../AdaptySDK-iOS`)
+  - Adapty (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
+  - AdaptyCodable (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
+  - AdaptyCSimdjson (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
+  - AdaptyLogger (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
+  - AdaptyPlugin (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
+  - AdaptyUI (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
+  - AdaptyUIBuilder (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2036,19 +2036,26 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   Adapty:
-    :path: "../../../../AdaptySDK-iOS"
+    :branch: feature/cocoapods-4x
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   AdaptyCodable:
-    :path: "../../../../AdaptySDK-iOS"
+    :branch: feature/cocoapods-4x
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   AdaptyCSimdjson:
-    :path: "../../../../AdaptySDK-iOS"
+    :branch: feature/cocoapods-4x
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   AdaptyLogger:
-    :path: "../../../../AdaptySDK-iOS"
+    :branch: feature/cocoapods-4x
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   AdaptyPlugin:
-    :path: "../../../../AdaptySDK-iOS"
+    :branch: feature/cocoapods-4x
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   AdaptyUI:
-    :path: "../../../../AdaptySDK-iOS"
+    :branch: feature/cocoapods-4x
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   AdaptyUIBuilder:
-    :path: "../../../../AdaptySDK-iOS"
+    :branch: feature/cocoapods-4x
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   FBLazyVector:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
   hermes-engine:
@@ -2203,6 +2210,29 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+CHECKOUT OPTIONS:
+  Adapty:
+    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyCodable:
+    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyCSimdjson:
+    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyLogger:
+    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyPlugin:
+    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyUI:
+    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+  AdaptyUIBuilder:
+    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
+    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
+
 SPEC CHECKSUMS:
   Adapty: 67a8d7952acbeedf2acf2644df5563adf0c2cb00
   AdaptyCodable: 3e2d3cb6c0413ee287fd5622b409f8065231dc6e
@@ -2288,6 +2318,6 @@ SPEC CHECKSUMS:
   RNScreens: ca829379d20b0d1ff41a0b87bc37bdc50276cef5
   Yoga: 54ad1f177695cddea2c5090897cce963a0650d93
 
-PODFILE CHECKSUM: 8007e701ffd3f84260fc0db066541a7ee334788a
+PODFILE CHECKSUM: aa0063deb7bf3bbc971a257f0994e6526f969319
 
 COCOAPODS: 1.15.2
