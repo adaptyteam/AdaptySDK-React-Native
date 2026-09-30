@@ -39,7 +39,7 @@ let package = Package(
         .package(name: "ReactNative", path: "../../../../xcframeworks"),
         .package(
             url: "https://github.com/adaptyteam/AdaptySDK-iOS.git",
-            exact: "4.2.1",
+            exact: "4.2.2",
             traits: [
                 .defaults,
                 .trait(name: "KidsMode", condition: .when(traits: ["AdaptyReactNativeKidsMode"]))

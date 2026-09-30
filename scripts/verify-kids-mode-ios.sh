@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
 #
-# Verify Adapty Kids Mode (iOS) end-to-end for React Native, on either integration path.
+# Verify Adapty Kids Mode (iOS) end-to-end for React Native, on each iOS integration.
 #
-# Builds an example app with the AdaptySDK-iOS `KidsMode` trait toggled, then inspects EVERY
-# Mach-O inside the built .app (app stub, debug dylib, embedded frameworks) for IDFA/AdSupport
-# (+ ATT) with otool/nm.
+# Builds an example app with Kids Mode toggled (the AdaptySDK-iOS `KidsMode` trait, or for the
+# legacy CocoaPods pods `-DKidsMode` with AdSupport unlinked), then inspects EVERY Mach-O inside
+# the built .app (app stub, debug dylib, embedded frameworks) for IDFA/AdSupport (+ ATT) with
+# otool/nm.
 #
 # Usage: scripts/verify-kids-mode-ios.sh <on|off|both> [pods|spm]
 #   on   - Kids Mode enabled;  assert tokens ABSENT  (CI + local)
 #   off  - Kids Mode disabled; assert tokens PRESENT (local negative control)
 #   both - off then on (positive + negative control) (local)
 #
-#   pods - examples/AdaptyDevtools     (CocoaPods; default, what CI runs)
+#   pods - examples/AdaptyDevtools     (CocoaPods, default; spm_dependency, or the legacy pods
+#                                       with DEVTOOLS_DISABLE_SPM=1)
 #   spm  - examples/AdaptyDevtoolsSpm  (React Native SwiftPM, `npx react-native spm`)
 #
-# The two paths differ ONLY in how the trait is toggled and how the app is built:
-#   pods: `pod install` with ADAPTY_KIDS_MODE=1 drives the shipped `ios/adapty_kids_mode.rb`
-#         helper, which writes `traits = (KidsMode,)` onto the AdaptySDK-iOS package reference
-#         in the generated Pods.xcodeproj. Built from the .xcworkspace.
+# CI runs all three integrations: spm, pods, and pods with DEVTOOLS_DISABLE_SPM=1.
+# They differ ONLY in how Kids Mode is toggled and how the app is built:
+#   pods: `pod install` with ADAPTY_KIDS_MODE=1 drives the shipped `ios/adapty_podfile.rb`
+#         helper, which writes `traits = (KidsMode,)` onto the AdaptySDK-iOS package reference in
+#         the generated Pods.xcodeproj. Built from the .xcworkspace. With DEVTOOLS_DISABLE_SPM=1
+#         (the legacy CocoaPods pods, adapty_disable_spm!) the helper sets `-DKidsMode` on the
+#         Adapty pod and unlinks AdSupport instead.
 #   spm:  the SDK's `adapty-spm-kids-mode` CLI flips the default trait set in
 #         node_modules/react-native-adapty/Package.swift. CocoaPods never reads that manifest and
 #         SwiftPM never reads the podspec, so each path needs its own toggle. Built from the
@@ -64,7 +69,7 @@ configure_target() { # $1 = pods|spm
   esac
   IOS_DIR="$EXAMPLE_DIR/ios"
   SCHEME="$APP_NAME"
-  POD_HELPER="$EXAMPLE_DIR/node_modules/react-native-adapty/ios/adapty_kids_mode.rb"
+  POD_HELPER="$EXAMPLE_DIR/node_modules/react-native-adapty/ios/adapty_podfile.rb"
   SPM_CLI="$EXAMPLE_DIR/node_modules/react-native-adapty/scripts/kids-mode.cjs"
   SPM_MANIFEST="$EXAMPLE_DIR/node_modules/react-native-adapty/Package.swift"
 }
@@ -82,7 +87,8 @@ select_pod() {
 # --- toggles ------------------------------------------------------------------------------
 
 # pods: re-run pod install with/without ADAPTY_KIDS_MODE. Through the Podfile helper this
-# (re)writes `traits = (KidsMode,)` in Pods.xcodeproj.
+# (re)writes `traits = (KidsMode,)` in Pods.xcodeproj, or with DEVTOOLS_DISABLE_SPM=1 sets
+# `-DKidsMode` on the Adapty pod and unlinks AdSupport.
 pod_toggle() { # $1 = on|off
   local mode="$1"
   [[ -f "$POD_HELPER" ]] || fatal "helper not found at $POD_HELPER — run 'cd $EXAMPLE_DIR && yarn update-sdk-full' first."

@@ -4,11 +4,12 @@
 /**
  * Guards the workflows' `paths` filters against silent drift.
  *
- * The expensive workflows spell their filter twice — once per trigger — because GitHub Actions
- * supports no YAML anchors, and nothing enforces that the copies agree. Every failure mode here
- * is silent: a filter that drifts, that is too narrow, or that this file misreads leaves the job
- * never running, so a broken release ships with a green PR. Hence a parser that throws instead
- * of guessing, and a matcher that refuses pattern shapes it cannot model faithfully.
+ * The expensive workflows filter their trigger by `paths`. A trigger added later (e.g. `push`)
+ * needs its own copy of the filter, because GitHub Actions supports no YAML anchors, and nothing
+ * else enforces that the copies agree. Every failure mode here is silent: a filter that drifts,
+ * that is too narrow, or that this file misreads leaves the job never running, so a broken
+ * release ships with a green PR. Hence a parser that throws instead of guessing, and a matcher
+ * that refuses pattern shapes it cannot model faithfully.
  */
 const fs = require('fs');
 const path = require('path');
