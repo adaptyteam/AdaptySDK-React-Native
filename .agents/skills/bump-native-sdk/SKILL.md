@@ -16,14 +16,11 @@ Ask the user if not provided explicitly (but infer from context when obvious):
 
 ## iOS
 
-**1. `react-native-adapty-sdk.podspec`** — the CocoaPods path (still the default):
+**1. `react-native-adapty-sdk.podspec`** — the CocoaPods path (still the default). One constant
+feeds both `spm_dependency` (default) and the legacy `s.dependency` pods (`$AdaptyUseCocoaPods`):
 
 ```ruby
-spm_dependency(s,
-  url: 'https://github.com/adaptyteam/AdaptySDK-iOS.git',
-  requirement: { kind: 'exactVersion', version: '<VERSION>' },
-  products: ['Adapty', 'AdaptyUI', 'AdaptyPlugin']
-)
+adapty_ios_version = '<VERSION>'
 ```
 
 **2. `Package.swift`** — the SwiftPM path (React Native 0.87+, `npx react-native spm`):
@@ -45,7 +42,7 @@ time: the JS layer talks to `AdaptyPlugin` by method name, so the mismatch surfa
 runtime, and only for the path that was left behind. Grep both before committing:
 
 ```bash
-grep -n "version: '" react-native-adapty-sdk.podspec
+grep -n "adapty_ios_version = '" react-native-adapty-sdk.podspec
 grep -n 'exact:' Package.swift
 ```
 
