@@ -16,8 +16,9 @@ Ask the user if not provided explicitly (but infer from context when obvious):
 
 ## iOS
 
-**1. `react-native-adapty-sdk.podspec`** — the CocoaPods path (still the default). One constant
-feeds both `spm_dependency` (default) and the legacy `s.dependency` pods (`$AdaptyUseCocoaPods`):
+**1. `react-native-adapty-sdk.podspec`** — the CocoaPods path (still the default). `adapty_ios_version`
+feeds `spm_dependency` (default); the legacy CocoaPods pods are pinned by `adapty_ios_pods_version`
+until 4.x pods ship from a tag, then both use `adapty_ios_version`:
 
 ```ruby
 adapty_ios_version = '<VERSION>'

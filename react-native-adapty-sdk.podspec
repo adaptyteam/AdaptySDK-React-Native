@@ -3,6 +3,8 @@ require "json"
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
 adapty_ios_version = '4.2.1'
+# CocoaPods experiment: the version the AdaptySDK-iOS feature/cocoapods-4x podspecs carry.
+adapty_ios_pods_version = '4.2.0-SNAPSHOT'
 
 # Legacy CocoaPods integration of the native iOS SDK, opt-in via `$AdaptyUseCocoaPods = true`
 # in the Podfile or `ADAPTY_USE_COCOAPODS=1 pod install`. SPM (spm_dependency) is the default.
@@ -27,7 +29,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   if adapty_use_cocoapods
-    pod_version = (defined?($AdaptyIOSSDKVersion) && $AdaptyIOSSDKVersion) || adapty_ios_version
+    pod_version = (defined?($AdaptyIOSSDKVersion) && $AdaptyIOSSDKVersion) || adapty_ios_pods_version
     s.dependency 'Adapty', pod_version
     s.dependency 'AdaptyUI', pod_version
     s.dependency 'AdaptyPlugin', pod_version
