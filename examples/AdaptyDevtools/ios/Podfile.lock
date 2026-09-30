@@ -1,24 +1,4 @@
 PODS:
-  - Adapty (4.2.0-SNAPSHOT):
-    - AdaptyCodable (= 4.2.0-SNAPSHOT)
-    - AdaptyLogger (= 4.2.0-SNAPSHOT)
-    - AdaptyUIBuilder (= 4.2.0-SNAPSHOT)
-  - AdaptyCodable (4.2.0-SNAPSHOT):
-    - AdaptyCSimdjson (= 4.2.0-SNAPSHOT)
-  - AdaptyCSimdjson (4.2.0-SNAPSHOT)
-  - AdaptyLogger (4.2.0-SNAPSHOT)
-  - AdaptyPlugin (4.2.0-SNAPSHOT):
-    - Adapty (= 4.2.0-SNAPSHOT)
-    - AdaptyLogger (= 4.2.0-SNAPSHOT)
-    - AdaptyUI (= 4.2.0-SNAPSHOT)
-    - AdaptyUIBuilder (= 4.2.0-SNAPSHOT)
-  - AdaptyUI (4.2.0-SNAPSHOT):
-    - Adapty (= 4.2.0-SNAPSHOT)
-    - AdaptyLogger (= 4.2.0-SNAPSHOT)
-    - AdaptyUIBuilder (= 4.2.0-SNAPSHOT)
-  - AdaptyUIBuilder (4.2.0-SNAPSHOT):
-    - AdaptyCodable (= 4.2.0-SNAPSHOT)
-    - AdaptyLogger (= 4.2.0-SNAPSHOT)
   - FBLazyVector (0.84.1)
   - hermes-engine (250829098.0.9):
     - hermes-engine/Pre-built (= 250829098.0.9)
@@ -1421,9 +1401,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
   - react-native-adapty-sdk (4.2.1):
-    - Adapty (= 4.2.0-SNAPSHOT)
-    - AdaptyPlugin (= 4.2.0-SNAPSHOT)
-    - AdaptyUI (= 4.2.0-SNAPSHOT)
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1949,13 +1926,6 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - Adapty (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
-  - AdaptyCodable (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
-  - AdaptyCSimdjson (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
-  - AdaptyLogger (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
-  - AdaptyPlugin (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
-  - AdaptyUI (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
-  - AdaptyUIBuilder (from `https://github.com/adaptyteam/AdaptySDK-iOS.git`, branch `feature/cocoapods-4x`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2035,27 +2005,6 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 EXTERNAL SOURCES:
-  Adapty:
-    :branch: feature/cocoapods-4x
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyCodable:
-    :branch: feature/cocoapods-4x
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyCSimdjson:
-    :branch: feature/cocoapods-4x
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyLogger:
-    :branch: feature/cocoapods-4x
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyPlugin:
-    :branch: feature/cocoapods-4x
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyUI:
-    :branch: feature/cocoapods-4x
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyUIBuilder:
-    :branch: feature/cocoapods-4x
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
   FBLazyVector:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
   hermes-engine:
@@ -2210,37 +2159,7 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
-CHECKOUT OPTIONS:
-  Adapty:
-    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyCodable:
-    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyCSimdjson:
-    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyLogger:
-    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyPlugin:
-    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyUI:
-    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-  AdaptyUIBuilder:
-    :commit: 28038b667097a259d2762ae1e37a8de0593ada3a
-    :git: https://github.com/adaptyteam/AdaptySDK-iOS.git
-
 SPEC CHECKSUMS:
-  Adapty: 67a8d7952acbeedf2acf2644df5563adf0c2cb00
-  AdaptyCodable: 3e2d3cb6c0413ee287fd5622b409f8065231dc6e
-  AdaptyCSimdjson: 631433e8db654cf18d701ba5f92eb80b3853947d
-  AdaptyLogger: e56fc5cdab073d133c615b1a9ed92254504035e5
-  AdaptyPlugin: faed885d83cf698aa3de23a7a3a8ef1550980eb4
-  AdaptyUI: 8d9d9364e70ea4ed6f70e8827bc24d27c831a49c
-  AdaptyUIBuilder: 440da147d8cbfafa943782f04d91928f88667825
   FBLazyVector: e97c19a5a442429d1988f182a1940fb08df514da
   hermes-engine: 34d77201bbd87065e48e077de1de09caea442154
   RCTDeprecation: af44b104091a34482596cd9bd7e8d90c4e9b4bd7
@@ -2279,7 +2198,7 @@ SPEC CHECKSUMS:
   React-logger: b5521614afb8690420146dfc61a1447bb5d65419
   React-Mapbuffer: 0db00b587a6a6f0f6813e9fb2655e337261f513e
   React-microtasksnativemodule: 7ccd4c74006eec09a2df88ca31ba8b0c22c50a4d
-  react-native-adapty-sdk: 679acbb25bf5ce0df8db4000beeb9408a3056ef0
+  react-native-adapty-sdk: 20ff5b19702c73429567ad2a8bb55a1754cde1a2
   react-native-safe-area-context: 90476586077446d5eab1d41ac3e767b016ac41d6
   React-NativeModulesApple: 5ba0903927f6b8d335a091700e9fda143980f819
   React-networking: ad2727500e93943a43da70d3b162454af151469c
@@ -2318,6 +2237,6 @@ SPEC CHECKSUMS:
   RNScreens: ca829379d20b0d1ff41a0b87bc37bdc50276cef5
   Yoga: 54ad1f177695cddea2c5090897cce963a0650d93
 
-PODFILE CHECKSUM: aa0063deb7bf3bbc971a257f0994e6526f969319
+PODFILE CHECKSUM: ef34b8daf3d7fbd71e935eb2448434a35946d168
 
 COCOAPODS: 1.15.2
