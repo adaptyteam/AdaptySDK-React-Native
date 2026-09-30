@@ -8,22 +8,19 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+# Legacy CocoaPods integration of the native Adapty SDK (instead of spm_dependency),
+# taken from a local AdaptySDK-iOS checkout. Set `$AdaptyUseCocoaPods = false` to go back to SPM.
+$AdaptyUseCocoaPods = true
+adapty_ios_local_pods = '../../../../AdaptySDK-iOS'
+
 # Required for spm_dependency in react-native-adapty (RN 0.75+ SPM integration).
 use_frameworks! :linkage => :dynamic
 
 target 'AdaptyRnSdkExample' do
-  # Legacy CocoaPods integration of the native Adapty SDK (instead of spm_dependency).
-  # `ADAPTY_USE_COCOAPODS=1 pod install` pulls the published pods;
-  # add `ADAPTY_IOS_LOCAL_PODS=<path to AdaptySDK-iOS>` to take the pods from a local checkout.
-  if ENV['ADAPTY_USE_COCOAPODS'] == '1'
-    $AdaptyUseCocoaPods = true
-
-    if ENV['ADAPTY_IOS_LOCAL_PODS']
-      adapty_ios_path = File.expand_path(ENV['ADAPTY_IOS_LOCAL_PODS'], __dir__)
-      $AdaptyIOSSDKVersion = Pod::Specification.from_file(File.join(adapty_ios_path, 'Adapty.podspec')).version.to_s
-      %w[AdaptyLogger AdaptyCSimdjson AdaptyCodable AdaptyUIBuilder Adapty AdaptyUI AdaptyPlugin].each do |name|
-        pod name, :path => adapty_ios_path
-      end
+  if $AdaptyUseCocoaPods
+    $AdaptyIOSSDKVersion = Pod::Specification.from_file(File.join(__dir__, adapty_ios_local_pods, 'Adapty.podspec')).version.to_s
+    %w[AdaptyLogger AdaptyCSimdjson AdaptyCodable AdaptyUIBuilder Adapty AdaptyUI AdaptyPlugin].each do |name|
+      pod name, :path => adapty_ios_local_pods
     end
   end
 
