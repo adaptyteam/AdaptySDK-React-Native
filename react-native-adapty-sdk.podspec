@@ -2,6 +2,16 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
+# The native SDK version for both modes: spm_dependency and the CocoaPods pods published to the
+# AdaptySDK-CocoaPods-Specs spec repo. Package.swift pins the same version.
+adapty_ios_version = '4.2.2'
+
+# Legacy CocoaPods integration of the native iOS SDK, opt-in via `adapty_disable_spm!`
+# (ios/adapty_podfile.rb) in the Podfile, Expo: `iosDisableSPM`. `$AdaptyDisableSPM`, read here,
+# is set by the helper or by hand (see adapty_podfile.rb).
+# SPM (spm_dependency) is the default.
+adapty_disable_spm = defined?($AdaptyDisableSPM) && $AdaptyDisableSPM == true
+
 Pod::Spec.new do |s|
   s.name         = "react-native-adapty-sdk"
   s.version      = package["version"]
@@ -19,15 +29,21 @@ Pod::Spec.new do |s|
   s.resources = "ios/**/*.{plist}"
   s.requires_arc = true
 
-  if defined?(spm_dependency)
+  if adapty_disable_spm
+    s.dependency 'Adapty', adapty_ios_version
+    s.dependency 'AdaptyUI', adapty_ios_version
+    s.dependency 'AdaptyPlugin', adapty_ios_version
+  elsif defined?(spm_dependency)
     spm_dependency(s,
       url: 'https://github.com/adaptyteam/AdaptySDK-iOS.git',
-      requirement: { kind: 'exactVersion', version: '4.2.1' },
+      requirement: { kind: 'exactVersion', version: adapty_ios_version },
       products: ['Adapty', 'AdaptyUI', 'AdaptyPlugin']
     )
   else
-    raise "react-native-adapty 4.0.0+ requires React Native >= 0.75 for SPM-based native iOS dependencies. " \
-          "Upgrade React Native to >= 0.75, or use react-native-adapty 3.x (< 4.0.0)."
+    raise "[react-native-adapty] By default the Adapty iOS SDK installs through SPM, which needs React Native 0.75+ " \
+          "(`spm_dependency` not found). Upgrade React Native, or try the CocoaPods mode: " \
+          "in ios/Podfile and call `adapty_disable_spm!` " \
+          "before `use_native_modules!` (Expo: `iosDisableSPM: true`)"
   end
 
   if respond_to?(:install_modules_dependencies, true)

@@ -4,14 +4,31 @@ require Pod::Executable.execute_command('node', ['-p',
     "react-native/scripts/react_native_pods.rb",
     {paths: [process.argv[1]]},
   )', __dir__]).strip
+# Adapty Podfile helpers: adapty_disable_spm!, adapty_enable_kids_mode
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native-adapty/ios/adapty_podfile.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
-# Required for spm_dependency in react-native-adapty (RN 0.75+ SPM integration).
-use_frameworks! :linkage => :dynamic
+# The native Adapty SDK comes through SPM (spm_dependency) by default. `DEVTOOLS_DISABLE_SPM=1 pod install`
+# (used by CI "Pure CocoaPods") switches this example to the legacy CocoaPods pods.
+devtools_disable_spm = ENV['DEVTOOLS_DISABLE_SPM'] == '1'
+
+# React Native warns that spm_dependency with static linking may cause linker errors, so SPM
+# links dynamically; static linkage for the legacy pods is this example's choice. Both keep
+# Pods_AdaptyRnSdkExample.framework, so the Xcode project is the same.
+use_frameworks! :linkage => (devtools_disable_spm ? :static : :dynamic)
 
 target 'AdaptyRnSdkExample' do
+  # Sets the SDK's internal $AdaptyDisableSPM (never set it by hand) and pins Adapty, AdaptyUI
+  # and AdaptyPlugin to the AdaptySDK-CocoaPods-Specs spec repo; must come before
+  # use_native_modules!.
+  adapty_disable_spm! if devtools_disable_spm
+
   config = use_native_modules!
 
   use_react_native!(
@@ -29,16 +46,9 @@ target 'AdaptyRnSdkExample' do
     )
 
     # Adapty Kids Mode (COPPA / Kids Category): opt-in via `ADAPTY_KIDS_MODE=1 pod install`.
-    # The helper sets the `KidsMode` SPM trait on the AdaptySDK-iOS package reference that
-    # `spm_dependency` creates in the Pods project. It MUST run after react_native_post_install,
-    # which wipes and recreates all package references on every pod install. No-op otherwise.
-    if ENV['ADAPTY_KIDS_MODE'] == '1'
-      require Pod::Executable.execute_command('node', ['-p',
-        'require.resolve(
-          "react-native-adapty/ios/adapty_kids_mode.rb",
-          {paths: [process.argv[1]]},
-        )', __dir__]).strip
-      adapty_enable_kids_mode(installer)
-    end
+    # The helper from adapty_podfile.rb (required above) sets the `KidsMode` SPM trait on the
+    # AdaptySDK-iOS package reference, or `-DKidsMode` on the Adapty pod with the CocoaPods pods.
+    # It MUST run after react_native_post_install, which recreates all package references.
+    adapty_enable_kids_mode(installer) if ENV['ADAPTY_KIDS_MODE'] == '1'
   end
 end

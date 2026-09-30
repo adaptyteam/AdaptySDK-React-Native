@@ -23,7 +23,7 @@
  *
  * The checks never fail the install — they warn. A CocoaPods app is the one that matters:
  * there Package.swift is never read, so the patch applies but changes nothing, and Kids
- * Mode has to come from ios/adapty_kids_mode.rb instead.
+ * Mode has to come from adapty_enable_kids_mode in ios/adapty_podfile.rb instead.
  */
 'use strict';
 

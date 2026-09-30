@@ -16,14 +16,14 @@ Ask the user if not provided explicitly (but infer from context when obvious):
 
 ## iOS
 
-**1. `react-native-adapty-sdk.podspec`** — the CocoaPods path (still the default):
+**1. `react-native-adapty-sdk.podspec`** — the podspec path (SPM via `spm_dependency`, the default).
+`adapty_ios_version` feeds both `spm_dependency` and the CocoaPods pods mode (`adapty_disable_spm!`),
+which resolves Adapty, AdaptyUI and AdaptyPlugin of that version from AdaptySDK-CocoaPods-Specs:
+the version must be published there before the bump. Pods-mode clients then need
+`pod repo update` and `pod update Adapty AdaptyUI AdaptyPlugin`.
 
 ```ruby
-spm_dependency(s,
-  url: 'https://github.com/adaptyteam/AdaptySDK-iOS.git',
-  requirement: { kind: 'exactVersion', version: '<VERSION>' },
-  products: ['Adapty', 'AdaptyUI', 'AdaptyPlugin']
-)
+adapty_ios_version = '<VERSION>'
 ```
 
 **2. `Package.swift`** — the SwiftPM path (React Native 0.87+, `npx react-native spm`):
@@ -39,13 +39,15 @@ spm_dependency(s,
 )
 ```
 
-CocoaPods never reads `Package.swift` and SwiftPM never reads the podspec, so bumping only
-one of them ships two different native SDKs to two sets of users. Nothing fails at build
-time: the JS layer talks to `AdaptyPlugin` by method name, so the mismatch surfaces at
-runtime, and only for the path that was left behind. Grep both before committing:
+CocoaPods never reads `Package.swift` and SwiftPM never reads the podspec, and the native SDK
+reaches three populations: SPM via `Package.swift`, CocoaPods + `spm_dependency` and the
+CocoaPods pods (both from `adapty_ios_version`). `Package.swift` and `adapty_ios_version` must
+match: bumping only one of them ships different native SDKs to SPM and to CocoaPods users. Nothing fails at build
+time: the JS layer talks to `AdaptyPlugin` by method name, so the mismatch surfaces at runtime,
+and only for the path that was left behind. Grep both before committing:
 
 ```bash
-grep -n "version: '" react-native-adapty-sdk.podspec
+grep -n "adapty_ios_version = '" react-native-adapty-sdk.podspec
 grep -n 'exact:' Package.swift
 ```
 
@@ -82,6 +84,8 @@ yarn update-native-modules
 2. `yarn update-sdk-full` — rebuild and install local SDK package
 3. `yarn update-native-modules` — run `pod install --repo-update` in `ios/` dir
 
+These steps verify the default `spm_dependency` path; the CocoaPods pods mode installs with `DEVTOOLS_DISABLE_SPM=1 yarn update-native-modules` and resolves `adapty_ios_version` from the spec repo.
+
 Run all three steps regardless of platform. `update-sdk-full` is platform-agnostic and is what puts the edited `android/build.gradle` into `examples/AdaptyDevtools/node_modules/react-native-adapty`, which is the copy Gradle actually compiles — so run it before any Android build, not just for iOS.
 
 ### iOS: resolving the SPM pin
@@ -105,7 +109,7 @@ grep -A6 'AdaptySDK-iOS' examples/AdaptyDevtools/ios/AdaptyRnSdkExample.xcworksp
 
 It must show `"version" : "<VERSION>"` and **no** `"branch"` key. `Package.resolved` goes in the commit.
 
-`examples/AdaptyDevtools/ios/Podfile.lock` normally does **not** change: the Adapty iOS SDK has no CocoaPods footprint any more, and CocoaPods does not recompute the checksum of a `:path`-based local pod on a plain `pod install`. Commit it only if it actually changed.
+`examples/AdaptyDevtools/ios/Podfile.lock` normally does **not** change: in the default SPM mode the Adapty iOS SDK has no CocoaPods footprint, and CocoaPods does not recompute the checksum of a `:path`-based local pod on a plain `pod install`. Commit it only if it actually changed. Never commit the pods-mode lockfile that `DEVTOOLS_DISABLE_SPM=1 pod install` (or `DEVTOOLS_DISABLE_SPM=1 yarn update-native-modules`) writes there, with the Adapty pods and the spec repo: restore it before committing.
 
 ### iOS: the SwiftPM path
 
@@ -138,8 +142,9 @@ nm ios/build/DD/Build/Products/Debug-iphonesimulator/AdaptyDevtoolsSpm.app/Adapt
 node -e 'const f="ios/AdaptyDevtoolsSpm.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved";const p=JSON.parse(require("fs").readFileSync(f,"utf8")).pins.find(x=>/adaptysdk-ios/i.test(x.identity));console.log(p?p.state:"ABSENT — the build did not consume Package.swift")'
 ```
 
-The `build-ios-spm` job runs the same two checks, so a bump that only edits one of the two files, or
-a manifest the build never consumed, fails there too.
+The `build-ios-spm` job runs the same two checks, so a manifest the build never consumed fails there
+too. A bump that edits only one of the two files is caught by the `AdaptySDK-iOS pin` test in
+`scripts/__tests__/package-manifest.test.js` (`yarn test`, run by `pr-validation`).
 
 ## Commit
 
