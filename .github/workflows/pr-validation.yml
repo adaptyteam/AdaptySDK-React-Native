@@ -161,6 +161,8 @@ jobs:
     timeout-minutes: 30
     name: iOS Build (CocoaPods, Debug)
     needs: validate-pr
+    env:
+      ADAPTY_USE_COCOAPODS: '1'   # legacy CocoaPods pods instead of spm_dependency
 
     steps:
     - name: Checkout code
@@ -222,10 +224,26 @@ jobs:
         restore-keys: |
           pods-debug-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}-
 
+    # The Adapty pods resolve from the private adaptyteam/AdaptySDK-CocoaPods-Specs spec repo, which
+    # the workflow's GITHUB_TOKEN cannot read; git rewrites its URL to carry a read-only token.
+    - name: Allow access to the private spec repo
+      env:
+        ADAPTY_SPECS_TOKEN: ${{ secrets.ADAPTY_SPECS_TOKEN }}
+      run: |
+        if [ -z "$ADAPTY_SPECS_TOKEN" ]; then
+          echo "FATAL: secret ADAPTY_SPECS_TOKEN (read access to adaptyteam/AdaptySDK-CocoaPods-Specs) is not set." >&2
+          exit 1
+        fi
+        git config --global url."https://x-access-token:${ADAPTY_SPECS_TOKEN}@github.com/adaptyteam/AdaptySDK-CocoaPods-Specs".insteadOf \
+          "https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs"
+
     - name: Install CocoaPods
       run: |
         cd examples/AdaptyDevtools/ios
         pod install --repo-update
+        # Pods mode must not fall back to SPM: the Adapty pods have to come from the spec repo.
+        grep -q 'https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git' Podfile.lock \
+          || { echo "FATAL: the Adapty pods did not resolve from AdaptySDK-CocoaPods-Specs." >&2; exit 1; }
 
     - name: Cache Xcode Derived Data
       uses: actions/cache@v5
