@@ -1,6 +1,9 @@
 import { AndroidConfig } from 'expo/config-plugins';
 import * as XML from '@expo/config-plugins/build/utils/XML';
-import type { ExportedConfig } from '@expo/config-plugins/build/Plugin.types';
+import type {
+  ExportedConfig,
+  Mod,
+} from '@expo/config-plugins/build/Plugin.types';
 
 import withAdapty, {
   type AdaptyPluginProps,
@@ -704,6 +707,150 @@ describe('withAdapty expo config plugin', () => {
           modResults: {},
         } as any),
       ).rejects.toThrow(/ENOENT|no such file/i);
+    });
+  });
+
+  describe('iosUseCocoaPods option', () => {
+    const SPEC_REPO_SOURCE =
+      "source 'https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git'";
+    const CDN_SOURCE = "source 'https://cdn.cocoapods.org/'";
+
+    // Trimmed Expo SDK 51 template Podfile.
+    const SAMPLE_PODFILE = `require File.join(File.dirname(\`node --print "require.resolve('expo/package.json')"\`), "scripts/autolinking")
+
+require 'json'
+podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties.json'))) rescue {}
+
+platform :ios, podfile_properties['ios.deploymentTarget'] || '13.4'
+
+prepare_react_native_project!
+
+target 'myapp' do
+  use_expo_modules!
+  config = use_native_modules!
+end
+`;
+
+    const PODFILE_WITH_CDN_SOURCE = `source 'https://cdn.cocoapods.org/'
+
+${SAMPLE_PODFILE}`;
+
+    // `ModConfig` does not type the `podfile` mod that `withPodfile` registers.
+    function getPodfileMod(config: ExportedConfig): Mod | undefined {
+      return (config.mods?.ios as Record<string, Mod> | undefined)?.podfile;
+    }
+
+    async function runPodfileMod(
+      config: ExportedConfig,
+      contents: string,
+    ): Promise<string> {
+      const { modResults } = await getPodfileMod(config)({
+        modRequest: {},
+        modResults: { path: '/app/ios/Podfile', language: 'rb', contents },
+      } as any);
+      return modResults.contents;
+    }
+
+    function countOccurrences(src: string, needle: string): number {
+      return src.split(needle).length - 1;
+    }
+
+    it('should not register a Podfile mod when iosUseCocoaPods is omitted', () => {
+      const config = applyPlugin();
+
+      expect(getPodfileMod(config)).toBeUndefined();
+    });
+
+    it('should not register a Podfile mod when iosUseCocoaPods is false', () => {
+      const config = applyPlugin({ iosUseCocoaPods: false });
+
+      expect(getPodfileMod(config)).toBeUndefined();
+    });
+
+    it('should insert the CocoaPods block before the first target', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosUseCocoaPods: true }),
+        SAMPLE_PODFILE,
+      );
+
+      const flagIndex = contents.indexOf('$AdaptyUseCocoaPods = true');
+      const specRepoIndex = contents.indexOf(SPEC_REPO_SOURCE);
+      const cdnIndex = contents.indexOf(CDN_SOURCE);
+      const targetIndex = contents.indexOf("target 'myapp' do");
+
+      expect(flagIndex).toBeGreaterThan(-1);
+      expect(specRepoIndex).toBeGreaterThan(flagIndex);
+      expect(cdnIndex).toBeGreaterThan(specRepoIndex);
+      expect(targetIndex).toBeGreaterThan(cdnIndex);
+      expect(contents.indexOf('prepare_react_native_project!')).toBeLessThan(
+        flagIndex,
+      );
+      expect(contents).toMatch(
+        /# @generated begin react-native-adapty-cocoapods - .*\n\$AdaptyUseCocoaPods = true\n/,
+      );
+      expect(contents).toContain(
+        '# @generated end react-native-adapty-cocoapods',
+      );
+    });
+
+    it('should be idempotent when the Podfile mod runs twice', async () => {
+      const first = await runPodfileMod(
+        applyPlugin({ iosUseCocoaPods: true }),
+        SAMPLE_PODFILE,
+      );
+      const second = await runPodfileMod(
+        applyPlugin({ iosUseCocoaPods: true }),
+        first,
+      );
+
+      expect(second).toBe(first);
+      expect(countOccurrences(second, '$AdaptyUseCocoaPods = true')).toBe(1);
+      expect(countOccurrences(second, SPEC_REPO_SOURCE)).toBe(1);
+      expect(countOccurrences(second, CDN_SOURCE)).toBe(1);
+    });
+
+    it('should not duplicate an already declared cdn source', async () => {
+      const first = await runPodfileMod(
+        applyPlugin({ iosUseCocoaPods: true }),
+        PODFILE_WITH_CDN_SOURCE,
+      );
+      const second = await runPodfileMod(
+        applyPlugin({ iosUseCocoaPods: true }),
+        first,
+      );
+
+      expect(countOccurrences(first, CDN_SOURCE)).toBe(1);
+      expect(first).toContain('$AdaptyUseCocoaPods = true');
+      expect(first).toContain(SPEC_REPO_SOURCE);
+      expect(second).toBe(first);
+    });
+
+    it('should throw when the Podfile has no target block', async () => {
+      await expect(
+        runPodfileMod(
+          applyPlugin({ iosUseCocoaPods: true }),
+          "platform :ios, '15.0'\n",
+        ),
+      ).rejects.toThrow(/\[react-native-adapty\].*`target`/);
+    });
+
+    it('should throw when iosUseCocoaPods is not a boolean', () => {
+      expect(() =>
+        applyPlugin({ iosUseCocoaPods: 'true' as unknown as boolean }),
+      ).toThrow(/\[react-native-adapty\] `iosUseCocoaPods` must be a boolean/);
+      expect(() =>
+        applyPlugin({ iosUseCocoaPods: 1 as unknown as boolean }),
+      ).toThrow(/\[react-native-adapty\] `iosUseCocoaPods` must be a boolean/);
+    });
+
+    it('should coexist with fallbackFile.ios', () => {
+      const config = applyPlugin({
+        iosUseCocoaPods: true,
+        fallbackFile: { ios: './assets/ios_fallback.json' },
+      });
+
+      expect(getPodfileMod(config)).toBeDefined();
+      expect(config.mods?.ios?.xcodeproj).toBeDefined();
     });
   });
 });

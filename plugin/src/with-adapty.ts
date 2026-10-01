@@ -7,6 +7,7 @@ import {
   createRunOncePlugin,
   withAndroidManifest,
   withDangerousMod,
+  withPodfile,
   withXcodeProject,
 } from 'expo/config-plugins';
 
@@ -26,9 +27,84 @@ export type FallbackFileInput = { ios?: string; android?: string };
 export interface AdaptyPluginProps {
   replaceAndroidBackupConfig?: boolean;
   fallbackFile?: FallbackFileInput;
+  // iOS: use the legacy CocoaPods pods instead of SPM (spm_dependency).
+  iosUseCocoaPods?: boolean;
 }
 
 type NormalizedFallback = { ios?: string; android?: string } | null;
+
+// Same markers as Expo's mergeContents, inlined to stay on the public expo/config-plugins API.
+const PODFILE_TAG = 'react-native-adapty-cocoapods';
+const PODFILE_BLOCK_BEGIN = `# @generated begin ${PODFILE_TAG} - expo prebuild (DO NOT MODIFY)`;
+const PODFILE_BLOCK_END = `# @generated end ${PODFILE_TAG}`;
+// A Podfile with any `source` loses the implicit trunk CDN, so declare it too.
+const PODFILE_SOURCES = [
+  'https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git',
+  'https://cdn.cocoapods.org/',
+];
+
+function normalizeIosUseCocoaPods(input: unknown): boolean {
+  if (input == null) return false;
+  if (typeof input !== 'boolean') {
+    throw new Error(
+      '[react-native-adapty] `iosUseCocoaPods` must be a boolean',
+    );
+  }
+  return input;
+}
+
+const normalizeSourceUrl = (url: string) => url.replace(/(\.git)?\/?$/, '');
+
+function removeCocoaPodsBlock(lines: string[]): string[] {
+  const begin = lines.findIndex(line =>
+    line.startsWith(`# @generated begin ${PODFILE_TAG} `),
+  );
+  const end = lines.indexOf(PODFILE_BLOCK_END);
+  if (begin < 0 || end < begin) return lines;
+  return [...lines.slice(0, begin), ...lines.slice(end + 1)];
+}
+
+// Re-inserts the tagged block before the first `target`, so repeated runs are idempotent.
+function addCocoaPodsBlock(podfile: string): string {
+  const lines = removeCocoaPodsBlock(podfile.split('\n'));
+  const targetIndex = lines.findIndex(line => /^\s*target\s+['"]/.test(line));
+  if (targetIndex < 0) {
+    throw new Error(
+      '[react-native-adapty] `iosUseCocoaPods`: no `target` block found in ios/Podfile',
+    );
+  }
+
+  const declared = new Set(
+    lines
+      .map(line => /^\s*source\s+['"]([^'"]+)['"]/.exec(line)?.[1])
+      .filter((url): url is string => url != null)
+      .map(normalizeSourceUrl),
+  );
+  const sources = PODFILE_SOURCES.filter(
+    url => !declared.has(normalizeSourceUrl(url)),
+  ).map(url => `source '${url}'`);
+
+  lines.splice(
+    targetIndex,
+    0,
+    PODFILE_BLOCK_BEGIN,
+    '$AdaptyUseCocoaPods = true',
+    ...sources,
+    PODFILE_BLOCK_END,
+  );
+  return lines.join('\n');
+}
+
+// The podspec reads `$AdaptyUseCocoaPods` and pulls the Adapty pods from the spec repo.
+const withCocoaPodsIos: ConfigPlugin = config => {
+  return withPodfile(config, config => {
+    config.modResults.contents = addCocoaPodsBlock(config.modResults.contents);
+    console.log(
+      '[react-native-adapty] Switched iOS to the legacy CocoaPods pods',
+    );
+    return config;
+  });
+};
 
 function normalizeFallbackFile(
   input: FallbackFileInput | undefined,
@@ -101,8 +177,16 @@ const withAdapty: ConfigPlugin<AdaptyPluginProps | undefined> = (
   config,
   props,
 ) => {
-  const { replaceAndroidBackupConfig = false, fallbackFile } = props ?? {};
+  const {
+    replaceAndroidBackupConfig = false,
+    fallbackFile,
+    iosUseCocoaPods,
+  } = props ?? {};
   const fallback = normalizeFallbackFile(fallbackFile);
+
+  if (normalizeIosUseCocoaPods(iosUseCocoaPods)) {
+    config = withCocoaPodsIos(config);
+  }
 
   if (fallback) {
     if (fallback.ios) {
