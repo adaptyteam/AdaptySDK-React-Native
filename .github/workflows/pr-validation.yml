@@ -225,24 +225,30 @@ jobs:
           pods-debug-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}-
 
     # The Adapty pods resolve from the private adaptyteam/AdaptySDK-CocoaPods-Specs spec repo, which
-    # the workflow's GITHUB_TOKEN cannot read; git rewrites its URL to carry a read-only token.
+    # the workflow's GITHUB_TOKEN cannot read; git rewrites its HTTPS URL to SSH with a read-only deploy key.
     - name: Allow access to the private spec repo
       env:
-        ADAPTY_SPECS_TOKEN: ${{ secrets.ADAPTY_SPECS_TOKEN }}
+        ADAPTY_SPECS_DEPLOY_KEY: ${{ secrets.ADAPTY_SPECS_DEPLOY_KEY }}
       run: |
-        if [ -z "$ADAPTY_SPECS_TOKEN" ]; then
-          echo "FATAL: secret ADAPTY_SPECS_TOKEN (read access to adaptyteam/AdaptySDK-CocoaPods-Specs) is not set." >&2
+        if [ -z "$ADAPTY_SPECS_DEPLOY_KEY" ]; then
+          echo "FATAL: secret ADAPTY_SPECS_DEPLOY_KEY (deploy key of adaptyteam/AdaptySDK-CocoaPods-Specs) is not set." >&2
           exit 1
         fi
-        git config --global url."https://x-access-token:${ADAPTY_SPECS_TOKEN}@github.com/adaptyteam/AdaptySDK-CocoaPods-Specs".insteadOf \
+        # The macOS runner image already has ~/.ssh with github.com in known_hosts; ssh picks up the
+        # default key path by itself.
+        (umask 077 && printf '%s\n' "$ADAPTY_SPECS_DEPLOY_KEY" > ~/.ssh/id_ed25519)
+        git config --global url."git@github.com:adaptyteam/AdaptySDK-CocoaPods-Specs".insteadOf \
           "https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs"
+        git ls-remote https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git HEAD > /dev/null \
+          || { echo "FATAL: the deploy key cannot read adaptyteam/AdaptySDK-CocoaPods-Specs." >&2; exit 1; }
 
     - name: Install CocoaPods
       run: |
         cd examples/AdaptyDevtools/ios
         pod install --repo-update
         # Pods mode must not fall back to SPM: the Adapty pods have to come from the spec repo.
-        grep -q 'https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git' Podfile.lock \
+        ruby -ryaml -e 'pods = YAML.load_file("Podfile.lock").dig("SPEC REPOS", ARGV[0]) || []
+          exit((%w[Adapty AdaptyUI AdaptyPlugin] - pods).empty?)' https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git \
           || { echo "FATAL: the Adapty pods did not resolve from AdaptySDK-CocoaPods-Specs." >&2; exit 1; }
 
     - name: Cache Xcode Derived Data
