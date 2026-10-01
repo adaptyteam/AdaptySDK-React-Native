@@ -11,13 +11,15 @@ prepare_react_native_project!
 # The native Adapty SDK comes through SPM (spm_dependency) by default. `ADAPTY_USE_COCOAPODS=1 pod install`
 # switches to the legacy CocoaPods pods (the podspec reads the same variable), resolved from the
 # AdaptySDK-CocoaPods-Specs spec repo.
+ENV['ADAPTY_USE_COCOAPODS'] = '1' # TEMP: testing the legacy CocoaPods mode
 if ENV['ADAPTY_USE_COCOAPODS'] == '1'
   source 'https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git'
   source 'https://cdn.cocoapods.org/'
 end
 
 # Required for spm_dependency in react-native-adapty (RN 0.75+ SPM integration).
-use_frameworks! :linkage => :dynamic
+# TEMP: disabled while testing the legacy CocoaPods mode
+# use_frameworks! :linkage => :dynamic
 
 target 'AdaptyRnSdkExample' do
   config = use_native_modules!
