@@ -10,17 +10,9 @@ prepare_react_native_project!
 
 # The native Adapty SDK comes through SPM (spm_dependency) by default. `ADAPTY_USE_COCOAPODS=1 pod install`
 # switches to the legacy CocoaPods pods (the podspec reads the same variable), resolved from the
-# AdaptySDK-CocoaPods-Specs spec repo: the local checkout next to the SDK repos if present, else GitHub.
+# AdaptySDK-CocoaPods-Specs spec repo.
 if ENV['ADAPTY_USE_COCOAPODS'] == '1'
-  adapty_local_specs = File.expand_path('../../../../AdaptySDK-CocoaPods-Specs', __dir__)
-  adapty_specs_url =
-    if File.directory?(File.join(adapty_local_specs, '.git'))
-      "file://#{adapty_local_specs}"
-    else
-      'https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git'
-    end
-  Pod::UI.puts "[Adapty] CocoaPods mode: native SDK pods from #{adapty_specs_url}"
-  source adapty_specs_url
+  source 'https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git'
   source 'https://cdn.cocoapods.org/'
 end
 
