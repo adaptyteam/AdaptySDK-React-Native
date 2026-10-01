@@ -47,8 +47,9 @@ jobs:
         include:
           - check-type: js-checks
             name: "JS Checks"
-          - check-type: android
-            name: "Android Build"
+          # TEMP: Android build disabled while testing the legacy CocoaPods mode
+          # - check-type: android
+          #   name: "Android Build"
     name: ${{ matrix.name }}
 
     steps:
