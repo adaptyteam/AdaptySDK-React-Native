@@ -9,6 +9,7 @@ export {
   type ActivateParamsInput,
   type GetPlacementParamsInput,
   type GetPlacementForDefaultAudienceParamsInput,
+  type PreloadPlacementsParamsInput,
   type MakePurchaseParamsInput,
   type FileLocation,
   type IdentifyParamsInput,

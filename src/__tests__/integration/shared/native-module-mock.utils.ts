@@ -48,6 +48,8 @@ interface ResponseRegistry {
   get_flow_for_default_audience?: components['requests']['GetFlowForDefaultAudience.Response'];
   get_paywall_products?: components['requests']['GetPaywallProducts.Response'];
   log_show_flow?: components['requests']['LogShowFlow.Response'];
+  preload_flows?: components['requests']['PreloadFlows.Response'];
+  preload_flows_for_default_audience?: components['requests']['PreloadFlowsForDefaultAudience.Response'];
   make_purchase?: components['requests']['MakePurchase.Response'];
   make_promoted_purchase?: components['requests']['MakePromotedPurchase.Response'];
   get_onboarding?: components['requests']['GetOnboarding.Response'];
@@ -63,6 +65,8 @@ interface ResponseRegistry {
   present_code_redemption_sheet?: components['requests']['PresentCodeRedemptionSheet.Response'];
   update_collecting_refund_data_consent?: components['requests']['UpdateCollectingRefundDataConsent.Response'];
   update_refund_preference?: components['requests']['UpdateRefundPreference.Response'];
+  get_pending_store_message_types?: components['requests']['GetPendingStoreMessageTypes.Response'];
+  show_store_messages?: components['requests']['ShowStoreMessage.Response'];
   report_transaction?: components['requests']['ReportTransaction.Response'];
   update_external_attribution_data?: components['requests']['UpdateExternalAttributionData.Response'];
   get_current_installation_status?: components['requests']['GetCurrentInstallationStatus.Response'];
@@ -71,6 +75,7 @@ interface ResponseRegistry {
   adapty_ui_create_flow_view?: components['requests']['AdaptyUICreateFlowView.Response'];
   adapty_ui_present_flow_view?: components['requests']['AdaptyUIPresentFlowView.Response'];
   adapty_ui_dismiss_flow_view?: components['requests']['AdaptyUIDismissFlowView.Response'];
+  adapty_ui_destroy_flow_view?: components['requests']['AdaptyUIDestroyFlowView.Response'];
   adapty_ui_show_dialog?: components['requests']['AdaptyUIShowDialog.Response'];
 
   // Adapty UI - Onboarding methods

@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Adapty } from '@/adapty-handler';
 import { resetBridge } from '@/bridge';
 import type { components } from '@/types/api';
@@ -381,5 +382,54 @@ describe('Adapty - Activation (Bridge Integration)', () => {
 
       expect(request.configuration.adapty_attribution_enabled).toBe(true);
     });
+  });
+
+  describe('storeMessagesHandling', () => {
+    const originalOS = Platform.OS;
+
+    afterEach(() => {
+      Platform.OS = originalOS;
+    });
+
+    it('should omit store_messages_handling when not set', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+      });
+
+      await adapty.activate('test_api_key', { logLevel: 'error' });
+
+      const request = extractNativeRequest<
+        components['requests']['Activate.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.configuration).not.toHaveProperty(
+        'store_messages_handling',
+      );
+    });
+
+    it.each(['ios', 'android'] as const)(
+      'should forward storeMessagesHandling on %s',
+      async os => {
+        Platform.OS = os;
+        nativeMock = createNativeModuleMock({
+          activate: ACTIVATE_RESPONSE_SUCCESS,
+        });
+
+        await adapty.activate('test_api_key', {
+          logLevel: 'error',
+          storeMessagesHandling: 'manual',
+        });
+
+        const request = extractNativeRequest<
+          components['requests']['Activate.Request']
+        >({
+          nativeModule: nativeMock,
+        });
+
+        expect(request.configuration.store_messages_handling).toBe('manual');
+      },
+    );
   });
 });

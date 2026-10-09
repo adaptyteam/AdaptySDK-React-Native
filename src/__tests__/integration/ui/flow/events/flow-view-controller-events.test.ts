@@ -1641,6 +1641,40 @@ describe('FlowViewController - dismiss cleanup', () => {
     expect(onRestoreStartedHandler).not.toHaveBeenCalled();
   });
 
+  it('should keep event listeners after dismiss with destroy: false', async () => {
+    const viewId = (view as any).id;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
+
+    const onProductSelectedHandler = jest.fn().mockReturnValue(false);
+    view.setEventHandlers({ onProductSelected: onProductSelectedHandler });
+
+    // Keep the native view alive - listeners must survive
+    await view.dismiss({ destroy: false });
+
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+
+    expect(onProductSelectedHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it('should unsubscribe all event listeners after destroy', async () => {
+    const viewId = (view as any).id;
+    const sample = FLOW_PRODUCT_SELECTED_YEARLY;
+
+    const onProductSelectedHandler = jest.fn().mockReturnValue(false);
+    view.setEventHandlers({ onProductSelected: onProductSelectedHandler });
+
+    // Sanity check: the handler is wired before destroy
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+    expect(onProductSelectedHandler).toHaveBeenCalledTimes(1);
+    onProductSelectedHandler.mockClear();
+
+    await view.destroy();
+
+    emitFlowProductSelectedEvent(viewId, sample.product_id, sample.view);
+
+    expect(onProductSelectedHandler).not.toHaveBeenCalled();
+  });
+
   it('should not throw error when dismiss is called without any handlers set', async () => {
     // Don't set any custom handlers, only default ones exist
     await expect(view.dismiss()).resolves.not.toThrow();

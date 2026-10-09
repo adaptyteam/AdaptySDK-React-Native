@@ -37,4 +37,5 @@ export type {
   AdaptyProductIdentifier,
   AdaptyInstallationStatus,
   AdaptyInstallationDetails,
+  AdaptyStoreMessageType,
 } from '@adapty/core';

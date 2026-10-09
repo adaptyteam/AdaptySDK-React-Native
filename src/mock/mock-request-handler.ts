@@ -188,6 +188,8 @@ export class MockRequestHandler<Method extends string, Params extends string> {
           result = undefined; // void
           break;
 
+        case 'preload_flows':
+        case 'preload_flows_for_default_audience':
         case 'log_show_flow':
         case 'set_log_level':
         case 'update_external_attribution_data':
@@ -197,9 +199,14 @@ export class MockRequestHandler<Method extends string, Params extends string> {
         case 'present_code_redemption_sheet':
         case 'update_collecting_refund_data_consent':
         case 'update_refund_preference':
+        case 'show_store_messages':
         case 'open_web_paywall':
           // These methods don't return anything meaningful in mock mode
           result = undefined; // void
+          break;
+
+        case 'get_pending_store_message_types':
+          result = []; // the mock never queues store messages
           break;
 
         case 'create_web_paywall_url':
@@ -226,6 +233,7 @@ export class MockRequestHandler<Method extends string, Params extends string> {
         case 'adapty_ui_present_flow_view':
         case 'adapty_ui_present_onboarding_view':
         case 'adapty_ui_dismiss_flow_view':
+        case 'adapty_ui_destroy_flow_view':
         case 'adapty_ui_dismiss_onboarding_view':
           result = undefined; // void
           break;
