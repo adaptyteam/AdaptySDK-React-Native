@@ -65,10 +65,25 @@ function pinOf(source, url, forms) {
   return `${kind} ${match[1]}`;
 }
 
+/**
+ * The podspec with its top-level `name = '<value>'` assignments inlined where a hash
+ * key refers to them, so `version: adapty_ios_version` reads like a quoted literal.
+ */
+function inlinePodspecVariables(source) {
+  const values = new Map(
+    [...source.matchAll(/^([a-z_]+)\s*=\s*'([^']*)'\s*$/gm)].map((m) => [m[1], m[2]]),
+  );
+  return source.replace(/(\w+:\s*)([a-z_]+)(?=\s*[,}])/g, (all, key, name) =>
+    values.has(name) ? `${key}'${values.get(name)}'` : all,
+  );
+}
+
 describe('AdaptySDK-iOS pin', () => {
   // CocoaPods reads only the podspec and SwiftPM only the manifest, so a bump that
-  // touches one ships a different native SDK to each half of the userbase — and nothing
-  // fails at build time, because the JS layer calls AdaptyPlugin by method name.
+  // touches one ships different native SDKs to SPM (Package.swift) and to the CocoaPods
+  // users — and nothing fails at build time, because the JS layer calls AdaptyPlugin by
+  // method name. `adapty_ios_version` covers both CocoaPods modes: spm_dependency and the
+  // CocoaPods pods.
   it('is the same in Package.swift and the podspec', () => {
     const manifestPin = pinOf(MANIFEST, 'AdaptySDK-iOS.git', [
       [/exact:\s*"([^"]+)"/, 'exactVersion'],
@@ -76,7 +91,7 @@ describe('AdaptySDK-iOS pin', () => {
       [/revision:\s*"([^"]+)"/, 'revision'],
       [/from:\s*"([^"]+)"/, 'upToNextMajorVersion'],
     ]);
-    const podspecPin = pinOf(PODSPEC, "AdaptySDK-iOS.git'", [
+    const podspecPin = pinOf(inlinePodspecVariables(PODSPEC), "AdaptySDK-iOS.git'", [
       [/kind:\s*'exactVersion',\s*version:\s*'([^']+)'/, 'exactVersion'],
       [/kind:\s*'branch',\s*branch:\s*'([^']+)'/, 'branch'],
       [/kind:\s*'revision',\s*revision:\s*'([^']+)'/, 'revision'],

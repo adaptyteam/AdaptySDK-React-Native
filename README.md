@@ -73,19 +73,68 @@ npx expo prebuild
 
 Read the [documentation](https://adapty.io/docs/sdk-installation-reactnative?utm_source=github&utm_medium=referral&utm_campaign=AdaptySDK-React-Native) to install and configure Adapty SDK. Set up purchases in hours instead of weeks :rocket:
 
-### iOS requirements (since 4.0.0)
+### iOS requirements (since 4.2.3)
 
-- **CocoaPods (default)** — the native `Adapty` iOS SDK is pulled through Swift Package Manager by the `spm_dependency` podspec helper, which requires:
+> [!IMPORTANT]
+> This is a required step. Pick one of the installation modes below.
 
-  - **React Native ≥ 0.75** — earlier versions don't ship the `spm_dependency` helper.
-  - **Dynamic frameworks** — your `ios/Podfile` must declare:
+<details>
+<summary><b>CocoaPods + SPM (default)</b></summary>
 
-    ```ruby
-    use_frameworks! :linkage => :dynamic
-    ```
+The native `Adapty` iOS SDK is pulled through Swift Package Manager by the `spm_dependency` podspec helper, which requires:
 
-    If you currently use the default static linkage you'll need to switch — be aware this can conflict with libraries that don't yet support modular headers (see the [Callstack write-up](https://www.callstack.com/blog/integrating-swift-package-manager-with-react-native-libraries)) and is incompatible with Flipper.
-- **React Native ≥ 0.87 (optional)** — you can drop CocoaPods entirely and use React Native's [experimental SwiftPM integration](https://reactnative.dev/blog/2026/08/11/react-native-0.87#experimental-swift-package-manager-support-for-ios). Adapty SDK ships a `Package.swift`.
+- **React Native ≥ 0.75** — earlier versions don't ship the `spm_dependency` helper.
+- **Dynamic frameworks** — your `ios/Podfile` must declare:
+
+  ```ruby
+  use_frameworks! :linkage => :dynamic
+  ```
+
+  Expo — add the `expo-build-properties` plugin, then run `npx expo prebuild --clean`:
+
+  ```json
+  ["expo-build-properties", { "ios": { "useFrameworks": "dynamic" } }]
+  ```
+
+If you currently use the default static linkage you'll need to switch — be aware this can conflict with libraries that don't yet support modular headers (see the [Callstack write-up](https://www.callstack.com/blog/integrating-swift-package-manager-with-react-native-libraries)).
+
+</details>
+
+<details>
+<summary><b>CocoaPods without SPM (opt-in)</b></summary>
+
+Adapty iOS SDK comes from the public [Adapty spec repo](https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs). Dynamic frameworks aren't required (useful for static linkage setups).
+
+It requires the Adapty Podfile helpers in `ios/Podfile` and call `adapty_disable_spm!` in the app target **before** `use_native_modules!`:
+
+```ruby
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native-adapty/ios/adapty_podfile.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+target 'MyApp' do
+  adapty_disable_spm!
+  config = use_native_modules!
+  # ...
+end
+```
+
+Expo — enable the config plugin option, then run `npx expo prebuild`:
+
+```json
+["react-native-adapty", { "iosDisableSPM": true }]
+```
+
+</details>
+
+<details>
+<summary><b>Pure SPM (opt-in, React Native ≥ 0.87)</b></summary>
+
+You can drop CocoaPods entirely and use React Native's [experimental SwiftPM integration](https://reactnative.dev/blog/2026/08/11/react-native-0.87#experimental-swift-package-manager-support-for-ios). `react-native-adapty` ships a `Package.swift`.
+
+</details>
 
 ## Integrate IAPs within a few hours without server coding
 

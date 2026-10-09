@@ -22,24 +22,9 @@ on:
       - 'examples/AdaptyDevtools/**'
       - '!examples/AdaptyDevtools/ios/**'
       - '.github/workflows/android-builds.yml'
-  push:
-    branches: [ master ]
-    paths:
-      - 'src/**'
-      - 'android/**'
-      - 'plugin/**'
-      - 'tsconfig.json'
-      - 'tsconfig.build.json'
-      - 'package.json'
-      - 'yarn.lock'
-      - 'scripts/**'
-      - '!scripts/__tests__/**'   # jest-only, run by pr-validation
-      - 'examples/AdaptyDevtools/**'
-      - '!examples/AdaptyDevtools/ios/**'
-      - '.github/workflows/android-builds.yml'
 
 concurrency:
-  group: android-builds-${{ github.event_name == 'push' && github.sha || github.ref }}
+  group: android-builds-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
