@@ -10,6 +10,8 @@ import {
   withXcodeProject,
 } from 'expo/config-plugins';
 
+import { withCocoaPodsIos } from './with-cocoapods-ios';
+
 const pkg = require('react-native-adapty/package.json') as {
   name: string;
   version: string;
@@ -26,9 +28,19 @@ export type FallbackFileInput = { ios?: string; android?: string };
 export interface AdaptyPluginProps {
   replaceAndroidBackupConfig?: boolean;
   fallbackFile?: FallbackFileInput;
+  // iOS: disable SPM (spm_dependency) in favor of the legacy CocoaPods pods.
+  iosDisableSPM?: boolean;
 }
 
 type NormalizedFallback = { ios?: string; android?: string } | null;
+
+function normalizeIosDisableSPM(input: unknown): boolean {
+  if (input == null) return false;
+  if (typeof input !== 'boolean') {
+    throw new Error('[react-native-adapty] `iosDisableSPM` must be a boolean');
+  }
+  return input;
+}
 
 function normalizeFallbackFile(
   input: FallbackFileInput | undefined,
@@ -101,8 +113,14 @@ const withAdapty: ConfigPlugin<AdaptyPluginProps | undefined> = (
   config,
   props,
 ) => {
-  const { replaceAndroidBackupConfig = false, fallbackFile } = props ?? {};
+  const {
+    replaceAndroidBackupConfig = false,
+    fallbackFile,
+    iosDisableSPM,
+  } = props ?? {};
   const fallback = normalizeFallbackFile(fallbackFile);
+
+  config = withCocoaPodsIos(config, normalizeIosDisableSPM(iosDisableSPM));
 
   if (fallback) {
     if (fallback.ios) {

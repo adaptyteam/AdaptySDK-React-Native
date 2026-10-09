@@ -1,9 +1,11 @@
 name: iOS Builds (full)
 
-# The long iOS builds pr-validation.yml cannot afford: SwiftPM end to end (`npx react-native
-# spm`) in Debug and Release, plus Release on CocoaPods, where the link errors Debug hides
-# surface. Default trait set only — the Kids Mode variant lives in kids-mode-ios.yml. PRs into
-# `master` (there is no `main`) are the release PRs.
+# The long iOS builds pr-validation.yml cannot afford: Pure SPM end to end (`npx react-native
+# spm`) in Debug and Release; CocoaPods + spm_dependency in Release, where the link errors Debug
+# hides surface; and Pure CocoaPods (adapty_disable_spm!, the Adapty pods from the spec repo) in
+# Debug and Release, with its own Pods and DerivedData caches. Default trait set only — the Kids
+# Mode variant lives in kids-mode-ios.yml. PRs into `master` (there is no `main`) are the release
+# PRs.
 
 on:
   workflow_dispatch:
@@ -24,32 +26,15 @@ on:
       - 'examples/AdaptyDevtools/**'
       - 'examples/AdaptyDevtoolsSpm/**'
       - '.github/workflows/ios-builds.yml'
-  push:
-    branches: [ master ]
-    paths:
-      - 'src/**'
-      - 'ios/**'
-      - 'Package.swift'
-      - '*.podspec'
-      - 'plugin/**'
-      - 'tsconfig.json'
-      - 'tsconfig.build.json'
-      - 'package.json'
-      - 'yarn.lock'
-      - 'scripts/**'
-      - '!scripts/__tests__/**'   # jest-only, run by pr-validation
-      - 'examples/AdaptyDevtools/**'
-      - 'examples/AdaptyDevtoolsSpm/**'
-      - '.github/workflows/ios-builds.yml'
 
 concurrency:
-  group: ios-builds-${{ github.event_name == 'push' && github.sha || github.ref }}
+  group: ios-builds-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-ios-spm:
     runs-on: macos-26
-    name: iOS Build (SwiftPM, Debug + Release)
+    name: iOS Build (Pure SPM, Debug + Release)
     timeout-minutes: 60   # two cold builds; observed ~17 min for Debug alone
 
     steps:
@@ -218,7 +203,7 @@ jobs:
 
   build-ios-pods-release:
     runs-on: macos-26
-    name: iOS Build (CocoaPods, Release)
+    name: iOS Build (CocoaPods + spm_dependency, Release)
     timeout-minutes: 30   # one cold build plus `pod install --repo-update`
 
     steps:
@@ -306,4 +291,120 @@ jobs:
           -skipPackagePluginValidation \
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGNING_REQUIRED=NO \
+          build
+
+  build-ios-legacy-pods-release:
+    runs-on: macos-26
+    name: iOS Build (Pure CocoaPods, Debug + Release)
+    timeout-minutes: 60   # two cold builds plus `pod install --repo-update`
+    env:
+      DEVTOOLS_DISABLE_SPM: '1'   # legacy CocoaPods pods instead of spm_dependency
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+
+    - name: Select Xcode
+      uses: maxim-lobanov/setup-xcode@v1.7.0
+      with:
+        xcode-version: '26.6'
+
+    - name: Cache node_modules
+      uses: actions/cache@v5
+      id: cache-node-modules
+      with:
+        path: node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: yarn install --frozen-lockfile --prefer-offline
+
+    - name: Cache example app node_modules
+      uses: actions/cache@v5
+      id: cache-example-node-modules
+      with:
+        path: examples/AdaptyDevtools/node_modules
+        key: example-node-modules-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/yarn.lock') }}
+        restore-keys: |
+          example-node-modules-${{ runner.os }}-
+
+    - name: Install example app dependencies
+      if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
+      run: |
+        cd examples/AdaptyDevtools
+        yarn install --frozen-lockfile
+
+    - name: Build package and install
+      run: |
+        cd examples/AdaptyDevtools
+        yarn update-sdk-full
+
+    - name: Cache CocoaPods
+      uses: actions/cache@v5
+      with:
+        path: |
+          examples/AdaptyDevtools/ios/Pods
+          ~/Library/Caches/CocoaPods
+          ~/.cocoapods
+        key: legacy-pods-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock', 'examples/AdaptyDevtools/node_modules/react-native-adapty/react-native-adapty-sdk.podspec', 'examples/AdaptyDevtools/node_modules/react-native-adapty/ios/**/*') }}
+        restore-keys: |
+          legacy-pods-${{ runner.os }}-
+
+    - name: Install CocoaPods
+      run: |
+        cd examples/AdaptyDevtools/ios
+        pod install --repo-update
+        # Pods mode must not fall back to SPM: the Adapty pods have to come from the spec repo.
+        ruby -ryaml -e 'pods = YAML.load_file("Podfile.lock").dig("SPEC REPOS", ARGV[0]) || []
+          exit((%w[Adapty AdaptyUI AdaptyPlugin] - pods).empty?)' https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git \
+          || { echo "FATAL: the Adapty pods did not resolve from AdaptySDK-CocoaPods-Specs." >&2; exit 1; }
+
+    # Separate from the spm_dependency job's cache — a different native dependency graph. One
+    # DerivedData for both configurations.
+    - name: Cache Xcode Derived Data
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          ~/Library/Caches/org.swift.swiftpm
+        key: legacy-pods-xcode-derived-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/AdaptyRnSdkExample.xcodeproj/project.pbxproj', 'examples/AdaptyDevtools/ios/Podfile.lock') }}
+        restore-keys: |
+          legacy-pods-xcode-derived-${{ runner.os }}-
+
+    # Release before Debug: RN's prebuilt React core and ReactNativeDependencies are swapped per
+    # configuration in Pods/, and with no .last_build_configuration marker RN assumes Debug and skips
+    # the swap. Ending on Debug keeps the cached Pods/ in the flavor that assumption expects.
+    - name: Run iOS build (Release, device, unsigned)
+      run: |
+        cd examples/AdaptyDevtools/ios
+        xcodebuild -workspace AdaptyRnSdkExample.xcworkspace \
+          -scheme AdaptyRnSdkExample \
+          -destination "generic/platform=iOS" \
+          -configuration Release \
+          -derivedDataPath $HOME/Library/Developer/Xcode/DerivedData \
+          -skipPackagePluginValidation \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_REQUIRED=NO \
+          build
+
+    - name: Run iOS build (Debug, simulator)
+      run: |
+        cd examples/AdaptyDevtools/ios
+        xcodebuild -workspace AdaptyRnSdkExample.xcworkspace \
+          -scheme AdaptyRnSdkExample \
+          -sdk iphonesimulator \
+          -destination "generic/platform=iOS Simulator" \
+          -configuration Debug \
+          -derivedDataPath $HOME/Library/Developer/Xcode/DerivedData \
+          -skipPackagePluginValidation \
+          ONLY_ACTIVE_ARCH=YES \
+          CODE_SIGNING_ALLOWED=NO \
           build

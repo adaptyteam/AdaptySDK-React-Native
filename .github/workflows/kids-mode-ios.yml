@@ -18,6 +18,7 @@ on:
     branches: [ master, dev ]
     paths:
       - 'ios/adapty_kids_mode.rb'
+      - 'ios/adapty_podfile.rb'
       - 'react-native-adapty-sdk.podspec'
       - 'examples/AdaptyDevtools/ios/Podfile'
       - 'Package.swift'
@@ -33,19 +34,34 @@ concurrency:
 jobs:
   verify-kids-mode-ios:
     runs-on: macos-26
-    name: Verify Kids Mode (iOS, ${{ matrix.target }})
+    name: Verify Kids Mode (iOS, ${{ matrix.name }})
     timeout-minutes: 60   # cold build; a `both` run compiles the app twice (off + on)
+    env:
+      DEVTOOLS_DISABLE_SPM: ${{ matrix.disable-spm }}
 
-    # CocoaPods never reads Package.swift and SwiftPM never reads the podspec, so Kids Mode has
-    # a separate toggle on each path and each needs its own end-to-end proof.
+    # Same integrations as ios-builds.yml, each with its own Kids Mode toggle: CocoaPods never
+    # reads Package.swift and SwiftPM never reads the podspec, and the legacy CocoaPods pods get
+    # `-DKidsMode` from the Podfile helper instead of the package trait. `cache-id` keeps their
+    # caches apart; the legacy pods use their own, like in ios-builds.yml.
     strategy:
       fail-fast: false
       matrix:
         include:
-          - target: pods
-            example: examples/AdaptyDevtools
-          - target: spm
+          - name: Pure SPM
+            target: spm
             example: examples/AdaptyDevtoolsSpm
+            cache-id: spm
+            disable-spm: ''
+          - name: CocoaPods + spm_dependency
+            target: pods
+            example: examples/AdaptyDevtools
+            cache-id: pods
+            disable-spm: ''
+          - name: Pure CocoaPods
+            target: pods
+            example: examples/AdaptyDevtools
+            cache-id: legacy-pods
+            disable-spm: '1'
 
     steps:
       - name: Checkout code
@@ -79,9 +95,9 @@ jobs:
         id: cache-example-node-modules
         with:
           path: ${{ matrix.example }}/node_modules
-          key: example-kids-node-modules-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/yarn.lock', matrix.example)) }}
+          key: example-kids-node-modules-${{ matrix.cache-id }}-${{ runner.os }}-${{ hashFiles(format('{0}/yarn.lock', matrix.example)) }}
           restore-keys: |
-            example-kids-node-modules-${{ matrix.target }}-${{ runner.os }}-
+            example-kids-node-modules-${{ matrix.cache-id }}-${{ runner.os }}-
 
       - name: Install example app dependencies
         if: steps.cache-example-node-modules.outputs.cache-hit != 'true'
@@ -113,9 +129,11 @@ jobs:
             examples/AdaptyDevtools/ios/Pods
             ~/Library/Caches/CocoaPods
             ~/.cocoapods
-          key: pods-kids-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock') }}
+          # The podspec pins the native SDK (SPM version or pods version), so a bump changes the key;
+          # the committed Podfile.lock alone is the SPM-mode one and never changes for the pods.
+          key: ${{ matrix.cache-id == 'legacy-pods' && 'legacy-pods-kids' || 'pods-kids' }}-${{ runner.os }}-${{ hashFiles('examples/AdaptyDevtools/ios/Podfile.lock', 'examples/AdaptyDevtools/node_modules/react-native-adapty/react-native-adapty-sdk.podspec', 'examples/AdaptyDevtools/node_modules/react-native-adapty/ios/**/*') }}
           restore-keys: |
-            pods-kids-${{ runner.os }}-
+            ${{ matrix.cache-id == 'legacy-pods' && 'legacy-pods-kids' || 'pods-kids' }}-${{ runner.os }}-
 
       # React Native's prebuilt xcframeworks, downloaded once per RN version.
       - name: Cache SwiftPM artifacts
@@ -131,9 +149,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: .spm-kids-mode
-          key: kids-mode-spm-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles('Package.swift', 'react-native-adapty-sdk.podspec') }}
+          key: kids-mode-spm-${{ matrix.cache-id }}-${{ runner.os }}-${{ hashFiles('Package.swift', 'react-native-adapty-sdk.podspec') }}
           restore-keys: |
-            kids-mode-spm-${{ matrix.target }}-${{ runner.os }}-
+            kids-mode-spm-${{ matrix.cache-id }}-${{ runner.os }}-
 
       - name: Determine verify mode
         id: mode
@@ -150,3 +168,13 @@ jobs:
         env:
           VERIFY_MODE: ${{ steps.mode.outputs.mode }}
         run: bash scripts/verify-kids-mode-ios.sh "$VERIFY_MODE" "${{ matrix.target }}"
+
+      # The script leaves the example installed with Kids Mode off, still in pods mode. Catches the
+      # pods mode not engaging (no Adapty pods in the lock) or the Adapty pods resolving from trunk.
+      - name: Check the Adapty pods came from the spec repo
+        if: matrix.disable-spm == '1'
+        run: |
+          cd examples/AdaptyDevtools/ios
+          ruby -ryaml -e 'pods = YAML.load_file("Podfile.lock").dig("SPEC REPOS", ARGV[0]) || []
+            exit((%w[Adapty AdaptyUI AdaptyPlugin] - pods).empty?)' https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git \
+            || { echo "FATAL: the Adapty pods did not resolve from AdaptySDK-CocoaPods-Specs." >&2; exit 1; }

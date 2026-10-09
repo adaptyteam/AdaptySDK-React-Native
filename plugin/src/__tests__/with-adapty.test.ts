@@ -1,6 +1,9 @@
 import { AndroidConfig } from 'expo/config-plugins';
 import * as XML from '@expo/config-plugins/build/utils/XML';
-import type { ExportedConfig } from '@expo/config-plugins/build/Plugin.types';
+import type {
+  ExportedConfig,
+  Mod,
+} from '@expo/config-plugins/build/Plugin.types';
 
 import withAdapty, {
   type AdaptyPluginProps,
@@ -704,6 +707,519 @@ describe('withAdapty expo config plugin', () => {
           modResults: {},
         } as any),
       ).rejects.toThrow(/ENOENT|no such file/i);
+    });
+  });
+
+  describe('iosDisableSPM option', () => {
+    const SPEC_REPO =
+      'https://github.com/adaptyteam/AdaptySDK-CocoaPods-Specs.git';
+    const EXPECTED_BLOCK = [
+      '  # @generated begin react-native-adapty-cocoapods - expo prebuild (DO NOT MODIFY)',
+      "  require Pod::Executable.execute_command('node', ['-p',",
+      "    'require.resolve(",
+      '      "react-native-adapty/ios/adapty_podfile.rb",',
+      '      {paths: [process.argv[1]]},',
+      "    )', __dir__]).strip",
+      '  adapty_disable_spm!',
+      '  # @generated end react-native-adapty-cocoapods',
+      '  config = use_native_modules!',
+    ].join('\n');
+
+    // Trimmed Expo SDK 51 template Podfile.
+    const SAMPLE_PODFILE = `require File.join(File.dirname(\`node --print "require.resolve('expo/package.json')"\`), "scripts/autolinking")
+
+require 'json'
+podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties.json'))) rescue {}
+
+platform :ios, podfile_properties['ios.deploymentTarget'] || '13.4'
+
+prepare_react_native_project!
+
+target 'myapp' do
+  use_expo_modules!
+  config = use_native_modules!
+end
+`;
+
+    const PODFILE_WITH_CDN_SOURCE = `source 'https://cdn.cocoapods.org/'
+
+${SAMPLE_PODFILE}`;
+
+    // Stale blocks in formats only pre-release plugin builds wrote (never published), or a
+    // hand-edited block. This one sits before the first target: the flag and global sources.
+    const PODFILE_WITH_GLOBAL_SOURCES_BLOCK = SAMPLE_PODFILE.replace(
+      "target 'myapp' do",
+      [
+        '# @generated begin react-native-adapty-cocoapods - expo prebuild (DO NOT MODIFY)',
+        '$AdaptyDisableSPM = true',
+        `source '${SPEC_REPO}'`,
+        "source 'https://cdn.cocoapods.org/'",
+        '# @generated end react-native-adapty-cocoapods',
+        "target 'myapp' do",
+      ].join('\n'),
+    );
+
+    // This stale block sits inside the target: the flag and the pinned pods.
+    const PODFILE_WITH_INLINE_PODS_BLOCK = SAMPLE_PODFILE.replace(
+      '  use_expo_modules!',
+      [
+        '  # @generated begin react-native-adapty-cocoapods - expo prebuild (DO NOT MODIFY)',
+        '  $AdaptyDisableSPM = true',
+        `  pod 'Adapty', :source => '${SPEC_REPO}'`,
+        `  pod 'AdaptyUI', :source => '${SPEC_REPO}'`,
+        `  pod 'AdaptyPlugin', :source => '${SPEC_REPO}'`,
+        '  # @generated end react-native-adapty-cocoapods',
+        '  use_expo_modules!',
+      ].join('\n'),
+    );
+
+    // `ModConfig` does not type the `podfile` mod that `withPodfile` registers.
+    function getPodfileMod(config: ExportedConfig): Mod | undefined {
+      return (config.mods?.ios as Record<string, Mod> | undefined)?.podfile;
+    }
+
+    async function runPodfileMod(
+      config: ExportedConfig,
+      contents: string,
+    ): Promise<string> {
+      const { modResults } = await getPodfileMod(config)({
+        modRequest: {},
+        modResults: { path: '/app/ios/Podfile', language: 'rb', contents },
+      } as any);
+      return modResults.contents;
+    }
+
+    function countOccurrences(src: string, needle: string): number {
+      return src.split(needle).length - 1;
+    }
+
+    it('should leave a Podfile without the block unchanged when iosDisableSPM is omitted', async () => {
+      const contents = await runPodfileMod(applyPlugin(), SAMPLE_PODFILE);
+
+      expect(contents).toBe(SAMPLE_PODFILE);
+    });
+
+    it('should leave a Podfile without the block unchanged when iosDisableSPM is false', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: false }),
+        SAMPLE_PODFILE,
+      );
+
+      expect(contents).toBe(SAMPLE_PODFILE);
+    });
+
+    it('should remove the block when iosDisableSPM is turned off', async () => {
+      const generated = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE,
+      );
+
+      await expect(
+        runPodfileMod(applyPlugin({ iosDisableSPM: false }), generated),
+      ).resolves.toBe(SAMPLE_PODFILE);
+      await expect(runPodfileMod(applyPlugin(), generated)).resolves.toBe(
+        SAMPLE_PODFILE,
+      );
+    });
+
+    it('should remove a stale block before the target when turned off', async () => {
+      await expect(
+        runPodfileMod(
+          applyPlugin({ iosDisableSPM: false }),
+          PODFILE_WITH_GLOBAL_SOURCES_BLOCK,
+        ),
+      ).resolves.toBe(SAMPLE_PODFILE);
+    });
+
+    it('should not require use_native_modules! when iosDisableSPM is off', async () => {
+      const podfile = "platform :ios, '15.0'\ntarget 'myapp' do\nend\n";
+
+      await expect(
+        runPodfileMod(applyPlugin({ iosDisableSPM: false }), podfile),
+      ).resolves.toBe(podfile);
+    });
+
+    it('should call adapty_disable_spm! right before use_native_modules!', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE,
+      );
+
+      expect(contents).toContain(
+        `target 'myapp' do\n  use_expo_modules!\n${EXPECTED_BLOCK}\n`,
+      );
+    });
+
+    it('should anchor on the call form of the Expo SDK 52+ template', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE.replace(
+          '  config = use_native_modules!',
+          [
+            "  if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'",
+            "    config_command = ['node', '-e', 'config']",
+            '  else',
+            "    config_command = ['npx', 'expo-modules-autolinking', 'react-native-config']",
+            '  end',
+            '',
+            '  config = use_native_modules!(config_command)',
+          ].join('\n'),
+        ),
+      );
+
+      expect(contents).toContain(
+        `  end\n\n${EXPECTED_BLOCK}(config_command)\n`,
+      );
+      expect(countOccurrences(contents, 'adapty_disable_spm!')).toBe(1);
+    });
+
+    // The Expo SDK 51 template wraps use_native_modules! at the top level, before any target.
+    // The log line, absent from the template, mentions the call mid-line, as a looser regex
+    // would match.
+    it('should not anchor on a mention in the top-level SDK 51 override', async () => {
+      const override = [
+        "use_autolinking_method_symbol = ('use' + '_native' + '_modules!').to_sym",
+        'origin_autolinking_method = self.method(use_autolinking_method_symbol)',
+        'self.define_singleton_method(use_autolinking_method_symbol) do |*args|',
+        "  Pod::UI.puts('Wrapping use_native_modules! with expo-modules-autolinking')",
+        '  origin_autolinking_method.call()',
+        'end',
+        '',
+        "platform :ios, podfile_properties['ios.deploymentTarget'] || '13.4'",
+      ].join('\n');
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE.replace(
+          "platform :ios, podfile_properties['ios.deploymentTarget'] || '13.4'",
+          override,
+        ),
+      );
+
+      expect(contents).toContain(
+        `target 'myapp' do\n  use_expo_modules!\n${EXPECTED_BLOCK}\n`,
+      );
+      expect(countOccurrences(contents, 'adapty_disable_spm!')).toBe(1);
+    });
+
+    it('should skip an earlier target that only calls use_expo_modules!', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE.replace(
+          "target 'myapp' do",
+          "target 'NotificationService' do\n  use_expo_modules!\nend\n\ntarget 'myapp' do",
+        ),
+      );
+
+      expect(contents).toContain(
+        "target 'NotificationService' do\n  use_expo_modules!\nend\n",
+      );
+      expect(contents).toContain(
+        `target 'myapp' do\n  use_expo_modules!\n${EXPECTED_BLOCK}\n`,
+      );
+      expect(countOccurrences(contents, 'adapty_disable_spm!')).toBe(1);
+    });
+
+    // There the extension's call declares the RN pod first, so the block must precede it.
+    it('should anchor in an earlier target that calls use_native_modules!', async () => {
+      const extension =
+        "target 'ShareExtension' do\n  use_expo_modules!\n  config = use_native_modules!\nend\n";
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE.replace(
+          "target 'myapp' do",
+          `${extension}\ntarget 'myapp' do`,
+        ),
+      );
+
+      expect(contents).toContain(
+        `target 'ShareExtension' do\n  use_expo_modules!\n${EXPECTED_BLOCK}\nend\n`,
+      );
+      expect(countOccurrences(contents, 'adapty_disable_spm!')).toBe(1);
+    });
+
+    // Extension plugins append their targets after the app target; the global is set by then.
+    it('should anchor in the app target before a later extension that calls use_native_modules!', async () => {
+      const extension =
+        "\ntarget 'ShareExtension' do\n  use_expo_modules!\n  config = use_native_modules!\nend\n";
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE + extension,
+      );
+
+      expect(contents).toContain(
+        `target 'myapp' do\n  use_expo_modules!\n${EXPECTED_BLOCK}\n`,
+      );
+      expect(contents).toContain(extension);
+      expect(countOccurrences(contents, 'adapty_disable_spm!')).toBe(1);
+    });
+
+    it('should leave the pod list and the spec repo to the Podfile helper', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE,
+      );
+
+      expect(contents).not.toContain('$AdaptyDisableSPM');
+      expect(contents).not.toContain(SPEC_REPO);
+      expect(contents).not.toMatch(/^\s*pod\s/m);
+    });
+
+    it('should not declare any global source', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE,
+      );
+
+      expect(contents).not.toMatch(/^\s*source\s/m);
+    });
+
+    it('should be idempotent when the Podfile mod runs twice', async () => {
+      const first = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE,
+      );
+      const second = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        first,
+      );
+
+      expect(second).toBe(first);
+      expect(countOccurrences(second, 'adapty_disable_spm!')).toBe(1);
+    });
+
+    it('should leave the sources declared by the user untouched', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        PODFILE_WITH_CDN_SOURCE,
+      );
+
+      expect(contents.startsWith("source 'https://cdn.cocoapods.org/'\n")).toBe(
+        true,
+      );
+      expect(contents).toContain(EXPECTED_BLOCK);
+    });
+
+    it('should replace a stale block before the target', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        PODFILE_WITH_GLOBAL_SOURCES_BLOCK,
+      );
+
+      expect(contents).toBe(
+        await runPodfileMod(
+          applyPlugin({ iosDisableSPM: true }),
+          SAMPLE_PODFILE,
+        ),
+      );
+      expect(contents).not.toMatch(/^\s*source\s/m);
+    });
+
+    it('should replace a stale inline pods block', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        PODFILE_WITH_INLINE_PODS_BLOCK,
+      );
+
+      expect(contents).toBe(
+        await runPodfileMod(
+          applyPlugin({ iosDisableSPM: true }),
+          SAMPLE_PODFILE,
+        ),
+      );
+    });
+
+    it('should remove a stale inline pods block when turned off', async () => {
+      await expect(
+        runPodfileMod(
+          applyPlugin({ iosDisableSPM: false }),
+          PODFILE_WITH_INLINE_PODS_BLOCK,
+        ),
+      ).resolves.toBe(SAMPLE_PODFILE);
+    });
+
+    it('should replace the block in a Podfile with CRLF line endings', async () => {
+      const generated = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE,
+      );
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        generated.replace(/\n/g, '\r\n'),
+      );
+
+      expect(countOccurrences(contents, 'adapty_disable_spm!')).toBe(1);
+      expect(
+        countOccurrences(contents, '# @generated end react-native-adapty'),
+      ).toBe(1);
+      expect(contents).not.toMatch(/[^\r]\n/);
+    });
+
+    it('should keep CRLF line endings when removing the block', async () => {
+      const generated = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE,
+      );
+
+      await expect(
+        runPodfileMod(
+          applyPlugin({ iosDisableSPM: false }),
+          generated.replace(/\n/g, '\r\n'),
+        ),
+      ).resolves.toBe(SAMPLE_PODFILE.replace(/\n/g, '\r\n'));
+    });
+
+    it('should anchor on the real use_native_modules! call, not a commented-out one', async () => {
+      const contents = await runPodfileMod(
+        applyPlugin({ iosDisableSPM: true }),
+        SAMPLE_PODFILE.replace(
+          '  config = use_native_modules!',
+          '  # config = use_native_modules!\n  config = use_native_modules!',
+        ),
+      );
+
+      expect(contents).toContain(
+        `  # config = use_native_modules!\n${EXPECTED_BLOCK}\n`,
+      );
+      expect(countOccurrences(contents, 'adapty_disable_spm!')).toBe(1);
+    });
+
+    describe('with unpaired or repeated markers', () => {
+      const BLOCK_BEGIN =
+        '# @generated begin react-native-adapty-cocoapods - expo prebuild (DO NOT MODIFY)';
+      const BLOCK_END = '# @generated end react-native-adapty-cocoapods';
+
+      // Prebuild without --clean feeds each run the previous run's Podfile.
+      async function runThreeTimes(
+        iosDisableSPM: boolean,
+        podfile: string,
+      ): Promise<string[]> {
+        const outputs: string[] = [];
+        let contents = podfile;
+        for (let run = 0; run < 3; run++) {
+          contents = await runPodfileMod(
+            applyPlugin({ iosDisableSPM }),
+            contents,
+          );
+          outputs.push(contents);
+        }
+        return outputs;
+      }
+
+      let generated: string;
+      beforeEach(async () => {
+        generated = await runPodfileMod(
+          applyPlugin({ iosDisableSPM: true }),
+          SAMPLE_PODFILE,
+        );
+      });
+
+      it('should converge with a stray END above a valid block', async () => {
+        const withStrayEnd = (podfile: string) =>
+          podfile.replace(
+            "target 'myapp' do",
+            `${BLOCK_END}\ntarget 'myapp' do`,
+          );
+        const podfile = withStrayEnd(generated);
+
+        const on = await runThreeTimes(true, podfile);
+        expect(on).toEqual([podfile, podfile, podfile]);
+        expect(countOccurrences(on[2], 'adapty_disable_spm!')).toBe(1);
+
+        const off = await runThreeTimes(false, podfile);
+        const stripped = withStrayEnd(SAMPLE_PODFILE);
+        expect(off).toEqual([stripped, stripped, stripped]);
+      });
+
+      it('should converge with two complete blocks', async () => {
+        const podfile = generated.replace(
+          "target 'myapp' do",
+          [
+            BLOCK_BEGIN,
+            '$AdaptyDisableSPM = true',
+            BLOCK_END,
+            "target 'myapp' do",
+          ].join('\n'),
+        );
+
+        await expect(runThreeTimes(true, podfile)).resolves.toEqual([
+          generated,
+          generated,
+          generated,
+        ]);
+        await expect(runThreeTimes(false, podfile)).resolves.toEqual([
+          SAMPLE_PODFILE,
+          SAMPLE_PODFILE,
+          SAMPLE_PODFILE,
+        ]);
+      });
+
+      // Its block's extent is unknown: off leaves the Podfile as is, on drops only that line.
+      it('should converge with an unclosed BEGIN', async () => {
+        const podfile = SAMPLE_PODFILE.replace(
+          '  config = use_native_modules!',
+          `  ${BLOCK_BEGIN}\n  config = use_native_modules!`,
+        );
+
+        await expect(runThreeTimes(true, podfile)).resolves.toEqual([
+          generated,
+          generated,
+          generated,
+        ]);
+        await expect(runThreeTimes(false, podfile)).resolves.toEqual([
+          podfile,
+          podfile,
+          podfile,
+        ]);
+      });
+
+      it('should converge with reversed markers', async () => {
+        const podfile = SAMPLE_PODFILE.replace(
+          '  config = use_native_modules!',
+          `  ${BLOCK_END}\n  ${BLOCK_BEGIN}\n  config = use_native_modules!`,
+        );
+
+        const on = await runThreeTimes(true, podfile);
+        const expected = generated.replace(
+          `  ${BLOCK_BEGIN}`,
+          `  ${BLOCK_END}\n  ${BLOCK_BEGIN}`,
+        );
+        expect(on).toEqual([expected, expected, expected]);
+        expect(countOccurrences(on[2], 'adapty_disable_spm!')).toBe(1);
+
+        await expect(runThreeTimes(false, podfile)).resolves.toEqual([
+          podfile,
+          podfile,
+          podfile,
+        ]);
+      });
+    });
+
+    it('should throw when the Podfile has no use_native_modules! call', async () => {
+      await expect(
+        runPodfileMod(
+          applyPlugin({ iosDisableSPM: true }),
+          "platform :ios, '15.0'\ntarget 'myapp' do\n  use_expo_modules!\nend\n",
+        ),
+      ).rejects.toThrow(/\[react-native-adapty\].*`use_native_modules!`/);
+    });
+
+    it('should throw when iosDisableSPM is not a boolean', () => {
+      expect(() =>
+        applyPlugin({ iosDisableSPM: 'true' as unknown as boolean }),
+      ).toThrow(/\[react-native-adapty\] `iosDisableSPM` must be a boolean/);
+      expect(() =>
+        applyPlugin({ iosDisableSPM: 1 as unknown as boolean }),
+      ).toThrow(/\[react-native-adapty\] `iosDisableSPM` must be a boolean/);
+    });
+
+    it('should coexist with fallbackFile.ios', () => {
+      const config = applyPlugin({
+        iosDisableSPM: true,
+        fallbackFile: { ios: './assets/ios_fallback.json' },
+      });
+
+      expect(getPodfileMod(config)).toBeDefined();
+      expect(config.mods?.ios?.xcodeproj).toBeDefined();
     });
   });
 });
