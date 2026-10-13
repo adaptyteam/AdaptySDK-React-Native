@@ -1,50 +1,33 @@
-# Logging in `react-native-adapty`
+# Logger
 
-Adapty React Native SDK has a fixed similar flow for all the public methods. This allows to have identical logging scopes, that would allow to easily trace problems in developer's flow or within SDK.
+react-native-adapty logs its JS layer through the `@adapty/core` logger. Native SDK logs go to Xcode / os_log (iOS) and logcat (Android) and are configured by the same `setLogLevel` call. Sinks receive JS-layer SDK logs only; native SDK logs stay in Xcode / os_log and logcat.
 
-While this library provides extended logging capabilities, there is currently no way to output native logs to the console.
+## Levels
 
-![](https://user-images.githubusercontent.com/16625670/231397794-aa6b3dd6-8da3-4207-80d9-87190c8c473a.png)
+`error` < `warn` < `info` < `verbose`. JS logs are disabled until a level is set via `adapty.setLogLevel(...)` or `logLevel` in `adapty.activate(...)`. A level set before `activate` is kept when `activate` gets no `logLevel`. The new level applies immediately, including to the `setLogLevel` call itself.
 
-## Enabling
-To enable logging, you need to set `AdaptyLogLevel` during initialization of the SDK.
+## Sinks
+
+Every JS log entry is a `LogEvent` (`level`, `funcName`, `message`, `params`, `timestamp`, `formatted`) delivered to each configured sink. The default sink is `consoleLogSink`.
+
 ```ts
-import { LogLevel } from 'react-native-adapty';
+import { adapty, consoleLogSink, type LogSink } from 'react-native-adapty';
 
-adapty.activate('YOUR_SDK_KEY', {
-  logLevel: LogLevel.VERBOSE,
-})
+const memorySink: LogSink = {
+  id: 'memory',
+  handle: event => store.push(event),
+};
+
+await adapty.setLogLevel('verbose', {
+  logger: { sinks: [consoleLogSink, memorySink] },
+});
 ```
 
-## Log levels
-Logs in `react-native-adapty` follow the same pattern:
-
-1. (VERBOSE) `"Doing...."` right after the method is called
-2. (VERBOSE) `"Doing: OK"` right before the method returns
-3. (ERROR) `"Doing: FAILED"` right before the method returns with an error
-
-### DEBUG logs
-Most of the logs are debug logs. They are not printed by default, but can be enabled by setting `AdaptyLogLevel` to `AdaptyLogLevelDebug` in `Adapty.setLogLevel` method.
-
-- `Calling "${METHOD_NAME}"` — when the public method is called
-- `Encoding object` — when SDK needs to pass the value to the native layer (e.g. `Adapty.updateProfile`), it needs to encode user input to JSON string. This log is printed right before the encoding.
-- `Decoding string` — when native layer returns a value to the SDK, this value needs to be decoded from JSON string to a native object. This log is printed right before the decoding.
-
-And one more log set for event listeners flow:
-- `Adding event listener "${EVENT_NAME}"` — when the event listener is added
-- `Removing event listeners` — when event listeners are removed
-- `Receiving event "${EVENT_NAME}"` — when the event is received
-
-### INFO logs
-`react-native-adapty` currently does not have any info logs.
-
-## Warn logs
-`react-native-adapty` currently does not have any warn logs.
-
-### ERROR logs
-Errors logs occur only with unxpected errors. This means, that `paywall_not_found` error would not be logged by Adapty, whereas unexpected type while decoding response of a paywall would result in an error log.
-
-Error logs include call stack to trace down the error. 
-
-### FATAL logs
-`react-native-adapty` currently does not have any fatal logs. 
+- `logger.sinks` replaces all current sinks and calls `destroy()` on the old ones.
+- Without `logger` in the options, the current sinks are kept.
+- `logger` also resets `defaultMeta`, so pass it again each time.
+- To change only the level, omit `logger`. Re-passing the same sinks object destroys and re-installs them.
+- A sink may limit itself with `levels: ['error', 'warn']`.
+- Errors thrown from a sink's `handle` are ignored; `destroy` must not throw.
+- Import logger APIs (`consoleLogSink`, `LogSink`, …) from `react-native-adapty`, not from `@adapty/core`. Metro may resolve a direct `@adapty/core` import to a different module instance than the one the SDK uses.
+- In Expo Go / mock mode, `setLogLevel` called before `activate` needs `enableMock()` first, like any other pre-activation call.
