@@ -75,9 +75,8 @@ describe('Adapty - setLogLevel with a logger config', () => {
     });
   });
 
-  it('delivers the setLogLevel call logs to the new sink', async () => {
-    // a level is already on, so the start log is emitted and must hit the new sink
-    Log.logLevel = 'verbose';
+  it('delivers the setLogLevel call logs to the new sink when logging was off', async () => {
+    expect(Log.logLevel).toBeNull();
 
     await adapty.setLogLevel('verbose', {
       logger: { sinks: [collectingSink()] },
@@ -90,8 +89,24 @@ describe('Adapty - setLogLevel with a logger config', () => {
           message: expect.stringContaining('Calling method...'),
         }),
         expect.objectContaining({ funcName: 'fetch/set_log_level' }),
+        expect.objectContaining({
+          funcName: 'setLogLevel',
+          message: expect.stringContaining('Calling method: OK'),
+        }),
       ]),
     );
+  });
+
+  it('filters the setLogLevel call logs by the new level when lowering it', async () => {
+    await adapty.setLogLevel('verbose', {
+      logger: { sinks: [collectingSink()] },
+    });
+    events = [];
+
+    await adapty.setLogLevel('error');
+
+    expect(Log.logLevel).toBe('error');
+    expect(events).toEqual([]);
   });
 
   it('routes later SDK logs to the configured sink', async () => {

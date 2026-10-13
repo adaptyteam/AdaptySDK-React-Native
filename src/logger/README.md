@@ -4,7 +4,7 @@ react-native-adapty logs its JS layer through the `@adapty/core` logger. Native 
 
 ## Levels
 
-`error` < `warn` < `info` < `verbose`. JS logs are disabled until a level is set via `adapty.setLogLevel(...)` or `logLevel` in `adapty.activate(...)`. A level set before `activate` is kept when `activate` gets no `logLevel`.
+`error` < `warn` < `info` < `verbose`. JS logs are disabled until a level is set via `adapty.setLogLevel(...)` or `logLevel` in `adapty.activate(...)`. A level set before `activate` is kept when `activate` gets no `logLevel`. The new level applies immediately, including to the `setLogLevel` call itself.
 
 ## Sinks
 

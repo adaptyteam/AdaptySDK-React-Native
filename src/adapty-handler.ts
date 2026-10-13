@@ -1402,7 +1402,7 @@ export class Adapty {
    * `options.logger.sinks` replaces all current sinks and calls `destroy()` on them, so include `consoleLogSink` to keep console output.
    * Any `options.logger` also resets `defaultMeta`, so pass it again each time.
    * To change only the level, omit `options.logger`; the current sinks are kept.
-   * The sinks are applied even if the native call then rejects.
+   * The new level and sinks apply to this call's own logs too, and stay applied even if the native call then rejects.
    *
    * @example
    * ```ts
@@ -1430,17 +1430,16 @@ export class Adapty {
     logLevel: LogLevel,
     options?: { logger?: LoggerConfig },
   ): Promise<void> {
-    // configure sinks first, so this call's own logs reach them
+    // apply sinks and level before the first log, as activate does, so this call is logged under the new config
     if (options?.logger) {
       Log.configure(options.logger);
     }
+    Log.logLevel = logLevel;
 
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'setLogLevel' });
     log.start(() => ({ logLevel }));
-
-    Log.logLevel = logLevel;
 
     const methodKey = 'set_log_level';
     const data: Req['SetLogLevel.Request'] = {
