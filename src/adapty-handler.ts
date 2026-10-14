@@ -1093,6 +1093,10 @@ export class Adapty {
    * a promoted product carries no paywall context, so no purchase parameters
    * are accepted.
    *
+   * Pass the event's product object as is: on iOS it carries the StoreKit
+   * purchase intent required to complete the purchase, so a hand-built
+   * product fails.
+   *
    * @example
    * ```ts
    * adapty.addEventListener('onPromotedPurchaseReceived', async product => {
