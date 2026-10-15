@@ -7,6 +7,7 @@
  * - variationId extraction from flow
  */
 
+import { Platform } from 'react-native';
 import { Adapty } from '@/adapty-handler';
 import { resetBridge } from '@/bridge';
 import type { components } from '@/types/api';
@@ -181,6 +182,96 @@ describe('Adapty - Paywall Products', () => {
       await expect(adapty.getPaywallProducts(flow)).rejects.toMatchObject({
         adaptyCode: 2, // camelCase in JS (from native adapty_code)
       });
+    });
+  });
+
+  describe('Android subscription decoding', () => {
+    const originalOS = Platform.OS;
+
+    const androidProduct: components['defs']['AdaptyPaywallProduct.Response'] =
+      {
+        vendor_product_id: 'com.example.yearly',
+        adapty_product_id: 'yearly_id',
+        access_level_id: 'premium',
+        product_type: 'subscription',
+        paywall_product_index: 0,
+        paywall_variation_id: 'test_variation_123',
+        paywall_ab_test_name: 'test_ab',
+        paywall_name: 'Test Flow',
+        localized_description: 'Yearly Premium Subscription',
+        localized_title: 'Premium Yearly',
+        price: { amount: 59.99, localized_string: '$59.99' },
+        subscription: {
+          base_plan_id: 'yearly-base',
+          renewal_type: 'autorenewable',
+          period: { unit: 'year', number_of_units: 1 },
+        },
+      };
+
+    const placement = {
+      id: 'test_placement',
+      abTestName: 'test_ab',
+      audienceName: 'all_users',
+      revision: 1,
+      audienceVersionId: 'v1',
+    };
+    const flow: AdaptyFlow = {
+      id: 'test_flow_id',
+      name: 'Test Flow',
+      variationId: 'test_variation_123',
+      hasViewConfiguration: false,
+      placement,
+      responseCreatedAt: 1704067200000,
+      paywalls: [
+        {
+          placement,
+          id: 'test_paywall_id',
+          name: 'Test Paywall',
+          variationId: 'test_variation_123',
+          productIdentifiers: [],
+          // `products` kept at runtime for coder.encode(flow) — assertion hides excess property from TS
+          products: [],
+        } as AdaptyFlow['paywalls'][number],
+      ],
+    };
+
+    async function getProducts(
+      response: components['requests']['GetPaywallProducts.Response'],
+    ) {
+      resetBridge();
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        get_paywall_products: response,
+      });
+      adapty = new Adapty();
+      await adapty.activate('test_api_key');
+      return adapty.getPaywallProducts(flow);
+    }
+
+    beforeAll(() => {
+      Platform.OS = 'android';
+    });
+
+    afterAll(() => {
+      Platform.OS = originalOS;
+    });
+
+    it('should decode base_plan_id into subscription.android', async () => {
+      const products = await getProducts({ success: [androidProduct] });
+
+      expect(products[0]?.subscription?.android).toEqual({
+        basePlanId: 'yearly-base',
+        renewalType: 'autorenewable',
+      });
+    });
+
+    it('should reject products whose Android subscription lacks base_plan_id', async () => {
+      const { base_plan_id: _basePlanId, ...subscription } =
+        androidProduct.subscription!;
+
+      await expect(
+        getProducts({ success: [{ ...androidProduct, subscription }] }),
+      ).rejects.toMatchObject({ adaptyCode: 2006 });
     });
   });
 });
