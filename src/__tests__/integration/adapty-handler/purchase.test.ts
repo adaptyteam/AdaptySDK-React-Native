@@ -109,10 +109,12 @@ describe('Adapty - MakePurchase Bridge Integration', () => {
 
       expect(request.method).toBe('make_purchase');
       // Only the billing plan id goes back to native, not the whole pricing terms
-      expect(request.product.subscription).toStrictEqual({
-        pricing_terms: { billing_plan_id: 'monthly' },
-        offer: { offer_identifier: { type: 'introductory' } },
-      });
+      const expectedSubscription: components['requests']['MakePurchase.Request']['product']['subscription'] =
+        {
+          pricing_terms: { billing_plan_id: 'monthly' },
+          offer: { offer_identifier: { type: 'introductory' } },
+        };
+      expect(request.product.subscription).toStrictEqual(expectedSubscription);
     });
   });
 

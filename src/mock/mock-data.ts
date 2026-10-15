@@ -5,6 +5,9 @@ import type {
   AdaptyOnboarding,
   AdaptyAccessLevel,
   AdaptyPurchaseResult,
+  AdaptyPrice,
+  AdaptySubscriptionPeriod,
+  AdaptySubscriptionPricingTerms,
   VendorStore,
 } from '@/types';
 
@@ -179,9 +182,47 @@ export function createMockFlow(
 }
 
 /**
+ * Default `up_front` pricing terms iOS reports when no other billing plan
+ * applies: billed in full each period.
+ */
+export function createMockUpFrontPricingTerms(
+  price: AdaptyPrice,
+  period: AdaptySubscriptionPeriod,
+): AdaptySubscriptionPricingTerms {
+  return {
+    billingPlan: 'up_front',
+    billingPrice: price,
+    billingPeriod: period,
+    commitmentInfo: { price, period },
+  };
+}
+
+/**
  * Creates default mock products for a flow
  */
 export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
+  // Shared with pricingTerms: up_front terms always equal the product price and period
+  const annualPrice: AdaptyPrice = {
+    amount: 99.99,
+    currencyCode: 'USD',
+    currencySymbol: '$',
+    localizedString: '$99.99',
+  };
+  const annualPeriod: AdaptySubscriptionPeriod = {
+    numberOfUnits: 1,
+    unit: 'year',
+  };
+  const monthlyPrice: AdaptyPrice = {
+    amount: 9.99,
+    currencyCode: 'USD',
+    currencySymbol: '$',
+    localizedString: '$9.99',
+  };
+  const monthlyPeriod: AdaptySubscriptionPeriod = {
+    numberOfUnits: 1,
+    unit: 'month',
+  };
+
   return [
     {
       vendorProductId: MOCK_VENDOR_PRODUCT_ID_ANNUAL,
@@ -194,19 +235,11 @@ export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
       variationId: flow.variationId,
       accessLevelId: MOCK_ACCESS_LEVEL_PREMIUM,
       productType: 'subscription',
-      price: {
-        amount: 99.99,
-        currencyCode: 'USD',
-        currencySymbol: '$',
-        localizedString: '$99.99',
-      },
+      price: annualPrice,
       webPurchaseUrl: flow.paywalls[0]?.webPurchaseUrl,
       paywallProductIndex: 0,
       subscription: {
-        subscriptionPeriod: {
-          numberOfUnits: 1,
-          unit: 'year',
-        },
+        subscriptionPeriod: annualPeriod,
         localizedSubscriptionPeriod: '1 year',
         offer: {
           identifier: {
@@ -232,6 +265,10 @@ export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
         },
         ios: {
           subscriptionGroupIdentifier: '20770576',
+          pricingTerms: createMockUpFrontPricingTerms(
+            annualPrice,
+            annualPeriod,
+          ),
         },
       },
       ios: {
@@ -249,19 +286,11 @@ export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
       variationId: flow.variationId,
       accessLevelId: MOCK_ACCESS_LEVEL_PREMIUM,
       productType: 'subscription',
-      price: {
-        amount: 9.99,
-        currencyCode: 'USD',
-        currencySymbol: '$',
-        localizedString: '$9.99',
-      },
+      price: monthlyPrice,
       webPurchaseUrl: flow.paywalls[0]?.webPurchaseUrl,
       paywallProductIndex: 1,
       subscription: {
-        subscriptionPeriod: {
-          numberOfUnits: 1,
-          unit: 'month',
-        },
+        subscriptionPeriod: monthlyPeriod,
         localizedSubscriptionPeriod: '1 month',
         offer: {
           identifier: {
@@ -287,6 +316,10 @@ export function createMockProducts(flow: AdaptyFlow): AdaptyPaywallProduct[] {
         },
         ios: {
           subscriptionGroupIdentifier: '20770576',
+          pricingTerms: createMockUpFrontPricingTerms(
+            monthlyPrice,
+            monthlyPeriod,
+          ),
         },
       },
       ios: {
