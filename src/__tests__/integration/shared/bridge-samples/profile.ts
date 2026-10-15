@@ -65,6 +65,57 @@ export const GET_PROFILE_RESPONSE_WITH_PREMIUM: components['requests']['GetProfi
   };
 
 /**
+ * GetProfile response with a Google Play subscription bought with an offer.
+ * The profile is cross-platform, so it can arrive on either device OS.
+ */
+export const GET_PROFILE_RESPONSE_PLAY_STORE_OFFER: components['requests']['GetProfile.Response'] =
+  {
+    success: {
+      profile_id: 'profile_789',
+      customer_user_id: 'play_store_user',
+      segment_hash: 'segment_abc',
+      is_test_user: false,
+      timestamp: 1792070921450,
+      paid_access_levels: {
+        premium: {
+          id: 'premium',
+          is_active: true,
+          vendor_product_id: 'weekly.premium.599',
+          store: 'play_store',
+          activated_at: '2026-10-15T13:25:21.224Z',
+          renewed_at: '2026-10-15T13:25:21.224Z',
+          expires_at: '2026-10-15T13:30:20.600Z',
+          will_renew: true,
+          is_in_grace_period: false,
+          is_lifetime: false,
+          is_refund: false,
+          active_introductory_offer_type: 'pay_up_front',
+          offer_id: 'intro-pay-up-front-weekly-premium-determined',
+        },
+      },
+      subscriptions: {
+        'weekly.premium.599': {
+          store: 'play_store',
+          vendor_product_id: 'weekly.premium.599',
+          vendor_transaction_id: 'GPA.3354-7303-5463-58868',
+          vendor_original_transaction_id: 'GPA.3354-7303-5463-58868',
+          is_active: true,
+          is_lifetime: false,
+          activated_at: '2026-10-15T13:25:21.224Z',
+          renewed_at: '2026-10-15T13:25:21.224Z',
+          expires_at: '2026-10-15T13:30:20.600Z',
+          is_in_grace_period: false,
+          is_refund: false,
+          is_sandbox: true,
+          will_renew: true,
+          active_introductory_offer_type: 'pay_up_front',
+          offer_id: 'intro-pay-up-front-weekly-premium-determined',
+        },
+      },
+    },
+  };
+
+/**
  * UpdateProfile request with custom attributes
  */
 export const UPDATE_PROFILE_REQUEST_CUSTOM_ATTRS: components['requests']['UpdateProfile.Request'] =

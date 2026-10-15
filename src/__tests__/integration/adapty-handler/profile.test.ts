@@ -7,6 +7,7 @@
  * - Verify only customAttributes returned in profile
  */
 
+import { Platform } from 'react-native';
 import { Adapty } from '@/adapty-handler';
 import { resetBridge } from '@/bridge';
 import type { components } from '@/types/api';
@@ -20,6 +21,8 @@ import {
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   GET_PROFILE_RESPONSE_WITH_CUSTOM_ATTRS,
+  GET_PROFILE_RESPONSE_PLAY_STORE_OFFER,
+  GET_PROFILE_RESPONSE_WITH_PREMIUM,
   UPDATE_PROFILE_RESPONSE_SUCCESS,
   UPDATE_PROFILE_RESPONSE_ERROR,
 } from '../shared/bridge-samples';
@@ -112,6 +115,58 @@ describe('Adapty - Profile', () => {
       expect(profile.appliedExternalAttributionProviders).toEqual([
         'apple_search_ads',
       ]);
+    });
+  });
+
+  describe('Store-dependent offerId', () => {
+    const originalOS = Platform.OS;
+
+    afterEach(() => {
+      Platform.OS = originalOS;
+    });
+
+    // offer_id depends on the purchase store, not on the device OS
+    it.each(['ios', 'android'] as const)(
+      'should decode offerId of a Play Store purchase on %s',
+      async os => {
+        Platform.OS = os;
+        resetBridge();
+        nativeMock = createNativeModuleMock({
+          activate: ACTIVATE_RESPONSE_SUCCESS,
+          get_profile: GET_PROFILE_RESPONSE_PLAY_STORE_OFFER,
+        });
+        adapty = new Adapty();
+        await adapty.activate('test_api_key');
+
+        const profile = await adapty.getProfile();
+        const offerId = 'intro-pay-up-front-weekly-premium-determined';
+        const accessLevel = profile.accessLevels?.['premium'];
+
+        expect(accessLevel?.store).toBe('play_store');
+        expect(accessLevel?.offerId).toBe(offerId);
+        // Deprecated alias keeps the same value
+        expect(accessLevel?.android?.offerId).toBe(offerId);
+        expect(profile.subscriptions?.['weekly.premium.599']?.offerId).toBe(
+          offerId,
+        );
+      },
+    );
+
+    it('should leave offerId undefined for an App Store purchase', async () => {
+      resetBridge();
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        get_profile: GET_PROFILE_RESPONSE_WITH_PREMIUM,
+      });
+      adapty = new Adapty();
+      await adapty.activate('test_api_key');
+
+      const profile = await adapty.getProfile();
+      const accessLevel = profile.accessLevels?.['premium'];
+
+      expect(accessLevel?.store).toBe('app_store');
+      expect(accessLevel?.offerId).toBeUndefined();
+      expect(accessLevel?.android?.offerId).toBeUndefined();
     });
   });
 
