@@ -31,6 +31,9 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
                 }
             },
             { value -> FileLocation.extract(value) },
+            // isPresentationEmbedded: present flows and onboardings as dialog fragments in the host
+            // activity, so a singleTask MainActivity reopened from the launcher does not clear them
+            true,
         )
         crossplatformHelper.setActivity { reactApplicationContext.currentActivity }
 
