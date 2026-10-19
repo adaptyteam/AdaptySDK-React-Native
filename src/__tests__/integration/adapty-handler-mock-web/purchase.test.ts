@@ -231,4 +231,18 @@ describe('Adapty - Purchase', () => {
       cleanupAdapty(adaptyNoGrant);
     });
   });
+
+  describe('Default products', () => {
+    it('should purchase a default product carrying pricing terms', async () => {
+      const flow = await adapty.getFlow('mock_placement');
+      const [product] = await adapty.getPaywallProducts(flow);
+      if (!product) {
+        throw new Error('Mock store returned no default products');
+      }
+
+      const result = await adapty.makePurchase(product);
+
+      expect(result.type).toBe('success');
+    });
+  });
 });

@@ -5,6 +5,7 @@ export {
   Gender,
   AppTrackingTransparencyStatus,
   ProductPeriod,
+  SubscriptionBillingPlan,
   WebPresentation,
   RefundPreference,
 } from '@adapty/core';
@@ -29,6 +30,9 @@ export type {
   AdaptyPaywallProduct,
   AdaptyPromotedProduct,
   AdaptySubscriptionDetails,
+  AdaptySubscriptionPricingTerms,
+  AdaptySubscriptionCommitmentInfo,
+  AdaptyProfileSubscriptionCommitmentInfo,
   AdaptySubscriptionOffer,
   AdaptySubscriptionOfferId,
   AdaptyDiscountPhase,

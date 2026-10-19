@@ -1,3 +1,4 @@
+import type { Adapty } from '@/adapty-handler';
 import type { AdaptyPaywallProduct, AdaptyFlow } from '@/types';
 import { createAdaptyInstance, cleanupAdapty } from './setup.utils';
 
@@ -83,6 +84,37 @@ describe('Adapty - Paywall Products', () => {
       expect(products[0]?.adaptyId).toBe('special_adapty_id');
 
       cleanupAdapty(adaptyWithCustom);
+    });
+  });
+
+  describe('Default products', () => {
+    let adapty: Adapty;
+
+    beforeEach(async () => {
+      adapty = await createAdaptyInstance();
+    });
+
+    afterEach(() => {
+      cleanupAdapty(adapty);
+    });
+
+    it('should expose up-front iOS pricing terms matching the product price', async () => {
+      const flow = await adapty.getFlow('mock_placement');
+      const products = await adapty.getPaywallProducts(flow);
+
+      expect(products).toHaveLength(2);
+      for (const product of products) {
+        const terms = product.subscription?.ios?.pricingTerms;
+        expect(terms?.billingPlan).toBe('up_front');
+        expect(terms?.billingPrice).toStrictEqual(product.price);
+        expect(terms?.billingPeriod).toStrictEqual(
+          product.subscription?.subscriptionPeriod,
+        );
+        expect(terms?.commitmentInfo).toStrictEqual({
+          price: product.price,
+          period: product.subscription?.subscriptionPeriod,
+        });
+      }
     });
   });
 });

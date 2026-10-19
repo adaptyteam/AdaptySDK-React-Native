@@ -26,7 +26,7 @@ import {
   MAKE_PROMOTED_PURCHASE_RESPONSE_SUCCESS,
   VIP_PRODUCT,
 } from '../shared/bridge-samples';
-import type { AdaptyPromotedProduct } from '@/types';
+import type { AdaptyPaywallProduct, AdaptyPromotedProduct } from '@/types';
 describe('Adapty - MakePurchase Bridge Integration', () => {
   let adapty: Adapty;
   let nativeMock: MockNativeModule;
@@ -64,6 +64,57 @@ describe('Adapty - MakePurchase Bridge Integration', () => {
         expectedRequest: MAKE_PURCHASE_REQUEST,
         callIndex: 1,
       }); // call index 1 (0 is activate)
+    });
+
+    it('should send the iOS billing plan and the offer under subscription', async () => {
+      nativeMock = createNativeModuleMock({
+        activate: ACTIVATE_RESPONSE_SUCCESS,
+        is_activated: IS_ACTIVATED_RESPONSE_TRUE,
+        make_purchase: MAKE_PURCHASE_RESPONSE_SUCCESS,
+      });
+
+      adapty = new Adapty();
+      await adapty.activate('test_key');
+      nativeMock.handler.mockClear();
+
+      const product: AdaptyPaywallProduct = {
+        ...VIP_PRODUCT,
+        subscription: {
+          subscriptionPeriod: { unit: 'year', numberOfUnits: 1 },
+          offer: {
+            identifier: { type: 'introductory' },
+            phases: [],
+          },
+          ios: {
+            pricingTerms: {
+              billingPlan: 'monthly',
+              billingPrice: { amount: 6.99 },
+              billingPeriod: { unit: 'month', numberOfUnits: 1 },
+              commitmentInfo: {
+                price: { amount: 83.88 },
+                period: { unit: 'year', numberOfUnits: 1 },
+              },
+            },
+          },
+        },
+      };
+
+      await adapty.makePurchase(product);
+
+      const request = extractNativeRequest<
+        components['requests']['MakePurchase.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.method).toBe('make_purchase');
+      // Only the billing plan id goes back to native, not the whole pricing terms
+      const expectedSubscription: components['requests']['MakePurchase.Request']['product']['subscription'] =
+        {
+          pricing_terms: { billing_plan_id: 'monthly' },
+          offer: { offer_identifier: { type: 'introductory' } },
+        };
+      expect(request.product.subscription).toStrictEqual(expectedSubscription);
     });
   });
 
