@@ -23,14 +23,8 @@ type NativeHandlerFn = (
  */
 export interface MockNativeModule {
   /**
-   * Returns constants required by NativeRequestHandler
-   * Must include HANDLER key with handler method name
-   */
-  getConstants: jest.Mock<Record<string, string>>;
-
-  /**
    * Handler function that processes SDK requests
-   * Spied for assertions on method calls and parameters
+   * Installed as the spec's `handle`; spied for assertions on method calls and parameters
    */
   handler: jest.MockedFunction<NativeHandlerFn>;
 }
@@ -117,7 +111,7 @@ interface EmitNativeEventOptions {
 /**
  * Creates a mocked RNAdapty native module with typed responses
  *
- * The mock intercepts calls to NativeModules.RNAdapty.handler() and returns
+ * The mock intercepts calls to NativeModules.RNAdapty.handle() and returns
  * predefined responses as JSON strings (mimicking actual native behavior).
  *
  * @param responses - Registry mapping method names to their typed responses
@@ -161,12 +155,15 @@ export function createNativeModuleMock(
   );
 
   const mock: MockNativeModule = {
-    getConstants: jest.fn(() => ({ HANDLER: 'handler' })),
     handler: handlerMock,
   };
 
-  // Install mock into NativeModules
-  (NativeModules as any).RNAdapty = mock;
+  // Install a spec-shaped module; the jest TurboModuleRegistry mock reads NativeModules
+  (NativeModules as any).RNAdapty = {
+    handle: handlerMock,
+    addListener: jest.fn(),
+    removeListeners: jest.fn(),
+  };
 
   // Improve NativeEventEmitter mock to support event emission
   if (!(NativeEventEmitter as any).__mocked) {
@@ -294,7 +291,6 @@ export function expectNativeCall<T extends { method: string }>(
  */
 export function resetNativeModuleMock(mock: MockNativeModule): void {
   mock.handler.mockClear();
-  mock.getConstants.mockClear();
   resetTestEmitter();
 }
 

@@ -7,11 +7,16 @@ jest.mock('react-native', () => {
     },
     NativeModules: {
       RNAdapty: {
-        getConstants: () => ({ HANDLER: 'handle' }),
         handle: async (method, params) => {
           return method;
         },
+        addListener: jest.fn(),
+        removeListeners: jest.fn(),
       },
+    },
+    // Reads NativeModules, where integration tests install their mocks
+    TurboModuleRegistry: {
+      get: jest.fn((name) => RN.NativeModules[name] ?? null),
     },
     NativeEventEmitter: jest.fn(() => ({
       addListener: jest.fn(),
