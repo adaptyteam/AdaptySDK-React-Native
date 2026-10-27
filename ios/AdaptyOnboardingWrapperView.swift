@@ -50,7 +50,7 @@ class AdaptyOnboardingWrapperView: UIView {
             }
 
             let handler = SwiftAdaptyPluginEventHandler { event in
-                RNAdapty.emitPluginEvent(event)
+                RNAdaptyImpl.emitPluginEvent(event)
             }
 
             let uiView = AdaptyOnboardingPlatformViewWrapper(

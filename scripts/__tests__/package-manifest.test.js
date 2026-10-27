@@ -110,12 +110,14 @@ describe('target sources', () => {
   });
 
   it('cover every Objective-C file in ios/', () => {
-    expect(declaredSources('AdaptyReactNativeObjC')).toEqual(iosSources('.m'));
+    expect(declaredSources('AdaptyReactNativeObjC')).toEqual(
+      [...iosSources('.m'), ...iosSources('.mm')].sort(),
+    );
   });
 
   it('keep each language in its own target', () => {
     expect(declaredSources('AdaptyReactNative').every((f) => f.endsWith('.swift'))).toBe(true);
-    expect(declaredSources('AdaptyReactNativeObjC').every((f) => f.endsWith('.m'))).toBe(true);
+    expect(declaredSources('AdaptyReactNativeObjC').every((f) => /\.mm?$/.test(f))).toBe(true);
   });
 });
 
@@ -154,6 +156,8 @@ describe('npm package', () => {
       }),
     );
     const files = pack.files.map((f) => f.path);
-    expect(files).toEqual(expect.arrayContaining(['src/specs/NativeRNAdapty.ts']));
+    expect(files).toEqual(
+      expect.arrayContaining(['src/specs/NativeRNAdapty.ts', 'ios/RNAdapty.mm', 'ios/RNAdaptyImpl.swift']),
+    );
   });
 });

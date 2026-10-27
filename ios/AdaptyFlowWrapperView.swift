@@ -49,7 +49,7 @@ class AdaptyFlowWrapperView: UIView {
                 let config = try await AdaptyPlugin.getFlowViewConfiguration(withJson: json)
 
                 let handler = SwiftAdaptyPluginEventHandler { event in
-                    RNAdapty.emitPluginEvent(event)
+                    RNAdaptyImpl.emitPluginEvent(event)
                 }
 
                 guard let parentViewController = self.findViewController() else { return }
