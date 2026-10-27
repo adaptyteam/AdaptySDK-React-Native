@@ -140,3 +140,20 @@ describe('deployment target', () => {
     expect(manifestVersion).toBe(podspecVersion);
   });
 });
+
+describe('npm package', () => {
+  // Every app's codegen reads the spec from the installed package, so it must ship.
+  // --ignore-scripts skips prepack, which runs the whole release gate.
+  it('ships the codegen spec', () => {
+    const { execFileSync } = require('child_process');
+    const [pack] = JSON.parse(
+      execFileSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {
+        cwd: ROOT,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }),
+    );
+    const files = pack.files.map((f) => f.path);
+    expect(files).toEqual(expect.arrayContaining(['src/specs/NativeRNAdapty.ts']));
+  });
+});

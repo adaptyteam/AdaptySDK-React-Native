@@ -53,6 +53,14 @@
     "!**/.*"
   ],
   "main": "dist/index.js",
+  "codegenConfig": {
+    "name": "RNAdaptySpec",
+    "type": "modules",
+    "jsSrcsDir": "src/specs",
+    "android": {
+      "javaPackageName": "com.adapty.react"
+    }
+  },
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "yarn clean:plugin && yarn build:plugin && tsc -p tsconfig.build.json && yarn run tsc-alias -p tsconfig.build.json",
@@ -81,6 +89,7 @@
     "@babel/preset-typescript": "^7.22.5",
     "@expo/config-plugins": "^54.0.2",
     "@react-native/babel-preset": "^0.80.0",
+    "@react-native/codegen": "0.80.0",
     "@types/jest": "^29.5.3",
     "@types/node": "^18.10.0",
     "@types/react": "^19.1.0",
