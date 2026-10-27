@@ -157,7 +157,13 @@ describe('npm package', () => {
     );
     const files = pack.files.map((f) => f.path);
     expect(files).toEqual(
-      expect.arrayContaining(['src/specs/NativeRNAdapty.ts', 'ios/RNAdapty.mm', 'ios/RNAdaptyImpl.swift']),
+      expect.arrayContaining([
+        'src/specs/NativeRNAdapty.ts',
+        'ios/RNAdapty.mm',
+        'ios/RNAdaptyImpl.swift',
+        'android/src/newarch/com/adapty/react/AdaptyReactModuleSpec.kt',
+        'android/src/oldarch/com/adapty/react/AdaptyReactModuleSpec.kt',
+      ]),
     );
   });
 });

@@ -2,6 +2,7 @@
  * Pins the RNAdapty codegen spec: every app's codegen generates the native
  * interfaces from it, so a drifted signature breaks native builds downstream.
  */
+import fs from 'fs';
 import path from 'path';
 import { MODULE_NAME } from '@/bridge';
 
@@ -34,6 +35,12 @@ const { TypeScriptParser } =
   };
 
 const SPEC_PATH = path.join(__dirname, '..', 'specs', 'NativeRNAdapty.ts');
+const OLDARCH_SHIM_PATH = path.join(
+  __dirname,
+  '..',
+  '..',
+  'android/src/oldarch/com/adapty/react/AdaptyReactModuleSpec.kt',
+);
 
 function parseSpec(): ModuleSchema {
   const schema = new TypeScriptParser().parseFile(SPEC_PATH);
@@ -83,5 +90,30 @@ describe('RNAdapty codegen spec', () => {
 
   it('keeps the JS module name in sync with the spec', () => {
     expect(MODULE_NAME).toBe(parseSpec().moduleName);
+  });
+
+  it('keeps the oldarch shim in sync with the spec', () => {
+    const source = fs.readFileSync(OLDARCH_SHIM_PATH, 'utf8');
+    const shim = [...source.matchAll(/abstract fun (\w+)\(([^)]*)\)/g)].map(
+      ([, name, params]) => [
+        name,
+        params?.trim() ? params.split(',').filter(p => p.trim()).length : 0,
+      ],
+    );
+
+    // Promise methods take the promise as a trailing native parameter
+    const expected = parseSpec().spec.methods.map(m => [
+      m.name,
+      m.typeAnnotation.params.length +
+        (m.typeAnnotation.returnTypeAnnotation.type === 'PromiseTypeAnnotation'
+          ? 1
+          : 0),
+    ]);
+    expect(shim).toEqual(expected);
+    expect(expected).toEqual([
+      ['handle', 3],
+      ['addListener', 1],
+      ['removeListeners', 1],
+    ]);
   });
 });
