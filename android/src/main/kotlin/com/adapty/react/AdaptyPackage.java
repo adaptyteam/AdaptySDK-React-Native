@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.BaseReactPackage;
+import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.module.model.ReactModuleInfo;
@@ -16,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /** @noinspection ALL*/
-public class AdaptyPackage extends BaseReactPackage {
+// The redundant `implements ReactPackage` keeps RN CLI < 0.76 autolinking detecting this package
+public class AdaptyPackage extends BaseReactPackage implements ReactPackage {
   @NonNull
   @Override
   public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext ctx) {
