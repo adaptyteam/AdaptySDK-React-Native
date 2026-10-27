@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 /** @noinspection ALL*/
-// The redundant `implements ReactPackage` keeps RN CLI < 0.76 autolinking detecting this package
+// The redundant `implements ReactPackage` must stay: older RN CLI autolinking (e.g. CLI 14 in RN 0.75)
+// only detects `implements ReactPackage` / `extends TurboReactPackage`, not `extends BaseReactPackage`.
+// Guarded by scripts/__tests__/android-autolinking.test.js.
 public class AdaptyPackage extends BaseReactPackage implements ReactPackage {
   @NonNull
   @Override

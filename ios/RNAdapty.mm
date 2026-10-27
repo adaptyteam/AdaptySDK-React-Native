@@ -7,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// Mirrors the Swift class by hand; never import any *-Swift.h here (duplicate interface error).
+// Mirrors the Swift class by hand; never import any *-Swift.h here (nor in RNAdapty-Bridging-Header.h): duplicate interface error.
 @interface RNAdaptyImpl : NSObject
 @property (class, nonatomic, readonly) NSArray<NSString *> *supportedEvents;
 @property (nonatomic) BOOL hasListeners;

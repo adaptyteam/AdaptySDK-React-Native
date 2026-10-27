@@ -55,7 +55,7 @@ let package = Package(
         .target(
             name: "AdaptyReactNativeObjC",
             dependencies: [
-                // Link-time only: the categories below reference the Swift classes,
+                // Link-time only: the sources below reference the Swift classes,
                 // so this target must not be linked without that one.
                 "AdaptyReactNative",
                 .product(name: "ReactHeaders", package: "ReactNative"),

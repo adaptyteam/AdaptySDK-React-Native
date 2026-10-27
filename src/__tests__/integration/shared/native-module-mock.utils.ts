@@ -115,7 +115,8 @@ interface EmitNativeEventOptions {
  * predefined responses as JSON strings (mimicking actual native behavior).
  *
  * @param responses - Registry mapping method names to their typed responses
- * @returns Mocked native module with spy capabilities
+ * @returns `{ handler }` — the `handle` spy; the module installed into
+ *   `NativeModules.RNAdapty` is a separate `{ handle, addListener, removeListeners }`
  *
  * @example
  * ```typescript
