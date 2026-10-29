@@ -126,6 +126,17 @@ export const REPORT_TRANSACTION_REQUEST_WITH_VARIATION: components['requests']['
   };
 
 /**
+ * ReportTransaction request with StoreKit 2 JWS transaction (iOS only)
+ */
+export const REPORT_TRANSACTION_REQUEST_WITH_JWS: components['requests']['ReportTransaction.Request'] =
+  {
+    method: 'report_transaction',
+    transaction_id: 'transaction_12345',
+    variation_id: 'variation_abc',
+    apple_jws_transaction: 'jws_transaction_abc',
+  };
+
+/**
  * ReportTransaction successful response
  */
 export const REPORT_TRANSACTION_RESPONSE_SUCCESS: components['requests']['ReportTransaction.Response'] =
