@@ -36,7 +36,8 @@ Pod::Spec.new do |s|
   elsif defined?(spm_dependency)
     spm_dependency(s,
       url: 'https://github.com/adaptyteam/AdaptySDK-iOS.git',
-      requirement: { kind: 'exactVersion', version: adapty_ios_version },
+      # TEMP: release/4.3.2 branch until it is tagged; pods mode stays on adapty_ios_version
+      requirement: { kind: 'branch', branch: 'release/4.3.2' },
       products: ['Adapty', 'AdaptyUI', 'AdaptyPlugin']
     )
   else
