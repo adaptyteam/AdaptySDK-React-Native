@@ -17,6 +17,7 @@ import type {
   LogLevel,
   MakePurchaseParamsInput,
   PreloadPlacementsParamsInput,
+  ReportTransactionParamsInput,
 } from '@adapty/core';
 
 import type * as Model from '@/types';
@@ -1278,26 +1279,26 @@ export class Adapty {
    *
    * @param {string} transactionId - `transactionId` property of {@link Model.AdaptySubscription}
    * @param {string} variationId - `variationId` property of {@link Model.AdaptyFlow}
+   * @param params - Optional platform-specific parameters.
+   * @param {string} [params.ios.jwsTransaction] - iOS only. StoreKit 2 JWS representation of the transaction.
    * @throws {@link AdaptyError}
    */
   public async reportTransaction(
     transactionId: string,
     variationId?: string,
+    params?: Pick<ReportTransactionParamsInput, 'ios'>,
   ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'reportTransaction' });
-    log.start(() => ({ variationId, transactionId }));
+    log.start(() => ({ variationId, transactionId, params }));
 
     const methodKey = 'report_transaction';
+    const coder = coderFactory.createReportTransactionParamsCoder();
     const data: Req['ReportTransaction.Request'] = {
       method: methodKey,
-      transaction_id: transactionId,
+      ...coder.encode({ transactionId, variationId, ios: params?.ios }),
     };
-
-    if (variationId) {
-      data['variation_id'] = variationId;
-    }
 
     const body = JSON.stringify(data);
 

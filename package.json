@@ -107,7 +107,7 @@
     "typescript": "5.1.6"
   },
   "dependencies": {
-    "@adapty/core": "4.3.1-dev.3289b5fa6f7717959804c2c47ad9cfc5d85d903a",
+    "@adapty/core": "4.3.2-dev.0726ac75fecf0ecdff98ccc7eadeae25116d5e03",
     "tslib": "^2.5.0"
   },
   "peerDependencies": {
