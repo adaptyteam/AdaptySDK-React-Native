@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Adapty } from '@/adapty-handler';
 import { resetBridge } from '@/bridge';
 import type { components } from '@/types/api';
@@ -11,6 +12,7 @@ import {
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   REPORT_TRANSACTION_REQUEST,
+  REPORT_TRANSACTION_REQUEST_WITH_JWS,
   REPORT_TRANSACTION_RESPONSE_SUCCESS,
   UPDATE_EXTERNAL_ATTRIBUTION_DATA_RESPONSE_SUCCESS,
 } from '../shared/bridge-samples';
@@ -64,6 +66,42 @@ describe('Adapty - Attribution (Bridge Integration)', () => {
       expect(request.method).toBe('report_transaction');
       expect(request.transaction_id).toBe('transaction_12345');
       expect(request.variation_id).toBe('variation_abc');
+    });
+
+    describe('ios.jwsTransaction', () => {
+      const originalOS = Platform.OS;
+
+      afterEach(() => {
+        Platform.OS = originalOS;
+      });
+
+      it('should send apple_jws_transaction on iOS', async () => {
+        Platform.OS = 'ios';
+
+        await adapty.reportTransaction('transaction_12345', 'variation_abc', {
+          ios: { jwsTransaction: 'jws_transaction_abc' },
+        });
+
+        expectNativeCall({
+          nativeModule: nativeMock,
+          method: 'report_transaction',
+          expectedRequest: REPORT_TRANSACTION_REQUEST_WITH_JWS,
+        });
+      });
+
+      it('should omit apple_jws_transaction on Android', async () => {
+        Platform.OS = 'android';
+
+        await adapty.reportTransaction('transaction_12345', undefined, {
+          ios: { jwsTransaction: 'jws_transaction_abc' },
+        });
+
+        expectNativeCall({
+          nativeModule: nativeMock,
+          method: 'report_transaction',
+          expectedRequest: REPORT_TRANSACTION_REQUEST,
+        });
+      });
     });
   });
 

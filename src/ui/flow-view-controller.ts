@@ -174,13 +174,37 @@ export class FlowViewController {
   /**
    * Dismisses a flow view
    *
+   * @remarks
+   * By default the native view is destroyed along with the flow: the controller cannot be
+   * presented afterwards, its event handlers are cleared.
+   *
+   * Pass `destroy: false` to keep the view alive instead. It can be presented again with
+   * {@link FlowViewController.present}, resuming on the screen the user left and with the
+   * state the flow had built up, and its event handlers stay active. Such a view is held
+   * until it is released with {@link FlowViewController.destroy}.
+   *
+   * @param {Object} options - Dismiss options
+   * @param {boolean} [options.destroy] - Destroy the native view as well. Defaults to `true`.
+   *
    * @throws {AdaptyError}
+   *
+   * @example
+   * ```ts
+   * // close the flow and destroy its native view
+   * await view.dismiss();
+   *
+   * // close the flow, keeping it ready to be shown again
+   * await view.dismiss({ destroy: false });
+   * await view.present(); // resumes where the user left off
+   * await view.dismiss({ destroy: true }); // destroys the view for good
+   * ```
    */
-  public async dismiss(): Promise<void> {
+  public async dismiss(options: { destroy?: boolean } = {}): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'dismiss' });
-    log.start(() => ({ _id: this.id }));
+    const destroy = options.destroy ?? true;
+    log.start(() => ({ _id: this.id, destroy }));
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no id' }));
@@ -191,8 +215,53 @@ export class FlowViewController {
     const body = JSON.stringify({
       method: methodKey,
       id: this.id,
-      destroy: true,
+      destroy,
     } satisfies Req['AdaptyUIDismissFlowView.Request']);
+
+    await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    if (destroy && this.viewEmitter) {
+      this.viewEmitter.removeAllListeners();
+    }
+  }
+
+  /**
+   * Releases a native flow view that was kept alive by `dismiss({ destroy: false })`.
+   *
+   * @remarks
+   * By default {@link FlowViewController.dismiss} releases the view on its own, so there
+   * is no need to call `destroy()` after it.
+   *
+   * The controller cannot be presented afterwards. Event handlers are cleared.
+   *
+   * @throws {AdaptyError} if the view reference is invalid, or if the native view was
+   * already released.
+   *
+   * @example
+   * ```ts
+   * const view = await createFlowView(flow);
+   * await view.present();
+   * await view.dismiss({ destroy: false });
+   * // ... later
+   * await view.destroy();
+   * ```
+   */
+  public async destroy(): Promise<void> {
+    const ctx = new LogContext();
+
+    const log = ctx.call({ methodName: 'destroy' });
+    log.start(() => ({ _id: this.id }));
+
+    if (this.id === null) {
+      log.failed(() => ({ error: 'no id' }));
+      throw this.errNoViewReference();
+    }
+
+    const methodKey = 'adapty_ui_destroy_flow_view';
+    const body = JSON.stringify({
+      method: methodKey,
+      id: this.id,
+    } satisfies Req['AdaptyUIDestroyFlowView.Request']);
 
     await this.handle<void>(methodKey, body, 'Void', ctx, log);
 

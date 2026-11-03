@@ -107,6 +107,23 @@ export const ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE: components['requests']['Adapt
   };
 
 /**
+ * AdaptyUIDestroyFlowView.Request
+ */
+export const ADAPTY_UI_DESTROY_FLOW_VIEW_REQUEST: components['requests']['AdaptyUIDestroyFlowView.Request'] =
+  {
+    method: 'adapty_ui_destroy_flow_view',
+    id: 'mock_flow_view_123',
+  };
+
+/**
+ * AdaptyUIDestroyFlowView.Response
+ */
+export const ADAPTY_UI_DESTROY_FLOW_VIEW_RESPONSE: components['requests']['AdaptyUIDestroyFlowView.Response'] =
+  {
+    success: true,
+  };
+
+/**
  * AdaptyUIShowDialog.Request
  */
 export const ADAPTY_UI_SHOW_DIALOG_REQUEST: components['requests']['AdaptyUIShowDialog.Request'] =

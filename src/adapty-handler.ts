@@ -2,7 +2,7 @@ import { Platform, EmitterSubscription } from 'react-native';
 
 import { $bridge, initBridge, isBridgeInitialized } from '@/bridge';
 import { AdaptyBridgeEventEmitter } from '@/adapty-bridge-event-emitter';
-import { LogContext, Log, LogScope } from '@/logger';
+import { LogContext, Log, LogScope, type LoggerConfig } from '@/logger';
 import VERSION from '@/version';
 import type { Def, Req } from '@/types/schema';
 
@@ -16,6 +16,8 @@ import type {
   IdentifyParamsInput,
   LogLevel,
   MakePurchaseParamsInput,
+  PreloadPlacementsParamsInput,
+  ReportTransactionParamsInput,
 } from '@adapty/core';
 
 import type * as Model from '@/types';
@@ -276,9 +278,10 @@ export class Adapty {
     // Subscribe on every activation, including ones the fast-refresh guard (__ignoreActivationOnFastRefresh) skip
     this.promotedPurchaseEmitter.addNativeEventListenerWithDefault();
 
-    // call before log ctx calls, so no logs are lost
-    const logLevel = params.logLevel;
-    Log.logLevel = logLevel || null;
+    // call before log ctx calls, so no logs are lost; keep a level set earlier via setLogLevel
+    if (params.logLevel) {
+      Log.logLevel = params.logLevel;
+    }
 
     const ctx = new LogContext();
     const log = ctx.call({ methodName: 'activate' });
@@ -468,6 +471,107 @@ export class Adapty {
   }
 
   /**
+   * Warms the cache for the given flow placements.
+   *
+   * @remarks
+   * Same request as {@link getFlow}, one per placement, but with less decoding
+   * and all placements fetched in parallel. Nothing is returned; the result
+   * only lands in the cache.
+   *
+   * Useful for cross-placement A/B tests.
+   *
+   * Only the placement JSON is cached — not the UI schema or the paywall
+   * images, so the first flow view creation still goes to the network for those.
+   *
+   * A later {@link getFlow} reads the warmed cache only with
+   * `'return_cache_data_else_load'` (or
+   * `'return_cache_data_if_not_expired_else_load'`); with the default
+   * `'reload_revalidating_cache_data'` it still hits the network and the warmed
+   * copy serves as an offline fallback. Preloading itself always goes to the
+   * network — it has no fetch policy.
+   *
+   * @param {string[]} placementIds - The placements to preload.
+   * @param {PreloadPlacementsParamsInput} [params] - Additional parameters for preloading.
+   * @returns {Promise<void>} A promise that resolves once every placement has been stored.
+   *
+   * @throws {@link AdaptyError}
+   * Throws if any placement failed to load. The error aggregates the failures,
+   * and the placements that did succeed stay in the cache. Requires
+   * {@link activate} to have been called.
+   *
+   * @example
+   * ```ts
+   * await adapty.preloadFlows(['onboarding_flow', 'settings_paywall']);
+   *
+   * const flow = await adapty.getFlow('onboarding_flow', {
+   *   fetchPolicy: FetchPolicy.ReturnCacheDataElseLoad,
+   * });
+   * ```
+   */
+  public async preloadFlows(
+    placementIds: string[],
+    params: PreloadPlacementsParamsInput = { loadTimeoutMs: 5000 },
+  ): Promise<void> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'preloadFlows' });
+
+    log.start(() => ({ placementIds, params }));
+
+    const methodKey = 'preload_flows';
+    const body = JSON.stringify({
+      method: methodKey,
+      placement_ids: placementIds,
+      load_timeout: (params.loadTimeoutMs ?? 5000) / 1000,
+    } satisfies Req['PreloadFlows.Request']);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  /**
+   * Warms the cache for the given flow placements using the **All Users** audience.
+   *
+   * @remarks
+   * The same trade-offs as {@link getFlowForDefaultAudience} apply: faster
+   * fetching, but no targeting by country, attribution or custom attributes.
+   * Unlike {@link preloadFlows} the request carries no timeout.
+   *
+   * See {@link preloadFlows} for what preloading does and does not cover.
+   *
+   * @param {string[]} placementIds - The placements to preload.
+   * @returns {Promise<void>} A promise that resolves once every placement has been stored.
+   *
+   * @throws {@link AdaptyError}
+   * Throws if any placement failed to load. The error aggregates the failures,
+   * and the placements that did succeed stay in the cache. Requires
+   * {@link activate} to have been called.
+   *
+   * @example
+   * ```ts
+   * await adapty.preloadFlowsForDefaultAudience(['onboarding_flow']);
+   * ```
+   */
+  public async preloadFlowsForDefaultAudience(
+    placementIds: string[],
+  ): Promise<void> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'preloadFlowsForDefaultAudience' });
+
+    log.start(() => ({ placementIds }));
+
+    const methodKey = 'preload_flows_for_default_audience';
+    const body = JSON.stringify({
+      method: methodKey,
+      placement_ids: placementIds,
+    } satisfies Req['PreloadFlowsForDefaultAudience.Request']);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  /**
    * Fetches a list of products associated with a provided flow.
    *
    * @example
@@ -584,9 +688,8 @@ export class Adapty {
   public async getOnboardingForDefaultAudience(
     placementId: string,
     locale?: string,
-    params: GetPlacementParamsInput = {
+    params: GetPlacementForDefaultAudienceParamsInput = {
       fetchPolicy: FetchPolicy.ReloadRevalidatingCacheData,
-      loadTimeoutMs: 5000,
     },
   ): Promise<Model.AdaptyOnboarding> {
     const ctx = new LogContext();
@@ -991,6 +1094,10 @@ export class Adapty {
    * a promoted product carries no paywall context, so no purchase parameters
    * are accepted.
    *
+   * Pass the event's product object as is: on iOS it carries the StoreKit
+   * purchase intent required to complete the purchase, so a hand-built
+   * product fails.
+   *
    * @example
    * ```ts
    * adapty.addEventListener('onPromotedPurchaseReceived', async product => {
@@ -1060,6 +1167,109 @@ export class Adapty {
   }
 
   /**
+   * Gets the types of store messages currently waiting in the SDK queue.
+   *
+   * @platform ios
+   * @remarks
+   * iOS 16+ only. The queue is kept only when the SDK is activated with
+   * `storeMessagesHandling: 'manual'`; in `'auto'` mode and before activation
+   * the result is always empty. The result is a snapshot of unique types in
+   * no particular order — there is no event for newly arrived messages.
+   *
+   * `[]` means `showStoreMessages()` has nothing to show right now. `null` means the
+   * store cannot report pending messages: on Android Google Play decides on show, so
+   * this resolves `null` without calling native — call `showStoreMessages()` there.
+   * Below iOS 16 the native method is unavailable and the call rejects.
+   *
+   * @returns {Promise<Model.AdaptyStoreMessageType[] | null>} A promise that resolves with the pending types, or `null` where the store cannot report them (Android).
+   * @throws {@link AdaptyError} If an error occurs on iOS.
+   *
+   * @example
+   * ```ts
+   * const types = await adapty.getPendingStoreMessageTypes();
+   * if (types === null) {
+   *   // The store can't report pending messages (Android): let it decide
+   *   await adapty.showStoreMessages();
+   * } else if (types.includes('billing_issue')) {
+   *   // Explain the billing issue in your own UI first, then show the system message
+   *   await adapty.showStoreMessages({ ios: { filter: ['billing_issue'] } });
+   * }
+   * ```
+   */
+  public async getPendingStoreMessageTypes(): Promise<
+    Model.AdaptyStoreMessageType[] | null
+  > {
+    if (Platform.OS === 'android') {
+      return null;
+    }
+
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'getPendingStoreMessageTypes' });
+    log.start(() => ({}));
+
+    const methodKey = 'get_pending_store_message_types';
+    const body = JSON.stringify({
+      method: methodKey,
+    } satisfies Req['GetPendingStoreMessageTypes.Request']);
+
+    const result = await this.handle<Model.AdaptyStoreMessageType[]>(
+      methodKey,
+      body,
+      'Array<AdaptyStoreMessageType>',
+      ctx,
+      log,
+    );
+
+    return result;
+  }
+
+  /**
+   * Shows pending store messages: App Store messages on iOS, Google Play in-app messages on Android.
+   *
+   * @remarks
+   * Intended for `storeMessagesHandling: 'manual'`, but works in both modes.
+   *
+   * iOS 16+: messages are shown one by one; a successfully shown message leaves
+   * the queue, a message that failed to show stays for a retry. Omit `ios.filter` to
+   * show every pending message, pass `[]` to show none.
+   *
+   * Android: shows every applicable message; Google Play decides whether one exists.
+   *
+   * @param {object} [params] - Optional parameters.
+   * @param {object} [params.ios] - iOS-only parameters, ignored on Android.
+   * @param {Model.AdaptyStoreMessageType[]} [params.ios.filter] - The message types to show.
+   * @returns {Promise<void>} A promise that resolves once the messages have been processed.
+   * @throws {@link AdaptyError} with code `operationInProgress` (3201) if another show is running,
+   * or `resolverFailure` (3202) if no foreground window scene is available (iOS).
+   *
+   * @example
+   * ```ts
+   * // Show everything that is pending, e.g. after onboarding is finished
+   * await adapty.showStoreMessages();
+   *
+   * // iOS: show just the price increase consent; Android shows everything
+   * await adapty.showStoreMessages({ ios: { filter: ['price_increase_consent'] } });
+   * ```
+   */
+  public async showStoreMessages(params?: {
+    ios?: { filter?: Model.AdaptyStoreMessageType[] };
+  }): Promise<void> {
+    const ctx = new LogContext();
+    const log = ctx.call({ methodName: 'showStoreMessages' });
+    log.start(() => ({ params }));
+
+    const methodKey = 'show_store_messages';
+    const body = JSON.stringify({
+      method: methodKey,
+      filter: Platform.OS === 'ios' ? params?.ios?.filter : undefined,
+    } satisfies Req['ShowStoreMessage.Request']);
+
+    const result = await this.handle<void>(methodKey, body, 'Void', ctx, log);
+
+    return result;
+  }
+
+  /**
    * Sets the variation ID of the purchase.
    *
    * In Observer mode, Adapty SDK doesn't know, where the purchase was made from.
@@ -1069,26 +1279,26 @@ export class Adapty {
    *
    * @param {string} transactionId - `transactionId` property of {@link Model.AdaptySubscription}
    * @param {string} variationId - `variationId` property of {@link Model.AdaptyFlow}
+   * @param params - Optional platform-specific parameters.
+   * @param {string} [params.ios.jwsTransaction] - iOS only. StoreKit 2 JWS representation of the transaction.
    * @throws {@link AdaptyError}
    */
   public async reportTransaction(
     transactionId: string,
     variationId?: string,
+    params?: Pick<ReportTransactionParamsInput, 'ios'>,
   ): Promise<void> {
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'reportTransaction' });
-    log.start(() => ({ variationId, transactionId }));
+    log.start(() => ({ variationId, transactionId, params }));
 
     const methodKey = 'report_transaction';
+    const coder = coderFactory.createReportTransactionParamsCoder();
     const data: Req['ReportTransaction.Request'] = {
       method: methodKey,
-      transaction_id: transactionId,
+      ...coder.encode({ transactionId, variationId, ios: params?.ios }),
     };
-
-    if (variationId) {
-      data['variation_id'] = variationId;
-    }
 
     const body = JSON.stringify(data);
 
@@ -1182,9 +1392,10 @@ export class Adapty {
   }
 
   /**
-   * Sets the preferred log level.
+   * Sets the preferred log level and, optionally, a custom JS logger configuration.
    *
-   * By default, the log level is set to `error`.
+   * By default, JS-side SDK logs are disabled until a log level is set here or via `logLevel` in `activate`.
+   * The native level stays at the native SDK default until then.
    *
    * @remarks
    * There are four levels available:
@@ -1193,17 +1404,47 @@ export class Adapty {
    * `info`: various information messages, such as those that log the lifecycle of various modules
    * `verbose`: any additional information that may be useful during debugging, such as function calls, API queries, etc.
    *
+   * `options.logger.sinks` replaces all current sinks and calls `destroy()` on them, so include `consoleLogSink` to keep console output.
+   * Any `options.logger` also resets `defaultMeta`, so pass it again each time.
+   * To change only the level, omit `options.logger`; the current sinks are kept.
+   * The new level and sinks apply to this call's own logs too, and stay applied even if the native call then rejects.
+   *
+   * @example
+   * ```ts
+   * import { adapty, consoleLogSink } from 'react-native-adapty';
+   *
+   * await adapty.setLogLevel('verbose');
+   *
+   * await adapty.setLogLevel('verbose', {
+   *   logger: {
+   *     sinks: [
+   *       consoleLogSink,
+   *       { id: 'my-sink', handle: event => sendToServer(event.level, event.message, event.params) },
+   *     ],
+   *   },
+   * });
+   * ```
+   *
    * @param {LogLevel} logLevel - new preferred log level
+   * @param options - optional settings
+   * @param options.logger - JS logger configuration: sinks and default metadata
    * @returns {Promise<void>} resolves when the log level is set
    * @throws {@link AdaptyError} if the log level is invalid
    */
-  public async setLogLevel(logLevel: LogLevel): Promise<void> {
+  public async setLogLevel(
+    logLevel: LogLevel,
+    options?: { logger?: LoggerConfig },
+  ): Promise<void> {
+    // apply sinks and level before the first log, as activate does, so this call is logged under the new config
+    if (options?.logger) {
+      Log.configure(options.logger);
+    }
+    Log.logLevel = logLevel;
+
     const ctx = new LogContext();
 
     const log = ctx.call({ methodName: 'setLogLevel' });
     log.start(() => ({ logLevel }));
-
-    Log.logLevel = logLevel;
 
     const methodKey = 'set_log_level';
     const data: Req['SetLogLevel.Request'] = {

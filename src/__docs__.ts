@@ -13,6 +13,7 @@ export {
   AdaptyAndroidSubscriptionUpdateReplacementMode,
   type GetPlacementParamsInput,
   type GetPlacementForDefaultAudienceParamsInput,
+  type PreloadPlacementsParamsInput,
   type MakePurchaseParamsInput,
   type FileLocation,
   type IdentifyParamsInput,
@@ -35,4 +36,11 @@ export {
 export { isRunningInExpoGo, shouldEnableMock } from './utils/env-detection';
 
 export { AdaptyError, LogContext, LogScope } from '@adapty/core';
-export type { ActivateParamsInput, LogArgs } from '@adapty/core';
+export type {
+  ActivateParamsInput,
+  LogArgs,
+  LogSink,
+  LoggerConfig,
+  LogEvent,
+} from '@adapty/core';
+export { consoleLogSink } from '@adapty/core';

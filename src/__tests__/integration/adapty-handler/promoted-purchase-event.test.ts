@@ -20,6 +20,7 @@ import {
 import {
   ACTIVATE_RESPONSE_SUCCESS,
   EVENT_DID_RECEIVE_PROMOTED_PURCHASE,
+  MAKE_PROMOTED_PURCHASE_REQUEST,
   MAKE_PROMOTED_PURCHASE_RESPONSE_SUCCESS,
 } from '../shared/bridge-samples';
 
@@ -63,7 +64,7 @@ describe('Adapty - Promoted Purchase Event', () => {
     });
 
     expect(request.method).toBe('make_promoted_purchase');
-    expect(request.product.vendor_product_id).toBe('yearly.premium.6999');
+    expect(request.product).toEqual(MAKE_PROMOTED_PURCHASE_REQUEST.product);
   });
 
   it('should decode the promoted product for a registered listener', () => {
@@ -84,6 +85,24 @@ describe('Adapty - Promoted Purchase Event', () => {
     expect(product.vendorProductId).toBe('yearly.premium.6999');
     expect(product.localizedTitle).toBe('Yearly Premium Plan');
     expect(product.price?.amount).toBe(69.99);
+    expect(product.ios?.purchaseIntentId).toBe('purchase_intent_1');
+    expect(product.subscription?.ios?.pricingTerms).toEqual({
+      billingPlan: 'monthly',
+      billingPrice: {
+        amount: 6.99,
+        currencyCode: 'USD',
+        localizedString: '$6.99',
+      },
+      billingPeriod: { unit: 'month', numberOfUnits: 1 },
+      commitmentInfo: {
+        price: {
+          amount: 83.88,
+          currencyCode: 'USD',
+          localizedString: '$83.88',
+        },
+        period: { unit: 'year', numberOfUnits: 1 },
+      },
+    });
   });
 
   it('should not auto-purchase when a listener is registered', async () => {

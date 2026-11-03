@@ -44,6 +44,7 @@ export const EVENT_DID_RECEIVE_PROMOTED_PURCHASE: components['events']['Event.Di
   {
     id: 'did_receive_promoted_purchase',
     product: {
+      purchase_intent_id: 'purchase_intent_1',
       vendor_product_id: 'yearly.premium.6999',
       localized_description: 'Get premium features with this plan',
       localized_title: 'Yearly Premium Plan',
@@ -53,6 +54,27 @@ export const EVENT_DID_RECEIVE_PROMOTED_PURCHASE: components['events']['Event.Di
         currency_code: 'USD',
         currency_symbol: '$',
         localized_string: '$69.99',
+      },
+      subscription: {
+        group_identifier: 'group_premium',
+        period: { unit: 'year', number_of_units: 1 },
+        pricing_terms: {
+          billing_plan_id: 'monthly',
+          billing_price: {
+            amount: 6.99,
+            currency_code: 'USD',
+            localized_string: '$6.99',
+          },
+          billing_period: { unit: 'month', number_of_units: 1 },
+          commitment_info: {
+            price: {
+              amount: 83.88,
+              currency_code: 'USD',
+              localized_string: '$83.88',
+            },
+            period: { unit: 'year', number_of_units: 1 },
+          },
+        },
       },
     },
   };

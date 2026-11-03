@@ -10,8 +10,13 @@ import type {
   AdaptyFlowUiSchema,
   AdaptyFlowUiSchemaGrid,
   AdaptyFlowUiSchemaLayout,
+  AdaptyProfileSubscriptionCommitmentInfo,
   AdaptyPromotedProduct,
+  AdaptyStoreMessageType,
+  AdaptySubscriptionCommitmentInfo,
+  AdaptySubscriptionPricingTerms,
 } from '@/types';
+import { SubscriptionBillingPlan } from '@/types';
 
 describe('public type exports', () => {
   it('exposes AdaptyExternalAttributionProvider, including unlisted providers', () => {
@@ -35,6 +40,37 @@ describe('public type exports', () => {
     expect(product.vendorProductId).toBe('yearly.premium.6999');
   });
 
+  it('exposes subscription pricing terms, including unknown billing plans', () => {
+    const commitmentInfo: AdaptySubscriptionCommitmentInfo = {
+      price: { amount: 83.88 },
+      period: { unit: 'year', numberOfUnits: 1 },
+    };
+    const terms: AdaptySubscriptionPricingTerms = {
+      billingPlan: SubscriptionBillingPlan.Monthly,
+      billingPrice: { amount: 6.99 },
+      billingPeriod: { unit: 'month', numberOfUnits: 1 },
+      commitmentInfo,
+    };
+    // Native SDKs pass through billing plans unknown to this version.
+    const unknown: AdaptySubscriptionPricingTerms['billingPlan'] =
+      'some_future_plan';
+
+    expect([terms.billingPlan, unknown]).toStrictEqual([
+      'monthly',
+      'some_future_plan',
+    ]);
+  });
+
+  it('exposes AdaptyProfileSubscriptionCommitmentInfo', () => {
+    const info: AdaptyProfileSubscriptionCommitmentInfo = {
+      billingPeriodNumber: 3,
+      totalBillingPeriods: 12,
+      expiresAt: new Date('2027-01-01T00:00:00.000Z'),
+    };
+
+    expect(info.totalBillingPeriods).toBe(12);
+  });
+
   it('exposes the flow ui schema types', () => {
     const layout: AdaptyFlowUiSchemaLayout = { flowLayoutId: 'layout1' };
     const grid: AdaptyFlowUiSchemaGrid = {
@@ -54,5 +90,16 @@ describe('public type exports', () => {
     };
 
     expect(uiSchema?.grids).toHaveLength(1);
+  });
+
+  it('exposes AdaptyStoreMessageType, including opaque StoreKit reasons', () => {
+    const known: AdaptyStoreMessageType = 'price_increase_consent';
+    // StoreKit reasons unknown to the SDK arrive as storekit_<rawValue>.
+    const opaque: AdaptyStoreMessageType = 'storekit_-42';
+
+    expect([known, opaque]).toStrictEqual([
+      'price_increase_consent',
+      'storekit_-42',
+    ]);
   });
 });

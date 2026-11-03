@@ -126,6 +126,17 @@ export const REPORT_TRANSACTION_REQUEST_WITH_VARIATION: components['requests']['
   };
 
 /**
+ * ReportTransaction request with StoreKit 2 JWS transaction (iOS only)
+ */
+export const REPORT_TRANSACTION_REQUEST_WITH_JWS: components['requests']['ReportTransaction.Request'] =
+  {
+    method: 'report_transaction',
+    transaction_id: 'transaction_12345',
+    variation_id: 'variation_abc',
+    apple_jws_transaction: 'jws_transaction_abc',
+  };
+
+/**
  * ReportTransaction successful response
  */
 export const REPORT_TRANSACTION_RESPONSE_SUCCESS: components['requests']['ReportTransaction.Response'] =
@@ -135,19 +146,24 @@ export const REPORT_TRANSACTION_RESPONSE_SUCCESS: components['requests']['Report
 
 /**
  * MakePromotedPurchase request — App Store promoted product.
- * The request carries no paywall context: only the vendor product id,
- * an optional subscription offer, and optional payload data.
+ * The request carries no paywall context: the StoreKit purchase intent id
+ * (iOS), the vendor product id, the subscription billing plan and offer,
+ * and optional payload data. Must match what the SDK sends for
+ * EVENT_DID_RECEIVE_PROMOTED_PURCHASE.
  *
- * Not referenced by a test assertion: this sample is what makes
- * check-bridge-api-test-coverage.js count make_promoted_purchase as covered,
- * since it scans bridge-samples for `method:` literals. Do not delete it as
- * unused — the coverage gate goes red.
+ * Also counts make_promoted_purchase as covered for
+ * check-bridge-api-test-coverage.js, which scans bridge-samples for
+ * `method:` literals.
  */
 export const MAKE_PROMOTED_PURCHASE_REQUEST: components['requests']['MakePromotedPurchase.Request'] =
   {
     method: 'make_promoted_purchase',
     product: {
+      purchase_intent_id: 'purchase_intent_1',
       vendor_product_id: 'yearly.premium.6999',
+      subscription: {
+        pricing_terms: { billing_plan_id: 'monthly' },
+      },
     },
   };
 
