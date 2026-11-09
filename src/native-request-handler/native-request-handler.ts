@@ -8,6 +8,9 @@ import { parseFlowEvent } from '@/coders/parse-flow';
 import { parseOnboardingEvent } from '@/coders/parse-onboarding';
 import type { Spec } from '@/specs/NativeRNAdapty';
 
+// Native events carry JSON strings; RN's strict types default listener args to Object[]
+type NativeEventArgs = Readonly<Record<string, string[]>>;
+
 export class NativeRequestHandler<
   Method extends string,
   Params extends string,
@@ -111,10 +114,9 @@ export class NativeRequestHandler<
       cb.apply({ rawValue }, args as any);
     };
 
-    const subscription = this._emitter.addListener(
-      event,
-      consumeNativeCallback,
-    );
+    const subscription = (
+      this._emitter as NativeEventEmitter<NativeEventArgs>
+    ).addListener(event, consumeNativeCallback);
 
     this._listeners.add(subscription);
     return subscription;
