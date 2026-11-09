@@ -47,14 +47,15 @@ let package = Package(
         )
     ],
     targets: [
-        // RCT_EXTERN_MODULE declarations. They only register the Swift classes
-        // with the React Native bridge by name, so this target has no
-        // compile-time dependency on the Swift one — which is what lets the
+        // The ObjC++ RNAdapty module wrapper and the view managers'
+        // RCT_EXTERN_MODULE declarations. Both reach the Swift classes only by
+        // name (the wrapper declares RNAdaptyImpl by hand), so this target has
+        // no compile-time dependency on the Swift one — which is what lets the
         // sources be split into two targets (SwiftPM cannot mix languages).
         .target(
             name: "AdaptyReactNativeObjC",
             dependencies: [
-                // Link-time only: the categories below reference the Swift classes,
+                // Link-time only: the sources below reference the Swift classes,
                 // so this target must not be linked without that one.
                 "AdaptyReactNative",
                 .product(name: "ReactHeaders", package: "ReactNative"),
@@ -65,7 +66,7 @@ let package = Package(
             sources: [
                 "AdaptyFlowViewManager.m",
                 "AdaptyOnboardingViewManager.m",
-                "RNAdapty.m"
+                "RNAdapty.mm"
             ],
             publicHeadersPath: "."),
         .target(
@@ -84,7 +85,7 @@ let package = Package(
                 "AdaptyFlowWrapperView.swift",
                 "AdaptyOnboardingViewManager.swift",
                 "AdaptyOnboardingWrapperView.swift",
-                "RNAdapty.swift"
+                "RNAdaptyImpl.swift"
             ],
             swiftSettings: [.swiftLanguageMode(.v5)])
     ]

@@ -110,12 +110,14 @@ describe('target sources', () => {
   });
 
   it('cover every Objective-C file in ios/', () => {
-    expect(declaredSources('AdaptyReactNativeObjC')).toEqual(iosSources('.m'));
+    expect(declaredSources('AdaptyReactNativeObjC')).toEqual(
+      [...iosSources('.m'), ...iosSources('.mm')].sort(),
+    );
   });
 
   it('keep each language in its own target', () => {
     expect(declaredSources('AdaptyReactNative').every((f) => f.endsWith('.swift'))).toBe(true);
-    expect(declaredSources('AdaptyReactNativeObjC').every((f) => f.endsWith('.m'))).toBe(true);
+    expect(declaredSources('AdaptyReactNativeObjC').every((f) => /\.mm?$/.test(f))).toBe(true);
   });
 });
 
@@ -138,5 +140,30 @@ describe('deployment target', () => {
     const manifestVersion = MANIFEST.match(/\.iOS\(\.v(\d+)\)/)[1];
     const podspecVersion = PODSPEC.match(/:ios\s*=>\s*"(\d+)\.\d+"/)[1];
     expect(manifestVersion).toBe(podspecVersion);
+  });
+});
+
+describe('npm package', () => {
+  // Every app's codegen reads the spec from the installed package, so it must ship.
+  // --ignore-scripts skips prepack, which runs the whole release gate.
+  it('ships the codegen spec', () => {
+    const { execFileSync } = require('child_process');
+    const [pack] = JSON.parse(
+      execFileSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {
+        cwd: ROOT,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }),
+    );
+    const files = pack.files.map((f) => f.path);
+    expect(files).toEqual(
+      expect.arrayContaining([
+        'src/specs/NativeRNAdapty.ts',
+        'ios/RNAdapty.mm',
+        'ios/RNAdaptyImpl.swift',
+        'android/src/newarch/com/adapty/react/AdaptyReactModuleSpec.kt',
+        'android/src/oldarch/com/adapty/react/AdaptyReactModuleSpec.kt',
+      ]),
+    );
   });
 });

@@ -14,8 +14,9 @@ apply plugin: 'maven-publish'
 // Expose package.json version to gradle
 apply from: 'version.gradle'
 
+// Same check RN applies to library subprojects; RN 0.82+ forces it to true on every subproject
 def isNewArchitectureEnabled() {
-  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+    return ['newArchEnabled', 'react.newArchEnabled'].any { project.findProperty(it)?.toString() == 'true' }
 }
 
 if (isNewArchitectureEnabled()) {
@@ -52,6 +53,7 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        main.java.srcDirs += isNewArchitectureEnabled() ? 'src/newarch' : 'src/oldarch'
     }
 
     defaultConfig {
@@ -127,12 +129,4 @@ dependencies {
     implementation 'com.facebook.react:react-native:+'
 
     // kotlin-stdlib is added automatically by Kotlin Gradle plugin
-}
-
-if (isNewArchitectureEnabled()) {
-  react {
-    jsRootDir = file("../src/")
-    libraryName = "ReactNativeAdapty"
-    codegenJavaPackageName = "com.adapty.react"
-  }
 }

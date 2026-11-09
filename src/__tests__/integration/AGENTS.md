@@ -32,8 +32,8 @@ All samples are **strictly typed** against `api.d.ts` — compile-time validatio
 Re-exported via `index.ts` barrel.
 
 ### `native-module-mock.utils.ts` — NativeModule Mock Factory
-`createNativeModuleMock({ method: RESPONSE })` — creates spy on `NativeModules.RNAdapty.handler`.
-Returns JSON-stringified responses. Installed into `NativeModules.RNAdapty`.
+`createNativeModuleMock({ method: RESPONSE })` — returns `{ handler }`, a spy installed as `NativeModules.RNAdapty.handle(method, { args: json })` (spec-shaped module, no `HANDLER` constant; the jest `TurboModuleRegistry.get` mock reads `NativeModules`).
+Returns JSON-stringified responses.
 
 ## Key Testing Patterns
 
@@ -70,7 +70,7 @@ expect(handler).toHaveBeenCalledWith(expect.objectContaining({ adaptyId: 'adapty
 ```
 JS API call (camelCase)
   → Coder encodes to snake_case JSON
-    → NativeModules.RNAdapty.handler(method, { args: json })
+    → RNAdapty.handle(method, { args: json })  (TurboModuleRegistry.get('RNAdapty'))
       → Mock returns JSON response
     → parseMethodResult decodes response
   → JS result (camelCase)
