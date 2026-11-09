@@ -69,7 +69,9 @@ let package = Package(
             ],
             path: "ios",
             sources: [
+                "AdaptyFlowComponentView.mm",
                 "AdaptyFlowViewManager.m",
+                "AdaptyOnboardingComponentView.mm",
                 "AdaptyOnboardingViewManager.m",
                 "RNAdapty.mm"
             ],

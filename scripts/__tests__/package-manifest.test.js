@@ -48,7 +48,7 @@ function declaredSources(targetName) {
 function targetBlock(targetName) {
   const afterTarget = MANIFEST.split(`name: "${targetName}"`)[1];
   expect(afterTarget).toBeDefined();
-  return afterTarget.split('.target(')[0].split(/\n {4}\]\n/)[0];
+  return afterTarget.split('.target(')[0].split(/\n {4}\],?\n/)[0];
 }
 
 /**
@@ -146,6 +146,10 @@ describe('new architecture under SwiftPM', () => {
     expect(block).toContain('.define("NDEBUG", .when(configuration: .release))');
     expect(MANIFEST).toContain('cxxLanguageStandard: .cxx20');
   });
+
+  it('cuts the last target block at the end of `targets`', () => {
+    expect(targetBlock('AdaptyReactNative')).not.toContain('cxxLanguageStandard');
+  });
 });
 
 describe('Kids Mode trait anchor', () => {
@@ -170,27 +174,51 @@ describe('deployment target', () => {
   });
 });
 
+/** Paths `npm pack` would ship; --ignore-scripts skips prepack, which runs the whole release gate. */
+function packedFiles() {
+  const { execFileSync } = require('child_process');
+  const [pack] = JSON.parse(
+    execFileSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }),
+  );
+  return pack.files.map((f) => f.path);
+}
+
+// Verbatim from @react-native-community/cli-platform-android 14 (RN 0.75), which scans every shipped file
+const CLI14_COMPONENT_REGEX = /codegenNativeComponent(<.*>)?\s*\(\s*["'`](\w+)["'`](,?[\s\S]+interfaceOnly:\s*(\w+))?/m;
+
 describe('npm package', () => {
-  // Every app's codegen reads the spec from the installed package, so it must ship.
-  // --ignore-scripts skips prepack, which runs the whole release gate.
+  // Every app's codegen reads the specs from the installed package, so they must ship.
   it('ships the codegen spec', () => {
-    const { execFileSync } = require('child_process');
-    const [pack] = JSON.parse(
-      execFileSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {
-        cwd: ROOT,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'ignore'],
-      }),
-    );
-    const files = pack.files.map((f) => f.path);
-    expect(files).toEqual(
+    expect(packedFiles()).toEqual(
       expect.arrayContaining([
         'src/specs/NativeRNAdapty.ts',
+        'src/specs/AdaptyFlowViewNativeComponent.ts',
+        'src/specs/AdaptyOnboardingViewNativeComponent.ts',
         'ios/RNAdapty.mm',
         'ios/RNAdaptyImpl.swift',
+        'ios/AdaptyFlowComponentView.mm',
+        'ios/AdaptyOnboardingComponentView.mm',
         'android/src/newarch/com/adapty/react/AdaptyReactModuleSpec.kt',
         'android/src/oldarch/com/adapty/react/AdaptyReactModuleSpec.kt',
       ]),
     );
+  });
+
+  it('exposes exactly the two component descriptors to RN CLI 14 autolinking', () => {
+    const found = packedFiles()
+      .filter((f) => /\.(js|jsx|ts|tsx)$/.test(f))
+      .flatMap((f) => {
+        const m = fs.readFileSync(path.join(ROOT, f), 'utf8').match(CLI14_COMPONENT_REGEX);
+        return m && m[4] !== 'true' && m[2] ? [[f, `${m[2]}ComponentDescriptor`]] : [];
+      })
+      .sort();
+    expect(found).toEqual([
+      ['src/specs/AdaptyFlowViewNativeComponent.ts', 'AdaptyFlowViewComponentDescriptor'],
+      ['src/specs/AdaptyOnboardingViewNativeComponent.ts', 'AdaptyOnboardingViewComponentDescriptor'],
+    ]);
   });
 });

@@ -3,14 +3,14 @@ import AdaptyUI
 import AdaptyPlugin
 
 @objc(AdaptyOnboardingWrapperView)
-class AdaptyOnboardingWrapperView: UIView {
+public final class AdaptyOnboardingWrapperView: UIView {
     private var child: UIView?
 
-    @objc var viewId: NSString = "NO_ID" as NSString {
+    @objc(viewId) public var viewId: NSString = "NO_ID" as NSString {
         didSet { scheduleSetup() }
     }
 
-    @objc var onboardingJson: NSString = "{}" {
+    @objc(onboardingJson) public var onboardingJson: NSString = "{}" {
         didSet { scheduleSetup() }
     }
 

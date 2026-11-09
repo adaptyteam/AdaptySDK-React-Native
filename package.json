@@ -55,10 +55,24 @@
   "main": "dist/index.js",
   "codegenConfig": {
     "name": "RNAdaptySpec",
-    "type": "modules",
+    "type": "all",
     "jsSrcsDir": "src/specs",
     "android": {
       "javaPackageName": "com.adapty.react"
+    },
+    "ios": {
+      "componentProvider": {
+        "AdaptyFlowView": "AdaptyFlowComponentView",
+        "AdaptyOnboardingView": "AdaptyOnboardingComponentView"
+      },
+      "components": {
+        "AdaptyFlowView": {
+          "className": "AdaptyFlowComponentView"
+        },
+        "AdaptyOnboardingView": {
+          "className": "AdaptyOnboardingComponentView"
+        }
+      }
     }
   },
   "scripts": {
@@ -88,6 +102,7 @@
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-typescript": "^7.22.5",
     "@expo/config-plugins": "^54.0.2",
+    "@react-native/babel-plugin-codegen": "0.80.2",
     "@react-native/babel-preset": "^0.80.0",
     "@react-native/codegen": "0.80.0",
     "@types/jest": "^29.5.3",

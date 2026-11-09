@@ -1,15 +1,13 @@
 import React, { memo, useEffect, useMemo } from 'react';
-import { requireNativeComponent, ViewProps } from 'react-native';
+import { ViewProps } from 'react-native';
 import { AdaptyOnboarding, WebPresentation } from '@/types';
 import { coderFactory } from '@/coders/factory';
 import { generateId, shouldEnableMock } from '@/utils';
-import {
-  OnboardingEventHandlers,
-  NativeAdaptyOnboardingViewProps,
-} from './types';
+import { OnboardingEventHandlers } from './types';
 import { createOnboardingEventHandlers } from './create-onboarding-event-handlers';
 import { DEFAULT_ONBOARDING_PARAMS } from './onboarding-view-controller';
 import { AdaptyOnboardingViewMock } from './AdaptyOnboardingView.mock';
+import { AdaptyOnboardingViewHost } from './native-components';
 import { filterUndefined } from '@adapty/core';
 
 /**
@@ -35,9 +33,7 @@ export type AdaptyOnboardingViewProps = ViewProps & {
 
 const NativeAdaptyOnboardingView = shouldEnableMock()
   ? AdaptyOnboardingViewMock
-  : requireNativeComponent<NativeAdaptyOnboardingViewProps>(
-      'AdaptyOnboardingView',
-    );
+  : AdaptyOnboardingViewHost;
 
 const AdaptyOnboardingViewComponent: React.FC<AdaptyOnboardingViewProps> = ({
   onboarding,

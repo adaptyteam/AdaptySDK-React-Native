@@ -82,9 +82,19 @@ describe('RNAdapty codegen spec', () => {
     };
     expect(codegenConfig).toEqual({
       name: 'RNAdaptySpec',
-      type: 'modules',
+      type: 'all',
       jsSrcsDir: 'src/specs',
       android: { javaPackageName: 'com.adapty.react' },
+      ios: {
+        componentProvider: {
+          AdaptyFlowView: 'AdaptyFlowComponentView',
+          AdaptyOnboardingView: 'AdaptyOnboardingComponentView',
+        },
+        components: {
+          AdaptyFlowView: { className: 'AdaptyFlowComponentView' },
+          AdaptyOnboardingView: { className: 'AdaptyOnboardingComponentView' },
+        },
+      },
     });
   });
 

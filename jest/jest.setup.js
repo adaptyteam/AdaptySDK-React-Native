@@ -28,7 +28,6 @@ jest.mock('react-native', () => {
     },
     View: 'View',
     Text: 'Text',
-    requireNativeComponent: jest.fn((name) => name),
   };
 
   return RN;
