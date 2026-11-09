@@ -44,6 +44,13 @@ function declaredSources(targetName) {
   return [...list.matchAll(/"([^"]+)"/g)].map((m) => m[1]).sort();
 }
 
+/** One target's manifest text, from its name to the next `.target(` or the end of `targets`. */
+function targetBlock(targetName) {
+  const afterTarget = MANIFEST.split(`name: "${targetName}"`)[1];
+  expect(afterTarget).toBeDefined();
+  return afterTarget.split('.target(')[0].split(/\n {4}\]\n/)[0];
+}
+
 /**
  * The AdaptySDK-iOS pin of one file, as a comparable `<kind> <value>` string.
  *
@@ -118,6 +125,26 @@ describe('target sources', () => {
   it('keep each language in its own target', () => {
     expect(declaredSources('AdaptyReactNative').every((f) => f.endsWith('.swift'))).toBe(true);
     expect(declaredSources('AdaptyReactNativeObjC').every((f) => /\.mm?$/.test(f))).toBe(true);
+  });
+});
+
+describe('new architecture under SwiftPM', () => {
+  // The Fabric component classes compile only with RCT_NEW_ARCH_ENABLED and the app's
+  // codegen headers; without them a mapped class is compiled out and the app aborts at launch.
+  it('depends on the app codegen headers', () => {
+    expect(MANIFEST).toContain('.package(name: "React-GeneratedCode", path: "../../../ios")');
+    expect(targetBlock('AdaptyReactNativeObjC')).toContain(
+      '.product(name: "ReactAppHeaders", package: "React-GeneratedCode")',
+    );
+  });
+
+  it('compiles the ObjC++ target on the new architecture with the prebuilt React ABI', () => {
+    const block = targetBlock('AdaptyReactNativeObjC');
+    expect(block).toMatch(/cSettings:[^\]]*\.define\("RCT_NEW_ARCH_ENABLED", to: "1"\)/);
+    expect(block).toMatch(/cxxSettings:[^\]]*\.define\("RCT_NEW_ARCH_ENABLED", to: "1"\)/);
+    expect(block).toContain('.define("DEBUG", .when(configuration: .debug))');
+    expect(block).toContain('.define("NDEBUG", .when(configuration: .release))');
+    expect(MANIFEST).toContain('cxxLanguageStandard: .cxx20');
   });
 });
 

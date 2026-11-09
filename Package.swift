@@ -37,6 +37,8 @@ let package = Package(
         // React Native's prebuilt header xcframeworks, generated per app by
         // `npx react-native spm` into <app>/ios/build/xcframeworks.
         .package(name: "ReactNative", path: "../../../../xcframeworks"),
+        // The app's codegen output (`npx react-native spm`), resolved from the same symlink.
+        .package(name: "React-GeneratedCode", path: "../../../ios"),
         .package(
             url: "https://github.com/adaptyteam/AdaptySDK-iOS.git",
             exact: "4.3.2",
@@ -48,10 +50,12 @@ let package = Package(
     ],
     targets: [
         // The ObjC++ RNAdapty module wrapper and the view managers'
-        // RCT_EXTERN_MODULE declarations. Both reach the Swift classes only by
-        // name (the wrapper declares RNAdaptyImpl by hand), so this target has
-        // no compile-time dependency on the Swift one — which is what lets the
-        // sources be split into two targets (SwiftPM cannot mix languages).
+        // RCT_EXTERN_MODULE declarations, compiled on the new-architecture path
+        // (Xcode applies the defines of both settings to every C-family file).
+        // Both reach the Swift classes only by name (the wrapper declares
+        // RNAdaptyImpl by hand), so this target has no compile-time dependency
+        // on the Swift one — which is what lets the sources be split into two
+        // targets (SwiftPM cannot mix languages).
         .target(
             name: "AdaptyReactNativeObjC",
             dependencies: [
@@ -60,7 +64,8 @@ let package = Package(
                 "AdaptyReactNative",
                 .product(name: "ReactHeaders", package: "ReactNative"),
                 .product(name: "ReactNativeHeaders", package: "ReactNative"),
-                .product(name: "ReactNativeDependenciesHeaders", package: "ReactNative")
+                .product(name: "ReactNativeDependenciesHeaders", package: "ReactNative"),
+                .product(name: "ReactAppHeaders", package: "React-GeneratedCode")
             ],
             path: "ios",
             sources: [
@@ -68,7 +73,13 @@ let package = Package(
                 "AdaptyOnboardingViewManager.m",
                 "RNAdapty.mm"
             ],
-            publicHeadersPath: "."),
+            publicHeadersPath: ".",
+            cSettings: [.define("RCT_NEW_ARCH_ENABLED", to: "1")],
+            cxxSettings: [
+                .define("RCT_NEW_ARCH_ENABLED", to: "1"),
+                .define("DEBUG", .when(configuration: .debug)),
+                .define("NDEBUG", .when(configuration: .release))
+            ]),
         .target(
             name: "AdaptyReactNative",
             dependencies: [
@@ -88,5 +99,6 @@ let package = Package(
                 "RNAdaptyImpl.swift"
             ],
             swiftSettings: [.swiftLanguageMode(.v5)])
-    ]
+    ],
+    cxxLanguageStandard: .cxx20
 )
