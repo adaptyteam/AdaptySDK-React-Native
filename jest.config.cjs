@@ -2,7 +2,7 @@ const { pathsToModuleNameMapper } = require('ts-jest');
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  preset: 'react-native',
+  preset: '@react-native/jest-preset',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   modulePaths: ['./src'],
   moduleNameMapper: {

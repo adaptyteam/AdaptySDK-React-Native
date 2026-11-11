@@ -4,14 +4,14 @@ import AdaptyUI
 import AdaptyPlugin
 
 @objc(AdaptyFlowWrapperView)
-class AdaptyFlowWrapperView: UIView {
+public final class AdaptyFlowWrapperView: UIView {
     private var child: UIView?
 
-    @objc var viewId: NSString = "NO_ID" as NSString {
+    @objc(viewId) public var viewId: NSString = "NO_ID" as NSString {
         didSet { scheduleSetup() }
     }
 
-    @objc var flowJson: NSString = "{}" {
+    @objc(flowJson) public var flowJson: NSString = "{}" {
         didSet { scheduleSetup() }
     }
 
@@ -49,7 +49,7 @@ class AdaptyFlowWrapperView: UIView {
                 let config = try await AdaptyPlugin.getFlowViewConfiguration(withJson: json)
 
                 let handler = SwiftAdaptyPluginEventHandler { event in
-                    RNAdapty.emitPluginEvent(event)
+                    RNAdaptyImpl.emitPluginEvent(event)
                 }
 
                 guard let parentViewController = self.findViewController() else { return }

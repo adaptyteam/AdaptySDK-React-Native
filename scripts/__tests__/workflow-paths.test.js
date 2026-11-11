@@ -148,7 +148,7 @@ const SHARED_NOISE = [
 // SwiftPM is iOS-only and no Android job builds the SwiftPM app, so all of it — android/
 // included — belongs to the iOS workflow alone.
 const IOS_ONLY = [
-  'ios/RNAdapty.swift',
+  'ios/RNAdaptyImpl.swift',
   'ios/AdaptyFlowViewManager.m',
   'Package.swift',
   'react-native-adapty-sdk.podspec',

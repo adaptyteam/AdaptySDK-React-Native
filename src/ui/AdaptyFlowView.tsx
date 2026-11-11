@@ -1,16 +1,13 @@
 import React, { memo, useId, useMemo } from 'react';
-import { requireNativeComponent, ViewProps } from 'react-native';
+import { ViewProps } from 'react-native';
 import { AdaptyFlow } from '@/types';
 import { coderFactory } from '@/coders/factory';
 import { shouldEnableMock } from '@/utils';
-import {
-  CreateFlowViewParamsInput,
-  FlowEventHandlers,
-  NativeAdaptyFlowViewProps,
-} from './types';
+import { CreateFlowViewParamsInput, FlowEventHandlers } from './types';
 import { useFlowEventSubscription } from './use-flow-event-subscription';
 import { DEFAULT_PARAMS } from './flow-view-controller';
 import { AdaptyFlowViewMock } from './AdaptyFlowView.mock';
+import { AdaptyFlowViewHost } from './native-components';
 
 /**
  * Full default params for the embedded component: the shared
@@ -74,7 +71,7 @@ export type AdaptyFlowViewProps = ViewProps & {
 
 const NativeAdaptyFlowView = shouldEnableMock()
   ? AdaptyFlowViewMock
-  : requireNativeComponent<NativeAdaptyFlowViewProps>('AdaptyFlowView');
+  : AdaptyFlowViewHost;
 
 const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
   flow,

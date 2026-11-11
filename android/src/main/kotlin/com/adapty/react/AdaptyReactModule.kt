@@ -7,7 +7,11 @@ import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
 class AdaptyReactModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext) {
+    AdaptyReactModuleSpec(reactContext) {
+    companion object {
+        const val NAME = "RNAdapty"
+    }
+
     private var listenerCount = 0
 
     private val crossplatformHelper by lazy {
@@ -39,22 +43,15 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
 
     }
 
-    override fun getName(): String {
-        return "RNAdapty"
-    }
-
-    override fun getConstants(): MutableMap<String, Any>? {
-        // Name of the function that routes all incoming calls
-        return hashMapOf("HANDLER" to "handle")
-    }
+    override fun getName(): String = NAME
 
     @ReactMethod
-    fun addListener(eventName: String?) {
+    override fun addListener(eventName: String) {
         listenerCount += 1
     }
 
     @ReactMethod
-    fun removeListeners(count: Int?) {
+    override fun removeListeners(count: Double) {
         listenerCount -= 1
 
         if (listenerCount == 0) {
@@ -63,8 +60,8 @@ class AdaptyReactModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun handle(methodName: String, args: ReadableMap, promise: Promise) {
-        crossplatformHelper.onMethodCall(args.getString("args").orEmpty(), methodName) { data ->
+    override fun handle(method: String, args: ReadableMap, promise: Promise) {
+        crossplatformHelper.onMethodCall(args.getString("args").orEmpty(), method) { data ->
             promise.resolve(data)
         }
     }
