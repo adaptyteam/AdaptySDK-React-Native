@@ -184,6 +184,13 @@ jobs:
           echo "FATAL: react-native-adapty is not linked into the Release build." >&2
           exit 1
         fi
+        # codegenConfig maps both Fabric components to these classes; a missing one aborts the app at launch.
+        CLASSES=$(printf '%s\n' "$NM_OUT" | grep -cE ' [DdSs] _OBJC_CLASS_\$_Adapty(Flow|Onboarding)ComponentView$' || true)
+        echo "Fabric component classes defined in the Release stub: $CLASSES"
+        if [ "$CLASSES" -ne 2 ]; then
+          echo "FATAL: the Release build does not define both Adapty Fabric component classes." >&2
+          exit 1
+        fi
         # Which native SDK commit this green run actually built. Package.resolved is regenerated
         # every run from the manifest SwiftPM was handed, so comparing the two would be circular —
         # the manifest-vs-podspec check is a unit test (scripts/__tests__/package-manifest.test.js).
@@ -293,6 +300,26 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           build
 
+    # codegenConfig maps both Fabric components to these classes; a missing one aborts the app at launch.
+    # Release only: a Debug executable holds no classes, they live in its .debug.dylib.
+    - name: Verify the Fabric component classes are linked
+      run: |
+        BIN=$HOME/Library/Developer/Xcode/DerivedData/Build/Products/Release-iphoneos/AdaptyRnSdkExample.app/Frameworks/react_native_adapty_sdk.framework/react_native_adapty_sdk
+        if [ ! -f "$BIN" ]; then
+          echo "FATAL: $BIN not found — the Release build produced no react-native-adapty framework (dynamic linkage)." >&2
+          exit 1
+        fi
+        if ! NM_OUT=$(nm "$BIN"); then
+          echo "FATAL: nm failed on $BIN — cannot tell whether the component classes are linked." >&2
+          exit 1
+        fi
+        CLASSES=$(printf '%s\n' "$NM_OUT" | grep -cE ' [DdSs] _OBJC_CLASS_\$_Adapty(Flow|Onboarding)ComponentView$' || true)
+        echo "Fabric component classes defined in $BIN: $CLASSES"
+        if [ "$CLASSES" -ne 2 ]; then
+          echo "FATAL: the Release build does not define both Adapty Fabric component classes." >&2
+          exit 1
+        fi
+
   build-ios-legacy-pods-release:
     runs-on: macos-26
     name: iOS Build (Pure CocoaPods, Debug + Release)
@@ -394,6 +421,26 @@ jobs:
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGNING_REQUIRED=NO \
           build
+
+    # codegenConfig maps both Fabric components to these classes; a missing one aborts the app at launch.
+    # Release only: a Debug executable holds no classes, they live in its .debug.dylib.
+    - name: Verify the Fabric component classes are linked
+      run: |
+        BIN=$HOME/Library/Developer/Xcode/DerivedData/Build/Products/Release-iphoneos/AdaptyRnSdkExample.app/AdaptyRnSdkExample
+        if [ ! -f "$BIN" ]; then
+          echo "FATAL: $BIN not found — the Release build produced no app executable (static linkage)." >&2
+          exit 1
+        fi
+        if ! NM_OUT=$(nm "$BIN"); then
+          echo "FATAL: nm failed on $BIN — cannot tell whether the component classes are linked." >&2
+          exit 1
+        fi
+        CLASSES=$(printf '%s\n' "$NM_OUT" | grep -cE ' [DdSs] _OBJC_CLASS_\$_Adapty(Flow|Onboarding)ComponentView$' || true)
+        echo "Fabric component classes defined in $BIN: $CLASSES"
+        if [ "$CLASSES" -ne 2 ]; then
+          echo "FATAL: the Release build does not define both Adapty Fabric component classes." >&2
+          exit 1
+        fi
 
     - name: Run iOS build (Debug, simulator)
       run: |

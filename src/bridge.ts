@@ -1,8 +1,9 @@
-import { EmitterSubscription } from 'react-native';
+import { EmitterSubscription, TurboModuleRegistry } from 'react-native';
 import { NativeRequestHandler } from '@/native-request-handler';
 import { MockRequestHandler } from '@/mock';
 import type { AdaptyMockConfig } from '@/mock/types';
 import type { MethodName } from '@/types/bridge';
+import type { Spec } from '@/specs/NativeRNAdapty';
 import type {
   FlowEventIdType,
   OnboardingEventIdType,
@@ -10,12 +11,12 @@ import type {
 } from '@adapty/core';
 
 /**
- * Name of bridge package
- * React Native looks for a module with provided name
- * via NativeModules API
+ * Name of the native module, resolved via TurboModuleRegistry
+ * (falls back to the legacy NativeModules registry on the old architecture)
  *
- * Must be the same as string:
- * - iOS: RNAdapty.m & RNAdapty.swift. Also match in RCT_EXTERN_MODULE
+ * Must be the same as:
+ * - the moduleName in src/specs/NativeRNAdapty.ts
+ * - iOS: the RNAdapty ObjC class name
  * - Android: AdaptyReactModule.kt (getName)
  */
 export const MODULE_NAME = 'RNAdapty';
@@ -55,7 +56,10 @@ export function initBridge(
   if (enableMock) {
     _bridge = new MockRequestHandler<MethodName, string>(mockConfig);
   } else {
-    _bridge = new NativeRequestHandler<MethodName, string>(MODULE_NAME);
+    // react-native-web exports no TurboModuleRegistry
+    _bridge = new NativeRequestHandler<MethodName, string>(
+      TurboModuleRegistry?.get<Spec>(MODULE_NAME),
+    );
   }
 }
 

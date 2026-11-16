@@ -44,6 +44,13 @@ function declaredSources(targetName) {
   return [...list.matchAll(/"([^"]+)"/g)].map((m) => m[1]).sort();
 }
 
+/** One target's manifest text, from its name to the next `.target(` or the end of `targets`. */
+function targetBlock(targetName) {
+  const afterTarget = MANIFEST.split(`name: "${targetName}"`)[1];
+  expect(afterTarget).toBeDefined();
+  return afterTarget.split('.target(')[0].split(/\n {4}\],?\n/)[0];
+}
+
 /**
  * The AdaptySDK-iOS pin of one file, as a comparable `<kind> <value>` string.
  *
@@ -110,12 +117,38 @@ describe('target sources', () => {
   });
 
   it('cover every Objective-C file in ios/', () => {
-    expect(declaredSources('AdaptyReactNativeObjC')).toEqual(iosSources('.m'));
+    expect(declaredSources('AdaptyReactNativeObjC')).toEqual(
+      [...iosSources('.m'), ...iosSources('.mm')].sort(),
+    );
   });
 
   it('keep each language in its own target', () => {
     expect(declaredSources('AdaptyReactNative').every((f) => f.endsWith('.swift'))).toBe(true);
-    expect(declaredSources('AdaptyReactNativeObjC').every((f) => f.endsWith('.m'))).toBe(true);
+    expect(declaredSources('AdaptyReactNativeObjC').every((f) => /\.mm?$/.test(f))).toBe(true);
+  });
+});
+
+describe('new architecture under SwiftPM', () => {
+  // The Fabric component classes compile only with RCT_NEW_ARCH_ENABLED and the app's
+  // codegen headers; without them a mapped class is compiled out and the app aborts at launch.
+  it('depends on the app codegen headers', () => {
+    expect(MANIFEST).toContain('.package(name: "React-GeneratedCode", path: "../../../ios")');
+    expect(targetBlock('AdaptyReactNativeObjC')).toContain(
+      '.product(name: "ReactAppHeaders", package: "React-GeneratedCode")',
+    );
+  });
+
+  it('compiles the ObjC++ target on the new architecture with the prebuilt React ABI', () => {
+    const block = targetBlock('AdaptyReactNativeObjC');
+    expect(block).toMatch(/cSettings:[^\]]*\.define\("RCT_NEW_ARCH_ENABLED", to: "1"\)/);
+    expect(block).toMatch(/cxxSettings:[^\]]*\.define\("RCT_NEW_ARCH_ENABLED", to: "1"\)/);
+    expect(block).toContain('.define("DEBUG", .when(configuration: .debug))');
+    expect(block).toContain('.define("NDEBUG", .when(configuration: .release))');
+    expect(MANIFEST).toContain('cxxLanguageStandard: .cxx20');
+  });
+
+  it('cuts the last target block at the end of `targets`', () => {
+    expect(targetBlock('AdaptyReactNative')).not.toContain('cxxLanguageStandard');
   });
 });
 
@@ -138,5 +171,54 @@ describe('deployment target', () => {
     const manifestVersion = MANIFEST.match(/\.iOS\(\.v(\d+)\)/)[1];
     const podspecVersion = PODSPEC.match(/:ios\s*=>\s*"(\d+)\.\d+"/)[1];
     expect(manifestVersion).toBe(podspecVersion);
+  });
+});
+
+/** Paths `npm pack` would ship; --ignore-scripts skips prepack, which runs the whole release gate. */
+function packedFiles() {
+  const { execFileSync } = require('child_process');
+  const [pack] = JSON.parse(
+    execFileSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }),
+  );
+  return pack.files.map((f) => f.path);
+}
+
+// Verbatim from @react-native-community/cli-platform-android 14 (RN 0.75), which scans every shipped file
+const CLI14_COMPONENT_REGEX = /codegenNativeComponent(<.*>)?\s*\(\s*["'`](\w+)["'`](,?[\s\S]+interfaceOnly:\s*(\w+))?/m;
+
+describe('npm package', () => {
+  // Every app's codegen reads the specs from the installed package, so they must ship.
+  it('ships the codegen spec', () => {
+    expect(packedFiles()).toEqual(
+      expect.arrayContaining([
+        'src/specs/NativeRNAdapty.ts',
+        'src/specs/AdaptyFlowViewNativeComponent.ts',
+        'src/specs/AdaptyOnboardingViewNativeComponent.ts',
+        'ios/RNAdapty.mm',
+        'ios/RNAdaptyImpl.swift',
+        'ios/AdaptyFlowComponentView.mm',
+        'ios/AdaptyOnboardingComponentView.mm',
+        'android/src/newarch/com/adapty/react/AdaptyReactModuleSpec.kt',
+        'android/src/oldarch/com/adapty/react/AdaptyReactModuleSpec.kt',
+      ]),
+    );
+  });
+
+  it('exposes exactly the two component descriptors to RN CLI 14 autolinking', () => {
+    const found = packedFiles()
+      .filter((f) => /\.(js|jsx|ts|tsx)$/.test(f))
+      .flatMap((f) => {
+        const m = fs.readFileSync(path.join(ROOT, f), 'utf8').match(CLI14_COMPONENT_REGEX);
+        return m && m[4] !== 'true' && m[2] ? [[f, `${m[2]}ComponentDescriptor`]] : [];
+      })
+      .sort();
+    expect(found).toEqual([
+      ['src/specs/AdaptyFlowViewNativeComponent.ts', 'AdaptyFlowViewComponentDescriptor'],
+      ['src/specs/AdaptyOnboardingViewNativeComponent.ts', 'AdaptyOnboardingViewComponentDescriptor'],
+    ]);
   });
 });

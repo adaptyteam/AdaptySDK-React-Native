@@ -1,5 +1,4 @@
 import Foundation
-import React
 import Adapty
 import AdaptyUI
 import AdaptyPlugin
@@ -10,19 +9,20 @@ enum Log {
     static let wrapper = Category(subsystem: "io.adapty.react", name: "wrapper")
 }
 
-@objc(RNAdapty)
-public class RNAdapty: RCTEventEmitter {
+// Swift side of the RNAdapty module; RNAdapty.mm declares this interface by hand,
+// so every member keeps an explicit ObjC name. Must stay `public` to export the class symbol.
+@objc(RNAdaptyImpl)
+public final class RNAdaptyImpl: NSObject {
     // Weak reference to forward events from native views
-    private static weak var shared: RNAdapty?
+    private static weak var shared: RNAdaptyImpl?
 
-    // UI Thread is required to properly work with StoreKit SDK
-    public override static func requiresMainQueueSetup() -> Bool {
-        return true
-    }
+    private let sendEvent: (String, String) -> Void
 
-    public override init() {
+    @objc(initWithSendEvent:)
+    public init(sendEvent: @escaping (String, String) -> Void) {
+        self.sendEvent = sendEvent
         super.init()
-        RNAdapty.shared = self
+        RNAdaptyImpl.shared = self
 
         Task { @MainActor in
             let assetResolver: (String) -> URL? = { @MainActor assetId in
@@ -40,7 +40,8 @@ public class RNAdapty: RCTEventEmitter {
     }
 
     // A list of emittable events to JavaScript
-    public override func supportedEvents() -> [String] {
+    @objc(supportedEvents)
+    public static var supportedEvents: [String] {
         return [
             "did_load_latest_profile",
             "did_receive_promoted_purchase",
@@ -74,22 +75,11 @@ public class RNAdapty: RCTEventEmitter {
         ]
     }
 
-    public override func constantsToExport() -> [AnyHashable : Any]! {
-        // Name of the function that routes all incoming requests
-        return ["HANDLER": "handle"]
-    }
-
     // RN doesn't like when events fire
     // while nobody is listening
     // Omit warnings with this
-    private var hasListeners = false
-
-    public override func startObserving() {
-        self.hasListeners = true
-    }
-    public override func stopObserving() {
-        self.hasListeners = false
-    }
+    @objc(hasListeners)
+    public var hasListeners = false
 
     // MARK: - Static event forwarder for native UI wrappers
     static func emitPluginEvent(_ event: AdaptyPluginEvent) {
@@ -103,10 +93,7 @@ public class RNAdapty: RCTEventEmitter {
         }
         do {
             let eventBody = try event.asAdaptyJsonData.asAdaptyJsonString
-            self.sendEvent(
-                withName: event.id,
-                body: eventBody
-            )
+            self.sendEvent(event.id, eventBody)
         } catch {
             Log.wrapper.error("[RNAdapty] Serialize error \(event.id): \(error)")
         }
@@ -119,20 +106,18 @@ public class RNAdapty: RCTEventEmitter {
     //
     // Since currently synchronous bridge calls are not production-ready,
     // all functions are considered asynchronous
-    //
-    // Definitions are sorted alphabetically
-    @objc public func handle(
-        _ method: NSString,
-        args: NSDictionary,
-        resolver: @escaping RCTPromiseResolveBlock,
-        rejecter: @escaping RCTPromiseRejectBlock
+    @objc(handle:args:completion:)
+    public func handle(
+        _ method: String,
+        args: String,
+        completion: @escaping (String) -> Void
     ) {
         Task {
             let response = await AdaptyPlugin.execute(
-                method: method as String,
-                withJson: args["args"] as? String ?? ""
+                method: method,
+                withJson: args
             )
-            resolver(response.asAdaptyJsonString)
+            completion(response.asAdaptyJsonString)
         }
     }
 }
