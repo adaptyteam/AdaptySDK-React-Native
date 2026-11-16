@@ -20,9 +20,9 @@
     // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
     // "moduleDetection": "auto"                         /* Control what method is used to detect module-format JS files. */,
     /* Modules */
-    "module": "CommonJS" /* Specify what module code is generated. */,
+    "module": "Node16" /* Required by moduleResolution Node16 on TS 5.2+; emits CommonJS (no "type": "module"). */,
     "rootDir": "./src" /* Specify the root folder within your source files. */,
-    "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
+    "moduleResolution": "Node16" /* RN 0.88+ ships types only via package.json "exports". */,
     "baseUrl": "./src" /* Specify the base directory to resolve non-relative module names. */,
     "paths": {
       /* Specify a set of entries that re-map imports to additional lookup locations. */

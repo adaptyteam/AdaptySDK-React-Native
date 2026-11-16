@@ -1,8 +1,4 @@
-import {
-  EmitterSubscription,
-  NativeEventEmitter,
-  NativeModules,
-} from 'react-native';
+import { EmitterSubscription, NativeEventEmitter } from 'react-native';
 
 import { AdaptyError } from '@/adapty-error';
 import { LogContext } from '@/logger';
@@ -10,44 +6,28 @@ import { parseMethodResult } from '@/coders';
 import { AdaptyType, parseCommonEvent } from '@/coders/parse';
 import { parseFlowEvent } from '@/coders/parse-flow';
 import { parseOnboardingEvent } from '@/coders/parse-onboarding';
+import type { Spec } from '@/specs/NativeRNAdapty';
 
-const KEY_HANDLER_NAME = 'HANDLER';
+// Native events carry JSON strings; RN's strict types default listener args to Object[]
+type NativeEventArgs = Readonly<Record<string, string[]>>;
 
 export class NativeRequestHandler<
   Method extends string,
   Params extends string,
 > {
-  _module: (typeof NativeModules)[string];
-  _request: (method: Method, params: Record<string, string>) => Promise<string>;
+  _module: Spec;
 
   _emitter: NativeEventEmitter;
   _listeners: Set<EmitterSubscription>;
 
-  constructor(moduleName: string) {
-    this._module = NativeModules[moduleName];
-    if (!this._module) {
+  constructor(module: Spec | null | undefined) {
+    if (!module) {
       throw new Error('Adapty NativeModule is not defined');
     }
+    this._module = module;
 
-    this._emitter = new NativeEventEmitter(this._module);
+    this._emitter = new NativeEventEmitter(module);
     this._listeners = new Set();
-
-    // Handler name is defined in native module
-    const constants = this._module.getConstants() as Record<string, string>;
-    const handlerName = constants[KEY_HANDLER_NAME];
-    if (!handlerName) {
-      throw new Error(
-        `Adapty NativeModule does not expose "${KEY_HANDLER_NAME}" constant`,
-      );
-    }
-
-    this._request = this._module[handlerName] as (
-      method: Method,
-      params: Record<string, string>,
-    ) => Promise<string>;
-    if (!this._request) {
-      throw new Error('Adapty native handler is not defined');
-    }
   }
 
   async request<T>(
@@ -60,7 +40,7 @@ export class NativeRequestHandler<
     log?.start(() => ({ method, params }));
 
     try {
-      const response = await this._request(method, { args: params });
+      const response = await this._module.handle(method, { args: params });
       const result = parseMethodResult<T>(response, resultType, ctx);
 
       log?.success(() => ({ response }));
@@ -134,10 +114,9 @@ export class NativeRequestHandler<
       cb.apply({ rawValue }, args as any);
     };
 
-    const subscription = this._emitter.addListener(
-      event,
-      consumeNativeCallback,
-    );
+    const subscription = (
+      this._emitter as NativeEventEmitter<NativeEventArgs>
+    ).addListener(event, consumeNativeCallback);
 
     this._listeners.add(subscription);
     return subscription;

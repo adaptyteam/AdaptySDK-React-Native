@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "15.0" }
   s.source       = { :git => "https://github.com/adaptyteam/AdaptySDK-React-Native.git", :tag => "#{s.version}" }
 
-  s.source_files = "ios/**/*.{h,c,m,swift}"
+  s.source_files = "ios/**/*.{h,c,m,mm,swift}"
   s.resources = "ios/**/*.{plist}"
   s.requires_arc = true
 
