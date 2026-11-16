@@ -1278,7 +1278,8 @@ export class Adapty {
    * After doing this, you'll be able to see metrics in Adapty Dashboard.
    *
    * @param {string} transactionId - `transactionId` property of {@link Model.AdaptySubscription}
-   * @param {string} variationId - `variationId` property of {@link Model.AdaptyFlow}
+   * @param {string} variationId - `variationId` property of the purchased {@link Model.AdaptyPaywallProduct}
+   * (the same value as `variationId` of its parent {@link Model.AdaptyFlowPaywall})
    * @param params - Optional platform-specific parameters.
    * @param {string} [params.ios.jwsTransaction] - iOS only. StoreKit 2 JWS representation of the transaction.
    * @throws {@link AdaptyError}
