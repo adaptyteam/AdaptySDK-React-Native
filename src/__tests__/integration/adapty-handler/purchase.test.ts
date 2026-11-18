@@ -88,10 +88,18 @@ describe('Adapty - MakePurchase Bridge Integration', () => {
           ios: {
             pricingTerms: {
               billingPlan: 'monthly',
-              billingPrice: { amount: 6.99 },
+              billingPrice: {
+                amount: 6.99,
+                currencyCode: 'USD',
+                localizedString: '$6.99',
+              },
               billingPeriod: { unit: 'month', numberOfUnits: 1 },
               commitmentInfo: {
-                price: { amount: 83.88 },
+                price: {
+                  amount: 83.88,
+                  currencyCode: 'USD',
+                  localizedString: '$83.88',
+                },
                 period: { unit: 'year', numberOfUnits: 1 },
               },
             },

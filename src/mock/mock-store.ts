@@ -93,6 +93,7 @@ export class MockStore {
           isInGracePeriod: false,
           isRefund: false,
           isSandbox: true,
+          billingPlan: 'up_front',
         },
       },
     };
