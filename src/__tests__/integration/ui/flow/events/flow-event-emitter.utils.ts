@@ -52,6 +52,7 @@ export function emitFlowUserActionEvent(
   actionValue: string | undefined,
   view: { id: string; placement_id: string; variation_id: string },
   openIn: 'browser_in_app' | 'browser_out_app' = 'browser_in_app',
+  args?: Record<string, unknown>,
 ): void {
   const bridge = $bridge.testBridge;
 
@@ -75,6 +76,10 @@ export function emitFlowUserActionEvent(
 
   if (actionType === 'open_url') {
     action['open_in'] = openIn;
+  }
+
+  if (args !== undefined) {
+    action['arguments'] = args;
   }
 
   const payload = {
