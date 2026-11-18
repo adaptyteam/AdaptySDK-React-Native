@@ -35,7 +35,8 @@ public final class AdaptyFlowWrapperView: UIView {
 
     private func setupView() {
         print("AdaptyFlowWrapperView setupView called: \(flowJson)")
-        guard #available(iOS 15.0, *) else { return }
+        // Native flow rendering requires iOS 16
+        guard #available(iOS 16.0, *) else { return }
 
         // Clean up existing child view to prevent memory leaks
         cleanupChild()
