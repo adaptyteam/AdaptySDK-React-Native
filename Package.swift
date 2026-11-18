@@ -15,7 +15,7 @@ import PackageDescription
 // `.product(name: "ReactNativeAdapty", package: "ReactNativeAdapty")`.
 //
 // CocoaPods remains the default integration path; see
-// react-native-adapty-sdk.podspec. Keep the AdaptySDK-iOS version below in sync
+// react-native-adapty-sdk.podspec. Keep the AdaptySDK-iOS requirement below in sync
 // with the `spm_dependency` requirement declared there.
 
 let package = Package(
@@ -41,7 +41,7 @@ let package = Package(
         .package(name: "React-GeneratedCode", path: "../../../ios"),
         .package(
             url: "https://github.com/adaptyteam/AdaptySDK-iOS.git",
-            exact: "4.3.2",
+            branch: "release/4.4.1",
             traits: [
                 .defaults,
                 .trait(name: "KidsMode", condition: .when(traits: ["AdaptyReactNativeKidsMode"]))
