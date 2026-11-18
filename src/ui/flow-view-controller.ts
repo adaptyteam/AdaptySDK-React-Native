@@ -16,6 +16,7 @@ import { $bridge } from '@/bridge';
 import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
 import { Req } from '@/types/schema';
+import { generateId } from '@/utils';
 
 export const DEFAULT_PARAMS: CreateFlowViewParamsInput = {
   prefetchProducts: true,
@@ -315,6 +316,48 @@ export class FlowViewController {
       ctx,
       log,
     );
+  }
+
+  /**
+   * Sends a message from the app to the script of this flow.
+   *
+   * @remarks
+   * The script receives it as the `applicationMsg` SDK event; the generated message id
+   * becomes the event id.
+   *
+   * Send messages after {@link FlowViewController.present} (e.g. from `onAppeared`):
+   * on Android a message sent before the flow runtime starts is dropped, on iOS the
+   * script runs from view creation.
+   *
+   * Resolving means the native layer accepted the message, not that the script handled it.
+   *
+   * @param payload - JSON-serializable message content
+   *
+   * @throws {AdaptyError} if the native view no longer exists or flows are not supported
+   * on the platform.
+   */
+  public async sendAppMessage(payload: Record<string, unknown>): Promise<void> {
+    const ctx = new LogContext();
+
+    const messageId = generateId();
+    const log = ctx.call({ methodName: 'sendAppMessage' });
+    log.start(() => ({ _id: this.id, messageId }));
+
+    if (this.id === null) {
+      log.failed(() => ({ error: 'no id' }));
+      throw this.errNoViewReference();
+    }
+
+    const methodKey = 'adapty_ui_send_app_message';
+    const body = JSON.stringify({
+      method: methodKey,
+      id: this.id,
+      message_id: messageId,
+      payload,
+    } satisfies Req['AdaptyUISendAppMessage.Request']);
+
+    // Bridge returns raw `true` for Void, do not leak it
+    await this.handle<void>(methodKey, body, 'Void', ctx, log);
   }
 
   private onRequestClose = async (): Promise<void> => {

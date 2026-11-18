@@ -16,6 +16,8 @@ import {
   ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE,
   ADAPTY_UI_DESTROY_FLOW_VIEW_RESPONSE,
   ADAPTY_UI_SHOW_DIALOG_RESPONSE_PRIMARY,
+  ADAPTY_UI_SEND_APP_MESSAGE_RESPONSE,
+  ADAPTY_UI_SEND_APP_MESSAGE_RESPONSE_ERROR,
 } from '../../../shared/bridge-samples';
 import { Adapty } from '@/adapty-handler';
 import { cleanupAdapty } from '../../../adapty-handler/setup.utils';
@@ -47,6 +49,7 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       adapty_ui_dismiss_flow_view: ADAPTY_UI_DISMISS_FLOW_VIEW_RESPONSE,
       adapty_ui_destroy_flow_view: ADAPTY_UI_DESTROY_FLOW_VIEW_RESPONSE,
       adapty_ui_show_dialog: ADAPTY_UI_SHOW_DIALOG_RESPONSE_PRIMARY,
+      adapty_ui_send_app_message: ADAPTY_UI_SEND_APP_MESSAGE_RESPONSE,
     });
 
     await adapty.activate('test_api_key', { logLevel: 'error' });
@@ -274,6 +277,39 @@ describe('FlowViewController Methods (Bridge Integration)', () => {
       });
 
       expect(request.configuration.secondary_action_title).toBeUndefined();
+    });
+  });
+
+  describe('sendAppMessage', () => {
+    it('should encode the request and resolve to undefined', async () => {
+      const view = await createFlowView(flow);
+      nativeMock.handler.mockClear();
+
+      await expect(view.sendAppMessage({ coins: 10 })).resolves.toBeUndefined();
+
+      const request = extractNativeRequest<
+        components['requests']['AdaptyUISendAppMessage.Request']
+      >({
+        nativeModule: nativeMock,
+      });
+
+      expect(request.method).toBe('adapty_ui_send_app_message');
+      expect(request.id).toBe('mock_flow_view_123');
+      expect(request.payload).toEqual({ coins: 10 });
+      expect(request.message_id.length).toBeGreaterThan(0);
+    });
+
+    it('should reject when native returns an error', async () => {
+      const view = await createFlowView(flow);
+      nativeMock.handler.mockImplementationOnce(() =>
+        Promise.resolve(
+          JSON.stringify(ADAPTY_UI_SEND_APP_MESSAGE_RESPONSE_ERROR),
+        ),
+      );
+
+      await expect(view.sendAppMessage({ coins: 10 })).rejects.toMatchObject({
+        adaptyCode: 3001,
+      });
     });
   });
 });
