@@ -41,7 +41,7 @@ let package = Package(
         .package(name: "React-GeneratedCode", path: "../../../ios"),
         .package(
             url: "https://github.com/adaptyteam/AdaptySDK-iOS.git",
-            branch: "release/4.4.1",
+            exact: "4.4.1",
             traits: [
                 .defaults,
                 .trait(name: "KidsMode", condition: .when(traits: ["AdaptyReactNativeKidsMode"]))

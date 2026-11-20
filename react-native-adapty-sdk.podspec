@@ -2,12 +2,9 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-# The native SDK version of the CocoaPods mode (pods published to the AdaptySDK-CocoaPods-Specs
-# spec repo).
-adapty_ios_version = '4.3.2'
-# Temporary: until iOS 4.4.1 is released, the SPM mode (spm_dependency) tracks this AdaptySDK-iOS
-# branch. Package.swift pins the same branch.
-adapty_ios_spm_branch = 'release/4.4.1'
+# The native SDK version for both modes: spm_dependency and the CocoaPods pods published to the
+# AdaptySDK-CocoaPods-Specs spec repo. Package.swift pins the same version.
+adapty_ios_version = '4.4.1'
 
 # Legacy CocoaPods integration of the native iOS SDK, opt-in via `adapty_disable_spm!`
 # (ios/adapty_podfile.rb) in the Podfile, Expo: `iosDisableSPM`. `$AdaptyDisableSPM`, read here,
@@ -39,7 +36,7 @@ Pod::Spec.new do |s|
   elsif defined?(spm_dependency)
     spm_dependency(s,
       url: 'https://github.com/adaptyteam/AdaptySDK-iOS.git',
-      requirement: { kind: 'branch', branch: adapty_ios_spm_branch },
+      requirement: { kind: 'exactVersion', version: adapty_ios_version },
       products: ['Adapty', 'AdaptyUI', 'AdaptyPlugin']
     )
   else
