@@ -55,6 +55,34 @@ Keep `kind: 'exactVersion'` / `exact:` unless the user asks for a different reso
 strategy (e.g. `branch`, `revision`, `upToNextMajorVersion`) — and if they do, change it in
 both files.
 
+#### Pre-release: SPM on an unreleased native branch
+
+During development the SPM paths track an AdaptySDK-iOS release branch before the native
+version is published. The pods mode cannot follow (the spec repo has released versions only), so
+`adapty_ios_version` stays on the last released version and a **temporary** variable is added for
+SPM:
+
+```ruby
+adapty_ios_version = '<LAST_RELEASED>'
+# TEMP: until iOS <VERSION> is released, spm_dependency tracks this branch. Package.swift pins the same branch.
+adapty_ios_spm_branch = 'release/<VERSION>'
+# ...
+requirement: { kind: 'branch', branch: adapty_ios_spm_branch },
+```
+
+and `branch: "release/<VERSION>"` in `Package.swift`. The temporary variable is the marker that
+the tree is not releasable.
+
+On the release bump, **delete** `adapty_ios_spm_branch` and its comment, set
+`adapty_ios_version = '<VERSION>'`, return `spm_dependency` to
+`{ kind: 'exactVersion', version: adapty_ios_version }` and `Package.swift` to `exact:`. Do not
+keep a separate permanent SPM version variable: in a release both modes must ship the same
+native SDK, so a second variable only adds a place to drift. Before committing:
+
+```bash
+grep -n 'adapty_ios_spm\|branch' react-native-adapty-sdk.podspec Package.swift   # must print nothing
+```
+
 If the new native SDK raises its own `swift-tools-version`, our `Package.swift` may need to
 follow, and the required Xcode version rises for everyone on both paths.
 
