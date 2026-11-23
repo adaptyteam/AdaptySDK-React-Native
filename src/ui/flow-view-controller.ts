@@ -1,4 +1,5 @@
 import {
+  AdaptyFlowMessage,
   AdaptyIOSPresentationStyle,
   AdaptyUiDialogActionType,
   AdaptyUiDialogConfig,
@@ -8,15 +9,14 @@ import {
   FlowEventHandlers,
 } from './types';
 import { FlowViewEmitter } from './flow-view-emitter';
+import { errNoViewReference, sendAppMessageRequest } from './send-app-message';
 import { AdaptyFlow } from '@/types';
 import { LogContext, LogScope } from '@/logger';
 import { coderFactory } from '@/coders/factory';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
-import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
 import { Req } from '@/types/schema';
-import { generateId } from '@/utils';
 
 export const DEFAULT_PARAMS: CreateFlowViewParamsInput = {
   prefetchProducts: true,
@@ -158,7 +158,7 @@ export class FlowViewController {
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no _id' }));
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     const methodKey = 'adapty_ui_present_flow_view';
@@ -209,7 +209,7 @@ export class FlowViewController {
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no id' }));
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     const methodKey = 'adapty_ui_dismiss_flow_view';
@@ -255,7 +255,7 @@ export class FlowViewController {
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no id' }));
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     const methodKey = 'adapty_ui_destroy_flow_view';
@@ -298,7 +298,7 @@ export class FlowViewController {
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no id' }));
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     const coder = coderFactory.createUiDialogConfigCoder();
@@ -336,28 +336,8 @@ export class FlowViewController {
    * @throws {AdaptyError} if the native view no longer exists or flows are not supported
    * on the platform.
    */
-  public async sendAppMessage(payload: Record<string, unknown>): Promise<void> {
-    const ctx = new LogContext();
-
-    const messageId = generateId();
-    const log = ctx.call({ methodName: 'sendAppMessage' });
-    log.start(() => ({ _id: this.id, messageId }));
-
-    if (this.id === null) {
-      log.failed(() => ({ error: 'no id' }));
-      throw this.errNoViewReference();
-    }
-
-    const methodKey = 'adapty_ui_send_app_message';
-    const body = JSON.stringify({
-      method: methodKey,
-      id: this.id,
-      message_id: messageId,
-      payload,
-    } satisfies Req['AdaptyUISendAppMessage.Request']);
-
-    // Bridge returns raw `true` for Void, do not leak it
-    await this.handle<void>(methodKey, body, 'Void', ctx, log);
+  public async sendAppMessage(payload: AdaptyFlowMessage): Promise<void> {
+    await sendAppMessageRequest(this.id, payload);
   }
 
   private onRequestClose = async (): Promise<void> => {
@@ -403,7 +383,7 @@ export class FlowViewController {
     log.start(() => ({ _id: this.id }));
 
     if (this.id === null) {
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     // Create viewEmitter on first call
@@ -424,9 +404,5 @@ export class FlowViewController {
     });
 
     return () => this.viewEmitter?.removeAllListeners();
-  }
-
-  private errNoViewReference(): AdaptyError {
-    throw new Error('View reference not found');
   }
 }
