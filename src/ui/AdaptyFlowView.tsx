@@ -70,6 +70,16 @@ export type AdaptyFlowViewProps = ViewProps & {
   onWebPaymentNavigationFinished?: FlowEventHandlers['onWebPaymentNavigationFinished'];
   onRestoreCompleted?: FlowEventHandlers['onRestoreCompleted'];
   onRestoreFailed?: FlowEventHandlers['onRestoreFailed'];
+  /**
+   * Called when the flow view reports an error.
+   *
+   * @remarks
+   * On iOS also called when the flow configuration fails to load into the
+   * view: below iOS 16 with `platformNotSupported` (4001), or with the code
+   * and message of the error `createFlowView` would fail with (its `detail`
+   * follows the event format). The view then stays empty and the return value
+   * is ignored.
+   */
   onError?: FlowEventHandlers['onError'];
   onLoadingProductsFailed?: FlowEventHandlers['onLoadingProductsFailed'];
   onCustomAction?: FlowEventHandlers['onCustomAction'];
