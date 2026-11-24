@@ -59,6 +59,7 @@
   ],
   "artifactsVersionOverride": null,
   "configCommand": null,
+  "cxxApiDefines": [],
   "scheme": {
     "file": "AdaptyDevtoolsSpm.xcscheme",
     "created": false
