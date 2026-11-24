@@ -26,6 +26,10 @@ yarn update-native-modules      # = cd ios && npx react-native spm
 
 Run it after a fresh clone, after every `yarn install`, and after every `yarn update-sdk-full`.
 
+Since RN 0.88 it also generates `ios/ReactNativeSPM/` (the `ReactNativeSPM.xcconfig` the app target
+is based on, and the scripts its build phases run). Those files are committed — the Xcode project
+references them.
+
 > `yarn install` also **replaces the locally built SDK** with the published `latest` from npm
 > (`react-native-adapty` is declared as `"latest"`, same as in `examples/AdaptyDevtools`). After any
 > install, re-run `yarn update-sdk-full && yarn update-native-modules` — otherwise you are testing
@@ -93,15 +97,19 @@ while that header lives in `common/cpp/react/renderer/components/rnscreens/`, so
 `common/cpp/react/renderer/components` was added to the target's header search paths.
 
 **When React Native is upgraded, the patches must be regenerated** — a scaffolded manifest is
-stamped with a cache slot (e.g. `0.87.1/dual-flavor`) and relative paths computed at scaffold time:
+stamped with a cache slot (e.g. `0.88.1/dual-flavor`) and relative paths computed at scaffold time:
 
 ```sh
 rm node_modules/react-native-screens/Package.swift \
    node_modules/react-native-safe-area-context/Package.swift
 npx react-native spm scaffold
+# re-apply the react-native-screens header search path edit above, then:
 npx patch-package react-native-screens
 npx patch-package react-native-safe-area-context
 ```
+
+Since RN 0.88 the scaffolder names a library after its podspec (`RNScreens`,
+`react-native-safe-area-context`), not after its npm name as 0.87 did.
 
 ## Kids Mode
 

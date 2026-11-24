@@ -1,13 +1,13 @@
 diff --git a/node_modules/react-native-screens/Package.swift b/node_modules/react-native-screens/Package.swift
 new file mode 100644
-index 0000000..3f96ce5
+index 0000000..34e9cc5
 --- /dev/null
 +++ b/node_modules/react-native-screens/Package.swift
 @@ -0,0 +1,247 @@
 +// swift-tools-version: 6.0
 +// AUTO-SCAFFOLDED by react-native spm scaffold — safe to edit & commit via patch-package.
-+// AUTO-SCAFFOLDED-VERSION: 19
-+// Cache slot: 0.87.1/dual-flavor
++// AUTO-SCAFFOLDED-VERSION: 20
++// Cache slot: 0.88.1/dual-flavor
 +// Edit the contents below if needed and re-run `npx patch-package <dep-name>`
 +// to persist across `npm install`. To regenerate from the podspec, remove
 +// this file (or just this marker) and re-run `npx react-native spm scaffold`.
@@ -20,10 +20,10 @@ index 0000000..3f96ce5
 +import PackageDescription
 +
 +let package = Package(
-+    name: "ReactNativeScreens",
-+    platforms: [.iOS(.v15)],
++    name: "RNScreens",
++    platforms: [.iOS("15.1")],
 +    products: [
-+        .library(name: "ReactNativeScreens", targets: ["ReactNativeScreens"]),
++        .library(name: "RNScreens", targets: ["RNScreens"]),
 +    ],
 +    dependencies: [
 +        .package(name: "ReactNative", path: "../../../../xcframeworks"),
@@ -31,7 +31,7 @@ index 0000000..3f96ce5
 +    ],
 +    targets: [
 +        .target(
-+            name: "ReactNativeScreens",
++            name: "RNScreens",
 +            dependencies: [.product(name: "ReactHeaders", package: "ReactNative"), .product(name: "ReactNativeHeaders", package: "ReactNative"), .product(name: "ReactNativeDependenciesHeaders", package: "ReactNative"), .product(name: "ReactAppHeaders", package: "React-GeneratedCode")],
 +            path: ".",
 +            sources: [
