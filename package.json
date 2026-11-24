@@ -19,6 +19,9 @@
   "bugs": {
     "url": "https://github.com/adaptyteam/AdaptySDK-React-Native/issues"
   },
+  "swiftpmConfig": {
+    "name": "ReactNativeAdapty"
+  },
   "bin": {
     "adapty-spm-kids-mode": "scripts/kids-mode.cjs"
   },

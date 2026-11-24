@@ -9,10 +9,12 @@ import PackageDescription
 // `ios/build/generated/autolinking/libs/ReactNativeAdapty` — a symlink whose
 // depth is what the relative React package path below is resolved against.
 //
-// The product name must match the Swift name the autolinker derives from the
-// npm package name ("react-native-adapty" -> "ReactNativeAdapty"), because the
-// generated aggregator references it as
+// The product name must match the Swift name the autolinker resolves for this
+// package, because the generated aggregator references it as
 // `.product(name: "ReactNativeAdapty", package: "ReactNativeAdapty")`.
+// RN 0.88+ takes that name from `swiftpmConfig.name` in package.json, then from
+// the podspec ("react-native-adapty-sdk"), so package.json pins it; RN 0.87
+// derived it from the npm name, which gives the same "ReactNativeAdapty".
 //
 // CocoaPods remains the default integration path; see
 // react-native-adapty-sdk.podspec. Keep the AdaptySDK-iOS requirement below in sync
