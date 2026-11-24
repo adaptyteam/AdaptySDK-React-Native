@@ -91,11 +91,15 @@ follow, and the required Xcode version rises for everyone on both paths.
 Edit `android/build.gradle` — update two dependency versions:
 
 ```gradle
-implementation platform('io.adapty:adapty-bom:<BOM_VERSION>')
+api platform('io.adapty:adapty-bom:<BOM_VERSION>')
 implementation 'io.adapty.internal:crossplatform:<CROSSPLATFORM_VERSION>'
 ```
 
 `bom_version` and `crossplatform_version` are independent and typically differ.
+
+Keep the BOM on `api platform`: apps declare `io.adapty:android-ui` without a version (custom
+elements resolver) and take it from this BOM. With `implementation platform` that line fails
+on AGP 9 (RN 0.87+) and in `androidTest` on every AGP.
 
 ## Verification
 
