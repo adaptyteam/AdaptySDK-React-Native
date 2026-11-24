@@ -74,11 +74,11 @@ export type AdaptyFlowViewProps = ViewProps & {
    * Called when the flow view reports an error.
    *
    * @remarks
-   * On iOS also called when the flow configuration fails to load into the
-   * view: below iOS 16 with `platformNotSupported` (4001), or with the code
-   * and message of the error `createFlowView` would fail with (its `detail`
-   * follows the event format). The view then stays empty and the return value
-   * is ignored.
+   * Also called when the flow configuration fails to load into the view, with
+   * the code and message of the error `createFlowView` would fail with (its
+   * `detail` follows the event format); on iOS below 16 with
+   * `platformNotSupported` (4001). The view then stays empty and the return
+   * value is ignored.
    */
   onError?: FlowEventHandlers['onError'];
   onLoadingProductsFailed?: FlowEventHandlers['onLoadingProductsFailed'];
