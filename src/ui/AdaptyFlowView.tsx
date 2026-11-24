@@ -1,13 +1,25 @@
-import React, { memo, useId, useMemo } from 'react';
+import React, {
+  forwardRef,
+  memo,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from 'react';
 import { ViewProps } from 'react-native';
 import { AdaptyFlow } from '@/types';
 import { coderFactory } from '@/coders/factory';
 import { shouldEnableMock } from '@/utils';
-import { CreateFlowViewParamsInput, FlowEventHandlers } from './types';
+import {
+  AdaptyFlowMessage,
+  CreateFlowViewParamsInput,
+  FlowEventHandlers,
+} from './types';
 import { useFlowEventSubscription } from './use-flow-event-subscription';
 import { DEFAULT_PARAMS } from './flow-view-controller';
 import { AdaptyFlowViewMock } from './AdaptyFlowView.mock';
 import { AdaptyFlowViewHost } from './native-components';
+import { sendAppMessageRequest } from './send-app-message';
 
 /**
  * Full default params for the embedded component: the shared
@@ -58,6 +70,16 @@ export type AdaptyFlowViewProps = ViewProps & {
   onWebPaymentNavigationFinished?: FlowEventHandlers['onWebPaymentNavigationFinished'];
   onRestoreCompleted?: FlowEventHandlers['onRestoreCompleted'];
   onRestoreFailed?: FlowEventHandlers['onRestoreFailed'];
+  /**
+   * Called when the flow view reports an error.
+   *
+   * @remarks
+   * Also called when the flow configuration fails to load into the view, with
+   * the code and message of the error `createFlowView` would fail with (its
+   * `detail` follows the event format); on iOS below 16 with
+   * `platformNotSupported` (4001). The view then stays empty and the return
+   * value is ignored.
+   */
   onError?: FlowEventHandlers['onError'];
   onLoadingProductsFailed?: FlowEventHandlers['onLoadingProductsFailed'];
   onCustomAction?: FlowEventHandlers['onCustomAction'];
@@ -69,36 +91,61 @@ export type AdaptyFlowViewProps = ViewProps & {
   onObserverRestoreInitiated?: FlowEventHandlers['onObserverRestoreInitiated'];
 };
 
+/**
+ * Imperative handle of {@link AdaptyFlowView}.
+ * @public
+ */
+export interface AdaptyFlowViewRef {
+  /**
+   * Sends a message from the app to the script of this flow (`applicationMsg`).
+   *
+   * @remarks
+   * Addressed to the view configuration of the last committed render, fixed at
+   * call time. Send from `onAppeared` or later when the script must handle it:
+   * before the native view registered the call rejects.
+   *
+   * Resolves when native accepted the message, not when the script handled it.
+   *
+   * @throws {AdaptyError} if native rejects the call (e.g. the native view
+   * is not registered yet)
+   * @throws {Error} `'View reference not found'` (a plain `Error`, without a
+   * bridge call) after the component unmounted
+   */
+  sendAppMessage(payload: AdaptyFlowMessage): Promise<void>;
+}
+
 const NativeAdaptyFlowView = shouldEnableMock()
   ? AdaptyFlowViewMock
   : AdaptyFlowViewHost;
 
-const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
-  flow,
-  params,
-  onCloseButtonPress,
-  onProductSelected,
-  onPurchaseStarted,
-  onPurchaseCompleted,
-  onPurchaseFailed,
-  onRestoreStarted,
-  onAppeared,
-  onWebPaymentNavigationFinished,
-  onRestoreCompleted,
-  onRestoreFailed,
-  onError,
-  onLoadingProductsFailed,
-  onCustomAction,
-  onUrlPress,
-  onRequestAppReview,
-  onAnalytics,
-  onRequestPermission,
-  onObserverPurchaseInitiated,
-  onObserverRestoreInitiated,
-  ...rest
-}) => {
+const AdaptyFlowViewComponent = (
+  {
+    flow,
+    params,
+    onCloseButtonPress,
+    onProductSelected,
+    onPurchaseStarted,
+    onPurchaseCompleted,
+    onPurchaseFailed,
+    onRestoreStarted,
+    onAppeared,
+    onWebPaymentNavigationFinished,
+    onRestoreCompleted,
+    onRestoreFailed,
+    onError,
+    onLoadingProductsFailed,
+    onCustomAction,
+    onUrlPress,
+    onRequestAppReview,
+    onAnalytics,
+    onRequestPermission,
+    onObserverPurchaseInitiated,
+    onObserverRestoreInitiated,
+    ...rest
+  }: AdaptyFlowViewProps,
+  ref: React.ForwardedRef<AdaptyFlowViewRef>,
+) => {
   const reactId = useId();
-  const uniqueViewId = `${flow.id}_${reactId}`;
 
   // Value-stable key: avoids re-encoding when params is an inline object (wrong usage).
   const paramsKey = JSON.stringify(params ?? {});
@@ -116,7 +163,20 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
     // params is tracked by value via paramsKey
   }, [flow, paramsKey]);
 
-  useFlowEventSubscription(
+  // A new configuration gets a new id: native viewId and host key. Updated
+  // during render (not via a ref), so an uncommitted render can't shift seq
+  const [configuration, setConfiguration] = useState(() => ({
+    key: flowJson,
+    seq: 0,
+  }));
+  let seq = configuration.seq;
+  if (configuration.key !== flowJson) {
+    seq = configuration.seq + 1;
+    setConfiguration({ key: flowJson, seq });
+  }
+  const viewId = `${flow.id}_${reactId}:${seq}`;
+
+  const committedIdRef = useFlowEventSubscription(
     {
       onCloseButtonPress,
       onProductSelected,
@@ -138,11 +198,26 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
       onObserverPurchaseInitiated,
       onObserverRestoreInitiated,
     },
-    uniqueViewId,
+    viewId,
+  );
+
+  // Stable handle; the target id is read at call time
+  useImperativeHandle(
+    ref,
+    () => ({
+      sendAppMessage: payload =>
+        sendAppMessageRequest(committedIdRef.current, payload),
+    }),
+    [],
   );
 
   return (
-    <NativeAdaptyFlowView {...rest} viewId={uniqueViewId} flowJson={flowJson} />
+    <NativeAdaptyFlowView
+      {...rest}
+      key={viewId}
+      viewId={viewId}
+      flowJson={flowJson}
+    />
   );
 };
 
@@ -183,9 +258,14 @@ const AdaptyFlowViewComponent: React.FC<AdaptyFlowViewProps> = ({
  * />
  * ```
  *
+ * Pass a ref to send messages to the flow script, see {@link AdaptyFlowViewRef}.
+ *
+ * A change of `flow` or `params` (compared by encoded value) is a new view
+ * configuration: the native view is remounted with a new view id.
+ *
  * @see {@link AdaptyFlowViewProps} for available props
  * @public
  */
-export const AdaptyFlowView = memo(AdaptyFlowViewComponent);
+export const AdaptyFlowView = memo(forwardRef(AdaptyFlowViewComponent));
 
 AdaptyFlowView.displayName = 'AdaptyFlowView';

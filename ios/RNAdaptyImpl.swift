@@ -22,7 +22,15 @@ public final class RNAdaptyImpl: NSObject {
     public init(sendEvent: @escaping (String, String) -> Void) {
         self.sendEvent = sendEvent
         super.init()
+        RNAdaptyImpl.pendingLock.lock()
         RNAdaptyImpl.shared = self
+        RNAdaptyImpl.instanceCount += 1
+        // The first instance keeps events emitted before the module was created;
+        // after a dev reload view ids restart, so old events could match new views
+        if RNAdaptyImpl.instanceCount > 1 {
+            RNAdaptyImpl.pendingEvents.removeAll()
+        }
+        RNAdaptyImpl.pendingLock.unlock()
 
         Task { @MainActor in
             let assetResolver: (String) -> URL? = { @MainActor assetId in
@@ -78,19 +86,68 @@ public final class RNAdaptyImpl: NSObject {
     // RN doesn't like when events fire
     // while nobody is listening
     // Omit warnings with this
+    // Set from start/stopObserving on the module method queue (not main)
     @objc(hasListeners)
-    public var hasListeners = false
-
-    // MARK: - Static event forwarder for native UI wrappers
-    static func emitPluginEvent(_ event: AdaptyPluginEvent) {
-        shared?.handlePluginEvent(event)
+    public var hasListeners: Bool {
+        get {
+            RNAdaptyImpl.pendingLock.lock()
+            defer { RNAdaptyImpl.pendingLock.unlock() }
+            return listening
+        }
+        set {
+            RNAdaptyImpl.pendingLock.lock()
+            defer { RNAdaptyImpl.pendingLock.unlock() }
+            listening = newValue
+            guard newValue, !RNAdaptyImpl.pendingEvents.isEmpty else { return }
+            // Flushed under the lock so concurrent emits cannot overtake queued events
+            let events = RNAdaptyImpl.pendingEvents
+            RNAdaptyImpl.pendingEvents.removeAll()
+            Log.wrapper.verbose("[RNAdapty] Flushing \(events.count) pending events")
+            events.forEach { send($0) }
+        }
     }
 
-    private func handlePluginEvent(_ event: AdaptyPluginEvent) {
-        Log.wrapper.info("[RNAdapty] Forwarding event: \(event.id)")
-        guard self.hasListeners else {
+    // Guarded by pendingLock
+    private var listening = false
+
+    // MARK: - Static event forwarder for native UI wrappers
+
+    // Wrapper events that arrived before JS subscribed; guarded by pendingLock
+    private static let pendingLock = NSLock()
+    private static var pendingEvents: [AdaptyPluginEvent] = []
+    private static let pendingEventsLimit = 32
+    // Number of created instances; guarded by pendingLock
+    private static var instanceCount = 0
+
+    // Called synchronously from wrapper event handlers on any thread
+    static func emitPluginEvent(_ event: AdaptyPluginEvent) {
+        pendingLock.lock()
+        defer { pendingLock.unlock() }
+
+        let impl = shared
+        if let impl, impl.listening, pendingEvents.isEmpty {
+            impl.send(event)
             return
         }
+
+        if pendingEvents.count >= pendingEventsLimit {
+            let dropped = pendingEvents.removeFirst()
+            Log.wrapper.warn("[RNAdapty] Pending events limit reached, dropping: \(dropped.id)")
+        }
+        pendingEvents.append(event)
+        let reason = impl == nil ? "no module instance" : (impl?.listening == true ? "earlier events queued" : "no JS listeners")
+        Log.wrapper.verbose("[RNAdapty] Queueing event (\(reason)): \(event.id)")
+    }
+
+    // Public AdaptyPlugin handler path; drops events while nobody listens
+    private func handlePluginEvent(_ event: AdaptyPluginEvent) {
+        guard hasListeners else { return }
+        send(event)
+    }
+
+    // Sends without checking listeners; buffer paths call it under pendingLock
+    private func send(_ event: AdaptyPluginEvent) {
+        Log.wrapper.info("[RNAdapty] Forwarding event: \(event.id)")
         do {
             let eventBody = try event.asAdaptyJsonData.asAdaptyJsonString
             self.sendEvent(event.id, eventBody)

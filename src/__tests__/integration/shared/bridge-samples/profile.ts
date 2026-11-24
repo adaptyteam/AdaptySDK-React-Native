@@ -96,6 +96,7 @@ export const GET_PROFILE_RESPONSE_PLAY_STORE_OFFER: components['requests']['GetP
       subscriptions: {
         'weekly.premium.599': {
           store: 'play_store',
+          billing_plan_id: 'up_front',
           vendor_product_id: 'weekly.premium.599',
           vendor_transaction_id: 'GPA.3354-7303-5463-58868',
           vendor_original_transaction_id: 'GPA.3354-7303-5463-58868',

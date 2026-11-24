@@ -200,7 +200,11 @@ describe('Adapty - Paywall Products', () => {
         paywall_name: 'Test Flow',
         localized_description: 'Yearly Premium Subscription',
         localized_title: 'Premium Yearly',
-        price: { amount: 59.99, localized_string: '$59.99' },
+        price: {
+          amount: 59.99,
+          currency_code: 'USD',
+          localized_string: '$59.99',
+        },
         subscription: {
           base_plan_id: 'yearly-base',
           renewal_type: 'autorenewable',

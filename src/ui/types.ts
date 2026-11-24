@@ -23,6 +23,8 @@ export type {
   AdaptyCustomColorAsset,
   AdaptyCustomGradientAsset,
   AdaptyIOSPresentationStyle,
+  AdaptyFlowMessage,
+  AdaptyFlowMessageValue,
 } from '@adapty/core';
 
 export { AdaptyUiDialogActionType } from '@adapty/core';

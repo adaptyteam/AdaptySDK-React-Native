@@ -213,7 +213,7 @@ describe('FlowViewController - action mapping isolation', () => {
 
     // ONLY onCustomAction should be called with the value
     expect(onCustomHandler).toHaveBeenCalledTimes(1);
-    expect(onCustomHandler).toHaveBeenCalledWith('custom_action_value');
+    expect(onCustomHandler).toHaveBeenCalledWith('custom_action_value', {});
 
     // onCloseButtonPress should NOT be called
     expect(onCloseHandler).not.toHaveBeenCalled();
@@ -970,7 +970,31 @@ describe('FlowViewController - onCustomAction event', () => {
     emitFlowUserActionEvent(viewId, 'custom', customValue, sample.view);
 
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler).toHaveBeenCalledWith(customValue);
+    expect(handler).toHaveBeenCalledWith(customValue, {});
+  });
+
+  it('passes custom action arguments', () => {
+    const handler: jest.MockedFunction<FlowEventHandlers['onCustomAction']> =
+      jest.fn().mockReturnValue(false);
+
+    view.setEventHandlers({ onCustomAction: handler });
+
+    const viewId = (view as any).id;
+    const sample = FLOW_USER_ACTION_CLOSE; // Reuse sample
+
+    emitFlowUserActionEvent(
+      viewId,
+      'custom',
+      'open_article',
+      sample.view,
+      undefined,
+      { article_id: 42, tags: ['a'] },
+    );
+
+    expect(handler).toHaveBeenCalledWith('open_article', {
+      article_id: 42,
+      tags: ['a'],
+    });
   });
 });
 
