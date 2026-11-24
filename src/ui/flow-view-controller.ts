@@ -1,4 +1,5 @@
 import {
+  AdaptyFlowMessage,
   AdaptyIOSPresentationStyle,
   AdaptyUiDialogActionType,
   AdaptyUiDialogConfig,
@@ -8,12 +9,12 @@ import {
   FlowEventHandlers,
 } from './types';
 import { FlowViewEmitter } from './flow-view-emitter';
+import { errNoViewReference, sendAppMessageRequest } from './send-app-message';
 import { AdaptyFlow } from '@/types';
 import { LogContext, LogScope } from '@/logger';
 import { coderFactory } from '@/coders/factory';
 import { MethodName } from '@/types/bridge';
 import { $bridge } from '@/bridge';
-import { AdaptyError } from '@/adapty-error';
 import { AdaptyType } from '@/coders/parse';
 import { Req } from '@/types/schema';
 
@@ -157,7 +158,7 @@ export class FlowViewController {
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no _id' }));
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     const methodKey = 'adapty_ui_present_flow_view';
@@ -208,7 +209,7 @@ export class FlowViewController {
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no id' }));
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     const methodKey = 'adapty_ui_dismiss_flow_view';
@@ -254,7 +255,7 @@ export class FlowViewController {
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no id' }));
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     const methodKey = 'adapty_ui_destroy_flow_view';
@@ -297,7 +298,7 @@ export class FlowViewController {
 
     if (this.id === null) {
       log.failed(() => ({ error: 'no id' }));
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     const coder = coderFactory.createUiDialogConfigCoder();
@@ -315,6 +316,28 @@ export class FlowViewController {
       ctx,
       log,
     );
+  }
+
+  /**
+   * Sends a message from the app to the script of this flow.
+   *
+   * @remarks
+   * The script receives it as the `applicationMsg` SDK event; the generated message id
+   * becomes the event id.
+   *
+   * Send messages after {@link FlowViewController.present} (e.g. from `onAppeared`):
+   * on Android a message sent before the flow runtime starts is dropped, on iOS the
+   * script runs from view creation.
+   *
+   * Resolving means the native layer accepted the message, not that the script handled it.
+   *
+   * @param payload - JSON-serializable message content
+   *
+   * @throws {AdaptyError} if the native view no longer exists or flows are not supported
+   * on the platform.
+   */
+  public async sendAppMessage(payload: AdaptyFlowMessage): Promise<void> {
+    await sendAppMessageRequest(this.id, payload);
   }
 
   private onRequestClose = async (): Promise<void> => {
@@ -360,7 +383,7 @@ export class FlowViewController {
     log.start(() => ({ _id: this.id }));
 
     if (this.id === null) {
-      throw this.errNoViewReference();
+      throw errNoViewReference();
     }
 
     // Create viewEmitter on first call
@@ -381,9 +404,5 @@ export class FlowViewController {
     });
 
     return () => this.viewEmitter?.removeAllListeners();
-  }
-
-  private errNoViewReference(): AdaptyError {
-    throw new Error('View reference not found');
   }
 }

@@ -491,4 +491,56 @@ describe('FlowViewController', () => {
       ).rejects.toThrow('View reference not found');
     });
   });
+
+  describe('sendAppMessage', () => {
+    const lastBody = () => {
+      const calls = jest.mocked(($bridge as any).request).mock.calls;
+      return JSON.parse(calls[calls.length - 1][1]);
+    };
+
+    it('sends payload with a generated message id', async () => {
+      (jest.mocked(($bridge as any).request) as jest.Mock)
+        .mockResolvedValueOnce({ id: 'uuid-6' }) // create
+        .mockResolvedValueOnce(true); // raw Void success from the bridge
+
+      const view = await FlowViewController.create(flow, {} as any);
+
+      await expect(view.sendAppMessage({ coins: 10 })).resolves.toBeUndefined();
+      expect($bridge.request).toHaveBeenLastCalledWith(
+        'adapty_ui_send_app_message',
+        expect.any(String),
+        'Void',
+        expect.any(Object),
+      );
+      const body = lastBody();
+      expect(body.id).toBe('uuid-6');
+      expect(body.payload).toEqual({ coins: 10 });
+      expect(typeof body.message_id).toBe('string');
+      expect(body.message_id.length).toBeGreaterThan(0);
+    });
+
+    it('generates a new message id per call', async () => {
+      (jest.mocked(($bridge as any).request) as jest.Mock)
+        .mockResolvedValueOnce({ id: 'uuid-7' }) // create
+        .mockResolvedValue(true);
+
+      const view = await FlowViewController.create(flow, {} as any);
+
+      await view.sendAppMessage({ step: 1 });
+      const first = lastBody().message_id;
+      await view.sendAppMessage({ step: 2 });
+      const second = lastBody().message_id;
+
+      expect(first).not.toBe(second);
+    });
+
+    it('throws if id is null', async () => {
+      const viewProto = (FlowViewController as any).prototype;
+      const fresh = Object.create(viewProto) as FlowViewController;
+      (fresh as any).id = null;
+      await expect(fresh.sendAppMessage({ coins: 10 })).rejects.toThrow(
+        'View reference not found',
+      );
+    });
+  });
 });

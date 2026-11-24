@@ -71,6 +71,7 @@ interface ResponseRegistry {
   adapty_ui_dismiss_flow_view?: components['requests']['AdaptyUIDismissFlowView.Response'];
   adapty_ui_destroy_flow_view?: components['requests']['AdaptyUIDestroyFlowView.Response'];
   adapty_ui_show_dialog?: components['requests']['AdaptyUIShowDialog.Response'];
+  adapty_ui_send_app_message?: components['requests']['AdaptyUISendAppMessage.Response'];
 
   // Adapty UI - Onboarding methods
   adapty_ui_create_onboarding_view?: components['requests']['AdaptyUICreateOnboardingView.Response'];

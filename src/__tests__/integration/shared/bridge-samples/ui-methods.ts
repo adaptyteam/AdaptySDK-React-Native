@@ -154,6 +154,36 @@ export const ADAPTY_UI_SHOW_DIALOG_RESPONSE_SECONDARY: components['requests']['A
     success: 'secondary',
   };
 
+/**
+ * AdaptyUISendAppMessage.Request
+ */
+export const ADAPTY_UI_SEND_APP_MESSAGE_REQUEST: components['requests']['AdaptyUISendAppMessage.Request'] =
+  {
+    method: 'adapty_ui_send_app_message',
+    id: 'mock_flow_view_123',
+    message_id: 'msg_1',
+    payload: { coins: 10 },
+  };
+
+/**
+ * AdaptyUISendAppMessage.Response
+ */
+export const ADAPTY_UI_SEND_APP_MESSAGE_RESPONSE: components['requests']['AdaptyUISendAppMessage.Response'] =
+  {
+    success: true,
+  };
+
+/**
+ * AdaptyUISendAppMessage.Response - native view is gone (iOS maps viewNotFound to wrongParam)
+ */
+export const ADAPTY_UI_SEND_APP_MESSAGE_RESPONSE_ERROR: components['requests']['AdaptyUISendAppMessage.Response'] =
+  {
+    error: {
+      adapty_code: 3001,
+      message: 'AdaptyUIError.viewNotFound(mock_flow_view_123)',
+    },
+  };
+
 // Onboarding UI Methods
 
 /**

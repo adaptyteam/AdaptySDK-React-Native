@@ -13,6 +13,38 @@ describe('Adapty - Purchase', () => {
     cleanupAdapty(adapty);
   });
 
+  it('grants a subscription with up_front billing plan', async () => {
+    const product: AdaptyPaywallProduct = {
+      ios: { isFamilyShareable: false },
+      vendorProductId: 'com.example.vip',
+      adaptyId: 'adapty_vip',
+      paywallProductIndex: 0,
+      localizedDescription: 'VIP Access Plan',
+      localizedTitle: 'VIP Access',
+      regionCode: 'US',
+      variationId: 'variation_vip',
+      paywallABTestName: 'test_ab_vip',
+      paywallName: 'VIP Paywall',
+      accessLevelId: 'vip_premium',
+      productType: 'subscription',
+      payloadData: 'vip_payload',
+      price: {
+        amount: 19.99,
+        currencyCode: 'USD',
+        currencySymbol: '$',
+        localizedString: '$19.99',
+      },
+    };
+
+    const result = await adapty.makePurchase(product);
+
+    expect(result.type).toBe('success');
+    if (result.type === 'success') {
+      const [subscription] = Object.values(result.profile.subscriptions ?? {});
+      expect(subscription?.billingPlan).toBe('up_front');
+    }
+  });
+
   describe('Purchase with access levels', () => {
     it('should use config.premiumAccessLevelId when set', async () => {
       const product: AdaptyPaywallProduct = {

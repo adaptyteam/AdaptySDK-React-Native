@@ -2,6 +2,7 @@ import { Adapty } from '@/adapty-handler';
 import { FetchPolicy } from '@adapty/core';
 import { createAdaptyInstance, cleanupAdapty } from './setup.utils';
 import { createMockFlow } from './helpers.utils';
+import { createFlowView } from '@/ui/create-flow-view';
 
 describe('Adapty - Flow', () => {
   let adapty: Adapty;
@@ -12,6 +13,13 @@ describe('Adapty - Flow', () => {
 
   afterEach(() => {
     cleanupAdapty(adapty);
+  });
+
+  it('sendAppMessage resolves in mock mode', async () => {
+    const flow = await adapty.getFlow('test_placement');
+    const view = await createFlowView(flow);
+
+    await expect(view.sendAppMessage({ a: 1 })).resolves.toBeUndefined();
   });
 
   describe('Basic getFlow', () => {

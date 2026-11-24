@@ -70,10 +70,7 @@ export class NativeRequestHandler<
     Event extends string,
     Cb extends (event: any) => void | Promise<void>,
   >(event: Event, cb: Cb): EmitterSubscription {
-    const subscription = this._emitter.addListener(event, cb);
-
-    this._listeners.add(subscription);
-    return subscription;
+    return this.track(this._emitter.addListener(event, cb));
   }
 
   addEventListener<Event extends string, CallbackData>(
@@ -118,12 +115,22 @@ export class NativeRequestHandler<
       this._emitter as NativeEventEmitter<NativeEventArgs>
     ).addListener(event, consumeNativeCallback);
 
+    return this.track(subscription);
+  }
+
+  // Makes remove() idempotent and drops the subscription from _listeners
+  private track(subscription: EmitterSubscription): EmitterSubscription {
+    const remove = subscription.remove.bind(subscription);
+    subscription.remove = () => {
+      if (!this._listeners.delete(subscription)) return;
+      remove();
+    };
     this._listeners.add(subscription);
     return subscription;
   }
 
   removeAllEventListeners(): void {
-    this._listeners?.forEach(listener => listener.remove());
-    this._listeners?.clear();
+    // remove() deletes from the set, so iterate over a copy
+    [...this._listeners].forEach(listener => listener.remove());
   }
 }
