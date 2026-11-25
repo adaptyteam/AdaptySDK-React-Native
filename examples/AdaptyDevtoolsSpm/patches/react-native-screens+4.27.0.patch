@@ -1,13 +1,13 @@
 diff --git a/node_modules/react-native-screens/Package.swift b/node_modules/react-native-screens/Package.swift
 new file mode 100644
-index 0000000..3f96ce5
+index 0000000..882142e
 --- /dev/null
 +++ b/node_modules/react-native-screens/Package.swift
 @@ -0,0 +1,247 @@
 +// swift-tools-version: 6.0
 +// AUTO-SCAFFOLDED by react-native spm scaffold — safe to edit & commit via patch-package.
-+// AUTO-SCAFFOLDED-VERSION: 19
-+// Cache slot: 0.87.1/dual-flavor
++// AUTO-SCAFFOLDED-VERSION: 22
++// Cache slot: 0.89.0-rc.3/dual-flavor
 +// Edit the contents below if needed and re-run `npx patch-package <dep-name>`
 +// to persist across `npm install`. To regenerate from the podspec, remove
 +// this file (or just this marker) and re-run `npx react-native spm scaffold`.
@@ -20,10 +20,10 @@ index 0000000..3f96ce5
 +import PackageDescription
 +
 +let package = Package(
-+    name: "ReactNativeScreens",
-+    platforms: [.iOS(.v15)],
++    name: "RNScreens",
++    platforms: [.iOS("15.1")],
 +    products: [
-+        .library(name: "ReactNativeScreens", targets: ["ReactNativeScreens"]),
++        .library(name: "RNScreens", targets: ["RNScreens"]),
 +    ],
 +    dependencies: [
 +        .package(name: "ReactNative", path: "../../../../xcframeworks"),
@@ -31,7 +31,7 @@ index 0000000..3f96ce5
 +    ],
 +    targets: [
 +        .target(
-+            name: "ReactNativeScreens",
++            name: "RNScreens",
 +            dependencies: [.product(name: "ReactHeaders", package: "ReactNative"), .product(name: "ReactNativeHeaders", package: "ReactNative"), .product(name: "ReactNativeDependenciesHeaders", package: "ReactNative"), .product(name: "ReactAppHeaders", package: "React-GeneratedCode")],
 +            path: ".",
 +            sources: [
@@ -244,8 +244,8 @@ index 0000000..3f96ce5
 +                "ios/utils/extensions/RCTImageSource+AccessHiddenMembers.h",
 +            ],
 +            publicHeadersPath: "ios",
-+            cSettings: [.headerSearchPath("common/cpp"), .headerSearchPath("common/cpp/react/renderer/components"), .headerSearchPath("common/cpp/react/renderer/components/rnscreens"), .headerSearchPath("common/cpp/react/renderer/components/rnscreens/utils"), .headerSearchPath("cpp"), .headerSearchPath("ios"), .headerSearchPath("ios/bridging"), .headerSearchPath("ios/conversion"), .headerSearchPath("ios/events"), .headerSearchPath("ios/helpers/container"), .headerSearchPath("ios/helpers/image"), .headerSearchPath("ios/helpers/scroll-view"), .headerSearchPath("ios/integrations"), .headerSearchPath("ios/safe-area"), .headerSearchPath("ios/stubs"), .headerSearchPath("ios/tabs"), .headerSearchPath("ios/tabs/bottom-accessory"), .headerSearchPath("ios/tabs/extensions"), .headerSearchPath("ios/tabs/host"), .headerSearchPath("ios/tabs/screen"), .headerSearchPath("ios/utils"), .headerSearchPath("ios/utils/extensions"), .headerSearchPath("."), .unsafeFlags(["-include", "react-native-spm-prefix.h"])],
-+            cxxSettings: [.headerSearchPath("common/cpp"), .headerSearchPath("common/cpp/react/renderer/components"), .headerSearchPath("common/cpp/react/renderer/components/rnscreens"), .headerSearchPath("common/cpp/react/renderer/components/rnscreens/utils"), .headerSearchPath("cpp"), .headerSearchPath("ios"), .headerSearchPath("ios/bridging"), .headerSearchPath("ios/conversion"), .headerSearchPath("ios/events"), .headerSearchPath("ios/helpers/container"), .headerSearchPath("ios/helpers/image"), .headerSearchPath("ios/helpers/scroll-view"), .headerSearchPath("ios/integrations"), .headerSearchPath("ios/safe-area"), .headerSearchPath("ios/stubs"), .headerSearchPath("ios/tabs"), .headerSearchPath("ios/tabs/bottom-accessory"), .headerSearchPath("ios/tabs/extensions"), .headerSearchPath("ios/tabs/host"), .headerSearchPath("ios/tabs/screen"), .headerSearchPath("ios/utils"), .headerSearchPath("ios/utils/extensions"), .headerSearchPath("."), .unsafeFlags(["-include", "react-native-spm-prefix.h"]), .define("DEBUG", .when(configuration: .debug)), .define("NDEBUG", .when(configuration: .release))],
++            cSettings: [.define("RCT_NEW_ARCH_ENABLED", to: "1"), .headerSearchPath("common/cpp"), .headerSearchPath("common/cpp/react/renderer/components"), .headerSearchPath("common/cpp/react/renderer/components/rnscreens"), .headerSearchPath("common/cpp/react/renderer/components/rnscreens/utils"), .headerSearchPath("cpp"), .headerSearchPath("ios"), .headerSearchPath("ios/bridging"), .headerSearchPath("ios/conversion"), .headerSearchPath("ios/events"), .headerSearchPath("ios/helpers/container"), .headerSearchPath("ios/helpers/image"), .headerSearchPath("ios/helpers/scroll-view"), .headerSearchPath("ios/integrations"), .headerSearchPath("ios/safe-area"), .headerSearchPath("ios/stubs"), .headerSearchPath("ios/tabs"), .headerSearchPath("ios/tabs/bottom-accessory"), .headerSearchPath("ios/tabs/extensions"), .headerSearchPath("ios/tabs/host"), .headerSearchPath("ios/tabs/screen"), .headerSearchPath("ios/utils"), .headerSearchPath("ios/utils/extensions"), .headerSearchPath("."), .unsafeFlags(["-include", "react-native-spm-prefix.h"])],
++            cxxSettings: [.define("RCT_NEW_ARCH_ENABLED", to: "1"), .headerSearchPath("common/cpp"), .headerSearchPath("common/cpp/react/renderer/components"), .headerSearchPath("common/cpp/react/renderer/components/rnscreens"), .headerSearchPath("common/cpp/react/renderer/components/rnscreens/utils"), .headerSearchPath("cpp"), .headerSearchPath("ios"), .headerSearchPath("ios/bridging"), .headerSearchPath("ios/conversion"), .headerSearchPath("ios/events"), .headerSearchPath("ios/helpers/container"), .headerSearchPath("ios/helpers/image"), .headerSearchPath("ios/helpers/scroll-view"), .headerSearchPath("ios/integrations"), .headerSearchPath("ios/safe-area"), .headerSearchPath("ios/stubs"), .headerSearchPath("ios/tabs"), .headerSearchPath("ios/tabs/bottom-accessory"), .headerSearchPath("ios/tabs/extensions"), .headerSearchPath("ios/tabs/host"), .headerSearchPath("ios/tabs/screen"), .headerSearchPath("ios/utils"), .headerSearchPath("ios/utils/extensions"), .headerSearchPath("."), .unsafeFlags(["-include", "react-native-spm-prefix.h"]), .define("DEBUG", .when(configuration: .debug)), .define("NDEBUG", .when(configuration: .release))],
 +            linkerSettings: [.linkedFramework("UIKit"), .linkedFramework("Foundation"), .linkedFramework("CoreGraphics")]
 +        ),
 +    ],
