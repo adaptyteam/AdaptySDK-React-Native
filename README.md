@@ -181,8 +181,15 @@ Ask questions, participate in discussions about Adapty-related topics, become a 
 
 ## React Native Architecture Compatibility
 
-Adapty SDK is compatible with both **React Native's New Architecture** (including Turbo Modules) and the legacy architecture.
+Adapty SDK is compatible with both **React Native's New Architecture** and the legacy architecture.
 
+Since 4.3.10, the SDK supports the New Architecture natively, without the legacy interop layer:
+
+- **TurboModule**: SDK calls reach the native SDK through the codegen-generated module.
+- **Fabric components**: `AdaptyFlowView` and `AdaptyOnboardingView` are rendered by native Fabric views.
+- **No interop required**: works in apps built with `RCT_REMOVE_LEGACY_MODULE_INTEROP` and `RCT_REMOVE_LEGACY_COMPONENT_INTEROP`.
+
+On the legacy architecture, the SDK keeps working through the bridge module and legacy view managers. The SDK follows your app's architecture setting. No code changes are needed.
 
 ## Examples
 
